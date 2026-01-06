@@ -1,0 +1,1360 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Floyd's Cycle Detection | Whiteboard Explanation</title>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Caveat:wght@400;500;600;700&family=Patrick+Hand&family=Kalam:wght@300;400;700&family=Indie+Flower&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      :root {
+        --board-cream: #faf8f0;
+        --board-lines: #e8e4d4;
+        --chalk-blue: #3b82f6;
+        --chalk-red: #ef4444;
+        --chalk-green: #22c55e;
+        --chalk-orange: #f97316;
+        --chalk-purple: #a855f7;
+        --chalk-teal: #14b8a6;
+        --ink-black: #1e293b;
+        --highlight-yellow: rgba(253, 224, 71, 0.5);
+        --highlight-green: rgba(134, 239, 172, 0.4);
+        --highlight-pink: rgba(249, 168, 212, 0.4);
+        --highlight-blue: rgba(147, 197, 253, 0.4);
+        --paper-shadow: rgba(0, 0, 0, 0.06);
+      }
+
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        font-family: "Kalam", cursive;
+        background: var(--board-cream);
+        min-height: 100vh;
+        overflow-x: hidden;
+        position: relative;
+      }
+
+      /* Graph paper grid */
+      body::before {
+        content: "";
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-image: linear-gradient(
+            var(--board-lines) 1px,
+            transparent 1px
+          ),
+          linear-gradient(90deg, var(--board-lines) 1px, transparent 1px);
+        background-size: 25px 25px;
+        pointer-events: none;
+        opacity: 0.6;
+        z-index: 0;
+      }
+
+      .container {
+        max-width: 1150px;
+        margin: 0 auto;
+        padding: 2rem;
+        position: relative;
+        z-index: 1;
+      }
+
+      /* Header with tape effect */
+      header {
+        text-align: center;
+        margin-bottom: 2rem;
+        position: relative;
+      }
+
+      .tape {
+        position: absolute;
+        width: 120px;
+        height: 30px;
+        background: rgba(253, 224, 71, 0.7);
+        transform: rotate(-3deg);
+        top: -15px;
+        left: 50%;
+        margin-left: -60px;
+        box-shadow: 0 2px 4px var(--paper-shadow);
+      }
+
+      .tape::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: repeating-linear-gradient(
+          90deg,
+          transparent,
+          transparent 10px,
+          rgba(255, 255, 255, 0.3) 10px,
+          rgba(255, 255, 255, 0.3) 20px
+        );
+      }
+
+      h1 {
+        font-family: "Caveat", cursive;
+        font-size: 3.5rem;
+        font-weight: 700;
+        color: var(--ink-black);
+        padding-top: 1.5rem;
+        position: relative;
+        display: inline-block;
+      }
+
+      h1 .emoji {
+        font-size: 2.8rem;
+      }
+
+      .title-underline {
+        position: absolute;
+        bottom: -5px;
+        left: 0;
+        width: 100%;
+        height: 12px;
+        background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 12'%3E%3Cpath d='M0,6 Q50,0 100,6 T200,6' stroke='%23ef4444' stroke-width='3' fill='none' stroke-linecap='round'/%3E%3C/svg%3E")
+          no-repeat;
+        background-size: 100% 100%;
+      }
+
+      .subtitle {
+        font-family: "Indie Flower", cursive;
+        font-size: 1.5rem;
+        color: var(--chalk-purple);
+        margin-top: 0.8rem;
+      }
+
+      /* Section cards */
+      .card {
+        background: #fff;
+        border-radius: 4px;
+        padding: 1.8rem;
+        margin-bottom: 2rem;
+        box-shadow: 0 4px 6px var(--paper-shadow), 0 1px 3px var(--paper-shadow);
+        position: relative;
+        transform: rotate(-0.3deg);
+      }
+
+      .card:nth-child(even) {
+        transform: rotate(0.3deg);
+      }
+
+      .card::before {
+        content: "";
+        position: absolute;
+        top: 10px;
+        right: 15px;
+        width: 60px;
+        height: 20px;
+        background: rgba(147, 197, 253, 0.6);
+        transform: rotate(45deg);
+      }
+
+      .section-title {
+        font-family: "Caveat", cursive;
+        font-size: 2rem;
+        font-weight: 700;
+        color: var(--chalk-blue);
+        margin-bottom: 1rem;
+        display: inline-block;
+        position: relative;
+      }
+
+      .section-title::after {
+        content: "";
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        width: 100%;
+        height: 8px;
+        background: var(--highlight-yellow);
+        z-index: -1;
+      }
+
+      /* The analogy box */
+      .analogy-box {
+        display: flex;
+        gap: 2rem;
+        align-items: center;
+        padding: 1.5rem;
+        background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+        border-radius: 12px;
+        margin: 1rem 0;
+        border: 2px dashed var(--chalk-orange);
+      }
+
+      .analogy-icon {
+        font-size: 4rem;
+        flex-shrink: 0;
+      }
+
+      .analogy-text {
+        font-size: 1.2rem;
+        line-height: 1.8;
+        color: var(--ink-black);
+      }
+
+      .analogy-text strong {
+        color: var(--chalk-red);
+      }
+
+      /* Two runners explanation */
+      .runners-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 1.5rem;
+        margin: 1.5rem 0;
+      }
+
+      @media (max-width: 700px) {
+        .runners-grid {
+          grid-template-columns: 1fr;
+        }
+      }
+
+      .runner-card {
+        padding: 1.2rem;
+        border-radius: 12px;
+        position: relative;
+      }
+
+      .runner-card.tortoise {
+        background: var(--highlight-blue);
+        border: 3px solid var(--chalk-blue);
+      }
+
+      .runner-card.hare {
+        background: var(--highlight-pink);
+        border: 3px solid var(--chalk-red);
+      }
+
+      .runner-header {
+        display: flex;
+        align-items: center;
+        gap: 0.8rem;
+        margin-bottom: 0.8rem;
+      }
+
+      .runner-emoji {
+        font-size: 2.5rem;
+      }
+
+      .runner-name {
+        font-family: "Caveat", cursive;
+        font-size: 1.8rem;
+        font-weight: 700;
+      }
+
+      .tortoise .runner-name {
+        color: var(--chalk-blue);
+      }
+      .hare .runner-name {
+        color: var(--chalk-red);
+      }
+
+      .runner-desc {
+        font-size: 1.15rem;
+        line-height: 1.6;
+      }
+
+      .speed-badge {
+        display: inline-block;
+        padding: 0.3rem 0.8rem;
+        background: #fff;
+        border-radius: 20px;
+        font-family: "Patrick Hand", cursive;
+        font-size: 1.1rem;
+        font-weight: 600;
+        margin-top: 0.5rem;
+      }
+
+      .tortoise .speed-badge {
+        color: var(--chalk-blue);
+        border: 2px solid var(--chalk-blue);
+      }
+      .hare .speed-badge {
+        color: var(--chalk-red);
+        border: 2px solid var(--chalk-red);
+      }
+
+      /* Why it works box */
+      .insight-box {
+        background: linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%);
+        border: 3px solid var(--chalk-green);
+        border-radius: 12px;
+        padding: 1.5rem;
+        margin: 1.5rem 0;
+        position: relative;
+      }
+
+      .insight-box::before {
+        content: "💡";
+        position: absolute;
+        top: -18px;
+        left: 20px;
+        font-size: 2rem;
+        background: var(--board-cream);
+        padding: 0 0.5rem;
+      }
+
+      .insight-title {
+        font-family: "Caveat", cursive;
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: var(--chalk-green);
+        margin-bottom: 0.5rem;
+      }
+
+      .insight-text {
+        font-size: 1.15rem;
+        line-height: 1.7;
+      }
+
+      .math-highlight {
+        display: inline-block;
+        background: #fff;
+        padding: 0.2rem 0.6rem;
+        border-radius: 4px;
+        font-family: "Patrick Hand", cursive;
+        font-weight: 600;
+        color: var(--chalk-purple);
+        margin: 0.2rem;
+      }
+
+      /* Canvas visualization */
+      .whiteboard-canvas {
+        background: #fff;
+        border: 4px solid var(--ink-black);
+        border-radius: 8px;
+        margin: 1.5rem 0;
+        position: relative;
+        box-shadow: 8px 8px 0 rgba(0, 0, 0, 0.1),
+          inset 0 0 30px rgba(0, 0, 0, 0.02);
+      }
+
+      .canvas-label {
+        position: absolute;
+        top: -14px;
+        left: 20px;
+        background: var(--board-cream);
+        padding: 0 1rem;
+        font-family: "Patrick Hand", cursive;
+        font-size: 1.1rem;
+        color: var(--chalk-purple);
+      }
+
+      #visualCanvas {
+        width: 100%;
+        height: 280px;
+        display: block;
+      }
+
+      .canvas-legend {
+        display: flex;
+        gap: 2rem;
+        flex-wrap: wrap;
+        padding: 1rem;
+        border-top: 2px dashed var(--board-lines);
+        background: rgba(0, 0, 0, 0.02);
+      }
+
+      .legend-item {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        font-size: 1rem;
+      }
+
+      .legend-dot {
+        width: 24px;
+        height: 24px;
+        border-radius: 50%;
+        border: 3px solid var(--ink-black);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 0.8rem;
+      }
+
+      .legend-dot.slow {
+        background: var(--chalk-blue);
+        color: #fff;
+      }
+      .legend-dot.fast {
+        background: var(--chalk-red);
+        color: #fff;
+      }
+      .legend-dot.both {
+        background: linear-gradient(
+          135deg,
+          var(--chalk-blue) 50%,
+          var(--chalk-red) 50%
+        );
+        color: #fff;
+      }
+      .legend-dot.collision {
+        background: var(--chalk-green);
+        color: #fff;
+      }
+
+      /* Controls */
+      .controls {
+        display: flex;
+        gap: 1rem;
+        flex-wrap: wrap;
+        margin: 1.5rem 0;
+        justify-content: center;
+      }
+
+      .btn {
+        font-family: "Patrick Hand", cursive;
+        font-size: 1.3rem;
+        padding: 0.7rem 1.8rem;
+        border: 3px solid var(--ink-black);
+        border-radius: 50px;
+        cursor: pointer;
+        transition: all 0.15s ease;
+        background: #fff;
+        box-shadow: 4px 4px 0 var(--ink-black);
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+      }
+
+      .btn:hover {
+        transform: translate(-2px, -2px);
+        box-shadow: 6px 6px 0 var(--ink-black);
+      }
+
+      .btn:active {
+        transform: translate(2px, 2px);
+        box-shadow: 2px 2px 0 var(--ink-black);
+      }
+
+      .btn-primary {
+        background: var(--chalk-blue);
+        color: #fff;
+        border-color: var(--chalk-blue);
+        box-shadow: 4px 4px 0 #1d4ed8;
+      }
+
+      .btn-primary:hover {
+        box-shadow: 6px 6px 0 #1d4ed8;
+      }
+
+      .btn-danger {
+        background: var(--chalk-orange);
+        color: #fff;
+        border-color: var(--chalk-orange);
+        box-shadow: 4px 4px 0 #c2410c;
+      }
+
+      /* Step table */
+      .step-table-container {
+        overflow-x: auto;
+        margin: 1.5rem 0;
+      }
+
+      .step-table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 1.1rem;
+      }
+
+      .step-table th {
+        background: var(--highlight-green);
+        padding: 1rem;
+        text-align: left;
+        font-family: "Caveat", cursive;
+        font-size: 1.4rem;
+        font-weight: 700;
+        color: var(--ink-black);
+        border-bottom: 3px solid var(--chalk-green);
+      }
+
+      .step-table td {
+        padding: 0.8rem 1rem;
+        border-bottom: 2px dashed var(--board-lines);
+        vertical-align: middle;
+      }
+
+      .step-table tr:last-child td {
+        border-bottom: none;
+      }
+
+      .step-table tr.active-row {
+        background: var(--highlight-yellow);
+      }
+
+      .step-table tr.collision-row {
+        background: var(--highlight-green);
+      }
+
+      .step-num {
+        font-family: "Caveat", cursive;
+        font-size: 1.6rem;
+        font-weight: 700;
+        color: var(--chalk-purple);
+        width: 60px;
+      }
+
+      .pointer-cell {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+      }
+
+      .pointer-badge {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-width: 45px;
+        height: 45px;
+        border-radius: 50%;
+        border: 3px solid;
+        font-weight: 700;
+        font-size: 1.2rem;
+      }
+
+      .pointer-badge.slow {
+        background: var(--chalk-blue);
+        border-color: #1d4ed8;
+        color: #fff;
+      }
+
+      .pointer-badge.fast {
+        background: var(--chalk-red);
+        border-color: #b91c1c;
+        color: #fff;
+      }
+
+      .pointer-badge.collision {
+        background: var(--chalk-green);
+        border-color: #15803d;
+        color: #fff;
+      }
+
+      .pointer-label {
+        font-family: "Patrick Hand", cursive;
+        font-size: 0.95rem;
+        color: var(--ink-black);
+      }
+
+      .gap-display {
+        display: inline-block;
+        padding: 0.3rem 0.8rem;
+        background: #fff;
+        border: 2px solid var(--chalk-purple);
+        border-radius: 8px;
+        font-family: "Patrick Hand", cursive;
+        font-weight: 600;
+        color: var(--chalk-purple);
+      }
+
+      .action-text {
+        font-style: italic;
+        color: var(--ink-black);
+      }
+
+      .collision-text {
+        font-family: "Caveat", cursive;
+        font-size: 1.4rem;
+        font-weight: 700;
+        color: var(--chalk-green);
+      }
+
+      /* Code block - sticky note style */
+      .code-sticky {
+        background: linear-gradient(180deg, #fef08a 0%, #fde047 100%);
+        padding: 1.5rem;
+        margin: 1.5rem 0;
+        font-family: "Kalam", cursive;
+        font-size: 1rem;
+        line-height: 1.9;
+        box-shadow: 4px 4px 10px rgba(0, 0, 0, 0.15),
+          0 0 0 1px rgba(0, 0, 0, 0.05);
+        transform: rotate(1deg);
+        position: relative;
+      }
+
+      .code-sticky::before {
+        content: "📝 The Algorithm";
+        position: absolute;
+        top: -12px;
+        left: 15px;
+        background: var(--board-cream);
+        padding: 0 0.5rem;
+        font-size: 0.95rem;
+        color: var(--chalk-red);
+        font-weight: 600;
+      }
+
+      .code-sticky::after {
+        content: "";
+        position: absolute;
+        top: -8px;
+        right: 30px;
+        width: 80px;
+        height: 25px;
+        background: rgba(248, 113, 113, 0.6);
+        transform: rotate(-5deg);
+      }
+
+      .code-line {
+        margin: 0.2rem 0;
+        padding-left: 0.5rem;
+      }
+
+      .code-keyword {
+        color: var(--chalk-purple);
+        font-weight: 600;
+      }
+      .code-comment {
+        color: #65a30d;
+        font-style: italic;
+      }
+      .code-highlight {
+        background: rgba(255, 255, 255, 0.6);
+        padding: 0.1rem 0.4rem;
+        border-radius: 3px;
+      }
+
+      /* Complexity badge */
+      .complexity-container {
+        display: flex;
+        gap: 1.5rem;
+        flex-wrap: wrap;
+        margin: 1.5rem 0;
+      }
+
+      .complexity-badge {
+        background: #fff;
+        border: 4px solid;
+        border-radius: 16px;
+        padding: 1rem 1.5rem;
+        text-align: center;
+        box-shadow: 5px 5px 0 rgba(0, 0, 0, 0.1);
+      }
+
+      .complexity-badge.time {
+        border-color: var(--chalk-blue);
+      }
+
+      .complexity-badge.space {
+        border-color: var(--chalk-green);
+      }
+
+      .complexity-label {
+        font-family: "Patrick Hand", cursive;
+        font-size: 1rem;
+        color: var(--ink-black);
+        margin-bottom: 0.3rem;
+      }
+
+      .complexity-value {
+        font-family: "Caveat", cursive;
+        font-size: 2.2rem;
+        font-weight: 700;
+      }
+
+      .complexity-badge.time .complexity-value {
+        color: var(--chalk-blue);
+      }
+      .complexity-badge.space .complexity-value {
+        color: var(--chalk-green);
+      }
+
+      .complexity-note {
+        font-size: 0.9rem;
+        color: #64748b;
+        margin-top: 0.3rem;
+      }
+
+      /* Footer */
+      .footer-note {
+        background: var(--highlight-blue);
+        border: 3px solid var(--chalk-blue);
+        border-radius: 12px;
+        padding: 1.2rem;
+        margin-top: 2rem;
+        font-size: 1.15rem;
+        line-height: 1.7;
+      }
+
+      .footer-note strong {
+        color: var(--chalk-red);
+      }
+
+      /* Animated arrow */
+      .animated-arrow {
+        display: inline-block;
+        animation: bounce 1s infinite;
+      }
+
+      @keyframes bounce {
+        0%,
+        100% {
+          transform: translateX(0);
+        }
+        50% {
+          transform: translateX(5px);
+        }
+      }
+
+      /* Row animation */
+      @keyframes fadeSlide {
+        from {
+          opacity: 0;
+          transform: translateY(-10px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      .step-table tbody tr {
+        animation: fadeSlide 0.3s ease-out;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <header>
+        <div class="tape"></div>
+        <h1>
+          <span class="emoji">🐢</span> Floyd's Cycle Detection
+          <span class="emoji">🐇</span>
+          <span class="title-underline"></span>
+        </h1>
+        <p class="subtitle">
+          The Tortoise and Hare Algorithm — O(1) Space Magic!
+        </p>
+      </header>
+
+      <div class="card">
+        <div class="section-title">The Core Idea</div>
+
+        <div class="analogy-box">
+          <div class="analogy-icon">🏃‍♂️🏃</div>
+          <div class="analogy-text">
+            Imagine <strong>two runners</strong> on a track. One runs
+            <strong>twice as fast</strong> as the other. <br /><br />
+            If the track is <strong>circular</strong>, the fast runner will
+            eventually <strong>lap</strong> the slow one — they'll meet!
+            <br />
+            If the track is <strong>straight</strong>, the fast runner just
+            reaches the end first.
+          </div>
+        </div>
+
+        <div class="runners-grid">
+          <div class="runner-card tortoise">
+            <div class="runner-header">
+              <span class="runner-emoji">🐢</span>
+              <span class="runner-name">Slow Pointer</span>
+            </div>
+            <div class="runner-desc">
+              Moves <strong>one node</strong> at a time. Steady and methodical,
+              like a tortoise.
+            </div>
+            <div class="speed-badge">+1 step per iteration</div>
+          </div>
+
+          <div class="runner-card hare">
+            <div class="runner-header">
+              <span class="runner-emoji">🐇</span>
+              <span class="runner-name">Fast Pointer</span>
+            </div>
+            <div class="runner-desc">
+              Moves <strong>two nodes</strong> at a time. Quick and eager, like
+              a hare.
+            </div>
+            <div class="speed-badge">+2 steps per iteration</div>
+          </div>
+        </div>
+
+        <div class="insight-box">
+          <div class="insight-title">Why Must They Meet in a Cycle?</div>
+          <div class="insight-text">
+            Once both pointers enter the cycle, think about the
+            <strong>gap</strong> between them. <br /><br />
+            Each step: slow moves +1, fast moves +2. So fast
+            <strong>gains 1 position</strong> on slow. <br /><br />
+            The gap shrinks:
+            <span class="math-highlight">gap → gap-1 → gap-2 → ... → 0</span>
+            <br /><br />
+            <strong>Collision is guaranteed!</strong> Fast can never "jump over"
+            slow.
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="section-title">Step-by-Step Walkthrough</div>
+        <p style="font-size: 1.1rem; margin-bottom: 1rem">
+          <strong>Example:</strong> <code>[3, 2, 0, -4]</code> with cycle at
+          <code>pos = 1</code> (tail connects to node [1])
+        </p>
+
+        <div class="whiteboard-canvas">
+          <span class="canvas-label">🎨 Visualization</span>
+          <canvas id="visualCanvas"></canvas>
+          <div class="canvas-legend">
+            <div class="legend-item">
+              <div class="legend-dot slow">S</div>
+              <span>Slow (🐢)</span>
+            </div>
+            <div class="legend-item">
+              <div class="legend-dot fast">F</div>
+              <span>Fast (🐇)</span>
+            </div>
+            <div class="legend-item">
+              <div class="legend-dot both">B</div>
+              <span>Both</span>
+            </div>
+            <div class="legend-item">
+              <div class="legend-dot collision">!</div>
+              <span>Collision</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="controls">
+          <button class="btn btn-primary" id="stepBtn">
+            <span>▶</span> Next Step
+          </button>
+          <button class="btn" id="autoBtn"><span>⏵⏵</span> Auto Play</button>
+          <button class="btn btn-danger" id="resetBtn">
+            <span>↺</span> Reset
+          </button>
+        </div>
+
+        <div class="step-table-container">
+          <table class="step-table">
+            <thead>
+              <tr>
+                <th>Step</th>
+                <th>🐢 Slow</th>
+                <th>🐇 Fast</th>
+                <th>Gap in Cycle</th>
+                <th>What Happens</th>
+              </tr>
+            </thead>
+            <tbody id="tableBody">
+              <tr class="active-row">
+                <td class="step-num">0</td>
+                <td>
+                  <div class="pointer-cell">
+                    <span class="pointer-badge slow">3</span>
+                    <span class="pointer-label">[0]</span>
+                  </div>
+                </td>
+                <td>
+                  <div class="pointer-cell">
+                    <span class="pointer-badge fast">3</span>
+                    <span class="pointer-label">[0]</span>
+                  </div>
+                </td>
+                <td><span class="gap-display">—</span></td>
+                <td class="action-text">Initialize both at head</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="section-title">The Algorithm</div>
+
+        <div class="code-sticky">
+          <div class="code-line">
+            <span class="code-keyword">function</span> hasCycle(head):
+          </div>
+          <div class="code-line">
+            <span class="code-keyword">if</span> head is null
+            <span class="code-keyword">or</span> head.next is null:
+          </div>
+          <div class="code-line">
+            <span class="code-keyword">return</span> false
+            <span class="code-comment">// Edge cases</span>
+          </div>
+          <div class="code-line"></div>
+          <div class="code-line">
+            slow = head <span class="code-comment">// 🐢 Tortoise</span>
+          </div>
+          <div class="code-line">
+            fast = head <span class="code-comment">// 🐇 Hare</span>
+          </div>
+          <div class="code-line"></div>
+          <div class="code-line">
+            <span class="code-keyword">while</span> fast ≠ null
+            <span class="code-keyword">and</span> fast.next ≠ null:
+          </div>
+          <div class="code-line">
+            slow = slow.next <span class="code-comment">// +1 step</span>
+          </div>
+          <div class="code-line">
+            <span class="code-highlight">fast = fast.next.next</span>
+            <span class="code-comment">// +2 steps</span>
+          </div>
+          <div class="code-line"></div>
+          <div class="code-line">
+            <span class="code-keyword">if</span> slow == fast:
+            <span class="code-comment">// 💥 Collision!</span>
+          </div>
+          <div class="code-line">
+            <span class="code-keyword">return</span>
+            <span style="color: var(--chalk-green); font-weight: bold"
+              >TRUE</span
+            >
+          </div>
+          <div class="code-line"></div>
+          <div class="code-line">
+            <span class="code-keyword">return</span>
+            <span style="color: var(--chalk-red); font-weight: bold"
+              >FALSE</span
+            >
+            <span class="code-comment">// Fast hit end</span>
+          </div>
+        </div>
+
+        <div class="complexity-container">
+          <div class="complexity-badge time">
+            <div class="complexity-label">⏱️ Time Complexity</div>
+            <div class="complexity-value">O(n)</div>
+            <div class="complexity-note">
+              Each pointer traverses at most n nodes
+            </div>
+          </div>
+          <div class="complexity-badge space">
+            <div class="complexity-label">💾 Space Complexity</div>
+            <div class="complexity-value">O(1)</div>
+            <div class="complexity-note">Only 2 pointer variables!</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="footer-note">
+        <strong>🎯 Key Takeaway:</strong> Floyd's algorithm achieves O(1) space
+        by using the physics of a race — if you're on a loop and someone is
+        faster, they <em>will</em> catch you! No need to remember where you've
+        been. <span class="animated-arrow">→</span> Elegant & efficient!
+      </div>
+    </div>
+
+    <script>
+      // Linked list: [3, 2, 0, -4] with cycle at pos 1
+      const nodes = [
+        { val: 3, next: 1 },
+        { val: 2, next: 2 },
+        { val: 0, next: 3 },
+        { val: -4, next: 1 }, // Cycles back to index 1
+      ];
+
+      // State
+      let currentStep = 0;
+      let slowIdx = 0;
+      let fastIdx = 0;
+      let isComplete = false;
+      let autoInterval = null;
+      let nodePositions = [];
+
+      // Canvas setup
+      const canvas = document.getElementById("visualCanvas");
+      const ctx = canvas.getContext("2d");
+
+      function setupCanvas() {
+        const rect = canvas.getBoundingClientRect();
+        const dpr = window.devicePixelRatio || 1;
+        canvas.width = rect.width * dpr;
+        canvas.height = rect.height * dpr;
+        ctx.scale(dpr, dpr);
+
+        // Calculate node positions
+        const w = rect.width;
+        const h = rect.height;
+        const centerY = h / 2 - 10;
+
+        nodePositions = [
+          { x: w * 0.15, y: centerY },
+          { x: w * 0.38, y: centerY - 30 },
+          { x: w * 0.61, y: centerY - 30 },
+          { x: w * 0.84, y: centerY },
+        ];
+      }
+
+      function draw() {
+        const rect = canvas.getBoundingClientRect();
+        ctx.clearRect(0, 0, rect.width, rect.height);
+
+        // Draw arrows first
+        drawArrows();
+
+        // Draw nodes
+        nodes.forEach((node, i) => {
+          const pos = nodePositions[i];
+          const isSlow = i === slowIdx;
+          const isFast = i === fastIdx;
+          const isCollision =
+            isComplete && slowIdx === fastIdx && i === slowIdx;
+
+          drawNode(pos.x, pos.y, node.val, i, isSlow, isFast, isCollision);
+        });
+
+        // Draw pointer labels
+        if (!isComplete) {
+          if (slowIdx === fastIdx) {
+            drawPointerLabel(nodePositions[slowIdx], "Both", "#a855f7");
+          } else {
+            drawPointerLabel(nodePositions[slowIdx], "🐢 slow", "#3b82f6");
+            drawPointerLabel(nodePositions[fastIdx], "🐇 fast", "#ef4444");
+          }
+        } else if (slowIdx === fastIdx) {
+          drawPointerLabel(nodePositions[slowIdx], "💥 COLLISION!", "#22c55e");
+        }
+      }
+
+      function drawNode(x, y, val, index, isSlow, isFast, isCollision) {
+        const radius = 32;
+
+        // Shadow
+        ctx.beginPath();
+        ctx.arc(x + 3, y + 3, radius, 0, Math.PI * 2);
+        ctx.fillStyle = "rgba(0,0,0,0.1)";
+        ctx.fill();
+
+        // Node circle
+        ctx.beginPath();
+        ctx.arc(x, y, radius, 0, Math.PI * 2);
+
+        if (isCollision) {
+          ctx.fillStyle = "#22c55e";
+        } else if (isSlow && isFast) {
+          // Gradient for both
+          const gradient = ctx.createLinearGradient(
+            x - radius,
+            y,
+            x + radius,
+            y
+          );
+          gradient.addColorStop(0, "#3b82f6");
+          gradient.addColorStop(1, "#ef4444");
+          ctx.fillStyle = gradient;
+        } else if (isSlow) {
+          ctx.fillStyle = "#3b82f6";
+        } else if (isFast) {
+          ctx.fillStyle = "#ef4444";
+        } else {
+          ctx.fillStyle = "#fff";
+        }
+        ctx.fill();
+
+        ctx.strokeStyle = "#1e293b";
+        ctx.lineWidth = 3;
+        ctx.stroke();
+
+        // Value
+        ctx.fillStyle = isSlow || isFast || isCollision ? "#fff" : "#1e293b";
+        ctx.font = "bold 22px Kalam";
+        ctx.textAlign = "center";
+        ctx.textBaseline = "middle";
+        ctx.fillText(val, x, y);
+
+        // Index label
+        ctx.fillStyle = "#64748b";
+        ctx.font = "16px Patrick Hand";
+        ctx.fillText(`[${index}]`, x, y + radius + 20);
+      }
+
+      function drawArrows() {
+        const radius = 32;
+
+        // Draw straight arrows between consecutive nodes
+        for (let i = 0; i < 3; i++) {
+          const from = nodePositions[i];
+          const to = nodePositions[i + 1];
+          drawStraightArrow(from.x, from.y, to.x, to.y, radius);
+        }
+
+        // Draw curved arrow for cycle (from node 3 back to node 1)
+        drawCycleArrow();
+      }
+
+      function drawStraightArrow(x1, y1, x2, y2, radius) {
+        const dx = x2 - x1;
+        const dy = y2 - y1;
+        const dist = Math.sqrt(dx * dx + dy * dy);
+
+        const startX = x1 + (dx / dist) * radius;
+        const startY = y1 + (dy / dist) * radius;
+        const endX = x2 - (dx / dist) * (radius + 10);
+        const endY = y2 - (dy / dist) * (radius + 10);
+
+        ctx.beginPath();
+        ctx.moveTo(startX, startY);
+        ctx.lineTo(endX, endY);
+        ctx.strokeStyle = "#1e293b";
+        ctx.lineWidth = 3;
+        ctx.stroke();
+
+        // Arrow head
+        const angle = Math.atan2(endY - startY, endX - startX);
+        const headLen = 12;
+        ctx.beginPath();
+        ctx.moveTo(endX, endY);
+        ctx.lineTo(
+          endX - headLen * Math.cos(angle - 0.4),
+          endY - headLen * Math.sin(angle - 0.4)
+        );
+        ctx.moveTo(endX, endY);
+        ctx.lineTo(
+          endX - headLen * Math.cos(angle + 0.4),
+          endY - headLen * Math.sin(angle + 0.4)
+        );
+        ctx.stroke();
+      }
+
+      function drawCycleArrow() {
+        const from = nodePositions[3];
+        const to = nodePositions[1];
+        const radius = 32;
+
+        ctx.save();
+        ctx.strokeStyle = "#22c55e";
+        ctx.lineWidth = 3;
+        ctx.setLineDash([8, 5]);
+
+        // Curved path going down and back
+        ctx.beginPath();
+        const startX = from.x;
+        const startY = from.y + radius;
+        const endX = to.x;
+        const endY = to.y + radius;
+        const midY = Math.max(from.y, to.y) + 80;
+
+        ctx.moveTo(startX, startY);
+        ctx.bezierCurveTo(startX, midY, endX, midY, endX, endY + 10);
+        ctx.stroke();
+
+        // Arrow head
+        ctx.setLineDash([]);
+        const headLen = 12;
+        ctx.beginPath();
+        ctx.moveTo(endX, endY + 10);
+        ctx.lineTo(endX - 7, endY + 22);
+        ctx.moveTo(endX, endY + 10);
+        ctx.lineTo(endX + 7, endY + 22);
+        ctx.stroke();
+
+        // Label
+        ctx.font = "bold 16px Caveat";
+        ctx.fillStyle = "#22c55e";
+        ctx.textAlign = "center";
+        ctx.fillText("cycle back!", (startX + endX) / 2, midY + 20);
+
+        ctx.restore();
+      }
+
+      function drawPointerLabel(pos, text, color) {
+        ctx.font = "bold 16px Patrick Hand";
+        ctx.fillStyle = color;
+        ctx.textAlign = "center";
+        ctx.fillText(text, pos.x, pos.y - 55);
+
+        // Small arrow down
+        ctx.beginPath();
+        ctx.moveTo(pos.x, pos.y - 45);
+        ctx.lineTo(pos.x - 6, pos.y - 52);
+        ctx.moveTo(pos.x, pos.y - 45);
+        ctx.lineTo(pos.x + 6, pos.y - 52);
+        ctx.strokeStyle = color;
+        ctx.lineWidth = 2;
+        ctx.stroke();
+      }
+
+      function getGapInCycle(slow, fast) {
+        // Both must be in cycle (index >= 1) to have meaningful gap
+        if (slow < 1 || fast < 1) return "—";
+
+        // Cycle is: 1 → 2 → 3 → 1 (length 3)
+        const cycleNodes = [1, 2, 3];
+        const slowPosInCycle = cycleNodes.indexOf(slow);
+        const fastPosInCycle = cycleNodes.indexOf(fast);
+
+        if (slowPosInCycle === -1 || fastPosInCycle === -1) return "—";
+
+        // Gap is how far fast needs to go to reach slow (clockwise)
+        let gap = (slowPosInCycle - fastPosInCycle + 3) % 3;
+        return gap.toString();
+      }
+
+      function performStep() {
+        if (isComplete) return;
+
+        currentStep++;
+        const tableBody = document.getElementById("tableBody");
+
+        // Remove active class
+        document
+          .querySelectorAll(".active-row, .collision-row")
+          .forEach((r) => {
+            r.classList.remove("active-row", "collision-row");
+          });
+
+        // Move pointers
+        const oldSlow = slowIdx;
+        const oldFast = fastIdx;
+
+        slowIdx = nodes[slowIdx].next;
+        fastIdx = nodes[nodes[fastIdx].next].next;
+
+        const gap = getGapInCycle(slowIdx, fastIdx);
+
+        // Check for collision
+        if (slowIdx === fastIdx) {
+          isComplete = true;
+
+          const row = document.createElement("tr");
+          row.className = "collision-row";
+          row.innerHTML = `
+                    <td class="step-num">${currentStep}</td>
+                    <td>
+                        <div class="pointer-cell">
+                            <span class="pointer-badge collision">${nodes[slowIdx].val}</span>
+                            <span class="pointer-label">[${slowIdx}]</span>
+                        </div>
+                    </td>
+                    <td>
+                        <div class="pointer-cell">
+                            <span class="pointer-badge collision">${nodes[fastIdx].val}</span>
+                            <span class="pointer-label">[${fastIdx}]</span>
+                        </div>
+                    </td>
+                    <td><span class="gap-display">0</span></td>
+                    <td class="collision-text">💥 COLLISION! Cycle detected! Return TRUE</td>
+                `;
+          tableBody.appendChild(row);
+
+          draw();
+          stopAuto();
+          return;
+        }
+
+        // Regular step
+        const row = document.createElement("tr");
+        row.className = "active-row";
+        row.innerHTML = `
+                <td class="step-num">${currentStep}</td>
+                <td>
+                    <div class="pointer-cell">
+                        <span class="pointer-badge slow">${nodes[slowIdx].val}</span>
+                        <span class="pointer-label">[${slowIdx}]</span>
+                    </div>
+                </td>
+                <td>
+                    <div class="pointer-cell">
+                        <span class="pointer-badge fast">${nodes[fastIdx].val}</span>
+                        <span class="pointer-label">[${fastIdx}]</span>
+                    </div>
+                </td>
+                <td><span class="gap-display">${gap}</span></td>
+                <td class="action-text">slow: [${oldSlow}]→[${slowIdx}], fast: [${oldFast}]→[${fastIdx}]</td>
+            `;
+        tableBody.appendChild(row);
+
+        draw();
+      }
+
+      function reset() {
+        stopAuto();
+        currentStep = 0;
+        slowIdx = 0;
+        fastIdx = 0;
+        isComplete = false;
+
+        document.getElementById("tableBody").innerHTML = `
+                <tr class="active-row">
+                    <td class="step-num">0</td>
+                    <td>
+                        <div class="pointer-cell">
+                            <span class="pointer-badge slow">3</span>
+                            <span class="pointer-label">[0]</span>
+                        </div>
+                    </td>
+                    <td>
+                        <div class="pointer-cell">
+                            <span class="pointer-badge fast">3</span>
+                            <span class="pointer-label">[0]</span>
+                        </div>
+                    </td>
+                    <td><span class="gap-display">—</span></td>
+                    <td class="action-text">Initialize both at head</td>
+                </tr>
+            `;
+
+        draw();
+      }
+
+      function startAuto() {
+        if (autoInterval) return;
+        document.getElementById("autoBtn").innerHTML = "<span>⏸</span> Pause";
+        autoInterval = setInterval(() => {
+          if (isComplete) {
+            stopAuto();
+          } else {
+            performStep();
+          }
+        }, 1400);
+      }
+
+      function stopAuto() {
+        if (autoInterval) {
+          clearInterval(autoInterval);
+          autoInterval = null;
+        }
+        document.getElementById("autoBtn").innerHTML =
+          "<span>⏵⏵</span> Auto Play";
+      }
+
+      function toggleAuto() {
+        if (autoInterval) {
+          stopAuto();
+        } else {
+          if (isComplete) reset();
+          startAuto();
+        }
+      }
+
+      // Event listeners
+      document.getElementById("stepBtn").addEventListener("click", () => {
+        if (isComplete) reset();
+        else performStep();
+      });
+
+      document.getElementById("autoBtn").addEventListener("click", toggleAuto);
+      document.getElementById("resetBtn").addEventListener("click", reset);
+
+      // Initialize
+      window.addEventListener("load", () => {
+        setupCanvas();
+        draw();
+      });
+
+      window.addEventListener("resize", () => {
+        setupCanvas();
+        draw();
+      });
+    </script>
+  </body>
+</html>

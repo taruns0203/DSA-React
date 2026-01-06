@@ -1,0 +1,1056 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Cycle Detection - Brute Force | Whiteboard Explanation</title>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Caveat:wght@400;500;600;700&family=Patrick+Hand&family=Kalam:wght@300;400;700&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      :root {
+        --board-bg: #f5f3e8;
+        --board-lines: #d4d0c4;
+        --marker-blue: #2563eb;
+        --marker-red: #dc2626;
+        --marker-green: #16a34a;
+        --marker-orange: #ea580c;
+        --marker-purple: #7c3aed;
+        --marker-black: #1f2937;
+        --chalk-white: #fefefe;
+        --highlighter-yellow: rgba(250, 204, 21, 0.4);
+        --highlighter-green: rgba(74, 222, 128, 0.35);
+        --highlighter-pink: rgba(244, 114, 182, 0.35);
+        --shadow-soft: rgba(0, 0, 0, 0.08);
+      }
+
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        font-family: "Kalam", cursive;
+        background: var(--board-bg);
+        min-height: 100vh;
+        overflow-x: hidden;
+      }
+
+      /* Paper texture overlay */
+      body::before {
+        content: "";
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-image: repeating-linear-gradient(
+          0deg,
+          transparent,
+          transparent 27px,
+          var(--board-lines) 27px,
+          var(--board-lines) 28px
+        );
+        pointer-events: none;
+        opacity: 0.5;
+        z-index: 1;
+      }
+
+      /* Red margin line */
+      body::after {
+        content: "";
+        position: fixed;
+        top: 0;
+        left: 80px;
+        width: 2px;
+        height: 100%;
+        background: rgba(220, 38, 38, 0.3);
+        pointer-events: none;
+        z-index: 1;
+      }
+
+      .container {
+        max-width: 1100px;
+        margin: 0 auto;
+        padding: 2rem 2rem 2rem 100px;
+        position: relative;
+        z-index: 2;
+      }
+
+      /* Hole punches */
+      .holes {
+        position: fixed;
+        left: 25px;
+        top: 50%;
+        transform: translateY(-50%);
+        display: flex;
+        flex-direction: column;
+        gap: 180px;
+        z-index: 3;
+      }
+
+      .hole {
+        width: 24px;
+        height: 24px;
+        border-radius: 50%;
+        background: linear-gradient(145deg, #e8e6db, #d8d6cb);
+        box-shadow: inset 2px 2px 4px rgba(0, 0, 0, 0.15),
+          inset -1px -1px 2px rgba(255, 255, 255, 0.5);
+      }
+
+      header {
+        margin-bottom: 2.5rem;
+        padding-bottom: 1rem;
+        border-bottom: 3px dashed var(--marker-blue);
+      }
+
+      h1 {
+        font-family: "Caveat", cursive;
+        font-size: 3.2rem;
+        font-weight: 700;
+        color: var(--marker-blue);
+        transform: rotate(-1deg);
+        display: inline-block;
+        text-decoration: underline;
+        text-decoration-style: wavy;
+        text-underline-offset: 8px;
+      }
+
+      .subtitle {
+        font-family: "Patrick Hand", cursive;
+        font-size: 1.4rem;
+        color: var(--marker-black);
+        margin-top: 0.5rem;
+        margin-left: 1rem;
+      }
+
+      .section {
+        margin-bottom: 2.5rem;
+        position: relative;
+      }
+
+      .section-title {
+        font-family: "Caveat", cursive;
+        font-size: 2rem;
+        font-weight: 600;
+        color: var(--marker-red);
+        margin-bottom: 1rem;
+        display: inline-block;
+        background: var(--highlighter-yellow);
+        padding: 0.2rem 0.8rem;
+        border-radius: 4px;
+        transform: rotate(-0.5deg);
+      }
+
+      .idea-box {
+        background: rgba(255, 255, 255, 0.6);
+        border: 2px dashed var(--marker-purple);
+        border-radius: 8px;
+        padding: 1.2rem;
+        margin: 1rem 0;
+        position: relative;
+      }
+
+      .idea-box::before {
+        content: "💡";
+        position: absolute;
+        top: -15px;
+        left: 15px;
+        font-size: 1.5rem;
+        background: var(--board-bg);
+        padding: 0 0.5rem;
+      }
+
+      .idea-box p {
+        font-size: 1.2rem;
+        color: var(--marker-black);
+        line-height: 1.8;
+      }
+
+      /* Visualization board */
+      .whiteboard {
+        background: #fefefe;
+        border: 3px solid var(--marker-black);
+        border-radius: 12px;
+        padding: 2rem;
+        margin: 1.5rem 0;
+        box-shadow: 8px 8px 0 var(--shadow-soft), 4px 4px 0 rgba(0, 0, 0, 0.05);
+        position: relative;
+      }
+
+      .whiteboard::before {
+        content: "Example: [3, 2, 0, -4] with cycle at pos=1";
+        position: absolute;
+        top: -12px;
+        left: 20px;
+        background: var(--board-bg);
+        padding: 0 0.8rem;
+        font-family: "Patrick Hand", cursive;
+        font-size: 1rem;
+        color: var(--marker-purple);
+      }
+
+      /* Canvas for drawing */
+      #visualCanvas {
+        width: 100%;
+        height: 200px;
+        display: block;
+      }
+
+      /* Step-by-step table */
+      .step-table {
+        width: 100%;
+        border-collapse: separate;
+        border-spacing: 0;
+        margin: 1.5rem 0;
+        font-size: 1.1rem;
+      }
+
+      .step-table th {
+        background: var(--highlighter-green);
+        padding: 0.8rem;
+        text-align: left;
+        font-family: "Caveat", cursive;
+        font-size: 1.3rem;
+        font-weight: 600;
+        color: var(--marker-black);
+        border-bottom: 2px solid var(--marker-green);
+      }
+
+      .step-table td {
+        padding: 0.7rem 0.8rem;
+        border-bottom: 1px dashed var(--board-lines);
+        vertical-align: middle;
+      }
+
+      .step-table tr:last-child td {
+        border-bottom: none;
+      }
+
+      .step-table tr.highlight-row {
+        background: var(--highlighter-pink);
+      }
+
+      .step-table tr.active-row {
+        background: var(--highlighter-yellow);
+      }
+
+      .step-num {
+        font-family: "Caveat", cursive;
+        font-size: 1.4rem;
+        font-weight: 700;
+        color: var(--marker-blue);
+        width: 50px;
+      }
+
+      .node-badge {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 36px;
+        height: 36px;
+        border-radius: 50%;
+        border: 2px solid var(--marker-black);
+        font-weight: 600;
+        margin-right: 0.3rem;
+      }
+
+      .visited-set {
+        font-family: "Patrick Hand", cursive;
+        padding: 0.3rem 0.6rem;
+        background: rgba(37, 99, 235, 0.1);
+        border: 1px dashed var(--marker-blue);
+        border-radius: 4px;
+        display: inline-block;
+      }
+
+      .action-text {
+        font-style: italic;
+        color: var(--marker-black);
+      }
+
+      .cycle-found {
+        color: var(--marker-red);
+        font-weight: 700;
+        font-family: "Caveat", cursive;
+        font-size: 1.3rem;
+      }
+
+      /* Controls */
+      .controls {
+        display: flex;
+        gap: 1rem;
+        flex-wrap: wrap;
+        margin: 1.5rem 0;
+      }
+
+      .btn {
+        font-family: "Patrick Hand", cursive;
+        font-size: 1.2rem;
+        padding: 0.6rem 1.5rem;
+        border: 2px solid var(--marker-black);
+        border-radius: 8px;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        background: #fff;
+        box-shadow: 3px 3px 0 var(--marker-black);
+      }
+
+      .btn:hover {
+        transform: translate(-2px, -2px);
+        box-shadow: 5px 5px 0 var(--marker-black);
+      }
+
+      .btn:active {
+        transform: translate(2px, 2px);
+        box-shadow: 1px 1px 0 var(--marker-black);
+      }
+
+      .btn-primary {
+        background: var(--marker-blue);
+        color: white;
+        border-color: var(--marker-blue);
+        box-shadow: 3px 3px 0 #1e40af;
+      }
+
+      .btn-primary:hover {
+        box-shadow: 5px 5px 0 #1e40af;
+      }
+
+      .btn-reset {
+        background: var(--marker-orange);
+        color: white;
+        border-color: var(--marker-orange);
+        box-shadow: 3px 3px 0 #c2410c;
+      }
+
+      /* Code block - notebook style */
+      .code-block {
+        background: linear-gradient(180deg, #fff9c4 0%, #fff59d 100%);
+        border: none;
+        border-left: 4px solid var(--marker-red);
+        padding: 1.2rem;
+        margin: 1.5rem 0;
+        font-family: "Kalam", cursive;
+        font-size: 1rem;
+        line-height: 2;
+        box-shadow: 4px 4px 8px var(--shadow-soft);
+        position: relative;
+        transform: rotate(0.5deg);
+      }
+
+      .code-block::before {
+        content: "📝 Pseudocode";
+        position: absolute;
+        top: -10px;
+        left: 10px;
+        background: var(--board-bg);
+        padding: 0 0.5rem;
+        font-size: 0.9rem;
+        color: var(--marker-red);
+      }
+
+      .code-line {
+        margin: 0.3rem 0;
+        padding-left: 1rem;
+      }
+
+      .code-keyword {
+        color: var(--marker-purple);
+        font-weight: 600;
+      }
+
+      .code-comment {
+        color: var(--marker-green);
+        font-style: italic;
+      }
+
+      .code-highlight {
+        background: var(--highlighter-pink);
+        padding: 0 0.3rem;
+        border-radius: 2px;
+      }
+
+      /* Complexity box */
+      .complexity-box {
+        display: inline-block;
+        background: #fff;
+        border: 3px solid var(--marker-green);
+        border-radius: 12px;
+        padding: 1rem 1.5rem;
+        margin: 1rem 0;
+        transform: rotate(-1deg);
+        box-shadow: 4px 4px 0 rgba(22, 163, 74, 0.3);
+      }
+
+      .complexity-title {
+        font-family: "Caveat", cursive;
+        font-size: 1.4rem;
+        color: var(--marker-green);
+        margin-bottom: 0.5rem;
+      }
+
+      .complexity-item {
+        font-size: 1.2rem;
+        margin: 0.3rem 0;
+      }
+
+      .big-o {
+        font-family: "Caveat", cursive;
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: var(--marker-red);
+      }
+
+      /* Arrow annotations */
+      .annotation {
+        font-family: "Caveat", cursive;
+        font-size: 1.1rem;
+        color: var(--marker-purple);
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        margin: 0.5rem 0;
+      }
+
+      .arrow-squiggle {
+        font-size: 1.5rem;
+      }
+
+      /* Hand-drawn underline effect */
+      .hand-underline {
+        position: relative;
+        display: inline-block;
+      }
+
+      .hand-underline::after {
+        content: "";
+        position: absolute;
+        bottom: -4px;
+        left: 0;
+        width: 100%;
+        height: 8px;
+        background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 10'%3E%3Cpath d='M0,5 Q25,0 50,5 T100,5' stroke='%23dc2626' stroke-width='2' fill='none'/%3E%3C/svg%3E")
+          repeat-x;
+        background-size: 100px 10px;
+      }
+
+      /* Current pointer indicator */
+      .current-pointer {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.3rem;
+        padding: 0.2rem 0.6rem;
+        background: var(--highlighter-yellow);
+        border-radius: 4px;
+        font-weight: 600;
+      }
+
+      .pointer-arrow {
+        font-size: 1.2rem;
+      }
+
+      /* Legend */
+      .legend {
+        display: flex;
+        gap: 2rem;
+        flex-wrap: wrap;
+        margin: 1rem 0;
+        padding: 1rem;
+        background: rgba(255, 255, 255, 0.5);
+        border-radius: 8px;
+      }
+
+      .legend-item {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        font-size: 1rem;
+      }
+
+      .legend-dot {
+        width: 20px;
+        height: 20px;
+        border-radius: 50%;
+        border: 2px solid var(--marker-black);
+      }
+
+      .legend-dot.unvisited {
+        background: #fff;
+      }
+      .legend-dot.visited {
+        background: var(--marker-blue);
+      }
+      .legend-dot.current {
+        background: var(--marker-orange);
+      }
+      .legend-dot.cycle-node {
+        background: var(--marker-red);
+      }
+
+      /* Footer note */
+      .footer-note {
+        margin-top: 2rem;
+        padding: 1rem;
+        border-top: 2px dashed var(--marker-black);
+        font-size: 1.1rem;
+        color: var(--marker-black);
+      }
+
+      .footer-note strong {
+        color: var(--marker-red);
+      }
+
+      /* Responsive */
+      @media (max-width: 768px) {
+        .container {
+          padding: 1.5rem;
+        }
+
+        body::after {
+          display: none;
+        }
+
+        .holes {
+          display: none;
+        }
+
+        h1 {
+          font-size: 2.5rem;
+        }
+      }
+
+      /* Animation for new rows */
+      @keyframes slideIn {
+        from {
+          opacity: 0;
+          transform: translateX(-20px);
+        }
+        to {
+          opacity: 1;
+          transform: translateX(0);
+        }
+      }
+
+      .step-table tr {
+        animation: slideIn 0.3s ease-out;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="holes">
+      <div class="hole"></div>
+      <div class="hole"></div>
+      <div class="hole"></div>
+    </div>
+
+    <div class="container">
+      <header>
+        <h1>🔍 Brute Force: Hash Set Method</h1>
+        <p class="subtitle">Detecting Cycles by Remembering What We've Seen</p>
+      </header>
+
+      <section class="section">
+        <div class="section-title">The Big Idea</div>
+        <div class="idea-box">
+          <p>
+            <strong>Think of it like exploring a maze:</strong> Mark every room
+            you enter with chalk. If you ever walk into a room that's
+            <em>already marked</em>, you've gone in a circle! 🔄
+          </p>
+        </div>
+
+        <div class="annotation">
+          <span class="arrow-squiggle">↳</span>
+          We use a <strong>Hash Set</strong> to "mark" visited nodes
+        </div>
+      </section>
+
+      <section class="section">
+        <div class="section-title">The Algorithm</div>
+        <div class="code-block">
+          <div class="code-line">
+            <span class="code-keyword">function</span> hasCycle(head):
+          </div>
+          <div class="code-line">
+            visited = <span class="code-highlight">empty Set</span>
+            <span class="code-comment">// Our "chalk marks"</span>
+          </div>
+          <div class="code-line">current = head</div>
+          <div class="code-line"></div>
+          <div class="code-line">
+            <span class="code-keyword">while</span> current is not null:
+          </div>
+          <div class="code-line">
+            <span class="code-keyword">if</span> current
+            <span class="code-highlight">IN</span> visited:
+          </div>
+          <div class="code-line">
+            <span class="code-keyword">return</span>
+            <span style="color: var(--marker-green)">TRUE</span>
+            <span class="code-comment">// 🎯 Cycle found!</span>
+          </div>
+          <div class="code-line">
+            <span class="code-highlight">ADD</span> current to visited
+          </div>
+          <div class="code-line">current = current.next</div>
+          <div class="code-line"></div>
+          <div class="code-line">
+            <span class="code-keyword">return</span>
+            <span style="color: var(--marker-red)">FALSE</span>
+            <span class="code-comment">// Reached end, no cycle</span>
+          </div>
+        </div>
+      </section>
+
+      <section class="section">
+        <div class="section-title">Step-by-Step Walkthrough</div>
+
+        <div class="whiteboard">
+          <canvas id="visualCanvas"></canvas>
+          <div class="legend">
+            <div class="legend-item">
+              <div class="legend-dot unvisited"></div>
+              <span>Unvisited</span>
+            </div>
+            <div class="legend-item">
+              <div class="legend-dot visited"></div>
+              <span>In Set (visited)</span>
+            </div>
+            <div class="legend-item">
+              <div class="legend-dot current"></div>
+              <span>Current Node</span>
+            </div>
+            <div class="legend-item">
+              <div class="legend-dot cycle-node"></div>
+              <span>Cycle Detected!</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="controls">
+          <button class="btn btn-primary" id="stepBtn">▶ Next Step</button>
+          <button class="btn" id="autoBtn">⏵⏵ Auto Play</button>
+          <button class="btn btn-reset" id="resetBtn">↺ Reset</button>
+        </div>
+
+        <table class="step-table" id="stepTable">
+          <thead>
+            <tr>
+              <th>Step</th>
+              <th>Current Node</th>
+              <th>Visited Set</th>
+              <th>Action</th>
+            </tr>
+          </thead>
+          <tbody id="tableBody">
+            <tr class="active-row">
+              <td class="step-num">0</td>
+              <td>
+                <span class="current-pointer"
+                  ><span class="pointer-arrow">👉</span> Start</span
+                >
+              </td>
+              <td><span class="visited-set">{ }</span></td>
+              <td class="action-text">Initialize: current = head</td>
+            </tr>
+          </tbody>
+        </table>
+      </section>
+
+      <section class="section">
+        <div class="section-title">Complexity Analysis</div>
+        <div class="complexity-box">
+          <div class="complexity-title">📊 Time & Space</div>
+          <div class="complexity-item">
+            <strong>Time:</strong> <span class="big-o">O(n)</span> — visit each
+            node once
+          </div>
+          <div class="complexity-item">
+            <strong>Space:</strong> <span class="big-o">O(n)</span> — store up
+            to n nodes in Set
+          </div>
+        </div>
+
+        <div class="annotation">
+          <span class="arrow-squiggle">⚠️</span>
+          <span
+            >The O(n) space is the
+            <span class="hand-underline">downside</span> — can we do
+            better?</span
+          >
+        </div>
+      </section>
+
+      <div class="footer-note">
+        <strong>Key Takeaway:</strong> This approach is <em>correct</em> and
+        <em>intuitive</em>, but uses extra memory. Floyd's "Tortoise & Hare"
+        algorithm achieves O(1) space! 🐢🐇
+      </div>
+    </div>
+
+    <script>
+      // Linked list data: [3, 2, 0, -4] with cycle at pos 1
+      const nodes = [
+        { val: 3, x: 0, y: 0, next: 1 },
+        { val: 2, x: 0, y: 0, next: 2 },
+        { val: 0, x: 0, y: 0, next: 3 },
+        { val: -4, x: 0, y: 0, next: 1 }, // Cycles back to index 1
+      ];
+
+      // State
+      let currentStep = 0;
+      let currentIdx = 0;
+      let visitedSet = new Set();
+      let visitedDisplay = [];
+      let isComplete = false;
+      let autoInterval = null;
+
+      // Canvas setup
+      const canvas = document.getElementById("visualCanvas");
+      const ctx = canvas.getContext("2d");
+
+      function setupCanvas() {
+        const rect = canvas.getBoundingClientRect();
+        const dpr = window.devicePixelRatio || 1;
+        canvas.width = rect.width * dpr;
+        canvas.height = rect.height * dpr;
+        ctx.scale(dpr, dpr);
+
+        // Position nodes
+        const spacing = rect.width / 5;
+        const centerY = rect.height / 2;
+
+        nodes[0].x = spacing * 0.8;
+        nodes[0].y = centerY - 20;
+
+        nodes[1].x = spacing * 1.8;
+        nodes[1].y = centerY - 20;
+
+        nodes[2].x = spacing * 2.8;
+        nodes[2].y = centerY - 20;
+
+        nodes[3].x = spacing * 3.8;
+        nodes[3].y = centerY - 20;
+      }
+
+      function draw() {
+        const rect = canvas.getBoundingClientRect();
+        ctx.clearRect(0, 0, rect.width, rect.height);
+
+        // Draw title
+        ctx.font = "600 16px Caveat";
+        ctx.fillStyle = "#7c3aed";
+        ctx.fillText("Linked List:", 20, 25);
+
+        // Draw arrows
+        drawArrows();
+
+        // Draw nodes
+        nodes.forEach((node, i) => {
+          const isVisited = visitedSet.has(i);
+          const isCurrent = i === currentIdx && !isComplete;
+          const isCyclePoint =
+            isComplete && visitedSet.has(i) && i === currentIdx;
+
+          drawNode(node, i, isVisited, isCurrent, isCyclePoint);
+        });
+
+        // Draw "current" pointer if not complete
+        if (!isComplete && currentIdx < nodes.length) {
+          drawCurrentPointer(nodes[currentIdx]);
+        }
+      }
+
+      function drawNode(node, index, isVisited, isCurrent, isCyclePoint) {
+        const radius = 28;
+
+        // Shadow
+        ctx.beginPath();
+        ctx.arc(node.x + 3, node.y + 3, radius, 0, Math.PI * 2);
+        ctx.fillStyle = "rgba(0,0,0,0.1)";
+        ctx.fill();
+
+        // Node circle
+        ctx.beginPath();
+        ctx.arc(node.x, node.y, radius, 0, Math.PI * 2);
+
+        if (isCyclePoint) {
+          ctx.fillStyle = "#dc2626";
+        } else if (isCurrent) {
+          ctx.fillStyle = "#ea580c";
+        } else if (isVisited) {
+          ctx.fillStyle = "#2563eb";
+        } else {
+          ctx.fillStyle = "#fff";
+        }
+        ctx.fill();
+
+        ctx.strokeStyle = "#1f2937";
+        ctx.lineWidth = 3;
+        ctx.stroke();
+
+        // Value
+        ctx.fillStyle =
+          isVisited || isCurrent || isCyclePoint ? "#fff" : "#1f2937";
+        ctx.font = "700 20px Kalam";
+        ctx.textAlign = "center";
+        ctx.textBaseline = "middle";
+        ctx.fillText(node.val, node.x, node.y);
+
+        // Index label
+        ctx.fillStyle = "#64748b";
+        ctx.font = "500 14px Patrick Hand";
+        ctx.fillText(`[${index}]`, node.x, node.y + radius + 18);
+      }
+
+      function drawArrows() {
+        ctx.strokeStyle = "#1f2937";
+        ctx.lineWidth = 2;
+
+        nodes.forEach((node, i) => {
+          if (node.next >= 0 && node.next < nodes.length) {
+            const target = nodes[node.next];
+            const isCycleArrow = i === 3; // Arrow from -4 back to 2
+
+            if (isCycleArrow) {
+              drawCurvedArrow(node, target);
+            } else {
+              drawStraightArrow(node, target);
+            }
+          }
+        });
+      }
+
+      function drawStraightArrow(from, to) {
+        const radius = 28;
+        const headLen = 12;
+
+        const dx = to.x - from.x;
+        const dy = to.y - from.y;
+        const dist = Math.sqrt(dx * dx + dy * dy);
+
+        const startX = from.x + (dx / dist) * radius;
+        const startY = from.y + (dy / dist) * radius;
+        const endX = to.x - (dx / dist) * (radius + 8);
+        const endY = to.y - (dy / dist) * (radius + 8);
+
+        ctx.beginPath();
+        ctx.moveTo(startX, startY);
+        ctx.lineTo(endX, endY);
+        ctx.stroke();
+
+        // Arrow head
+        const angle = Math.atan2(endY - startY, endX - startX);
+        ctx.beginPath();
+        ctx.moveTo(endX, endY);
+        ctx.lineTo(
+          endX - headLen * Math.cos(angle - 0.4),
+          endY - headLen * Math.sin(angle - 0.4)
+        );
+        ctx.moveTo(endX, endY);
+        ctx.lineTo(
+          endX - headLen * Math.cos(angle + 0.4),
+          endY - headLen * Math.sin(angle + 0.4)
+        );
+        ctx.stroke();
+      }
+
+      function drawCurvedArrow(from, to) {
+        const radius = 28;
+        ctx.save();
+        ctx.strokeStyle = "#16a34a";
+        ctx.lineWidth = 3;
+        ctx.setLineDash([6, 4]);
+
+        // Draw curved path going down and back
+        ctx.beginPath();
+        const startX = from.x;
+        const startY = from.y + radius;
+        const endX = to.x;
+        const endY = to.y + radius;
+        const midY = from.y + 70;
+
+        ctx.moveTo(startX, startY);
+        ctx.bezierCurveTo(startX, midY, endX, midY, endX, endY + 8);
+        ctx.stroke();
+
+        // Arrow head
+        ctx.setLineDash([]);
+        const headLen = 10;
+        ctx.beginPath();
+        ctx.moveTo(endX, endY + 8);
+        ctx.lineTo(endX - 6, endY + 18);
+        ctx.moveTo(endX, endY + 8);
+        ctx.lineTo(endX + 6, endY + 18);
+        ctx.stroke();
+
+        // Label
+        ctx.font = "600 14px Caveat";
+        ctx.fillStyle = "#16a34a";
+        ctx.textAlign = "center";
+        ctx.fillText("cycle!", (startX + endX) / 2, midY + 18);
+
+        ctx.restore();
+      }
+
+      function drawCurrentPointer(node) {
+        ctx.save();
+        ctx.font = "600 16px Patrick Hand";
+        ctx.fillStyle = "#ea580c";
+        ctx.textAlign = "center";
+        ctx.fillText("current →", node.x - 60, node.y - 45);
+
+        // Little arrow pointing down
+        ctx.beginPath();
+        ctx.moveTo(node.x, node.y - 35);
+        ctx.lineTo(node.x - 5, node.y - 42);
+        ctx.moveTo(node.x, node.y - 35);
+        ctx.lineTo(node.x + 5, node.y - 42);
+        ctx.strokeStyle = "#ea580c";
+        ctx.lineWidth = 2;
+        ctx.stroke();
+        ctx.restore();
+      }
+
+      function performStep() {
+        if (isComplete) return;
+
+        currentStep++;
+        const node = nodes[currentIdx];
+        const tableBody = document.getElementById("tableBody");
+
+        // Remove active class from previous row
+        document
+          .querySelectorAll(".active-row")
+          .forEach((r) => r.classList.remove("active-row"));
+
+        // Check if current node is already in visited
+        if (visitedSet.has(currentIdx)) {
+          // CYCLE FOUND!
+          isComplete = true;
+
+          const row = document.createElement("tr");
+          row.className = "highlight-row";
+          row.innerHTML = `
+                    <td class="step-num">${currentStep}</td>
+                    <td>
+                        <span class="node-badge" style="background: #dc2626; color: white;">${
+                          node.val
+                        }</span>
+                        [${currentIdx}]
+                    </td>
+                    <td><span class="visited-set">{${visitedDisplay.join(
+                      ", "
+                    )}}</span></td>
+                    <td class="cycle-found">🎯 ALREADY IN SET! Cycle detected! Return TRUE</td>
+                `;
+          tableBody.appendChild(row);
+
+          draw();
+          stopAuto();
+          return;
+        }
+
+        // Add to visited set
+        visitedSet.add(currentIdx);
+        visitedDisplay.push(node.val);
+
+        const row = document.createElement("tr");
+        row.className = "active-row";
+        row.innerHTML = `
+                <td class="step-num">${currentStep}</td>
+                <td>
+                    <span class="node-badge" style="background: #2563eb; color: white;">${
+                      node.val
+                    }</span>
+                    [${currentIdx}]
+                </td>
+                <td><span class="visited-set">{${visitedDisplay.join(
+                  ", "
+                )}}</span></td>
+                <td class="action-text">Not in set → Add ${
+                  node.val
+                }, move to next</td>
+            `;
+        tableBody.appendChild(row);
+
+        // Move to next node
+        currentIdx = node.next;
+
+        draw();
+      }
+
+      function reset() {
+        stopAuto();
+        currentStep = 0;
+        currentIdx = 0;
+        visitedSet.clear();
+        visitedDisplay = [];
+        isComplete = false;
+
+        document.getElementById("tableBody").innerHTML = `
+                <tr class="active-row">
+                    <td class="step-num">0</td>
+                    <td><span class="current-pointer"><span class="pointer-arrow">👉</span> Start</span></td>
+                    <td><span class="visited-set">{ }</span></td>
+                    <td class="action-text">Initialize: current = head, visited = empty</td>
+                </tr>
+            `;
+
+        draw();
+      }
+
+      function startAuto() {
+        if (autoInterval) return;
+        document.getElementById("autoBtn").textContent = "⏸ Pause";
+        autoInterval = setInterval(() => {
+          if (isComplete) {
+            stopAuto();
+          } else {
+            performStep();
+          }
+        }, 1200);
+      }
+
+      function stopAuto() {
+        if (autoInterval) {
+          clearInterval(autoInterval);
+          autoInterval = null;
+        }
+        document.getElementById("autoBtn").textContent = "⏵⏵ Auto Play";
+      }
+
+      function toggleAuto() {
+        if (autoInterval) {
+          stopAuto();
+        } else {
+          if (isComplete) reset();
+          startAuto();
+        }
+      }
+
+      // Event listeners
+      document.getElementById("stepBtn").addEventListener("click", () => {
+        if (isComplete) reset();
+        else performStep();
+      });
+
+      document.getElementById("autoBtn").addEventListener("click", toggleAuto);
+      document.getElementById("resetBtn").addEventListener("click", reset);
+
+      // Initialize
+      window.addEventListener("load", () => {
+        setupCanvas();
+        draw();
+      });
+
+      window.addEventListener("resize", () => {
+        setupCanvas();
+        draw();
+      });
+    </script>
+  </body>
+</html>
