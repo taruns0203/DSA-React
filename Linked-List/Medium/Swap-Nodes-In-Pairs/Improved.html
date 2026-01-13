@@ -1,0 +1,1483 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Swap Pairs - Recursive Approach | Whiteboard</title>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Caveat:wght@400;600;700&family=Patrick+Hand&family=Permanent+Marker&family=Architects+Daughter&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        font-family: "Patrick Hand", cursive;
+        background: linear-gradient(
+          135deg,
+          #1a1a2e 0%,
+          #16213e 50%,
+          #0f3460 100%
+        );
+        min-height: 100vh;
+        overflow-x: hidden;
+        padding: 20px;
+      }
+
+      /* Chalkboard Container */
+      .chalkboard-container {
+        max-width: 1250px;
+        margin: 0 auto;
+      }
+
+      /* Main Chalkboard */
+      .chalkboard {
+        background: linear-gradient(
+          145deg,
+          #2d4a3e 0%,
+          #234035 40%,
+          #1a3329 100%
+        );
+        border-radius: 8px;
+        box-shadow: 0 0 0 8px #5d4037, 0 0 0 12px #4e342e, 0 0 0 16px #3e2723,
+          0 15px 50px rgba(0, 0, 0, 0.5), inset 0 0 100px rgba(0, 0, 0, 0.3);
+        padding: 45px;
+        position: relative;
+        min-height: 800px;
+      }
+
+      /* Chalk dust texture */
+      .chalkboard::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: radial-gradient(
+            ellipse at 20% 30%,
+            rgba(255, 255, 255, 0.03) 0%,
+            transparent 50%
+          ),
+          radial-gradient(
+            ellipse at 80% 70%,
+            rgba(255, 255, 255, 0.02) 0%,
+            transparent 40%
+          ),
+          url("data:image/svg+xml,%3Csvg viewBox='0 0 100 100' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.03'/%3E%3C/svg%3E");
+        pointer-events: none;
+        border-radius: 4px;
+      }
+
+      /* Chalk ledge */
+      .chalk-ledge {
+        position: absolute;
+        bottom: -30px;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 300px;
+        height: 20px;
+        background: linear-gradient(180deg, #5d4037, #4e342e);
+        border-radius: 0 0 5px 5px;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        gap: 15px;
+        padding-top: 3px;
+      }
+
+      .chalk {
+        width: 40px;
+        height: 8px;
+        border-radius: 2px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+      }
+
+      .chalk.white {
+        background: linear-gradient(180deg, #fff, #e0e0e0);
+      }
+      .chalk.yellow {
+        background: linear-gradient(180deg, #fff59d, #fdd835);
+      }
+      .chalk.pink {
+        background: linear-gradient(180deg, #f8bbd9, #e91e63);
+      }
+      .chalk.blue {
+        background: linear-gradient(180deg, #81d4fa, #29b6f6);
+      }
+
+      /* Title */
+      .title {
+        font-family: "Permanent Marker", cursive;
+        font-size: 2.4rem;
+        color: #fff;
+        text-align: center;
+        margin-bottom: 8px;
+        text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+        letter-spacing: 2px;
+      }
+
+      .subtitle {
+        font-family: "Architects Daughter", cursive;
+        font-size: 1.4rem;
+        color: #81c784;
+        text-align: center;
+        margin-bottom: 25px;
+        text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
+      }
+
+      /* Problem Box */
+      .problem-box {
+        border: 3px dashed #fff59d;
+        border-radius: 12px;
+        padding: 18px 25px;
+        margin-bottom: 25px;
+        position: relative;
+        background: rgba(255, 245, 157, 0.05);
+      }
+
+      .problem-label {
+        font-family: "Permanent Marker", cursive;
+        font-size: 1.1rem;
+        color: #fff59d;
+        margin-bottom: 8px;
+      }
+
+      .problem-text {
+        font-size: 1.2rem;
+        color: #e0e0e0;
+        line-height: 1.5;
+      }
+
+      .example-io {
+        display: flex;
+        gap: 40px;
+        margin-top: 12px;
+        flex-wrap: wrap;
+      }
+
+      .io-item {
+        font-size: 1.15rem;
+        color: #e0e0e0;
+      }
+
+      .io-label {
+        font-family: "Caveat", cursive;
+        font-weight: 700;
+        color: #ce93d8;
+      }
+
+      .io-value {
+        font-family: "Patrick Hand", cursive;
+        background: rgba(206, 147, 216, 0.15);
+        padding: 4px 14px;
+        border-radius: 8px;
+        border: 2px solid #ce93d8;
+        display: inline-block;
+        margin-left: 8px;
+        color: #f3e5f5;
+      }
+
+      /* Controls */
+      .controls {
+        display: flex;
+        justify-content: center;
+        gap: 12px;
+        margin-bottom: 25px;
+        flex-wrap: wrap;
+      }
+
+      .btn {
+        font-family: "Patrick Hand", cursive;
+        font-size: 1.15rem;
+        padding: 10px 24px;
+        border: none;
+        border-radius: 25px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+      }
+
+      .btn-prev {
+        background: linear-gradient(135deg, #64b5f6, #1976d2);
+        color: white;
+      }
+
+      .btn-next {
+        background: linear-gradient(135deg, #81c784, #388e3c);
+        color: white;
+      }
+
+      .btn-reset {
+        background: linear-gradient(135deg, #e57373, #d32f2f);
+        color: white;
+      }
+
+      .btn-auto {
+        background: linear-gradient(135deg, #ffb74d, #f57c00);
+        color: white;
+      }
+
+      .btn:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4);
+      }
+
+      .btn:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+        transform: none;
+      }
+
+      /* Step Indicator */
+      .step-indicator {
+        text-align: center;
+        margin-bottom: 20px;
+      }
+
+      .step-dots {
+        display: flex;
+        justify-content: center;
+        gap: 10px;
+        margin-bottom: 12px;
+      }
+
+      .step-dot {
+        width: 16px;
+        height: 16px;
+        border-radius: 50%;
+        background: rgba(255, 255, 255, 0.2);
+        border: 2px solid rgba(255, 255, 255, 0.4);
+        transition: all 0.3s ease;
+        cursor: pointer;
+      }
+
+      .step-dot.active {
+        background: #ff7043;
+        border-color: #ffab91;
+        transform: scale(1.3);
+        box-shadow: 0 0 15px rgba(255, 112, 67, 0.6);
+      }
+
+      .step-dot.completed {
+        background: #66bb6a;
+        border-color: #a5d6a7;
+      }
+
+      .step-label {
+        font-family: "Architects Daughter", cursive;
+        font-size: 1.5rem;
+        color: #fff;
+        text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.5);
+      }
+
+      /* Visualization Area */
+      .viz-area {
+        min-height: 380px;
+        position: relative;
+        margin-bottom: 20px;
+      }
+
+      /* Section Labels */
+      .section-label {
+        font-family: "Permanent Marker", cursive;
+        font-size: 1.2rem;
+        margin-bottom: 15px;
+        padding-left: 12px;
+        border-left: 4px solid;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
+      }
+
+      .section-label.call-stack {
+        color: #64b5f6;
+        border-color: #64b5f6;
+      }
+
+      .section-label.linked-list {
+        color: #81c784;
+        border-color: #81c784;
+      }
+
+      .section-label.result {
+        color: #fff59d;
+        border-color: #fff59d;
+      }
+
+      /* Linked List Visualization */
+      .linked-list-viz {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 5px;
+        margin: 20px 0;
+        min-height: 80px;
+        flex-wrap: wrap;
+      }
+
+      .node {
+        display: flex;
+        align-items: center;
+        transition: all 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+      }
+
+      .node-box {
+        width: 60px;
+        height: 60px;
+        border: 3px solid #81c784;
+        border-radius: 10px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        background: rgba(129, 199, 132, 0.15);
+        position: relative;
+        font-family: "Caveat", cursive;
+        transition: all 0.4s ease;
+      }
+
+      .node-box.highlight {
+        border-color: #ff7043;
+        background: rgba(255, 112, 67, 0.2);
+        transform: scale(1.15);
+        box-shadow: 0 0 20px rgba(255, 112, 67, 0.5);
+      }
+
+      .node-box.first-node {
+        border-color: #64b5f6;
+        background: rgba(100, 181, 246, 0.2);
+        box-shadow: 0 0 15px rgba(100, 181, 246, 0.4);
+      }
+
+      .node-box.second-node {
+        border-color: #f48fb1;
+        background: rgba(244, 143, 177, 0.2);
+        box-shadow: 0 0 15px rgba(244, 143, 177, 0.4);
+      }
+
+      .node-box.swapped {
+        border-color: #fff59d;
+        background: rgba(255, 245, 157, 0.2);
+      }
+
+      .node-value {
+        font-size: 1.8rem;
+        font-weight: 700;
+        color: #fff;
+        text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
+      }
+
+      .node-label {
+        font-size: 0.75rem;
+        color: #b0bec5;
+        position: absolute;
+        bottom: -20px;
+        white-space: nowrap;
+      }
+
+      .arrow {
+        font-size: 1.8rem;
+        color: #81c784;
+        margin: 0 3px;
+        transition: all 0.3s ease;
+        text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
+      }
+
+      .arrow.highlight {
+        color: #ff7043;
+        transform: scale(1.2);
+      }
+
+      .null-marker {
+        font-family: "Caveat", cursive;
+        font-size: 1.2rem;
+        color: #78909c;
+        padding: 8px 15px;
+        border: 2px dashed #546e7a;
+        border-radius: 8px;
+        background: rgba(84, 110, 122, 0.1);
+      }
+
+      /* Call Stack Visualization */
+      .call-stack-container {
+        display: flex;
+        gap: 30px;
+        justify-content: center;
+        align-items: flex-start;
+        flex-wrap: wrap;
+      }
+
+      .stack-column {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+      }
+
+      .stack-title {
+        font-family: "Caveat", cursive;
+        font-size: 1.2rem;
+        color: #90caf9;
+        margin-bottom: 10px;
+        text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
+      }
+
+      .stack-frames {
+        display: flex;
+        flex-direction: column-reverse;
+        gap: 8px;
+        min-height: 200px;
+        justify-content: flex-start;
+      }
+
+      .stack-frame {
+        background: linear-gradient(
+          135deg,
+          rgba(100, 181, 246, 0.2),
+          rgba(100, 181, 246, 0.1)
+        );
+        border: 2px solid #64b5f6;
+        border-radius: 10px;
+        padding: 12px 18px;
+        min-width: 180px;
+        transition: all 0.4s ease;
+        position: relative;
+      }
+
+      .stack-frame.active {
+        background: linear-gradient(
+          135deg,
+          rgba(255, 112, 67, 0.3),
+          rgba(255, 112, 67, 0.15)
+        );
+        border-color: #ff7043;
+        box-shadow: 0 0 20px rgba(255, 112, 67, 0.4);
+        transform: scale(1.05);
+      }
+
+      .stack-frame.returning {
+        background: linear-gradient(
+          135deg,
+          rgba(129, 199, 132, 0.3),
+          rgba(129, 199, 132, 0.15)
+        );
+        border-color: #81c784;
+        box-shadow: 0 0 20px rgba(129, 199, 132, 0.4);
+      }
+
+      .stack-frame.base-case {
+        background: linear-gradient(
+          135deg,
+          rgba(255, 245, 157, 0.3),
+          rgba(255, 245, 157, 0.15)
+        );
+        border-color: #fff59d;
+      }
+
+      .frame-title {
+        font-family: "Caveat", cursive;
+        font-size: 1rem;
+        color: #90caf9;
+        margin-bottom: 5px;
+      }
+
+      .frame-content {
+        font-family: "Patrick Hand", cursive;
+        font-size: 1rem;
+        color: #e0e0e0;
+        line-height: 1.4;
+      }
+
+      .frame-content .var {
+        color: #ce93d8;
+        font-weight: bold;
+      }
+
+      .frame-content .val {
+        color: #fff59d;
+      }
+
+      .frame-return {
+        margin-top: 8px;
+        padding-top: 8px;
+        border-top: 1px dashed rgba(255, 255, 255, 0.2);
+        color: #a5d6a7;
+        font-size: 0.95rem;
+      }
+
+      /* Recursion Tree */
+      .recursion-tree {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 15px;
+      }
+
+      .tree-level {
+        display: flex;
+        gap: 20px;
+        align-items: center;
+      }
+
+      .tree-node {
+        background: rgba(100, 181, 246, 0.15);
+        border: 2px solid #64b5f6;
+        border-radius: 12px;
+        padding: 10px 15px;
+        text-align: center;
+        transition: all 0.4s ease;
+      }
+
+      .tree-node.active {
+        background: rgba(255, 112, 67, 0.25);
+        border-color: #ff7043;
+        box-shadow: 0 0 20px rgba(255, 112, 67, 0.5);
+      }
+
+      .tree-node.complete {
+        background: rgba(129, 199, 132, 0.25);
+        border-color: #81c784;
+      }
+
+      .tree-node-label {
+        font-family: "Caveat", cursive;
+        font-size: 1rem;
+        color: #90caf9;
+      }
+
+      .tree-node-value {
+        font-family: "Patrick Hand", cursive;
+        font-size: 1.1rem;
+        color: #fff;
+      }
+
+      .tree-arrow {
+        font-size: 1.5rem;
+        color: #546e7a;
+      }
+
+      .tree-connector {
+        width: 2px;
+        height: 25px;
+        background: linear-gradient(180deg, #64b5f6, #546e7a);
+      }
+
+      /* Explanation Box */
+      .explanation-box {
+        background: rgba(129, 199, 132, 0.1);
+        border: 3px solid #81c784;
+        border-radius: 15px;
+        padding: 20px 25px;
+        margin-top: 20px;
+        position: relative;
+      }
+
+      .explanation-box::before {
+        content: "💡";
+        position: absolute;
+        top: -15px;
+        right: 20px;
+        font-size: 1.8rem;
+        background: #2d4a3e;
+        padding: 0 8px;
+        border-radius: 50%;
+      }
+
+      .explanation-title {
+        font-family: "Permanent Marker", cursive;
+        font-size: 1.2rem;
+        color: #a5d6a7;
+        margin-bottom: 10px;
+      }
+
+      .explanation-text {
+        font-size: 1.15rem;
+        color: #e0e0e0;
+        line-height: 1.6;
+      }
+
+      .code-snippet {
+        font-family: "Courier New", monospace;
+        background: rgba(0, 0, 0, 0.4);
+        color: #81d4fa;
+        padding: 3px 8px;
+        border-radius: 5px;
+        font-size: 0.95rem;
+        margin: 0 2px;
+      }
+
+      .chalk-highlight {
+        position: relative;
+        display: inline;
+      }
+
+      .chalk-highlight.yellow::after {
+        content: "";
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        width: 100%;
+        height: 40%;
+        background: rgba(255, 245, 157, 0.3);
+        z-index: -1;
+      }
+
+      .chalk-highlight.pink::after {
+        content: "";
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        width: 100%;
+        height: 40%;
+        background: rgba(244, 143, 177, 0.3);
+        z-index: -1;
+      }
+
+      .chalk-highlight.blue::after {
+        content: "";
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        width: 100%;
+        height: 40%;
+        background: rgba(100, 181, 246, 0.3);
+        z-index: -1;
+      }
+
+      /* Variable State */
+      .var-state {
+        background: rgba(255, 255, 255, 0.05);
+        border: 2px solid rgba(255, 255, 255, 0.2);
+        border-radius: 10px;
+        padding: 15px;
+        margin-top: 15px;
+      }
+
+      .var-state-title {
+        font-family: "Caveat", cursive;
+        font-size: 1.2rem;
+        color: #fff;
+        margin-bottom: 10px;
+      }
+
+      .var-row {
+        display: flex;
+        gap: 20px;
+        padding: 6px 0;
+        border-bottom: 1px dashed rgba(255, 255, 255, 0.1);
+        flex-wrap: wrap;
+      }
+
+      .var-row:last-child {
+        border-bottom: none;
+      }
+
+      .var-name {
+        font-weight: 700;
+        color: #ce93d8;
+        min-width: 100px;
+      }
+
+      .var-value {
+        color: #e0e0e0;
+      }
+
+      /* Complexity Box */
+      .complexity-box {
+        display: flex;
+        gap: 25px;
+        justify-content: center;
+        margin-top: 20px;
+        flex-wrap: wrap;
+      }
+
+      .complexity-item {
+        background: rgba(255, 255, 255, 0.05);
+        border: 2px solid #9575cd;
+        border-radius: 10px;
+        padding: 12px 20px;
+        text-align: center;
+      }
+
+      .complexity-label {
+        font-family: "Caveat", cursive;
+        font-size: 1rem;
+        color: #b39ddb;
+        margin-bottom: 3px;
+      }
+
+      .complexity-value {
+        font-family: "Permanent Marker", cursive;
+        font-size: 1.3rem;
+        color: #fff;
+      }
+
+      /* Animation for recursive call */
+      @keyframes callPulse {
+        0%,
+        100% {
+          transform: scale(1);
+          opacity: 1;
+        }
+        50% {
+          transform: scale(1.05);
+          opacity: 0.8;
+        }
+      }
+
+      .stack-frame.calling {
+        animation: callPulse 0.8s ease-in-out infinite;
+      }
+
+      /* Rewiring visualization */
+      .rewiring-viz {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 15px;
+        margin: 20px 0;
+      }
+
+      .rewire-step {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        font-family: "Patrick Hand", cursive;
+        font-size: 1.1rem;
+        color: #e0e0e0;
+        padding: 10px 20px;
+        background: rgba(255, 112, 67, 0.1);
+        border: 2px solid #ff7043;
+        border-radius: 10px;
+        opacity: 0;
+        transform: translateX(-20px);
+        transition: all 0.4s ease;
+      }
+
+      .rewire-step.visible {
+        opacity: 1;
+        transform: translateX(0);
+      }
+
+      .rewire-icon {
+        font-size: 1.5rem;
+      }
+
+      /* Responsive */
+      @media (max-width: 768px) {
+        .chalkboard {
+          padding: 25px;
+        }
+
+        .title {
+          font-size: 1.8rem;
+        }
+
+        .node-box {
+          width: 50px;
+          height: 50px;
+        }
+
+        .node-value {
+          font-size: 1.5rem;
+        }
+
+        .stack-frame {
+          min-width: 150px;
+          padding: 10px 14px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="chalkboard-container">
+      <div class="chalkboard">
+        <!-- Title -->
+        <h1 class="title">Swap Nodes in Pairs</h1>
+        <p class="subtitle">
+          ✨ Recursive Approach — Elegance Through Self-Similarity ✨
+        </p>
+
+        <!-- Problem Box -->
+        <div class="problem-box">
+          <div class="problem-label">📝 Problem</div>
+          <div class="problem-text">
+            Swap every two adjacent nodes by rewiring pointers. The recursive
+            insight:
+            <span class="chalk-highlight yellow">swap first pair</span> +
+            <span class="chalk-highlight pink">recursively solve the rest</span
+            >.
+          </div>
+          <div class="example-io">
+            <div class="io-item">
+              <span class="io-label">Input:</span>
+              <span class="io-value">1 → 2 → 3 → 4</span>
+            </div>
+            <div class="io-item">
+              <span class="io-label">Output:</span>
+              <span class="io-value">2 → 1 → 4 → 3</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Controls -->
+        <div class="controls">
+          <button class="btn btn-prev" id="prevBtn" disabled>
+            <span>◀</span> Prev
+          </button>
+          <button class="btn btn-next" id="nextBtn">Next <span>▶</span></button>
+          <button class="btn btn-auto" id="autoBtn">
+            <span>▶▶</span> Auto
+          </button>
+          <button class="btn btn-reset" id="resetBtn">
+            <span>↺</span> Reset
+          </button>
+        </div>
+
+        <!-- Step Indicator -->
+        <div class="step-indicator">
+          <div class="step-dots">
+            <div class="step-dot active" data-step="0"></div>
+            <div class="step-dot" data-step="1"></div>
+            <div class="step-dot" data-step="2"></div>
+            <div class="step-dot" data-step="3"></div>
+            <div class="step-dot" data-step="4"></div>
+            <div class="step-dot" data-step="5"></div>
+            <div class="step-dot" data-step="6"></div>
+            <div class="step-dot" data-step="7"></div>
+            <div class="step-dot" data-step="8"></div>
+            <div class="step-dot" data-step="9"></div>
+          </div>
+          <div class="step-label" id="stepLabel">Step 0: Initial State</div>
+        </div>
+
+        <!-- Visualization Area -->
+        <div class="viz-area" id="vizArea">
+          <!-- Dynamic content -->
+        </div>
+
+        <!-- Explanation Box -->
+        <div class="explanation-box">
+          <div class="explanation-title" id="explanationTitle">
+            The Recursive Idea
+          </div>
+          <div class="explanation-text" id="explanationText">
+            Recursion breaks the problem into smaller identical subproblems. For
+            swapping pairs:
+            <span class="code-snippet"
+              >swapPairs(list) = swap(first, second) + swapPairs(rest)</span
+            >. The base case is when we have 0 or 1 nodes — nothing to swap!
+          </div>
+        </div>
+
+        <!-- Variable State -->
+        <div class="var-state" id="varState">
+          <div class="var-state-title">📋 Current State</div>
+          <div id="varContent">
+            <div class="var-row">
+              <span class="var-name">head</span>
+              <span class="var-value">→ Node(1)</span>
+            </div>
+            <div class="var-row">
+              <span class="var-name">call depth</span>
+              <span class="var-value">0 (not started)</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Complexity -->
+        <div class="complexity-box">
+          <div class="complexity-item">
+            <div class="complexity-label">Time</div>
+            <div class="complexity-value">O(n)</div>
+          </div>
+          <div class="complexity-item">
+            <div class="complexity-label">Space</div>
+            <div class="complexity-value">O(n)</div>
+          </div>
+          <div class="complexity-item">
+            <div class="complexity-label">Stack Depth</div>
+            <div class="complexity-value">n/2</div>
+          </div>
+        </div>
+
+        <!-- Chalk ledge decoration -->
+        <div class="chalk-ledge">
+          <div class="chalk white"></div>
+          <div class="chalk yellow"></div>
+          <div class="chalk pink"></div>
+          <div class="chalk blue"></div>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      // State
+      let currentStep = 0;
+      const totalSteps = 10;
+      let autoPlayInterval = null;
+
+      // Step data
+      const steps = [
+        {
+          label: "Step 0: Initial Linked List",
+          explanation: {
+            title: "Starting Point",
+            text: `We have <span class="code-snippet">1 → 2 → 3 → 4 → null</span>. The recursive approach will call itself on progressively shorter lists until hitting a base case, then <span class="chalk-highlight yellow">unwind</span> while swapping pairs.`,
+          },
+          vars: [
+            { name: "input", value: "1 → 2 → 3 → 4 → null" },
+            { name: "goal", value: "2 → 1 → 4 → 3 → null" },
+            { name: "approach", value: "Divide & Conquer via recursion" },
+          ],
+        },
+        {
+          label: "Step 1: Call swapPairs([1,2,3,4])",
+          explanation: {
+            title: "First Recursive Call — Depth 1",
+            text: `Enter the function with head = Node(1). We identify <span class="code-snippet">first = Node(1)</span> and <span class="code-snippet">second = Node(2)</span>. Before swapping, we must recursively solve for the remaining list starting at Node(3).`,
+          },
+          vars: [
+            { name: "depth", value: "1" },
+            { name: "first", value: "Node(1)" },
+            { name: "second", value: "Node(2)" },
+            { name: "action", value: "Call swapPairs(3→4) first..." },
+          ],
+        },
+        {
+          label: "Step 2: Call swapPairs([3,4])",
+          explanation: {
+            title: "Second Recursive Call — Depth 2",
+            text: `Now at depth 2 with head = Node(3). We identify <span class="code-snippet">first = Node(3)</span> and <span class="code-snippet">second = Node(4)</span>. Need to recursively solve for what comes after Node(4), which is null.`,
+          },
+          vars: [
+            { name: "depth", value: "2" },
+            { name: "first", value: "Node(3)" },
+            { name: "second", value: "Node(4)" },
+            { name: "action", value: "Call swapPairs(null)..." },
+          ],
+        },
+        {
+          label: "Step 3: Base Case — swapPairs(null)",
+          explanation: {
+            title: "🎯 Base Case Reached!",
+            text: `At depth 3, head is <span class="code-snippet">null</span>. This is our base case! When there are 0 (or 1) nodes, there's nothing to swap. Simply return null. <span class="chalk-highlight yellow">Now the unwinding begins!</span>`,
+          },
+          vars: [
+            { name: "depth", value: "3" },
+            { name: "head", value: "null" },
+            { name: "condition", value: "head === null ✓" },
+            { name: "return", value: "null (base case)" },
+          ],
+        },
+        {
+          label: "Step 4: Unwind Depth 2 — Swap [3,4]",
+          explanation: {
+            title: "Unwinding — Back to Depth 2",
+            text: `Base case returned null. Now we have <span class="code-snippet">remaining = null</span>. Time to swap! Set <span class="code-snippet">second.next = first</span> (4→3), then <span class="code-snippet">first.next = remaining</span> (3→null). Return second (Node 4).`,
+          },
+          vars: [
+            { name: "depth", value: "2" },
+            { name: "remaining", value: "null (from recursive call)" },
+            { name: "rewiring", value: "4.next = 3, 3.next = null" },
+            { name: "return", value: "Node(4) — head of [4,3]" },
+          ],
+        },
+        {
+          label: "Step 5: Visualize Swap at Depth 2",
+          explanation: {
+            title: "Swap Complete at Depth 2",
+            text: `The pair [3,4] is now [4,3]. Node(4) becomes the head of this sublist. This result <span class="chalk-highlight pink">bubbles up</span> to the previous call as 'remaining'.`,
+          },
+          vars: [
+            { name: "before", value: "3 → 4 → null" },
+            { name: "after", value: "4 → 3 → null" },
+            { name: "returned", value: "Node(4)" },
+          ],
+        },
+        {
+          label: "Step 6: Unwind Depth 1 — Swap [1,2]",
+          explanation: {
+            title: "Unwinding — Back to Depth 1",
+            text: `We receive <span class="code-snippet">remaining = Node(4)</span> (head of the already-swapped [4,3]). Now swap [1,2]: set <span class="code-snippet">second.next = first</span> (2→1), then <span class="code-snippet">first.next = remaining</span> (1→4).`,
+          },
+          vars: [
+            { name: "depth", value: "1" },
+            { name: "remaining", value: "Node(4) — head of [4,3]" },
+            { name: "rewiring", value: "2.next = 1, 1.next = 4" },
+            { name: "return", value: "Node(2) — new head" },
+          ],
+        },
+        {
+          label: "Step 7: Visualize Swap at Depth 1",
+          explanation: {
+            title: "Swap Complete at Depth 1",
+            text: `The pair [1,2] is now [2,1], and it's connected to the previously swapped [4,3]. The chain is now: <span class="code-snippet">2 → 1 → 4 → 3 → null</span>. Beautiful!`,
+          },
+          vars: [
+            { name: "first pair", value: "[1,2] → [2,1]" },
+            { name: "connected to", value: "[4,3]" },
+            { name: "full result", value: "2 → 1 → 4 → 3 → null" },
+          ],
+        },
+        {
+          label: "Step 8: Return to Caller",
+          explanation: {
+            title: "All Calls Unwound",
+            text: `The final return gives us Node(2) as the new head. All recursive calls have completed, each having swapped its pair and linked to the result of the next call. <span class="chalk-highlight yellow">Recursion complete!</span>`,
+          },
+          vars: [
+            { name: "final return", value: "Node(2)" },
+            { name: "new head", value: "2" },
+            { name: "full list", value: "2 → 1 → 4 → 3 → null" },
+          ],
+        },
+        {
+          label: "Step 9: ✅ Final Result",
+          explanation: {
+            title: "🎉 Success!",
+            text: `Input [1,2,3,4] transformed to [2,1,4,3]. The recursion naturally handled the "connect to next swapped pair" problem — each level just connects to whatever the recursive call returns. Elegant!`,
+          },
+          vars: [
+            { name: "input", value: "[1, 2, 3, 4]" },
+            { name: "output", value: "[2, 1, 4, 3]" },
+            { name: "status", value: "✅ SUCCESS" },
+          ],
+        },
+      ];
+
+      // DOM Elements
+      const vizArea = document.getElementById("vizArea");
+      const stepLabel = document.getElementById("stepLabel");
+      const explanationTitle = document.getElementById("explanationTitle");
+      const explanationText = document.getElementById("explanationText");
+      const varContent = document.getElementById("varContent");
+      const prevBtn = document.getElementById("prevBtn");
+      const nextBtn = document.getElementById("nextBtn");
+      const autoBtn = document.getElementById("autoBtn");
+      const resetBtn = document.getElementById("resetBtn");
+      const stepDots = document.querySelectorAll(".step-dot");
+
+      // Render linked list
+      function renderLinkedList(nodes, highlights = {}) {
+        let html = '<div class="linked-list-viz">';
+        nodes.forEach((val, idx) => {
+          let nodeClass = "";
+          let label = "";
+          if (highlights.first === idx) {
+            nodeClass = "first-node";
+            label = "first";
+          } else if (highlights.second === idx) {
+            nodeClass = "second-node";
+            label = "second";
+          } else if (
+            highlights.highlight &&
+            highlights.highlight.includes(idx)
+          ) {
+            nodeClass = "highlight";
+          } else if (highlights.swapped && highlights.swapped.includes(idx)) {
+            nodeClass = "swapped";
+          }
+
+          html += `
+                    <div class="node">
+                        <div class="node-box ${nodeClass}">
+                            <span class="node-value">${val}</span>
+                            ${
+                              label
+                                ? `<span class="node-label">${label}</span>`
+                                : ""
+                            }
+                        </div>
+                    </div>
+                `;
+          if (idx < nodes.length - 1) {
+            html += `<span class="arrow">→</span>`;
+          }
+        });
+        html +=
+          '<span class="arrow">→</span><span class="null-marker">null</span></div>';
+        return html;
+      }
+
+      // Render call stack
+      function renderCallStack(frames, activeIdx = -1) {
+        let html =
+          '<div class="section-label call-stack">📚 Call Stack (grows upward)</div>';
+        html += '<div class="stack-frames">';
+
+        frames.forEach((frame, idx) => {
+          let frameClass = "";
+          if (idx === activeIdx) frameClass = "active";
+          else if (frame.returning) frameClass = "returning";
+          else if (frame.baseCase) frameClass = "base-case";
+
+          html += `
+                    <div class="stack-frame ${frameClass}">
+                        <div class="frame-title">${frame.title}</div>
+                        <div class="frame-content">${frame.content}</div>
+                        ${
+                          frame.returnVal
+                            ? `<div class="frame-return">↩ returns: ${frame.returnVal}</div>`
+                            : ""
+                        }
+                    </div>
+                `;
+        });
+
+        html += "</div>";
+        return html;
+      }
+
+      // Render recursion tree
+      function renderRecursionTree(activeLevel = -1, completeLevels = []) {
+        let html =
+          '<div class="section-label call-stack">🌳 Recursion Tree</div>';
+        html += '<div class="recursion-tree">';
+
+        const levels = [
+          { label: "swapPairs", value: "[1,2,3,4]" },
+          { label: "swapPairs", value: "[3,4]" },
+          { label: "swapPairs", value: "null" },
+        ];
+
+        levels.forEach((level, idx) => {
+          let nodeClass = "";
+          if (idx === activeLevel) nodeClass = "active";
+          else if (completeLevels.includes(idx)) nodeClass = "complete";
+
+          if (idx > 0) {
+            html += '<div class="tree-connector"></div>';
+          }
+          html += `
+                    <div class="tree-node ${nodeClass}">
+                        <div class="tree-node-label">${level.label}</div>
+                        <div class="tree-node-value">${level.value}</div>
+                    </div>
+                `;
+        });
+
+        html += "</div>";
+        return html;
+      }
+
+      // Render rewiring steps
+      function renderRewiring(steps, visibleCount = 0) {
+        let html = '<div class="rewiring-viz">';
+        steps.forEach((step, idx) => {
+          html += `
+                    <div class="rewire-step ${
+                      idx < visibleCount ? "visible" : ""
+                    }">
+                        <span class="rewire-icon">${step.icon}</span>
+                        <span>${step.text}</span>
+                    </div>
+                `;
+        });
+        html += "</div>";
+        return html;
+      }
+
+      // Main render function
+      function renderStep(step) {
+        let html = "";
+
+        switch (step) {
+          case 0: // Initial
+            html +=
+              '<div class="section-label linked-list">📎 Initial Linked List</div>';
+            html += renderLinkedList([1, 2, 3, 4]);
+            break;
+
+          case 1: // First call
+            html +=
+              '<div class="section-label linked-list">📎 Current View: head → [1,2,3,4]</div>';
+            html += renderLinkedList([1, 2, 3, 4], { first: 0, second: 1 });
+            html += renderCallStack(
+              [
+                {
+                  title: "Depth 1",
+                  content:
+                    '<span class="var">first</span>=1, <span class="var">second</span>=2<br>Waiting for swapPairs([3,4])...',
+                },
+              ],
+              0
+            );
+            break;
+
+          case 2: // Second call
+            html +=
+              '<div class="section-label linked-list">📎 Current View: head → [3,4]</div>';
+            html += renderLinkedList([3, 4], { first: 0, second: 1 });
+            html += renderCallStack(
+              [
+                {
+                  title: "Depth 1",
+                  content:
+                    '<span class="var">first</span>=1, <span class="var">second</span>=2<br>Waiting...',
+                },
+                {
+                  title: "Depth 2",
+                  content:
+                    '<span class="var">first</span>=3, <span class="var">second</span>=4<br>Waiting for swapPairs(null)...',
+                },
+              ],
+              1
+            );
+            break;
+
+          case 3: // Base case
+            html +=
+              '<div class="section-label linked-list">📎 Current View: head → null</div>';
+            html +=
+              '<div class="linked-list-viz"><span class="null-marker">null (empty list)</span></div>';
+            html += renderCallStack(
+              [
+                {
+                  title: "Depth 1",
+                  content:
+                    '<span class="var">first</span>=1, <span class="var">second</span>=2<br>Waiting...',
+                },
+                {
+                  title: "Depth 2",
+                  content:
+                    '<span class="var">first</span>=3, <span class="var">second</span>=4<br>Waiting...',
+                },
+                {
+                  title: "Depth 3 — BASE CASE",
+                  content: "head === null<br>Nothing to swap!",
+                  baseCase: true,
+                  returnVal: "null",
+                },
+              ],
+              2
+            );
+            break;
+
+          case 4: // Unwind depth 2
+            html +=
+              '<div class="section-label linked-list">📎 Unwinding: Swap [3,4]</div>';
+            html += renderLinkedList([3, 4], { first: 0, second: 1 });
+            html += renderRewiring(
+              [
+                { icon: "1️⃣", text: "remaining = null (from base case)" },
+                { icon: "2️⃣", text: "second.next = first → 4.next = 3" },
+                { icon: "3️⃣", text: "first.next = remaining → 3.next = null" },
+                { icon: "4️⃣", text: "return second → return Node(4)" },
+              ],
+              4
+            );
+            html += renderCallStack(
+              [
+                {
+                  title: "Depth 1",
+                  content:
+                    '<span class="var">first</span>=1, <span class="var">second</span>=2<br>Waiting...',
+                },
+                {
+                  title: "Depth 2",
+                  content:
+                    '<span class="var">remaining</span>=null<br>Swapping 3↔4...',
+                  returning: true,
+                  returnVal: "Node(4)",
+                },
+              ],
+              1
+            );
+            break;
+
+          case 5: // Visualize swap depth 2
+            html +=
+              '<div class="section-label result">✅ After Swap at Depth 2</div>';
+            html += renderLinkedList([4, 3], { swapped: [0, 1] });
+            html += `<div style="text-align: center; margin: 15px 0; font-family: 'Caveat', cursive; font-size: 1.3rem; color: #81c784;">
+                        [3,4] became [4,3] — returning Node(4) ↑
+                    </div>`;
+            html += renderCallStack(
+              [
+                {
+                  title: "Depth 1",
+                  content:
+                    '<span class="var">first</span>=1, <span class="var">second</span>=2<br>Receiving result...',
+                  returning: true,
+                },
+              ],
+              0
+            );
+            break;
+
+          case 6: // Unwind depth 1
+            html +=
+              '<div class="section-label linked-list">📎 Unwinding: Swap [1,2]</div>';
+            html += renderLinkedList([1, 2], { first: 0, second: 1 });
+            html += `<div style="text-align: center; margin: 10px 0; color: #ce93d8; font-family: 'Caveat', cursive; font-size: 1.2rem;">
+                        remaining = Node(4) → [4,3]
+                    </div>`;
+            html += renderRewiring(
+              [
+                { icon: "1️⃣", text: "remaining = Node(4) (head of [4,3])" },
+                { icon: "2️⃣", text: "second.next = first → 2.next = 1" },
+                { icon: "3️⃣", text: "first.next = remaining → 1.next = 4" },
+                { icon: "4️⃣", text: "return second → return Node(2)" },
+              ],
+              4
+            );
+            break;
+
+          case 7: // Visualize swap depth 1
+            html +=
+              '<div class="section-label result">✅ After Swap at Depth 1</div>';
+            html += renderLinkedList([2, 1, 4, 3], { swapped: [0, 1, 2, 3] });
+            html += `<div style="text-align: center; margin: 15px 0; font-family: 'Caveat', cursive; font-size: 1.3rem; color: #81c784;">
+                        [1,2] + [4,3] connected as [2,1,4,3]
+                    </div>`;
+            break;
+
+          case 8: // Return to caller
+            html += '<div class="section-label result">↩️ Final Return</div>';
+            html += renderLinkedList([2, 1, 4, 3], { swapped: [0, 1, 2, 3] });
+            html += `<div style="text-align: center; margin: 20px 0;">
+                        <div style="font-family: 'Permanent Marker', cursive; font-size: 1.5rem; color: #fff59d;">
+                            return Node(2)
+                        </div>
+                        <div style="font-family: 'Caveat', cursive; font-size: 1.2rem; color: #90caf9; margin-top: 10px;">
+                            All recursive calls complete! Stack is empty.
+                        </div>
+                    </div>`;
+            break;
+
+          case 9: // Final result
+            html += `<div style="text-align: center; margin-bottom: 20px;">
+                        <span style="font-family: 'Permanent Marker', cursive; font-size: 2.2rem; color: #81c784;">
+                            🎉 Success!
+                        </span>
+                    </div>`;
+            html += '<div class="section-label result">✅ Final Result</div>';
+            html += renderLinkedList([2, 1, 4, 3], { swapped: [0, 1, 2, 3] });
+            html += `<div style="display: flex; justify-content: center; gap: 30px; margin-top: 20px; flex-wrap: wrap;">
+                        <div style="text-align: center; padding: 15px 25px; background: rgba(129,199,132,0.15); border: 2px solid #81c784; border-radius: 12px;">
+                            <div style="font-family: 'Caveat', cursive; color: #a5d6a7; font-size: 1.1rem;">Input</div>
+                            <div style="font-family: 'Patrick Hand', cursive; color: #fff; font-size: 1.3rem;">[1, 2, 3, 4]</div>
+                        </div>
+                        <div style="font-size: 2rem; color: #fff59d; display: flex; align-items: center;">→</div>
+                        <div style="text-align: center; padding: 15px 25px; background: rgba(255,245,157,0.15); border: 2px solid #fff59d; border-radius: 12px;">
+                            <div style="font-family: 'Caveat', cursive; color: #fff59d; font-size: 1.1rem;">Output</div>
+                            <div style="font-family: 'Patrick Hand', cursive; color: #fff; font-size: 1.3rem;">[2, 1, 4, 3]</div>
+                        </div>
+                    </div>`;
+            break;
+        }
+
+        vizArea.innerHTML = html;
+      }
+
+      function updateVars(step) {
+        const stepData = steps[step];
+        let html = "";
+        stepData.vars.forEach((v) => {
+          html += `
+                    <div class="var-row">
+                        <span class="var-name">${v.name}</span>
+                        <span class="var-value">${v.value}</span>
+                    </div>
+                `;
+        });
+        varContent.innerHTML = html;
+      }
+
+      function updateUI() {
+        stepLabel.textContent = steps[currentStep].label;
+        explanationTitle.textContent = steps[currentStep].explanation.title;
+        explanationText.innerHTML = steps[currentStep].explanation.text;
+
+        stepDots.forEach((dot, idx) => {
+          dot.classList.remove("active", "completed");
+          if (idx === currentStep) dot.classList.add("active");
+          else if (idx < currentStep) dot.classList.add("completed");
+        });
+
+        prevBtn.disabled = currentStep === 0;
+        nextBtn.disabled = currentStep === totalSteps - 1;
+
+        updateVars(currentStep);
+        renderStep(currentStep);
+      }
+
+      function nextStep() {
+        if (currentStep < totalSteps - 1) {
+          currentStep++;
+          updateUI();
+        }
+      }
+
+      function prevStep() {
+        if (currentStep > 0) {
+          currentStep--;
+          updateUI();
+        }
+      }
+
+      function reset() {
+        stopAutoPlay();
+        currentStep = 0;
+        updateUI();
+      }
+
+      function toggleAutoPlay() {
+        if (autoPlayInterval) stopAutoPlay();
+        else startAutoPlay();
+      }
+
+      function startAutoPlay() {
+        autoBtn.innerHTML = "<span>⏸</span> Pause";
+        autoPlayInterval = setInterval(() => {
+          if (currentStep < totalSteps - 1) nextStep();
+          else stopAutoPlay();
+        }, 2500);
+      }
+
+      function stopAutoPlay() {
+        autoBtn.innerHTML = "<span>▶▶</span> Auto";
+        if (autoPlayInterval) {
+          clearInterval(autoPlayInterval);
+          autoPlayInterval = null;
+        }
+      }
+
+      // Event listeners
+      nextBtn.addEventListener("click", nextStep);
+      prevBtn.addEventListener("click", prevStep);
+      resetBtn.addEventListener("click", reset);
+      autoBtn.addEventListener("click", toggleAutoPlay);
+
+      stepDots.forEach((dot) => {
+        dot.addEventListener("click", () => {
+          stopAutoPlay();
+          currentStep = parseInt(dot.dataset.step);
+          updateUI();
+        });
+      });
+
+      document.addEventListener("keydown", (e) => {
+        if (e.key === "ArrowRight") nextStep();
+        else if (e.key === "ArrowLeft") prevStep();
+        else if (e.key === " ") {
+          e.preventDefault();
+          toggleAutoPlay();
+        }
+      });
+
+      // Initial render
+      updateUI();
+    </script>
+  </body>
+</html>

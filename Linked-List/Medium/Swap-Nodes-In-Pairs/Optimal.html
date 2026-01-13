@@ -1,0 +1,1584 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Swap Pairs - Optimal Iterative | Notebook Style</title>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Caveat:wght@400;600;700&family=Kalam:wght@300;400;700&family=Permanent+Marker&family=Shadows+Into+Light&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        font-family: "Kalam", cursive;
+        background: linear-gradient(
+          135deg,
+          #4a3728 0%,
+          #3d2e22 50%,
+          #2d221a 100%
+        );
+        min-height: 100vh;
+        padding: 20px;
+        display: flex;
+        justify-content: center;
+        align-items: flex-start;
+      }
+
+      /* Notebook Container */
+      .notebook {
+        max-width: 1200px;
+        width: 100%;
+        background: #fefcf3;
+        border-radius: 5px 15px 15px 5px;
+        box-shadow: -5px 0 0 #e74c3c, -8px 0 0 #c0392b,
+          0 10px 40px rgba(0, 0, 0, 0.4), 0 0 0 1px rgba(0, 0, 0, 0.1);
+        position: relative;
+        padding: 40px 50px 40px 80px;
+        min-height: 900px;
+      }
+
+      /* Spiral binding holes */
+      .notebook::before {
+        content: "";
+        position: absolute;
+        left: 25px;
+        top: 30px;
+        bottom: 30px;
+        width: 3px;
+        background: repeating-linear-gradient(
+          to bottom,
+          transparent,
+          transparent 25px,
+          #bdc3c7 25px,
+          #bdc3c7 35px,
+          transparent 35px,
+          transparent 45px
+        );
+      }
+
+      /* Red margin line */
+      .notebook::after {
+        content: "";
+        position: absolute;
+        left: 60px;
+        top: 0;
+        bottom: 0;
+        width: 2px;
+        background: rgba(231, 76, 60, 0.4);
+      }
+
+      /* Paper lines */
+      .paper-lines {
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: repeating-linear-gradient(
+          to bottom,
+          transparent,
+          transparent 31px,
+          #e8e4db 31px,
+          #e8e4db 32px
+        );
+        pointer-events: none;
+        border-radius: 5px 15px 15px 5px;
+      }
+
+      /* Content wrapper */
+      .content {
+        position: relative;
+        z-index: 1;
+      }
+
+      /* Title */
+      .title {
+        font-family: "Permanent Marker", cursive;
+        font-size: 2.2rem;
+        color: #2c3e50;
+        text-align: center;
+        margin-bottom: 5px;
+        text-decoration: underline;
+        text-decoration-color: #3498db;
+        text-decoration-style: wavy;
+        text-underline-offset: 8px;
+      }
+
+      .subtitle {
+        font-family: "Shadows Into Light", cursive;
+        font-size: 1.4rem;
+        color: #27ae60;
+        text-align: center;
+        margin-bottom: 25px;
+      }
+
+      .optimal-badge {
+        display: inline-block;
+        background: linear-gradient(135deg, #f1c40f, #f39c12);
+        color: #2c3e50;
+        padding: 3px 12px;
+        border-radius: 15px;
+        font-size: 0.9rem;
+        margin-left: 10px;
+        transform: rotate(-3deg);
+        box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.2);
+      }
+
+      /* Problem Box */
+      .problem-box {
+        background: linear-gradient(135deg, #fff9e6, #fff3cd);
+        border: 2px solid #f39c12;
+        border-radius: 10px;
+        padding: 18px 22px;
+        margin-bottom: 25px;
+        position: relative;
+        transform: rotate(-0.3deg);
+      }
+
+      .sticky-note {
+        position: absolute;
+        top: -12px;
+        left: 20px;
+        background: #f39c12;
+        color: white;
+        padding: 4px 12px;
+        font-family: "Kalam", cursive;
+        font-weight: 700;
+        font-size: 0.95rem;
+        transform: rotate(-2deg);
+        box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.2);
+      }
+
+      .problem-text {
+        font-size: 1.15rem;
+        color: #34495e;
+        line-height: 1.6;
+        margin-top: 5px;
+      }
+
+      .key-insight {
+        background: linear-gradient(
+          90deg,
+          transparent,
+          rgba(46, 204, 113, 0.2),
+          transparent
+        );
+        padding: 2px 0;
+      }
+
+      .example-io {
+        display: flex;
+        gap: 35px;
+        margin-top: 12px;
+        flex-wrap: wrap;
+      }
+
+      .io-item {
+        font-size: 1.1rem;
+        color: #2c3e50;
+      }
+
+      .io-label {
+        font-family: "Caveat", cursive;
+        font-weight: 700;
+        color: #8e44ad;
+        font-size: 1.2rem;
+      }
+
+      .io-value {
+        background: white;
+        padding: 4px 12px;
+        border-radius: 6px;
+        border: 2px solid #9b59b6;
+        margin-left: 8px;
+        font-family: "Kalam", cursive;
+      }
+
+      /* Controls */
+      .controls {
+        display: flex;
+        justify-content: center;
+        gap: 12px;
+        margin-bottom: 25px;
+        flex-wrap: wrap;
+      }
+
+      .btn {
+        font-family: "Kalam", cursive;
+        font-size: 1.1rem;
+        padding: 10px 22px;
+        border: none;
+        border-radius: 8px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        box-shadow: 3px 3px 0 rgba(0, 0, 0, 0.2);
+        position: relative;
+      }
+
+      .btn::after {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: linear-gradient(
+          135deg,
+          rgba(255, 255, 255, 0.3),
+          transparent
+        );
+        border-radius: 8px;
+        pointer-events: none;
+      }
+
+      .btn-prev {
+        background: #3498db;
+        color: white;
+      }
+
+      .btn-next {
+        background: #27ae60;
+        color: white;
+      }
+
+      .btn-reset {
+        background: #e74c3c;
+        color: white;
+      }
+
+      .btn-auto {
+        background: #9b59b6;
+        color: white;
+      }
+
+      .btn:hover {
+        transform: translate(-2px, -2px);
+        box-shadow: 5px 5px 0 rgba(0, 0, 0, 0.2);
+      }
+
+      .btn:active {
+        transform: translate(1px, 1px);
+        box-shadow: 1px 1px 0 rgba(0, 0, 0, 0.2);
+      }
+
+      .btn:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+        transform: none;
+        box-shadow: 3px 3px 0 rgba(0, 0, 0, 0.1);
+      }
+
+      /* Step Indicator */
+      .step-indicator {
+        text-align: center;
+        margin-bottom: 20px;
+      }
+
+      .step-progress {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        gap: 8px;
+        margin-bottom: 12px;
+      }
+
+      .step-num {
+        width: 28px;
+        height: 28px;
+        border-radius: 50%;
+        background: #ecf0f1;
+        border: 3px solid #bdc3c7;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-family: "Caveat", cursive;
+        font-size: 1rem;
+        font-weight: 700;
+        color: #7f8c8d;
+        transition: all 0.3s ease;
+        cursor: pointer;
+      }
+
+      .step-num.active {
+        background: #e74c3c;
+        border-color: #c0392b;
+        color: white;
+        transform: scale(1.2);
+        box-shadow: 0 0 10px rgba(231, 76, 60, 0.5);
+      }
+
+      .step-num.completed {
+        background: #27ae60;
+        border-color: #1e8449;
+        color: white;
+      }
+
+      .step-connector {
+        width: 20px;
+        height: 3px;
+        background: #bdc3c7;
+        border-radius: 2px;
+      }
+
+      .step-connector.completed {
+        background: #27ae60;
+      }
+
+      .step-label {
+        font-family: "Shadows Into Light", cursive;
+        font-size: 1.5rem;
+        color: #2c3e50;
+      }
+
+      /* Visualization Area */
+      .viz-area {
+        min-height: 400px;
+        position: relative;
+        margin-bottom: 20px;
+      }
+
+      /* Section Labels */
+      .section-label {
+        font-family: "Permanent Marker", cursive;
+        font-size: 1.15rem;
+        margin-bottom: 15px;
+        color: #2c3e50;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+      }
+
+      .section-label::before {
+        content: "";
+        display: inline-block;
+        width: 20px;
+        height: 4px;
+        background: currentColor;
+        border-radius: 2px;
+      }
+
+      .section-label.blue {
+        color: #3498db;
+      }
+      .section-label.green {
+        color: #27ae60;
+      }
+      .section-label.orange {
+        color: #e67e22;
+      }
+      .section-label.purple {
+        color: #9b59b6;
+      }
+
+      /* Linked List Visualization */
+      .list-container {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        margin: 20px 0;
+        min-height: 100px;
+        flex-wrap: wrap;
+        padding: 15px;
+        background: rgba(255, 255, 255, 0.5);
+        border-radius: 12px;
+        border: 2px dashed #bdc3c7;
+      }
+
+      .node-wrapper {
+        display: flex;
+        align-items: center;
+        position: relative;
+      }
+
+      .node {
+        width: 55px;
+        height: 55px;
+        border: 3px solid #3498db;
+        border-radius: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: linear-gradient(135deg, #ebf5fb, #d4e6f1);
+        font-family: "Caveat", cursive;
+        font-size: 1.8rem;
+        font-weight: 700;
+        color: #2c3e50;
+        position: relative;
+        transition: all 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+        box-shadow: 3px 3px 0 rgba(52, 152, 219, 0.3);
+      }
+
+      .node.dummy {
+        background: linear-gradient(135deg, #fdebd0, #f9e79f);
+        border-color: #f39c12;
+        border-style: dashed;
+        font-size: 1.2rem;
+        color: #e67e22;
+        box-shadow: 3px 3px 0 rgba(243, 156, 18, 0.3);
+      }
+
+      .node.prev-pointer {
+        box-shadow: 0 0 0 4px #9b59b6, 3px 3px 0 rgba(155, 89, 182, 0.3);
+      }
+
+      .node.first-node {
+        box-shadow: 0 0 0 4px #3498db, 0 0 15px rgba(52, 152, 219, 0.5);
+        transform: scale(1.1);
+      }
+
+      .node.second-node {
+        box-shadow: 0 0 0 4px #e74c3c, 0 0 15px rgba(231, 76, 60, 0.5);
+        transform: scale(1.1);
+      }
+
+      .node.swapped {
+        background: linear-gradient(135deg, #d5f4e6, #abebc6);
+        border-color: #27ae60;
+        box-shadow: 3px 3px 0 rgba(39, 174, 96, 0.3);
+      }
+
+      .node.next-pair {
+        border-color: #f39c12;
+        border-style: dotted;
+      }
+
+      .node-label {
+        position: absolute;
+        bottom: -22px;
+        left: 50%;
+        transform: translateX(-50%);
+        font-family: "Caveat", cursive;
+        font-size: 0.85rem;
+        color: #7f8c8d;
+        white-space: nowrap;
+        background: #fefcf3;
+        padding: 0 5px;
+      }
+
+      .node-label.prev {
+        color: #9b59b6;
+        font-weight: 700;
+      }
+      .node-label.first {
+        color: #3498db;
+        font-weight: 700;
+      }
+      .node-label.second {
+        color: #e74c3c;
+        font-weight: 700;
+      }
+
+      .arrow {
+        font-size: 1.6rem;
+        color: #3498db;
+        margin: 0 3px;
+        transition: all 0.3s ease;
+      }
+
+      .arrow.changing {
+        color: #e74c3c;
+        animation: arrowPulse 0.5s ease-in-out infinite;
+      }
+
+      @keyframes arrowPulse {
+        0%,
+        100% {
+          transform: scale(1);
+        }
+        50% {
+          transform: scale(1.3);
+        }
+      }
+
+      .null-box {
+        font-family: "Caveat", cursive;
+        font-size: 1.1rem;
+        color: #95a5a6;
+        padding: 10px 15px;
+        border: 2px dashed #bdc3c7;
+        border-radius: 8px;
+        background: rgba(189, 195, 199, 0.1);
+      }
+
+      /* Pointer Legend */
+      .pointer-legend {
+        display: flex;
+        justify-content: center;
+        gap: 25px;
+        margin: 15px 0;
+        flex-wrap: wrap;
+      }
+
+      .legend-item {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        font-family: "Kalam", cursive;
+        font-size: 1rem;
+        color: #34495e;
+      }
+
+      .legend-dot {
+        width: 14px;
+        height: 14px;
+        border-radius: 50%;
+        border: 3px solid;
+      }
+
+      .legend-dot.prev {
+        border-color: #9b59b6;
+        background: rgba(155, 89, 182, 0.2);
+      }
+      .legend-dot.first {
+        border-color: #3498db;
+        background: rgba(52, 152, 219, 0.2);
+      }
+      .legend-dot.second {
+        border-color: #e74c3c;
+        background: rgba(231, 76, 60, 0.2);
+      }
+
+      /* Operation Steps */
+      .operations-box {
+        background: white;
+        border: 2px solid #3498db;
+        border-radius: 12px;
+        padding: 18px;
+        margin: 20px 0;
+      }
+
+      .operations-title {
+        font-family: "Permanent Marker", cursive;
+        font-size: 1.1rem;
+        color: #3498db;
+        margin-bottom: 12px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+
+      .operation-list {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+      }
+
+      .operation {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 10px 15px;
+        border-radius: 8px;
+        background: #f8f9fa;
+        border-left: 4px solid #bdc3c7;
+        transition: all 0.4s ease;
+        opacity: 0.4;
+        transform: translateX(-10px);
+      }
+
+      .operation.active {
+        opacity: 1;
+        transform: translateX(0);
+        background: #fff3cd;
+        border-left-color: #f39c12;
+      }
+
+      .operation.completed {
+        opacity: 1;
+        transform: translateX(0);
+        background: #d4edda;
+        border-left-color: #27ae60;
+      }
+
+      .operation-num {
+        width: 26px;
+        height: 26px;
+        border-radius: 50%;
+        background: #bdc3c7;
+        color: white;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-family: "Caveat", cursive;
+        font-weight: 700;
+        font-size: 1rem;
+      }
+
+      .operation.active .operation-num {
+        background: #f39c12;
+      }
+
+      .operation.completed .operation-num {
+        background: #27ae60;
+      }
+
+      .operation-text {
+        font-family: "Kalam", cursive;
+        font-size: 1.05rem;
+        color: #2c3e50;
+      }
+
+      .code-inline {
+        font-family: "Courier New", monospace;
+        background: #2c3e50;
+        color: #74b9ff;
+        padding: 2px 8px;
+        border-radius: 4px;
+        font-size: 0.9rem;
+      }
+
+      /* Explanation Box */
+      .explanation-box {
+        background: linear-gradient(135deg, #e8f6f3, #d1f2eb);
+        border: 3px solid #1abc9c;
+        border-radius: 12px;
+        padding: 20px;
+        margin-top: 20px;
+        position: relative;
+      }
+
+      .explanation-icon {
+        position: absolute;
+        top: -15px;
+        right: 20px;
+        font-size: 2rem;
+        background: #fefcf3;
+        padding: 0 8px;
+      }
+
+      .explanation-title {
+        font-family: "Permanent Marker", cursive;
+        font-size: 1.15rem;
+        color: #16a085;
+        margin-bottom: 10px;
+      }
+
+      .explanation-text {
+        font-size: 1.1rem;
+        color: #2c3e50;
+        line-height: 1.6;
+      }
+
+      .highlight-yellow {
+        background: linear-gradient(
+          180deg,
+          transparent 50%,
+          rgba(241, 196, 15, 0.4) 50%
+        );
+      }
+
+      .highlight-green {
+        background: linear-gradient(
+          180deg,
+          transparent 50%,
+          rgba(46, 204, 113, 0.4) 50%
+        );
+      }
+
+      .highlight-blue {
+        background: linear-gradient(
+          180deg,
+          transparent 50%,
+          rgba(52, 152, 219, 0.4) 50%
+        );
+      }
+
+      /* Variable State */
+      .var-state {
+        background: white;
+        border: 2px solid #34495e;
+        border-radius: 10px;
+        padding: 15px;
+        margin-top: 15px;
+      }
+
+      .var-state-title {
+        font-family: "Caveat", cursive;
+        font-size: 1.2rem;
+        color: #2c3e50;
+        margin-bottom: 10px;
+        font-weight: 700;
+      }
+
+      .var-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+        gap: 10px;
+      }
+
+      .var-item {
+        display: flex;
+        gap: 8px;
+        padding: 6px 10px;
+        background: #f8f9fa;
+        border-radius: 6px;
+        border-left: 3px solid #9b59b6;
+      }
+
+      .var-name {
+        font-weight: 700;
+        color: #9b59b6;
+      }
+
+      .var-value {
+        color: #2c3e50;
+      }
+
+      /* Complexity Box */
+      .complexity-row {
+        display: flex;
+        gap: 20px;
+        justify-content: center;
+        margin-top: 20px;
+        flex-wrap: wrap;
+      }
+
+      .complexity-badge {
+        background: white;
+        border: 3px solid;
+        border-radius: 10px;
+        padding: 10px 20px;
+        text-align: center;
+        box-shadow: 3px 3px 0 rgba(0, 0, 0, 0.1);
+      }
+
+      .complexity-badge.time {
+        border-color: #3498db;
+      }
+
+      .complexity-badge.space {
+        border-color: #27ae60;
+      }
+
+      .complexity-badge-label {
+        font-family: "Caveat", cursive;
+        font-size: 0.95rem;
+        color: #7f8c8d;
+      }
+
+      .complexity-badge-value {
+        font-family: "Permanent Marker", cursive;
+        font-size: 1.4rem;
+        color: #2c3e50;
+      }
+
+      /* Star decoration */
+      .star {
+        color: #f1c40f;
+        font-size: 1.2rem;
+      }
+
+      /* Hand-drawn circle */
+      .circle-highlight {
+        position: relative;
+      }
+
+      .circle-highlight::after {
+        content: "";
+        position: absolute;
+        top: -5px;
+        left: -8px;
+        right: -8px;
+        bottom: -5px;
+        border: 3px solid #e74c3c;
+        border-radius: 50%;
+        transform: rotate(-5deg);
+        opacity: 0.7;
+      }
+
+      /* Responsive */
+      @media (max-width: 768px) {
+        .notebook {
+          padding: 30px 20px 30px 50px;
+        }
+
+        .notebook::before {
+          left: 15px;
+        }
+
+        .notebook::after {
+          left: 40px;
+        }
+
+        .title {
+          font-size: 1.7rem;
+        }
+
+        .node {
+          width: 45px;
+          height: 45px;
+          font-size: 1.5rem;
+        }
+
+        .btn {
+          padding: 8px 16px;
+          font-size: 1rem;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="notebook">
+      <div class="paper-lines"></div>
+      <div class="content">
+        <!-- Title -->
+        <h1 class="title">
+          Swap Nodes in Pairs
+          <span class="optimal-badge">⭐ OPTIMAL</span>
+        </h1>
+        <p class="subtitle">
+          Iterative In-Place Approach — O(n) Time, O(1) Space
+        </p>
+
+        <!-- Problem Box -->
+        <div class="problem-box">
+          <div class="sticky-note">📌 Key Insight</div>
+          <div class="problem-text">
+            Use a <span class="key-insight">dummy node</span> to handle head
+            changes elegantly. Maintain a
+            <span class="key-insight">prev pointer</span> to connect swapped
+            pairs. Three pointer rewirings per pair — that's all!
+          </div>
+          <div class="example-io">
+            <div class="io-item">
+              <span class="io-label">Input:</span>
+              <span class="io-value">1 → 2 → 3 → 4</span>
+            </div>
+            <div class="io-item">
+              <span class="io-label">Output:</span>
+              <span class="io-value">2 → 1 → 4 → 3</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Controls -->
+        <div class="controls">
+          <button class="btn btn-prev" id="prevBtn" disabled>◀ Prev</button>
+          <button class="btn btn-next" id="nextBtn">Next ▶</button>
+          <button class="btn btn-auto" id="autoBtn">▶▶ Auto</button>
+          <button class="btn btn-reset" id="resetBtn">↺ Reset</button>
+        </div>
+
+        <!-- Step Indicator -->
+        <div class="step-indicator">
+          <div class="step-progress" id="stepProgress">
+            <!-- Generated dynamically -->
+          </div>
+          <div class="step-label" id="stepLabel">Step 0: Initial Setup</div>
+        </div>
+
+        <!-- Visualization Area -->
+        <div class="viz-area" id="vizArea">
+          <!-- Dynamic content -->
+        </div>
+
+        <!-- Explanation Box -->
+        <div class="explanation-box">
+          <div class="explanation-icon">💡</div>
+          <div class="explanation-title" id="explanationTitle">
+            The Dummy Node Trick
+          </div>
+          <div class="explanation-text" id="explanationText">
+            A dummy node before head lets us treat the first pair like any other
+            —
+            <span class="highlight-yellow"
+              >prev.next always points to the first node of the current
+              pair</span
+            >. This eliminates special-case handling for the head!
+          </div>
+        </div>
+
+        <!-- Variable State -->
+        <div class="var-state">
+          <div class="var-state-title">📋 Variable Tracker</div>
+          <div class="var-grid" id="varContent">
+            <!-- Dynamic content -->
+          </div>
+        </div>
+
+        <!-- Complexity -->
+        <div class="complexity-row">
+          <div class="complexity-badge time">
+            <div class="complexity-badge-label">Time</div>
+            <div class="complexity-badge-value">O(n)</div>
+          </div>
+          <div class="complexity-badge space">
+            <div class="complexity-badge-label">Space</div>
+            <div class="complexity-badge-value">O(1) ⭐</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      // State
+      let currentStep = 0;
+      const totalSteps = 12;
+      let autoPlayInterval = null;
+
+      // Step definitions
+      const steps = [
+        {
+          label: "Step 0: Initial Setup with Dummy Node",
+          explanation: {
+            title: "The Dummy Node Trick",
+            text: `Create a <span class="code-inline">dummy</span> node pointing to head. Initialize <span class="code-inline">prev = dummy</span>. This elegant trick means we never need special handling for the head — prev.next always gives us the first node of each pair!`,
+          },
+          vars: [
+            { name: "dummy", value: "→ head" },
+            { name: "prev", value: "→ dummy" },
+            { name: "head", value: "→ Node(1)" },
+          ],
+        },
+        {
+          label: "Step 1: Identify First Pair",
+          explanation: {
+            title: "Iteration 1 — Identify the Pair",
+            text: `Set <span class="code-inline">first = prev.next</span> (Node 1) and <span class="code-inline">second = prev.next.next</span> (Node 2). Also save <span class="code-inline">nextPair = second.next</span> (Node 3) so we don't lose access to the rest of the list!`,
+          },
+          vars: [
+            { name: "prev", value: "→ dummy" },
+            { name: "first", value: "→ Node(1)" },
+            { name: "second", value: "→ Node(2)" },
+            { name: "nextPair", value: "→ Node(3)" },
+          ],
+        },
+        {
+          label: "Step 2: Rewire — second.next = first",
+          explanation: {
+            title: "Rewiring Step 1 of 3",
+            text: `<span class="highlight-yellow">second.next = first</span> makes Node 2 point to Node 1. This is the core swap — the second node now points backward to the first!`,
+          },
+          vars: [
+            { name: "operation", value: "second.next = first" },
+            { name: "effect", value: "2 → 1" },
+            { name: "nextPair", value: "saved as Node(3)" },
+          ],
+        },
+        {
+          label: "Step 3: Rewire — first.next = nextPair",
+          explanation: {
+            title: "Rewiring Step 2 of 3",
+            text: `<span class="highlight-yellow">first.next = nextPair</span> connects Node 1 to the rest of the list (Node 3). Without saving nextPair earlier, we would have lost this connection!`,
+          },
+          vars: [
+            { name: "operation", value: "first.next = nextPair" },
+            { name: "effect", value: "1 → 3" },
+            { name: "chain", value: "2 → 1 → 3 → 4" },
+          ],
+        },
+        {
+          label: "Step 4: Rewire — prev.next = second",
+          explanation: {
+            title: "Rewiring Step 3 of 3",
+            text: `<span class="highlight-yellow">prev.next = second</span> connects the previous part of the list to our swapped pair's new first node (Node 2). The dummy now points to 2!`,
+          },
+          vars: [
+            { name: "operation", value: "prev.next = second" },
+            { name: "effect", value: "dummy → 2" },
+            { name: "full chain", value: "dummy → 2 → 1 → 3 → 4" },
+          ],
+        },
+        {
+          label: "Step 5: Advance prev for Next Iteration",
+          explanation: {
+            title: "Move to Next Pair",
+            text: `Set <span class="code-inline">prev = first</span> (which is now Node 1, the second node in our swapped pair). This positions prev correctly — its next will be the first node of the next pair!`,
+          },
+          vars: [
+            { name: "operation", value: "prev = first" },
+            { name: "prev now", value: "→ Node(1)" },
+            { name: "prev.next", value: "→ Node(3)" },
+          ],
+        },
+        {
+          label: "Step 6: First Pair Complete ✓",
+          explanation: {
+            title: "Iteration 1 Complete!",
+            text: `Pair [1,2] is now [2,1]. The structure: <span class="highlight-green">dummy → 2 → 1 → 3 → 4</span>. Loop condition: prev.next (3) and prev.next.next (4) both exist, so we continue!`,
+          },
+          vars: [
+            { name: "swapped", value: "[1,2] → [2,1]" },
+            { name: "list", value: "dummy → 2 → 1 → 3 → 4" },
+            { name: "continue?", value: "Yes ✓" },
+          ],
+        },
+        {
+          label: "Step 7: Identify Second Pair",
+          explanation: {
+            title: "Iteration 2 — Identify the Pair",
+            text: `Same process: <span class="code-inline">first = prev.next</span> (Node 3), <span class="code-inline">second = prev.next.next</span> (Node 4), <span class="code-inline">nextPair = second.next</span> (null).`,
+          },
+          vars: [
+            { name: "prev", value: "→ Node(1)" },
+            { name: "first", value: "→ Node(3)" },
+            { name: "second", value: "→ Node(4)" },
+            { name: "nextPair", value: "null" },
+          ],
+        },
+        {
+          label: "Step 8: Rewire Second Pair",
+          explanation: {
+            title: "Three Rewirings Again",
+            text: `Same three operations: <span class="code-inline">second.next = first</span> (4→3), <span class="code-inline">first.next = nextPair</span> (3→null), <span class="code-inline">prev.next = second</span> (1→4).`,
+          },
+          vars: [
+            { name: "step 1", value: "4.next = 3" },
+            { name: "step 2", value: "3.next = null" },
+            { name: "step 3", value: "1.next = 4" },
+          ],
+        },
+        {
+          label: "Step 9: Advance prev Again",
+          explanation: {
+            title: "Move prev Forward",
+            text: `<span class="code-inline">prev = first</span> moves prev to Node 3. Now prev.next is null, so the loop condition fails. No more pairs to swap!`,
+          },
+          vars: [
+            { name: "prev", value: "→ Node(3)" },
+            { name: "prev.next", value: "null" },
+            { name: "continue?", value: "No — loop exits" },
+          ],
+        },
+        {
+          label: "Step 10: Loop Exits",
+          explanation: {
+            title: "Loop Condition Failed",
+            text: `The while condition <span class="code-inline">prev.next !== null && prev.next.next !== null</span> is now false. We've processed all complete pairs. Any single trailing node would remain untouched (handled automatically!).`,
+          },
+          vars: [
+            { name: "condition", value: "prev.next !== null → false" },
+            { name: "action", value: "Exit loop" },
+            { name: "pairs swapped", value: "2" },
+          ],
+        },
+        {
+          label: "Step 11: Return dummy.next ✅",
+          explanation: {
+            title: "🎉 Success!",
+            text: `Return <span class="code-inline">dummy.next</span> which is Node 2 — the new head. Final result: <span class="highlight-green">2 → 1 → 4 → 3 → null</span>. Done in O(n) time with O(1) extra space!`,
+          },
+          vars: [
+            { name: "return", value: "dummy.next = Node(2)" },
+            { name: "output", value: "[2, 1, 4, 3]" },
+            { name: "status", value: "✅ SUCCESS" },
+          ],
+        },
+      ];
+
+      // DOM Elements
+      const vizArea = document.getElementById("vizArea");
+      const stepLabel = document.getElementById("stepLabel");
+      const stepProgress = document.getElementById("stepProgress");
+      const explanationTitle = document.getElementById("explanationTitle");
+      const explanationText = document.getElementById("explanationText");
+      const varContent = document.getElementById("varContent");
+      const prevBtn = document.getElementById("prevBtn");
+      const nextBtn = document.getElementById("nextBtn");
+      const autoBtn = document.getElementById("autoBtn");
+      const resetBtn = document.getElementById("resetBtn");
+
+      // Generate step progress dots
+      function generateStepProgress() {
+        let html = "";
+        for (let i = 0; i < totalSteps; i++) {
+          if (i > 0) {
+            html += `<div class="step-connector" data-connector="${
+              i - 1
+            }"></div>`;
+          }
+          html += `<div class="step-num" data-step="${i}">${i}</div>`;
+        }
+        stepProgress.innerHTML = html;
+
+        // Add click handlers
+        document.querySelectorAll(".step-num").forEach((el) => {
+          el.addEventListener("click", () => {
+            stopAutoPlay();
+            currentStep = parseInt(el.dataset.step);
+            updateUI();
+          });
+        });
+      }
+
+      // Render linked list
+      function renderList(config) {
+        const { nodes, dummy, pointers, swapped, arrows } = config;
+        let html = '<div class="list-container">';
+
+        // Dummy node
+        if (dummy) {
+          let dummyClass = "node dummy";
+          if (pointers.prev === -1) dummyClass += " prev-pointer";
+          html += `
+                    <div class="node-wrapper">
+                        <div class="${dummyClass}">D</div>
+                        ${
+                          pointers.prev === -1
+                            ? '<div class="node-label prev">prev</div>'
+                            : '<div class="node-label">dummy</div>'
+                        }
+                    </div>
+                    <span class="arrow ${
+                      arrows && arrows.includes(-1) ? "changing" : ""
+                    }">→</span>
+                `;
+        }
+
+        // Regular nodes
+        nodes.forEach((val, idx) => {
+          let nodeClass = "node";
+          let labelText = "";
+          let labelClass = "node-label";
+
+          if (swapped && swapped.includes(idx)) nodeClass += " swapped";
+          if (pointers.prev === idx) {
+            nodeClass += " prev-pointer";
+            labelText = "prev";
+            labelClass += " prev";
+          }
+          if (pointers.first === idx) {
+            nodeClass += " first-node";
+            labelText = labelText ? labelText + "/first" : "first";
+            labelClass += " first";
+          }
+          if (pointers.second === idx) {
+            nodeClass += " second-node";
+            labelText = labelText ? labelText + "/second" : "second";
+            labelClass += " second";
+          }
+          if (pointers.nextPair === idx) {
+            nodeClass += " next-pair";
+            if (!labelText) labelText = "nextPair";
+          }
+
+          html += `
+                    <div class="node-wrapper">
+                        <div class="${nodeClass}">${val}</div>
+                        ${
+                          labelText
+                            ? `<div class="${labelClass}">${labelText}</div>`
+                            : ""
+                        }
+                    </div>
+                `;
+
+          if (idx < nodes.length - 1) {
+            html += `<span class="arrow ${
+              arrows && arrows.includes(idx) ? "changing" : ""
+            }">→</span>`;
+          }
+        });
+
+        html += '<span class="arrow">→</span><div class="null-box">null</div>';
+        html += "</div>";
+
+        return html;
+      }
+
+      // Render operations
+      function renderOperations(ops, activeIdx = -1, completedCount = 0) {
+        let html = `
+                <div class="operations-box">
+                    <div class="operations-title">⚡ Pointer Operations</div>
+                    <div class="operation-list">
+            `;
+
+        ops.forEach((op, idx) => {
+          let opClass = "operation";
+          if (idx === activeIdx) opClass += " active";
+          else if (idx < completedCount) opClass += " completed";
+
+          html += `
+                    <div class="${opClass}">
+                        <div class="operation-num">${idx + 1}</div>
+                        <div class="operation-text">${op}</div>
+                    </div>
+                `;
+        });
+
+        html += "</div></div>";
+        return html;
+      }
+
+      // Render legend
+      function renderLegend() {
+        return `
+                <div class="pointer-legend">
+                    <div class="legend-item">
+                        <div class="legend-dot prev"></div>
+                        <span>prev</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-dot first"></div>
+                        <span>first</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-dot second"></div>
+                        <span>second</span>
+                    </div>
+                </div>
+            `;
+      }
+
+      // Main render function
+      function renderStep(step) {
+        let html = "";
+
+        switch (step) {
+          case 0: // Initial setup
+            html +=
+              '<div class="section-label blue">📎 Initial State with Dummy Node</div>';
+            html += renderList({
+              nodes: [1, 2, 3, 4],
+              dummy: true,
+              pointers: { prev: -1 },
+              swapped: [],
+              arrows: [],
+            });
+            html += renderLegend();
+            break;
+
+          case 1: // Identify first pair
+            html +=
+              '<div class="section-label orange">🎯 Iteration 1: Identify Pair</div>';
+            html += renderList({
+              nodes: [1, 2, 3, 4],
+              dummy: true,
+              pointers: { prev: -1, first: 0, second: 1, nextPair: 2 },
+              swapped: [],
+              arrows: [],
+            });
+            html += renderLegend();
+            html += renderOperations(
+              [
+                '<span class="code-inline">first = prev.next</span> → Node(1)',
+                '<span class="code-inline">second = prev.next.next</span> → Node(2)',
+                '<span class="code-inline">nextPair = second.next</span> → Node(3)',
+              ],
+              -1,
+              3
+            );
+            break;
+
+          case 2: // Rewire 1
+            html +=
+              '<div class="section-label orange">🔧 Rewiring Step 1/3</div>';
+            html += renderList({
+              nodes: [1, 2, 3, 4],
+              dummy: true,
+              pointers: { prev: -1, first: 0, second: 1 },
+              swapped: [],
+              arrows: [1],
+            });
+            html += renderOperations(
+              [
+                '<span class="code-inline">second.next = first</span> — 2 points to 1',
+                '<span class="code-inline">first.next = nextPair</span>',
+                '<span class="code-inline">prev.next = second</span>',
+              ],
+              0,
+              0
+            );
+            break;
+
+          case 3: // Rewire 2
+            html +=
+              '<div class="section-label orange">🔧 Rewiring Step 2/3</div>';
+            html += renderList({
+              nodes: [1, 2, 3, 4],
+              dummy: true,
+              pointers: { prev: -1, first: 0, second: 1 },
+              swapped: [],
+              arrows: [0],
+            });
+            html += renderOperations(
+              [
+                '<span class="code-inline">second.next = first</span> ✓',
+                '<span class="code-inline">first.next = nextPair</span> — 1 points to 3',
+                '<span class="code-inline">prev.next = second</span>',
+              ],
+              1,
+              1
+            );
+            break;
+
+          case 4: // Rewire 3
+            html +=
+              '<div class="section-label orange">🔧 Rewiring Step 3/3</div>';
+            html += renderList({
+              nodes: [2, 1, 3, 4],
+              dummy: true,
+              pointers: { prev: -1, first: 1, second: 0 },
+              swapped: [0, 1],
+              arrows: [-1],
+            });
+            html += renderOperations(
+              [
+                '<span class="code-inline">second.next = first</span> ✓',
+                '<span class="code-inline">first.next = nextPair</span> ✓',
+                '<span class="code-inline">prev.next = second</span> — dummy points to 2',
+              ],
+              2,
+              2
+            );
+            break;
+
+          case 5: // Advance prev
+            html +=
+              '<div class="section-label purple">➡️ Advance prev Pointer</div>';
+            html += renderList({
+              nodes: [2, 1, 3, 4],
+              dummy: true,
+              pointers: { prev: 1 },
+              swapped: [0, 1],
+              arrows: [],
+            });
+            html += renderOperations(
+              [
+                '<span class="code-inline">prev = first</span> — prev moves to Node(1)',
+              ],
+              0,
+              1
+            );
+            break;
+
+          case 6: // First pair complete
+            html +=
+              '<div class="section-label green">✅ Iteration 1 Complete</div>';
+            html += renderList({
+              nodes: [2, 1, 3, 4],
+              dummy: true,
+              pointers: { prev: 1 },
+              swapped: [0, 1],
+              arrows: [],
+            });
+            html += `<div style="text-align: center; margin: 15px 0; font-family: 'Shadows Into Light', cursive; font-size: 1.3rem; color: #27ae60;">
+                        First pair swapped! [1,2] → [2,1]
+                    </div>`;
+            break;
+
+          case 7: // Identify second pair
+            html +=
+              '<div class="section-label orange">🎯 Iteration 2: Identify Pair</div>';
+            html += renderList({
+              nodes: [2, 1, 3, 4],
+              dummy: true,
+              pointers: { prev: 1, first: 2, second: 3, nextPair: null },
+              swapped: [0, 1],
+              arrows: [],
+            });
+            html += renderLegend();
+            html += renderOperations(
+              [
+                '<span class="code-inline">first = prev.next</span> → Node(3)',
+                '<span class="code-inline">second = prev.next.next</span> → Node(4)',
+                '<span class="code-inline">nextPair = second.next</span> → null',
+              ],
+              -1,
+              3
+            );
+            break;
+
+          case 8: // Rewire second pair
+            html +=
+              '<div class="section-label orange">🔧 Rewiring Pair 2</div>';
+            html += renderList({
+              nodes: [2, 1, 4, 3],
+              dummy: true,
+              pointers: { prev: 1, first: 3, second: 2 },
+              swapped: [0, 1, 2, 3],
+              arrows: [1, 2, 3],
+            });
+            html += renderOperations(
+              [
+                '<span class="code-inline">second.next = first</span> — 4→3 ✓',
+                '<span class="code-inline">first.next = nextPair</span> — 3→null ✓',
+                '<span class="code-inline">prev.next = second</span> — 1→4 ✓',
+              ],
+              -1,
+              3
+            );
+            break;
+
+          case 9: // Advance prev again
+            html +=
+              '<div class="section-label purple">➡️ Advance prev Again</div>';
+            html += renderList({
+              nodes: [2, 1, 4, 3],
+              dummy: true,
+              pointers: { prev: 3 },
+              swapped: [0, 1, 2, 3],
+              arrows: [],
+            });
+            html += `<div style="text-align: center; margin: 15px 0; font-family: 'Kalam', cursive; font-size: 1.1rem; color: #e74c3c;">
+                        prev.next is null — no more pairs!
+                    </div>`;
+            break;
+
+          case 10: // Loop exits
+            html +=
+              '<div class="section-label blue">🛑 Loop Condition Check</div>';
+            html += renderList({
+              nodes: [2, 1, 4, 3],
+              dummy: true,
+              pointers: { prev: 3 },
+              swapped: [0, 1, 2, 3],
+              arrows: [],
+            });
+            html += `
+                        <div style="text-align: center; margin: 20px 0; padding: 15px; background: rgba(231, 76, 60, 0.1); border: 2px solid #e74c3c; border-radius: 10px;">
+                            <div style="font-family: 'Courier New', monospace; font-size: 1rem; color: #2c3e50;">
+                                while (prev.next !== null && prev.next.next !== null)
+                            </div>
+                            <div style="font-family: 'Kalam', cursive; font-size: 1.1rem; color: #e74c3c; margin-top: 8px;">
+                                prev.next = null → Condition FALSE → Exit Loop
+                            </div>
+                        </div>
+                    `;
+            break;
+
+          case 11: // Final result
+            html += `<div style="text-align: center; margin-bottom: 20px;">
+                        <span style="font-family: 'Permanent Marker', cursive; font-size: 2rem; color: #27ae60;">
+                            🎉 Success!
+                        </span>
+                    </div>`;
+            html += '<div class="section-label green">✅ Final Result</div>';
+            html += renderList({
+              nodes: [2, 1, 4, 3],
+              dummy: false,
+              pointers: {},
+              swapped: [0, 1, 2, 3],
+              arrows: [],
+            });
+            html += `
+                        <div style="display: flex; justify-content: center; gap: 25px; margin-top: 20px; flex-wrap: wrap;">
+                            <div style="text-align: center; padding: 12px 20px; background: linear-gradient(135deg, #e8f6f3, #d1f2eb); border: 2px solid #1abc9c; border-radius: 10px;">
+                                <div style="font-family: 'Caveat', cursive; color: #16a085; font-size: 1rem;">Input</div>
+                                <div style="font-family: 'Kalam', cursive; color: #2c3e50; font-size: 1.2rem;">[1, 2, 3, 4]</div>
+                            </div>
+                            <div style="font-size: 1.8rem; color: #27ae60; display: flex; align-items: center;">→</div>
+                            <div style="text-align: center; padding: 12px 20px; background: linear-gradient(135deg, #d4edda, #c3e6cb); border: 2px solid #27ae60; border-radius: 10px;">
+                                <div style="font-family: 'Caveat', cursive; color: #1e8449; font-size: 1rem;">Output</div>
+                                <div style="font-family: 'Kalam', cursive; color: #2c3e50; font-size: 1.2rem;">[2, 1, 4, 3]</div>
+                            </div>
+                        </div>
+                    `;
+            break;
+        }
+
+        vizArea.innerHTML = html;
+      }
+
+      function updateVars(step) {
+        const stepData = steps[step];
+        let html = "";
+        stepData.vars.forEach((v) => {
+          html += `
+                    <div class="var-item">
+                        <span class="var-name">${v.name}:</span>
+                        <span class="var-value">${v.value}</span>
+                    </div>
+                `;
+        });
+        varContent.innerHTML = html;
+      }
+
+      function updateStepProgress() {
+        document.querySelectorAll(".step-num").forEach((el, idx) => {
+          el.classList.remove("active", "completed");
+          if (idx === currentStep) el.classList.add("active");
+          else if (idx < currentStep) el.classList.add("completed");
+        });
+
+        document.querySelectorAll(".step-connector").forEach((el, idx) => {
+          el.classList.toggle("completed", idx < currentStep);
+        });
+      }
+
+      function updateUI() {
+        stepLabel.textContent = steps[currentStep].label;
+        explanationTitle.textContent = steps[currentStep].explanation.title;
+        explanationText.innerHTML = steps[currentStep].explanation.text;
+
+        updateStepProgress();
+        prevBtn.disabled = currentStep === 0;
+        nextBtn.disabled = currentStep === totalSteps - 1;
+
+        updateVars(currentStep);
+        renderStep(currentStep);
+      }
+
+      function nextStep() {
+        if (currentStep < totalSteps - 1) {
+          currentStep++;
+          updateUI();
+        }
+      }
+
+      function prevStep() {
+        if (currentStep > 0) {
+          currentStep--;
+          updateUI();
+        }
+      }
+
+      function reset() {
+        stopAutoPlay();
+        currentStep = 0;
+        updateUI();
+      }
+
+      function toggleAutoPlay() {
+        if (autoPlayInterval) stopAutoPlay();
+        else startAutoPlay();
+      }
+
+      function startAutoPlay() {
+        autoBtn.textContent = "⏸ Pause";
+        autoPlayInterval = setInterval(() => {
+          if (currentStep < totalSteps - 1) nextStep();
+          else stopAutoPlay();
+        }, 2000);
+      }
+
+      function stopAutoPlay() {
+        autoBtn.textContent = "▶▶ Auto";
+        if (autoPlayInterval) {
+          clearInterval(autoPlayInterval);
+          autoPlayInterval = null;
+        }
+      }
+
+      // Event listeners
+      nextBtn.addEventListener("click", nextStep);
+      prevBtn.addEventListener("click", prevStep);
+      resetBtn.addEventListener("click", reset);
+      autoBtn.addEventListener("click", toggleAutoPlay);
+
+      document.addEventListener("keydown", (e) => {
+        if (e.key === "ArrowRight") nextStep();
+        else if (e.key === "ArrowLeft") prevStep();
+        else if (e.key === " ") {
+          e.preventDefault();
+          toggleAutoPlay();
+        }
+      });
+
+      // Initialize
+      generateStepProgress();
+      updateUI();
+    </script>
+  </body>
+</html>

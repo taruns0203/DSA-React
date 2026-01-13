@@ -1,0 +1,1200 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Merge K Sorted Lists - Divide and Conquer Approach</title>
+    <style>
+      @import url("https://fonts.googleapis.com/css2?family=Caveat:wght@400;600;700&family=Patrick+Hand&display=swap");
+
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        font-family: "Patrick Hand", cursive;
+        background: #1a1a2e;
+        min-height: 100vh;
+        padding: 20px;
+      }
+
+      .whiteboard {
+        background: linear-gradient(135deg, #2d2d44 0%, #1a1a2e 100%);
+        border-radius: 12px;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4),
+          inset 0 0 100px rgba(255, 255, 255, 0.02);
+        max-width: 1300px;
+        margin: 0 auto;
+        padding: 30px;
+        position: relative;
+        border: 8px solid #3d3d5c;
+      }
+
+      h1 {
+        font-family: "Caveat", cursive;
+        font-size: 2.8rem;
+        color: #00d9ff;
+        text-align: center;
+        margin-bottom: 10px;
+        text-shadow: 0 0 20px rgba(0, 217, 255, 0.5);
+      }
+
+      .subtitle {
+        text-align: center;
+        font-size: 1.4rem;
+        color: #a0a0c0;
+        margin-bottom: 25px;
+      }
+
+      .level-indicator {
+        display: flex;
+        justify-content: center;
+        gap: 15px;
+        margin-bottom: 25px;
+        flex-wrap: wrap;
+      }
+
+      .level-badge {
+        padding: 10px 20px;
+        border-radius: 25px;
+        font-size: 1.1rem;
+        border: 2px solid #4a4a6a;
+        color: #8080a0;
+        transition: all 0.3s ease;
+        background: rgba(255, 255, 255, 0.05);
+      }
+
+      .level-badge.active {
+        border-color: #ff6b6b;
+        background: rgba(255, 107, 107, 0.2);
+        color: #ff6b6b;
+        transform: scale(1.08);
+        box-shadow: 0 0 20px rgba(255, 107, 107, 0.3);
+      }
+
+      .level-badge.completed {
+        border-color: #51cf66;
+        background: rgba(81, 207, 102, 0.2);
+        color: #51cf66;
+      }
+
+      .step-counter {
+        text-align: center;
+        font-family: "Caveat", cursive;
+        font-size: 1.5rem;
+        color: #a0a0c0;
+        margin-bottom: 15px;
+      }
+
+      .controls {
+        display: flex;
+        justify-content: center;
+        gap: 15px;
+        margin-bottom: 20px;
+        flex-wrap: wrap;
+      }
+
+      .btn {
+        padding: 12px 28px;
+        font-family: "Patrick Hand", cursive;
+        font-size: 1.2rem;
+        border: none;
+        border-radius: 25px;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        color: #fff;
+      }
+
+      .btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+      }
+
+      .btn-primary {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      }
+
+      .btn-success {
+        background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+      }
+
+      .btn-warning {
+        background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+      }
+
+      .btn-danger {
+        background: linear-gradient(135deg, #eb3349 0%, #f45c43 100%);
+      }
+
+      .btn:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+        transform: none;
+      }
+
+      .speed-control {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 15px;
+        margin-bottom: 20px;
+      }
+
+      .speed-label {
+        font-size: 1.1rem;
+        color: #a0a0c0;
+      }
+
+      .speed-slider {
+        width: 150px;
+        height: 8px;
+        -webkit-appearance: none;
+        background: #3d3d5c;
+        border-radius: 4px;
+        outline: none;
+      }
+
+      .speed-slider::-webkit-slider-thumb {
+        -webkit-appearance: none;
+        width: 20px;
+        height: 20px;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        border-radius: 50%;
+        cursor: pointer;
+      }
+
+      .explanation-box {
+        background: rgba(102, 126, 234, 0.1);
+        border: 2px solid #667eea;
+        border-radius: 12px;
+        padding: 20px;
+        margin-bottom: 25px;
+        min-height: 100px;
+      }
+
+      .explanation-title {
+        font-family: "Caveat", cursive;
+        font-size: 1.4rem;
+        color: #667eea;
+        margin-bottom: 10px;
+      }
+
+      .explanation-text {
+        font-size: 1.15rem;
+        color: #c0c0e0;
+        line-height: 1.6;
+      }
+
+      .code-display {
+        font-family: "Courier New", monospace;
+        background: #1a1a2e;
+        color: #00d9ff;
+        padding: 3px 8px;
+        border-radius: 4px;
+        font-size: 1rem;
+      }
+
+      .tree-container {
+        background: rgba(255, 255, 255, 0.03);
+        border: 2px solid #3d3d5c;
+        border-radius: 12px;
+        padding: 30px;
+        margin-bottom: 25px;
+        overflow-x: auto;
+      }
+
+      .tree-title {
+        font-family: "Caveat", cursive;
+        font-size: 1.6rem;
+        color: #00d9ff;
+        margin-bottom: 20px;
+        text-align: center;
+      }
+
+      .tree-level {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        gap: 30px;
+        margin-bottom: 20px;
+        flex-wrap: wrap;
+        position: relative;
+      }
+
+      .level-label {
+        position: absolute;
+        left: 10px;
+        font-family: "Caveat", cursive;
+        font-size: 1.2rem;
+        color: #8080a0;
+        background: #2d2d44;
+        padding: 5px 10px;
+        border-radius: 10px;
+      }
+
+      .tree-node {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 8px;
+      }
+
+      .node-label {
+        font-size: 1rem;
+        color: #a0a0c0;
+        margin-bottom: 5px;
+      }
+
+      .list-box {
+        background: rgba(255, 255, 255, 0.05);
+        border: 3px solid #4a4a6a;
+        border-radius: 12px;
+        padding: 12px 15px;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        transition: all 0.4s ease;
+        min-width: 80px;
+        justify-content: center;
+      }
+
+      .list-box.active {
+        border-color: #ff6b6b;
+        background: rgba(255, 107, 107, 0.15);
+        box-shadow: 0 0 25px rgba(255, 107, 107, 0.3);
+        transform: scale(1.05);
+      }
+
+      .list-box.merging {
+        border-color: #ffd43b;
+        background: rgba(255, 212, 59, 0.15);
+        animation: pulse 0.8s infinite;
+      }
+
+      .list-box.completed {
+        border-color: #51cf66;
+        background: rgba(81, 207, 102, 0.15);
+      }
+
+      .list-box.faded {
+        opacity: 0.3;
+        transform: scale(0.9);
+      }
+
+      @keyframes pulse {
+        0%,
+        100% {
+          box-shadow: 0 0 15px rgba(255, 212, 59, 0.3);
+        }
+        50% {
+          box-shadow: 0 0 30px rgba(255, 212, 59, 0.6);
+        }
+      }
+
+      .node-val {
+        width: 36px;
+        height: 36px;
+        border: 2px solid #667eea;
+        border-radius: 6px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.1rem;
+        font-weight: bold;
+        color: #fff;
+        background: rgba(102, 126, 234, 0.3);
+      }
+
+      .node-arrow {
+        color: #667eea;
+        font-size: 1.2rem;
+      }
+
+      .merge-arrows {
+        display: flex;
+        justify-content: center;
+        gap: 200px;
+        margin: 15px 0;
+        flex-wrap: wrap;
+      }
+
+      .merge-arrow-group {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        color: #ffd43b;
+        font-size: 1.5rem;
+        opacity: 0.3;
+        transition: all 0.3s ease;
+      }
+
+      .merge-arrow-group.active {
+        opacity: 1;
+        animation: arrowPulse 0.6s infinite;
+      }
+
+      @keyframes arrowPulse {
+        0%,
+        100% {
+          transform: translateY(0);
+        }
+        50% {
+          transform: translateY(5px);
+        }
+      }
+
+      .merge-arrow-text {
+        font-size: 0.9rem;
+        color: #ffd43b;
+      }
+
+      .merge-workspace {
+        background: rgba(255, 212, 59, 0.05);
+        border: 2px solid #ffd43b;
+        border-radius: 12px;
+        padding: 20px;
+        margin-bottom: 25px;
+        display: none;
+      }
+
+      .merge-workspace.visible {
+        display: block;
+      }
+
+      .workspace-title {
+        font-family: "Caveat", cursive;
+        font-size: 1.4rem;
+        color: #ffd43b;
+        margin-bottom: 15px;
+        text-align: center;
+      }
+
+      .merge-visual {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        gap: 30px;
+        flex-wrap: wrap;
+      }
+
+      .merge-list {
+        background: rgba(255, 255, 255, 0.05);
+        border: 2px solid;
+        border-radius: 10px;
+        padding: 15px;
+        min-width: 150px;
+      }
+
+      .merge-list.l1 {
+        border-color: #ff6b6b;
+      }
+
+      .merge-list.l2 {
+        border-color: #4dabf7;
+      }
+
+      .merge-list.result {
+        border-color: #51cf66;
+        min-width: 200px;
+      }
+
+      .merge-list-title {
+        font-size: 1.1rem;
+        margin-bottom: 10px;
+        text-align: center;
+      }
+
+      .merge-list.l1 .merge-list-title {
+        color: #ff6b6b;
+      }
+      .merge-list.l2 .merge-list-title {
+        color: #4dabf7;
+      }
+      .merge-list.result .merge-list-title {
+        color: #51cf66;
+      }
+
+      .merge-nodes {
+        display: flex;
+        align-items: center;
+        gap: 5px;
+        flex-wrap: wrap;
+        min-height: 40px;
+      }
+
+      .merge-node {
+        width: 34px;
+        height: 34px;
+        border: 2px solid;
+        border-radius: 6px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1rem;
+        font-weight: bold;
+        color: #fff;
+        transition: all 0.3s ease;
+      }
+
+      .merge-node.l1-node {
+        border-color: #ff6b6b;
+        background: rgba(255, 107, 107, 0.3);
+      }
+
+      .merge-node.l2-node {
+        border-color: #4dabf7;
+        background: rgba(77, 171, 247, 0.3);
+      }
+
+      .merge-node.result-node {
+        border-color: #51cf66;
+        background: rgba(81, 207, 102, 0.3);
+      }
+
+      .merge-node.pointer {
+        transform: scale(1.2);
+        box-shadow: 0 0 15px currentColor;
+      }
+
+      .merge-node.used {
+        opacity: 0.4;
+        transform: scale(0.8);
+      }
+
+      .merge-symbol {
+        font-size: 2rem;
+        color: #ffd43b;
+      }
+
+      .compare-indicator {
+        background: rgba(255, 212, 59, 0.2);
+        border: 2px solid #ffd43b;
+        border-radius: 8px;
+        padding: 10px 15px;
+        text-align: center;
+        color: #ffd43b;
+        font-size: 1.1rem;
+        min-width: 120px;
+      }
+
+      .complexity-box {
+        background: rgba(0, 217, 255, 0.1);
+        border: 2px solid #00d9ff;
+        border-radius: 12px;
+        padding: 15px;
+        margin-top: 20px;
+      }
+
+      .complexity-title {
+        font-family: "Caveat", cursive;
+        font-size: 1.3rem;
+        color: #00d9ff;
+        margin-bottom: 8px;
+      }
+
+      .complexity-item {
+        font-size: 1.1rem;
+        color: #a0d0ff;
+        margin: 5px 0;
+      }
+
+      .tree-diagram {
+        text-align: center;
+        margin: 20px 0;
+        padding: 20px;
+        background: rgba(0, 0, 0, 0.2);
+        border-radius: 10px;
+      }
+
+      .tree-diagram pre {
+        font-family: "Courier New", monospace;
+        color: #00d9ff;
+        font-size: 0.95rem;
+        line-height: 1.4;
+      }
+
+      .null-text {
+        font-size: 0.9rem;
+        color: #6a6a8a;
+        font-style: italic;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="whiteboard">
+      <h1>🌳 Merge K Sorted Lists</h1>
+      <p class="subtitle">
+        Divide and Conquer Approach - Interactive Visualization
+      </p>
+
+      <div class="level-indicator">
+        <div class="level-badge" id="level0">📋 Level 0: Initial</div>
+        <div class="level-badge" id="level1">🔀 Level 1: Pair & Merge</div>
+        <div class="level-badge" id="level2">🔀 Level 2: Merge Again</div>
+        <div class="level-badge" id="level3">✅ Complete</div>
+      </div>
+
+      <div class="step-counter" id="stepCounter">Ready to start!</div>
+
+      <div class="controls">
+        <button class="btn btn-primary" id="stepBtn" onclick="nextStep()">
+          ▶ Step
+        </button>
+        <button class="btn btn-success" id="autoBtn" onclick="toggleAuto()">
+          ⏵ Auto Play
+        </button>
+        <button class="btn btn-danger" onclick="reset()">↺ Reset</button>
+      </div>
+
+      <div class="speed-control">
+        <span class="speed-label">Speed:</span>
+        <input
+          type="range"
+          class="speed-slider"
+          id="speedSlider"
+          min="300"
+          max="1500"
+          value="600"
+        />
+        <span class="speed-label" id="speedValue">Medium</span>
+      </div>
+
+      <div class="explanation-box">
+        <div class="explanation-title">💡 Current Action:</div>
+        <div class="explanation-text" id="explanation">
+          Click <strong>Step</strong> to begin, or <strong>Auto Play</strong> to
+          watch automatically. <br /><br />
+          <strong>Input:</strong> lists = [[1,4,5], [1,3,4], [2,6]]<br />
+          <strong>Strategy:</strong> Pair up lists and merge pairs in each
+          round. Repeat until one list remains.
+        </div>
+      </div>
+
+      <div class="tree-container">
+        <div class="tree-title">🌲 Divide & Conquer Tree</div>
+
+        <div class="tree-diagram">
+          <pre>
+    Round 0:  [L0]     [L1]     [L2]        ← 3 lists
+                 ↘   ↙         |
+    Round 1:   [M01]        [L2]           ← 2 lists  
+                    ↘     ↙
+    Round 2:       [FINAL]                 ← 1 list
+                </pre
+          >
+        </div>
+
+        <!-- Level 0: Initial lists -->
+        <div class="tree-level" id="treeLevel0">
+          <span class="level-label">Round 0</span>
+          <div class="tree-node" id="node-0-0">
+            <span class="node-label">List 0</span>
+            <div class="list-box" id="box-0-0">
+              <span class="node-val">1</span>
+              <span class="node-arrow">→</span>
+              <span class="node-val">4</span>
+              <span class="node-arrow">→</span>
+              <span class="node-val">5</span>
+            </div>
+          </div>
+          <div class="tree-node" id="node-0-1">
+            <span class="node-label">List 1</span>
+            <div class="list-box" id="box-0-1">
+              <span class="node-val">1</span>
+              <span class="node-arrow">→</span>
+              <span class="node-val">3</span>
+              <span class="node-arrow">→</span>
+              <span class="node-val">4</span>
+            </div>
+          </div>
+          <div class="tree-node" id="node-0-2">
+            <span class="node-label">List 2</span>
+            <div class="list-box" id="box-0-2">
+              <span class="node-val">2</span>
+              <span class="node-arrow">→</span>
+              <span class="node-val">6</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Merge arrows level 0->1 -->
+        <div class="merge-arrows" id="arrows-0">
+          <div class="merge-arrow-group" id="arrow-0-01">
+            <span>↓ merge ↓</span>
+          </div>
+          <div class="merge-arrow-group" id="arrow-0-2">
+            <span>↓ pass ↓</span>
+          </div>
+        </div>
+
+        <!-- Level 1: After first round -->
+        <div class="tree-level" id="treeLevel1">
+          <span class="level-label">Round 1</span>
+          <div class="tree-node" id="node-1-0">
+            <span class="node-label">Merged 0+1</span>
+            <div class="list-box" id="box-1-0">
+              <span class="null-text">pending...</span>
+            </div>
+          </div>
+          <div class="tree-node" id="node-1-1">
+            <span class="node-label">List 2 (passed)</span>
+            <div class="list-box" id="box-1-1">
+              <span class="null-text">pending...</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Merge arrows level 1->2 -->
+        <div class="merge-arrows" id="arrows-1">
+          <div class="merge-arrow-group" id="arrow-1-01">
+            <span>↓ merge ↓</span>
+          </div>
+        </div>
+
+        <!-- Level 2: Final -->
+        <div class="tree-level" id="treeLevel2">
+          <span class="level-label">Round 2</span>
+          <div class="tree-node" id="node-2-0">
+            <span class="node-label">Final Result</span>
+            <div class="list-box" id="box-2-0">
+              <span class="null-text">pending...</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="merge-workspace" id="mergeWorkspace">
+        <div class="workspace-title">⚙️ Current Merge Operation</div>
+        <div class="merge-visual">
+          <div class="merge-list l1">
+            <div class="merge-list-title">L1</div>
+            <div class="merge-nodes" id="workL1"></div>
+          </div>
+          <div class="merge-symbol">+</div>
+          <div class="merge-list l2">
+            <div class="merge-list-title">L2</div>
+            <div class="merge-nodes" id="workL2"></div>
+          </div>
+          <div class="merge-symbol">=</div>
+          <div class="compare-indicator" id="compareBox">—</div>
+          <div class="merge-symbol">→</div>
+          <div class="merge-list result">
+            <div class="merge-list-title">Result</div>
+            <div class="merge-nodes" id="workResult"></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="complexity-box">
+        <div class="complexity-title">📊 Complexity Analysis</div>
+        <div class="complexity-item">
+          ⏱️ <strong>Time:</strong> O(N log k) — log k levels, each processing
+          all N nodes once
+        </div>
+        <div class="complexity-item">
+          💾 <strong>Space:</strong> O(1) iterative / O(log k) recursive — for
+          call stack
+        </div>
+        <div class="complexity-item">
+          📝 <strong>Key Insight:</strong> Pair-wise merging like merge sort
+          reduces re-traversal of early lists
+        </div>
+      </div>
+    </div>
+
+    <script>
+      // Input data
+      const inputLists = [
+        [1, 4, 5],
+        [1, 3, 4],
+        [2, 6],
+      ];
+
+      // State
+      let currentLevel = -1;
+      let currentPhase = "init"; // init, merge01, pass2, merge_final
+      let totalSteps = 0;
+
+      // Tree state
+      let treeState = {
+        level0: [
+          [1, 4, 5],
+          [1, 3, 4],
+          [2, 6],
+        ],
+        level1: [null, null],
+        level2: [null],
+      };
+
+      // Merge state
+      let l1 = [];
+      let l2 = [];
+      let l1Index = 0;
+      let l2Index = 0;
+      let mergeResult = [];
+
+      let isAutoPlaying = false;
+      let autoInterval = null;
+
+      // Speed
+      const speedSlider = document.getElementById("speedSlider");
+      const speedValue = document.getElementById("speedValue");
+
+      speedSlider.addEventListener("input", () => {
+        const val = speedSlider.value;
+        if (val < 600) speedValue.textContent = "Fast";
+        else if (val < 1000) speedValue.textContent = "Medium";
+        else speedValue.textContent = "Slow";
+      });
+
+      function getSpeed() {
+        return parseInt(speedSlider.value);
+      }
+
+      function updateLevelIndicator() {
+        for (let i = 0; i <= 3; i++) {
+          const el = document.getElementById(`level${i}`);
+          el.className = "level-badge";
+          if (i < currentLevel + 1) el.classList.add("completed");
+          else if (i === currentLevel + 1) el.classList.add("active");
+        }
+      }
+
+      function setExplanation(text) {
+        document.getElementById("explanation").innerHTML = text;
+      }
+
+      function setStepCounter(text) {
+        document.getElementById("stepCounter").textContent = text;
+      }
+
+      function setCompareBox(text) {
+        document.getElementById("compareBox").innerHTML = text;
+      }
+
+      function renderListBox(boxId, values) {
+        const box = document.getElementById(boxId);
+        if (!values || values.length === 0) {
+          box.innerHTML = '<span class="null-text">empty</span>';
+          return;
+        }
+
+        box.innerHTML = "";
+        values.forEach((val, idx) => {
+          const nodeEl = document.createElement("span");
+          nodeEl.className = "node-val";
+          nodeEl.textContent = val;
+          box.appendChild(nodeEl);
+
+          if (idx < values.length - 1) {
+            const arrow = document.createElement("span");
+            arrow.className = "node-arrow";
+            arrow.textContent = "→";
+            box.appendChild(arrow);
+          }
+        });
+      }
+
+      function renderWorkspace() {
+        // L1
+        const workL1 = document.getElementById("workL1");
+        workL1.innerHTML = "";
+        l1.forEach((val, idx) => {
+          const node = document.createElement("span");
+          node.className = "merge-node l1-node";
+          if (idx === l1Index && l1Index < l1.length)
+            node.classList.add("pointer");
+          if (idx < l1Index) node.classList.add("used");
+          node.textContent = val;
+          workL1.appendChild(node);
+        });
+
+        // L2
+        const workL2 = document.getElementById("workL2");
+        workL2.innerHTML = "";
+        l2.forEach((val, idx) => {
+          const node = document.createElement("span");
+          node.className = "merge-node l2-node";
+          if (idx === l2Index && l2Index < l2.length)
+            node.classList.add("pointer");
+          if (idx < l2Index) node.classList.add("used");
+          node.textContent = val;
+          workL2.appendChild(node);
+        });
+
+        // Result
+        const workResult = document.getElementById("workResult");
+        workResult.innerHTML = "";
+        mergeResult.forEach((val) => {
+          const node = document.createElement("span");
+          node.className = "merge-node result-node";
+          node.textContent = val;
+          workResult.appendChild(node);
+        });
+
+        if (mergeResult.length === 0) {
+          workResult.innerHTML = '<span class="null-text">building...</span>';
+        }
+      }
+
+      function showWorkspace() {
+        document.getElementById("mergeWorkspace").classList.add("visible");
+      }
+
+      function hideWorkspace() {
+        document.getElementById("mergeWorkspace").classList.remove("visible");
+      }
+
+      function doMergeStep() {
+        const l1Val = l1Index < l1.length ? l1[l1Index] : null;
+        const l2Val = l2Index < l2.length ? l2[l2Index] : null;
+
+        if (l1Val === null && l2Val === null) {
+          return "done";
+        }
+
+        if (l2Val === null) {
+          mergeResult.push(l1Val);
+          setCompareBox(`${l1Val} vs null<br>Pick: ${l1Val}`);
+          l1Index++;
+          return "continue";
+        }
+
+        if (l1Val === null) {
+          mergeResult.push(l2Val);
+          setCompareBox(`null vs ${l2Val}<br>Pick: ${l2Val}`);
+          l2Index++;
+          return "continue";
+        }
+
+        if (l1Val <= l2Val) {
+          mergeResult.push(l1Val);
+          setCompareBox(`${l1Val} ≤ ${l2Val}<br>Pick: ${l1Val}`);
+          l1Index++;
+        } else {
+          mergeResult.push(l2Val);
+          setCompareBox(`${l1Val} > ${l2Val}<br>Pick: ${l2Val}`);
+          l2Index++;
+        }
+
+        return "continue";
+      }
+
+      function startMerge(list1, list2) {
+        l1 = [...list1];
+        l2 = [...list2];
+        l1Index = 0;
+        l2Index = 0;
+        mergeResult = [];
+        showWorkspace();
+        renderWorkspace();
+        setCompareBox("Ready");
+      }
+
+      function nextStep() {
+        totalSteps++;
+
+        // Initial state
+        if (currentPhase === "init") {
+          currentLevel = 0;
+          updateLevelIndicator();
+
+          // Highlight level 0
+          document.getElementById("box-0-0").classList.add("active");
+          document.getElementById("box-0-1").classList.add("active");
+          document.getElementById("box-0-2").classList.add("active");
+
+          setStepCounter(`Step ${totalSteps}: Initialize - 3 lists at Level 0`);
+          setExplanation(
+            `<strong>Starting Divide & Conquer</strong><br><br>` +
+              `We have k=3 lists. In each round, we pair up adjacent lists and merge them.<br><br>` +
+              `Round 1: Merge List0 + List1, List2 passes through (odd one out)<br>` +
+              `Round 2: Merge the two remaining lists`
+          );
+
+          currentPhase = "start_merge01";
+          return;
+        }
+
+        // Start merge of List0 + List1
+        if (currentPhase === "start_merge01") {
+          document.getElementById("box-0-0").classList.remove("active");
+          document.getElementById("box-0-1").classList.remove("active");
+          document.getElementById("box-0-0").classList.add("merging");
+          document.getElementById("box-0-1").classList.add("merging");
+          document.getElementById("arrow-0-01").classList.add("active");
+
+          startMerge(treeState.level0[0], treeState.level0[1]);
+
+          setStepCounter(`Step ${totalSteps}: Starting merge of List0 + List1`);
+          setExplanation(
+            `<strong>Round 1, Merge 1:</strong> List0 + List1<br><br>` +
+              `L1: [${treeState.level0[0].join(", ")}]<br>` +
+              `L2: [${treeState.level0[1].join(", ")}]<br><br>` +
+              `Compare heads and pick the smaller one each time.`
+          );
+
+          currentPhase = "merge01";
+          return;
+        }
+
+        // Merging List0 + List1
+        if (currentPhase === "merge01") {
+          const status = doMergeStep();
+          renderWorkspace();
+
+          setStepCounter(`Step ${totalSteps}: Merging List0 + List1`);
+          setExplanation(
+            `Comparing and picking...<br><br>` +
+              `Current result: [${mergeResult.join(", ")}]<br>` +
+              `L1 remaining: [${l1.slice(l1Index).join(", ") || "done"}]<br>` +
+              `L2 remaining: [${l2.slice(l2Index).join(", ") || "done"}]`
+          );
+
+          if (status === "done") {
+            treeState.level1[0] = [...mergeResult];
+            renderListBox("box-1-0", treeState.level1[0]);
+
+            document.getElementById("box-0-0").classList.remove("merging");
+            document.getElementById("box-0-1").classList.remove("merging");
+            document.getElementById("box-0-0").classList.add("faded");
+            document.getElementById("box-0-1").classList.add("faded");
+            document.getElementById("box-1-0").classList.add("completed");
+            document.getElementById("arrow-0-01").classList.remove("active");
+
+            hideWorkspace();
+            currentPhase = "pass2";
+
+            setExplanation(
+              `<strong>Merge Complete!</strong><br><br>` +
+                `List0 + List1 = [${treeState.level1[0].join(", ")}]<br><br>` +
+                `Next: List2 passes through (no pair to merge with)`
+            );
+          }
+          return;
+        }
+
+        // Pass List2 through
+        if (currentPhase === "pass2") {
+          document.getElementById("box-0-2").classList.add("merging");
+          document.getElementById("arrow-0-2").classList.add("active");
+
+          setTimeout(() => {
+            treeState.level1[1] = [...treeState.level0[2]];
+            renderListBox("box-1-1", treeState.level1[1]);
+
+            document.getElementById("box-0-2").classList.remove("merging");
+            document.getElementById("box-0-2").classList.add("faded");
+            document.getElementById("box-1-1").classList.add("completed");
+            document.getElementById("arrow-0-2").classList.remove("active");
+          }, 300);
+
+          currentLevel = 1;
+          updateLevelIndicator();
+
+          setStepCounter(`Step ${totalSteps}: List2 passes to next level`);
+          setExplanation(
+            `<strong>Round 1 Complete!</strong><br><br>` +
+              `List2 had no pair, so it passes through unchanged.<br><br>` +
+              `Level 1 now has 2 lists:<br>` +
+              `• Merged(0,1): [${treeState.level1[0].join(", ")}]<br>` +
+              `• List2: [${treeState.level0[2].join(", ")}]`
+          );
+
+          currentPhase = "start_final_merge";
+          return;
+        }
+
+        // Start final merge
+        if (currentPhase === "start_final_merge") {
+          document.getElementById("box-1-0").classList.remove("completed");
+          document.getElementById("box-1-1").classList.remove("completed");
+          document.getElementById("box-1-0").classList.add("merging");
+          document.getElementById("box-1-1").classList.add("merging");
+          document.getElementById("arrow-1-01").classList.add("active");
+
+          startMerge(treeState.level1[0], treeState.level1[1]);
+
+          setStepCounter(`Step ${totalSteps}: Starting final merge`);
+          setExplanation(
+            `<strong>Round 2: Final Merge</strong><br><br>` +
+              `L1: [${treeState.level1[0].join(", ")}]<br>` +
+              `L2: [${treeState.level1[1].join(", ")}]<br><br>` +
+              `This will produce the final sorted list!`
+          );
+
+          currentPhase = "final_merge";
+          return;
+        }
+
+        // Final merging
+        if (currentPhase === "final_merge") {
+          const status = doMergeStep();
+          renderWorkspace();
+
+          setStepCounter(`Step ${totalSteps}: Final merge in progress`);
+          setExplanation(
+            `Comparing and picking...<br><br>` +
+              `Current result: [${mergeResult.join(", ")}]<br>` +
+              `L1 remaining: [${l1.slice(l1Index).join(", ") || "done"}]<br>` +
+              `L2 remaining: [${l2.slice(l2Index).join(", ") || "done"}]`
+          );
+
+          if (status === "done") {
+            treeState.level2[0] = [...mergeResult];
+            renderListBox("box-2-0", treeState.level2[0]);
+
+            document.getElementById("box-1-0").classList.remove("merging");
+            document.getElementById("box-1-1").classList.remove("merging");
+            document.getElementById("box-1-0").classList.add("faded");
+            document.getElementById("box-1-1").classList.add("faded");
+            document.getElementById("box-2-0").classList.add("completed");
+            document.getElementById("arrow-1-01").classList.remove("active");
+
+            hideWorkspace();
+            currentLevel = 3;
+            updateLevelIndicator();
+            currentPhase = "complete";
+
+            setStepCounter(`✅ Complete!`);
+            setExplanation(
+              `<strong>🎉 Divide & Conquer Complete!</strong><br><br>` +
+                `Final merged list: <strong>[${treeState.level2[0].join(
+                  ", "
+                )}]</strong><br><br>` +
+                `Summary:<br>` +
+                `• Round 1: Merged 3 → 2 lists<br>` +
+                `• Round 2: Merged 2 → 1 list<br>` +
+                `• Total rounds: log₂(k) = log₂(3) ≈ 2<br><br>` +
+                `Time: <span class="code-display">O(N log k)</span>, Space: <span class="code-display">O(1)</span>`
+            );
+
+            document.getElementById("stepBtn").disabled = true;
+            stopAuto();
+          }
+          return;
+        }
+      }
+
+      function toggleAuto() {
+        if (isAutoPlaying) {
+          stopAuto();
+        } else {
+          startAuto();
+        }
+      }
+
+      function startAuto() {
+        isAutoPlaying = true;
+        document.getElementById("autoBtn").textContent = "⏸ Pause";
+        document.getElementById("autoBtn").classList.remove("btn-success");
+        document.getElementById("autoBtn").classList.add("btn-warning");
+
+        autoInterval = setInterval(() => {
+          if (currentPhase === "complete") {
+            stopAuto();
+            return;
+          }
+          nextStep();
+        }, getSpeed());
+      }
+
+      function stopAuto() {
+        isAutoPlaying = false;
+        document.getElementById("autoBtn").textContent = "⏵ Auto Play";
+        document.getElementById("autoBtn").classList.remove("btn-warning");
+        document.getElementById("autoBtn").classList.add("btn-success");
+
+        if (autoInterval) {
+          clearInterval(autoInterval);
+          autoInterval = null;
+        }
+      }
+
+      function reset() {
+        stopAuto();
+
+        currentLevel = -1;
+        currentPhase = "init";
+        totalSteps = 0;
+
+        treeState = {
+          level0: [
+            [1, 4, 5],
+            [1, 3, 4],
+            [2, 6],
+          ],
+          level1: [null, null],
+          level2: [null],
+        };
+
+        l1 = [];
+        l2 = [];
+        l1Index = 0;
+        l2Index = 0;
+        mergeResult = [];
+
+        document.getElementById("stepBtn").disabled = false;
+
+        // Reset all boxes
+        [
+          "box-0-0",
+          "box-0-1",
+          "box-0-2",
+          "box-1-0",
+          "box-1-1",
+          "box-2-0",
+        ].forEach((id) => {
+          const el = document.getElementById(id);
+          el.className = "list-box";
+        });
+
+        // Reset arrows
+        ["arrow-0-01", "arrow-0-2", "arrow-1-01"].forEach((id) => {
+          document.getElementById(id).classList.remove("active");
+        });
+
+        // Reset tree content
+        renderListBox("box-0-0", treeState.level0[0]);
+        renderListBox("box-0-1", treeState.level0[1]);
+        renderListBox("box-0-2", treeState.level0[2]);
+        document.getElementById("box-1-0").innerHTML =
+          '<span class="null-text">pending...</span>';
+        document.getElementById("box-1-1").innerHTML =
+          '<span class="null-text">pending...</span>';
+        document.getElementById("box-2-0").innerHTML =
+          '<span class="null-text">pending...</span>';
+
+        hideWorkspace();
+        updateLevelIndicator();
+
+        setStepCounter("Ready to start!");
+        setExplanation(
+          `Click <strong>Step</strong> to begin, or <strong>Auto Play</strong> to watch automatically.` +
+            `<br><br>` +
+            `<strong>Input:</strong> lists = [[1,4,5], [1,3,4], [2,6]]<br>` +
+            `<strong>Strategy:</strong> Pair up lists and merge pairs in each round. Repeat until one list remains.`
+        );
+      }
+
+      // Keyboard support
+      document.addEventListener("keydown", (e) => {
+        if (e.code === "Space") {
+          e.preventDefault();
+          if (currentPhase !== "complete") nextStep();
+        } else if (e.code === "KeyR") {
+          reset();
+        } else if (e.code === "KeyA") {
+          toggleAuto();
+        }
+      });
+
+      // Initialize
+      renderListBox("box-0-0", treeState.level0[0]);
+      renderListBox("box-0-1", treeState.level0[1]);
+      renderListBox("box-0-2", treeState.level0[2]);
+    </script>
+  </body>
+</html>

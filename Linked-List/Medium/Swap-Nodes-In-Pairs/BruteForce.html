@@ -1,0 +1,1229 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Swap Pairs - Brute Force Approach | Whiteboard</title>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Caveat:wght@400;600;700&family=Patrick+Hand&family=Permanent+Marker&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        font-family: "Patrick Hand", cursive;
+        background: #f5f5f0;
+        min-height: 100vh;
+        overflow-x: hidden;
+      }
+
+      /* Whiteboard Container */
+      .whiteboard-container {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 20px;
+      }
+
+      /* Main Whiteboard */
+      .whiteboard {
+        background: linear-gradient(
+          135deg,
+          #ffffff 0%,
+          #fafafa 50%,
+          #f5f5f5 100%
+        );
+        border-radius: 8px;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1),
+          0 10px 40px rgba(0, 0, 0, 0.15), inset 0 0 100px rgba(0, 0, 0, 0.02);
+        padding: 40px;
+        position: relative;
+        border: 12px solid #8b7355;
+        border-image: linear-gradient(
+            145deg,
+            #a0896c,
+            #6b5344,
+            #8b7355,
+            #a0896c
+          )
+          1;
+      }
+
+      /* Whiteboard texture overlay */
+      .whiteboard::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: repeating-linear-gradient(
+            0deg,
+            transparent,
+            transparent 29px,
+            rgba(200, 200, 200, 0.1) 30px
+          ),
+          repeating-linear-gradient(
+            90deg,
+            transparent,
+            transparent 29px,
+            rgba(200, 200, 200, 0.05) 30px
+          );
+        pointer-events: none;
+        border-radius: 4px;
+      }
+
+      /* Title */
+      .title {
+        font-family: "Permanent Marker", cursive;
+        font-size: 2.2rem;
+        color: #2c3e50;
+        text-align: center;
+        margin-bottom: 10px;
+        text-shadow: 2px 2px 0 rgba(0, 0, 0, 0.1);
+        position: relative;
+      }
+
+      .title::after {
+        content: "";
+        display: block;
+        width: 200px;
+        height: 4px;
+        background: linear-gradient(
+          90deg,
+          transparent,
+          #e74c3c,
+          #3498db,
+          transparent
+        );
+        margin: 10px auto;
+        border-radius: 2px;
+      }
+
+      .subtitle {
+        font-family: "Caveat", cursive;
+        font-size: 1.5rem;
+        color: #7f8c8d;
+        text-align: center;
+        margin-bottom: 30px;
+      }
+
+      /* Problem Statement */
+      .problem-box {
+        background: linear-gradient(135deg, #fffde7 0%, #fff9c4 100%);
+        border: 3px dashed #f39c12;
+        border-radius: 12px;
+        padding: 20px;
+        margin-bottom: 30px;
+        position: relative;
+        transform: rotate(-0.5deg);
+      }
+
+      .problem-box::before {
+        content: "📌";
+        position: absolute;
+        top: -15px;
+        left: 20px;
+        font-size: 1.8rem;
+      }
+
+      .problem-label {
+        font-family: "Permanent Marker", cursive;
+        font-size: 1.2rem;
+        color: #e67e22;
+        margin-bottom: 10px;
+      }
+
+      .problem-text {
+        font-size: 1.3rem;
+        color: #34495e;
+        line-height: 1.6;
+      }
+
+      .example-io {
+        display: flex;
+        gap: 40px;
+        margin-top: 15px;
+        flex-wrap: wrap;
+      }
+
+      .io-item {
+        font-size: 1.2rem;
+      }
+
+      .io-label {
+        font-family: "Caveat", cursive;
+        font-weight: 700;
+        color: #8e44ad;
+      }
+
+      .io-value {
+        font-family: "Patrick Hand", cursive;
+        background: white;
+        padding: 5px 15px;
+        border-radius: 8px;
+        border: 2px solid #9b59b6;
+        display: inline-block;
+        margin-left: 10px;
+      }
+
+      /* Control Panel */
+      .controls {
+        display: flex;
+        justify-content: center;
+        gap: 15px;
+        margin-bottom: 30px;
+        flex-wrap: wrap;
+      }
+
+      .btn {
+        font-family: "Patrick Hand", cursive;
+        font-size: 1.2rem;
+        padding: 12px 28px;
+        border: none;
+        border-radius: 25px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+      }
+
+      .btn-prev {
+        background: linear-gradient(135deg, #74b9ff, #0984e3);
+        color: white;
+      }
+
+      .btn-next {
+        background: linear-gradient(135deg, #55efc4, #00b894);
+        color: white;
+      }
+
+      .btn-reset {
+        background: linear-gradient(135deg, #fd79a8, #e84393);
+        color: white;
+      }
+
+      .btn-auto {
+        background: linear-gradient(135deg, #ffeaa7, #fdcb6e);
+        color: #2d3436;
+      }
+
+      .btn:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+      }
+
+      .btn:active {
+        transform: translateY(0);
+      }
+
+      .btn:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+        transform: none;
+      }
+
+      /* Step Indicator */
+      .step-indicator {
+        text-align: center;
+        margin-bottom: 25px;
+      }
+
+      .step-dots {
+        display: flex;
+        justify-content: center;
+        gap: 12px;
+        margin-bottom: 15px;
+      }
+
+      .step-dot {
+        width: 18px;
+        height: 18px;
+        border-radius: 50%;
+        background: #dfe6e9;
+        border: 3px solid #b2bec3;
+        transition: all 0.3s ease;
+        cursor: pointer;
+      }
+
+      .step-dot.active {
+        background: #e74c3c;
+        border-color: #c0392b;
+        transform: scale(1.3);
+        box-shadow: 0 0 15px rgba(231, 76, 60, 0.5);
+      }
+
+      .step-dot.completed {
+        background: #27ae60;
+        border-color: #1e8449;
+      }
+
+      .step-label {
+        font-family: "Caveat", cursive;
+        font-size: 1.6rem;
+        color: #2c3e50;
+        font-weight: 700;
+      }
+
+      /* Visualization Area */
+      .viz-area {
+        min-height: 450px;
+        position: relative;
+        margin-bottom: 30px;
+      }
+
+      /* Section Labels */
+      .section-label {
+        font-family: "Permanent Marker", cursive;
+        font-size: 1.3rem;
+        margin-bottom: 20px;
+        padding-left: 15px;
+        border-left: 5px solid;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+      }
+
+      .section-label.linked-list {
+        color: #3498db;
+        border-color: #3498db;
+      }
+
+      .section-label.array {
+        color: #e67e22;
+        border-color: #e67e22;
+      }
+
+      .section-label.result {
+        color: #27ae60;
+        border-color: #27ae60;
+      }
+
+      /* Linked List Visualization */
+      .linked-list-viz {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 5px;
+        margin: 25px 0;
+        min-height: 90px;
+        flex-wrap: wrap;
+      }
+
+      .node {
+        display: flex;
+        align-items: center;
+        transition: all 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+      }
+
+      .node-box {
+        width: 70px;
+        height: 70px;
+        border: 4px solid #3498db;
+        border-radius: 12px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        background: linear-gradient(135deg, #ebf5fb, #d6eaf8);
+        position: relative;
+        font-family: "Caveat", cursive;
+        transition: all 0.4s ease;
+        box-shadow: 3px 3px 0 rgba(52, 152, 219, 0.3);
+      }
+
+      .node-box.highlight {
+        border-color: #e74c3c;
+        background: linear-gradient(135deg, #fdedec, #f5b7b1);
+        transform: scale(1.15);
+        box-shadow: 0 0 25px rgba(231, 76, 60, 0.4);
+      }
+
+      .node-box.swapped {
+        border-color: #27ae60;
+        background: linear-gradient(135deg, #eafaf1, #abebc6);
+      }
+
+      .node-box.collecting {
+        animation: pulse 0.6s ease-in-out;
+        border-color: #f39c12;
+        background: linear-gradient(135deg, #fef9e7, #f9e79f);
+      }
+
+      @keyframes pulse {
+        0%,
+        100% {
+          transform: scale(1);
+        }
+        50% {
+          transform: scale(1.2);
+        }
+      }
+
+      .node-value {
+        font-size: 2rem;
+        font-weight: 700;
+        color: #2c3e50;
+      }
+
+      .node-index {
+        font-size: 0.9rem;
+        color: #7f8c8d;
+        position: absolute;
+        bottom: -22px;
+      }
+
+      .arrow {
+        font-size: 2rem;
+        color: #3498db;
+        margin: 0 5px;
+        transition: all 0.3s ease;
+      }
+
+      .arrow.highlight {
+        color: #e74c3c;
+        transform: scale(1.3);
+      }
+
+      .null-marker {
+        font-family: "Caveat", cursive;
+        font-size: 1.4rem;
+        color: #95a5a6;
+        padding: 10px 20px;
+        border: 3px dashed #bdc3c7;
+        border-radius: 10px;
+        background: #f8f9f9;
+      }
+
+      /* Array Visualization */
+      .array-viz {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        margin: 25px 0;
+        min-height: 100px;
+        opacity: 0;
+        transform: translateY(20px);
+        transition: all 0.5s ease;
+      }
+
+      .array-viz.visible {
+        opacity: 1;
+        transform: translateY(0);
+      }
+
+      .array-bracket {
+        font-size: 4rem;
+        color: #e67e22;
+        font-weight: 300;
+        line-height: 1;
+      }
+
+      .array-cell {
+        width: 65px;
+        height: 65px;
+        border: 3px solid #e67e22;
+        border-radius: 8px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        background: linear-gradient(135deg, #fef9e7, #fdebd0);
+        font-family: "Caveat", cursive;
+        position: relative;
+        transition: all 0.4s ease;
+        box-shadow: 3px 3px 0 rgba(230, 126, 34, 0.3);
+      }
+
+      .array-cell.swap-highlight {
+        background: linear-gradient(135deg, #fce4ec, #f8bbd9);
+        border-color: #e91e63;
+        transform: scale(1.1);
+        box-shadow: 0 0 20px rgba(233, 30, 99, 0.4);
+      }
+
+      .array-cell.swapped {
+        background: linear-gradient(135deg, #e8f5e9, #c8e6c9);
+        border-color: #4caf50;
+      }
+
+      .array-cell .node-value {
+        font-size: 1.8rem;
+      }
+
+      .array-cell .cell-index {
+        font-size: 0.8rem;
+        color: #95a5a6;
+        position: absolute;
+        top: -20px;
+      }
+
+      .array-comma {
+        font-size: 2rem;
+        color: #7f8c8d;
+        margin: 0 -2px;
+      }
+
+      /* Swap Animation */
+      .swap-arrows {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        margin: 15px 0;
+        opacity: 0;
+        transition: opacity 0.3s ease;
+      }
+
+      .swap-arrows.visible {
+        opacity: 1;
+      }
+
+      .swap-arrow-container {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        animation: swapPulse 1s ease-in-out infinite;
+      }
+
+      @keyframes swapPulse {
+        0%,
+        100% {
+          transform: scale(1);
+        }
+        50% {
+          transform: scale(1.1);
+        }
+      }
+
+      .swap-icon {
+        font-size: 2.5rem;
+      }
+
+      .swap-text {
+        font-family: "Caveat", cursive;
+        font-size: 1.3rem;
+        color: #e91e63;
+        font-weight: 700;
+      }
+
+      /* Explanation Box */
+      .explanation-box {
+        background: linear-gradient(135deg, #e8f8f5, #d1f2eb);
+        border: 3px solid #1abc9c;
+        border-radius: 15px;
+        padding: 25px;
+        margin-top: 20px;
+        position: relative;
+        transform: rotate(0.3deg);
+      }
+
+      .explanation-box::before {
+        content: "💡";
+        position: absolute;
+        top: -18px;
+        right: 25px;
+        font-size: 2rem;
+        background: white;
+        padding: 0 10px;
+        border-radius: 50%;
+      }
+
+      .explanation-title {
+        font-family: "Permanent Marker", cursive;
+        font-size: 1.3rem;
+        color: #16a085;
+        margin-bottom: 12px;
+      }
+
+      .explanation-text {
+        font-size: 1.25rem;
+        color: #2c3e50;
+        line-height: 1.7;
+      }
+
+      .code-snippet {
+        font-family: "Courier New", monospace;
+        background: #2d3436;
+        color: #74b9ff;
+        padding: 4px 10px;
+        border-radius: 6px;
+        font-size: 1rem;
+        margin: 0 3px;
+      }
+
+      /* Complexity Box */
+      .complexity-box {
+        display: flex;
+        gap: 30px;
+        justify-content: center;
+        margin-top: 25px;
+        flex-wrap: wrap;
+      }
+
+      .complexity-item {
+        background: white;
+        border: 3px solid #9b59b6;
+        border-radius: 12px;
+        padding: 15px 25px;
+        text-align: center;
+        box-shadow: 4px 4px 0 rgba(155, 89, 182, 0.3);
+      }
+
+      .complexity-label {
+        font-family: "Caveat", cursive;
+        font-size: 1.1rem;
+        color: #8e44ad;
+        margin-bottom: 5px;
+      }
+
+      .complexity-value {
+        font-family: "Permanent Marker", cursive;
+        font-size: 1.5rem;
+        color: #2c3e50;
+      }
+
+      /* Hand-drawn underline effect */
+      .hand-underline {
+        position: relative;
+        display: inline-block;
+      }
+
+      .hand-underline::after {
+        content: "";
+        position: absolute;
+        bottom: -3px;
+        left: 0;
+        width: 100%;
+        height: 3px;
+        background: currentColor;
+        border-radius: 2px;
+        transform: rotate(-1deg);
+      }
+
+      /* Marker colors for highlighting */
+      .marker-yellow {
+        background: linear-gradient(180deg, transparent 60%, #fff176 60%);
+        padding: 0 4px;
+      }
+
+      .marker-pink {
+        background: linear-gradient(180deg, transparent 60%, #f8bbd9 60%);
+        padding: 0 4px;
+      }
+
+      .marker-green {
+        background: linear-gradient(180deg, transparent 60%, #a5d6a7 60%);
+        padding: 0 4px;
+      }
+
+      /* Variable State Table */
+      .var-state {
+        background: white;
+        border: 2px solid #34495e;
+        border-radius: 10px;
+        padding: 15px;
+        margin-top: 20px;
+        font-family: "Patrick Hand", cursive;
+      }
+
+      .var-state-title {
+        font-family: "Caveat", cursive;
+        font-size: 1.3rem;
+        color: #2c3e50;
+        margin-bottom: 10px;
+        font-weight: 700;
+      }
+
+      .var-row {
+        display: flex;
+        gap: 25px;
+        padding: 8px 0;
+        border-bottom: 1px dashed #bdc3c7;
+        flex-wrap: wrap;
+      }
+
+      .var-row:last-child {
+        border-bottom: none;
+      }
+
+      .var-name {
+        font-weight: 700;
+        color: #8e44ad;
+        min-width: 80px;
+      }
+
+      .var-value {
+        color: #2c3e50;
+      }
+
+      /* Arrow animation for collection */
+      .collection-arrow {
+        position: absolute;
+        font-size: 2rem;
+        color: #e67e22;
+        opacity: 0;
+        transition: all 0.5s ease;
+      }
+
+      .collection-arrow.visible {
+        opacity: 1;
+        animation: bounce 0.5s ease-in-out;
+      }
+
+      @keyframes bounce {
+        0%,
+        100% {
+          transform: translateY(0);
+        }
+        50% {
+          transform: translateY(-10px);
+        }
+      }
+
+      /* Responsive */
+      @media (max-width: 768px) {
+        .whiteboard {
+          padding: 20px;
+        }
+
+        .title {
+          font-size: 1.6rem;
+        }
+
+        .node-box,
+        .array-cell {
+          width: 55px;
+          height: 55px;
+        }
+
+        .node-value {
+          font-size: 1.5rem;
+        }
+
+        .controls {
+          gap: 10px;
+        }
+
+        .btn {
+          padding: 10px 20px;
+          font-size: 1rem;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="whiteboard-container">
+      <div class="whiteboard">
+        <!-- Title -->
+        <h1 class="title">Swap Nodes in Pairs</h1>
+        <p class="subtitle">
+          Brute Force Approach — Array-Based Reconstruction
+        </p>
+
+        <!-- Problem Statement -->
+        <div class="problem-box">
+          <div class="problem-label">Problem Statement</div>
+          <div class="problem-text">
+            Swap every two adjacent nodes in a linked list by
+            <span class="marker-yellow">changing pointers only</span> (not
+            values).
+          </div>
+          <div class="example-io">
+            <div class="io-item">
+              <span class="io-label">Input:</span>
+              <span class="io-value">1 → 2 → 3 → 4</span>
+            </div>
+            <div class="io-item">
+              <span class="io-label">Output:</span>
+              <span class="io-value">2 → 1 → 4 → 3</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Controls -->
+        <div class="controls">
+          <button class="btn btn-prev" id="prevBtn" disabled>
+            <span>◀</span> Previous
+          </button>
+          <button class="btn btn-next" id="nextBtn">Next <span>▶</span></button>
+          <button class="btn btn-auto" id="autoBtn">
+            <span>▶▶</span> Auto Play
+          </button>
+          <button class="btn btn-reset" id="resetBtn">
+            <span>↺</span> Reset
+          </button>
+        </div>
+
+        <!-- Step Indicator -->
+        <div class="step-indicator">
+          <div class="step-dots">
+            <div class="step-dot active" data-step="0"></div>
+            <div class="step-dot" data-step="1"></div>
+            <div class="step-dot" data-step="2"></div>
+            <div class="step-dot" data-step="3"></div>
+            <div class="step-dot" data-step="4"></div>
+            <div class="step-dot" data-step="5"></div>
+            <div class="step-dot" data-step="6"></div>
+            <div class="step-dot" data-step="7"></div>
+          </div>
+          <div class="step-label" id="stepLabel">Step 0: Initial State</div>
+        </div>
+
+        <!-- Visualization Area -->
+        <div class="viz-area" id="vizArea">
+          <!-- Content will be dynamically generated -->
+        </div>
+
+        <!-- Explanation Box -->
+        <div class="explanation-box">
+          <div class="explanation-title" id="explanationTitle">The Idea</div>
+          <div class="explanation-text" id="explanationText">
+            The brute-force approach converts the linked list problem into an
+            array problem. We
+            <span class="marker-pink">collect all nodes</span> into an array,
+            <span class="marker-yellow">swap pairs</span> in the array (easy
+            with indices!), then <span class="marker-green">rebuild</span> the
+            linked list.
+          </div>
+        </div>
+
+        <!-- Variable State -->
+        <div class="var-state" id="varState">
+          <div class="var-state-title">📋 Current Variable States</div>
+          <div id="varContent">
+            <div class="var-row">
+              <span class="var-name">nodes[]</span>
+              <span class="var-value">[ ] (empty)</span>
+            </div>
+            <div class="var-row">
+              <span class="var-name">current</span>
+              <span class="var-value">→ Node(1)</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Complexity -->
+        <div class="complexity-box">
+          <div class="complexity-item">
+            <div class="complexity-label">Time Complexity</div>
+            <div class="complexity-value">O(n)</div>
+          </div>
+          <div class="complexity-item">
+            <div class="complexity-label">Space Complexity</div>
+            <div class="complexity-value">O(n)</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      // State management
+      let currentStep = 0;
+      const totalSteps = 8;
+      let autoPlayInterval = null;
+
+      // Step definitions
+      const steps = [
+        {
+          label: "Step 0: Initial Linked List",
+          explanation: {
+            title: "Starting Point",
+            text: `We have a linked list: <span class="code-snippet">1 → 2 → 3 → 4 → null</span>. Our goal is to swap pairs to get <span class="code-snippet">2 → 1 → 4 → 3</span>. The brute-force idea: <span class="marker-yellow">extract to array → swap → rebuild</span>.`,
+          },
+          vars: [
+            { name: "head", value: "→ Node(1)" },
+            { name: "nodes[]", value: "[ ] (empty)" },
+            { name: "current", value: "→ Node(1) (will traverse)" },
+          ],
+        },
+        {
+          label: "Step 1: Collect Node 1",
+          explanation: {
+            title: "Phase 1 — Collecting Nodes",
+            text: `We traverse the list and <span class="marker-pink">push each node</span> into an array. First node collected: <span class="code-snippet">nodes.push(Node(1))</span>. Move current to next node.`,
+          },
+          vars: [
+            { name: "nodes[]", value: "[ Node(1) ]" },
+            { name: "current", value: "→ Node(2)" },
+            { name: "iteration", value: "1" },
+          ],
+        },
+        {
+          label: "Step 2: Collect All Nodes",
+          explanation: {
+            title: "Collection Complete",
+            text: `Continue traversing until <span class="code-snippet">current === null</span>. All 4 nodes are now in the array. Array gives us <span class="marker-yellow">random access by index</span> — swapping becomes trivial!`,
+          },
+          vars: [
+            {
+              name: "nodes[]",
+              value: "[ Node(1), Node(2), Node(3), Node(4) ]",
+            },
+            { name: "current", value: "null (traversal done)" },
+            { name: "nodes.length", value: "4" },
+          ],
+        },
+        {
+          label: "Step 3: Swap First Pair (i=0,1)",
+          explanation: {
+            title: "Phase 2 — Swapping in Array",
+            text: `Loop through pairs: <span class="code-snippet">for(i=0; i < length-1; i+=2)</span>. First iteration swaps indices 0 and 1: <span class="marker-pink">Node(1) ↔ Node(2)</span>. Simple array swap!`,
+          },
+          vars: [
+            { name: "i", value: "0" },
+            { name: "swap", value: "nodes[0] ↔ nodes[1]" },
+            {
+              name: "nodes[]",
+              value: "[ Node(2), Node(1), Node(3), Node(4) ]",
+            },
+          ],
+        },
+        {
+          label: "Step 4: Swap Second Pair (i=2,3)",
+          explanation: {
+            title: "Continue Swapping",
+            text: `Second iteration: i=2. Swap indices 2 and 3: <span class="marker-pink">Node(3) ↔ Node(4)</span>. After this, i becomes 4 which is ≥ length-1, so loop exits. <span class="marker-green">All pairs swapped!</span>`,
+          },
+          vars: [
+            { name: "i", value: "2" },
+            { name: "swap", value: "nodes[2] ↔ nodes[3]" },
+            {
+              name: "nodes[]",
+              value: "[ Node(2), Node(1), Node(4), Node(3) ]",
+            },
+          ],
+        },
+        {
+          label: "Step 5: Rebuild — Link nodes[0] to nodes[1]",
+          explanation: {
+            title: "Phase 3 — Rebuilding the List",
+            text: `Now we rewire the <span class="code-snippet">.next</span> pointers based on array order. Set <span class="code-snippet">nodes[0].next = nodes[1]</span>, making <span class="marker-green">2 → 1</span>.`,
+          },
+          vars: [
+            { name: "rebuild i", value: "0" },
+            { name: "operation", value: "nodes[0].next = nodes[1]" },
+            { name: "result so far", value: "2 → 1" },
+          ],
+        },
+        {
+          label: "Step 6: Rebuild — Complete Chain",
+          explanation: {
+            title: "Finish Rebuilding",
+            text: `Continue: <span class="code-snippet">nodes[1].next = nodes[2]</span> (1→4), then <span class="code-snippet">nodes[2].next = nodes[3]</span> (4→3). Finally set <span class="code-snippet">nodes[3].next = null</span> to terminate the list.`,
+          },
+          vars: [
+            { name: "operations", value: "1.next=4, 4.next=3, 3.next=null" },
+            { name: "result", value: "2 → 1 → 4 → 3 → null" },
+          ],
+        },
+        {
+          label: "Step 7: Return New Head ✓",
+          explanation: {
+            title: "🎉 Complete!",
+            text: `Return <span class="code-snippet">nodes[0]</span> which is Node(2) — the new head. <span class="marker-green">Final result: 2 → 1 → 4 → 3</span>. The algorithm used O(n) extra space for the array but made the logic simple!`,
+          },
+          vars: [
+            { name: "return", value: "nodes[0] = Node(2)" },
+            { name: "output", value: "[2, 1, 4, 3]" },
+            { name: "status", value: "✅ SUCCESS" },
+          ],
+        },
+      ];
+
+      // DOM Elements
+      const vizArea = document.getElementById("vizArea");
+      const stepLabel = document.getElementById("stepLabel");
+      const explanationTitle = document.getElementById("explanationTitle");
+      const explanationText = document.getElementById("explanationText");
+      const varContent = document.getElementById("varContent");
+      const prevBtn = document.getElementById("prevBtn");
+      const nextBtn = document.getElementById("nextBtn");
+      const autoBtn = document.getElementById("autoBtn");
+      const resetBtn = document.getElementById("resetBtn");
+      const stepDots = document.querySelectorAll(".step-dot");
+
+      // Render functions
+      function renderLinkedList(nodes, highlights = [], swapped = []) {
+        let html =
+          '<div class="section-label linked-list">📎 Linked List</div>';
+        html += '<div class="linked-list-viz">';
+
+        nodes.forEach((val, idx) => {
+          const isHighlight = highlights.includes(idx);
+          const isSwapped = swapped.includes(idx);
+          let nodeClass = "";
+          if (isHighlight) nodeClass = "highlight";
+          else if (isSwapped) nodeClass = "swapped";
+
+          html += `
+                    <div class="node">
+                        <div class="node-box ${nodeClass}">
+                            <span class="node-value">${val}</span>
+                            <span class="node-index">idx ${idx}</span>
+                        </div>
+                    </div>
+                `;
+          if (idx < nodes.length - 1) {
+            html += `<span class="arrow ${
+              isHighlight ? "highlight" : ""
+            }">→</span>`;
+          }
+        });
+
+        html +=
+          '<span class="arrow">→</span><span class="null-marker">null</span>';
+        html += "</div>";
+        return html;
+      }
+
+      function renderArray(
+        nodes,
+        highlights = [],
+        swapped = [],
+        visible = true
+      ) {
+        let html = `<div class="section-label array">📦 Array: nodes[]</div>`;
+        html += `<div class="array-viz ${visible ? "visible" : ""}">`;
+        html += '<span class="array-bracket">[</span>';
+
+        nodes.forEach((val, idx) => {
+          const isHighlight = highlights.includes(idx);
+          const isSwapped = swapped.includes(idx);
+          let cellClass = "";
+          if (isHighlight) cellClass = "swap-highlight";
+          else if (isSwapped) cellClass = "swapped";
+
+          html += `
+                    <div class="array-cell ${cellClass}">
+                        <span class="cell-index">[${idx}]</span>
+                        <span class="node-value">${val}</span>
+                    </div>
+                `;
+          if (idx < nodes.length - 1) {
+            html += '<span class="array-comma">,</span>';
+          }
+        });
+
+        html += '<span class="array-bracket">]</span>';
+        html += "</div>";
+        return html;
+      }
+
+      function renderSwapArrow(visible = false, text = "SWAP!") {
+        return `
+                <div class="swap-arrows ${visible ? "visible" : ""}">
+                    <div class="swap-arrow-container">
+                        <span class="swap-icon">🔄</span>
+                        <span class="swap-text">${text}</span>
+                    </div>
+                </div>
+            `;
+      }
+
+      function renderResultList(nodes, highlights = []) {
+        let html =
+          '<div class="section-label result">✅ Result Linked List</div>';
+        html += '<div class="linked-list-viz">';
+
+        nodes.forEach((val, idx) => {
+          const isHighlight = highlights.includes(idx);
+          html += `
+                    <div class="node">
+                        <div class="node-box swapped">
+                            <span class="node-value">${val}</span>
+                        </div>
+                    </div>
+                `;
+          if (idx < nodes.length - 1) {
+            html += `<span class="arrow">→</span>`;
+          }
+        });
+
+        html +=
+          '<span class="arrow">→</span><span class="null-marker">null</span>';
+        html += "</div>";
+        return html;
+      }
+
+      // Step rendering
+      function renderStep(step) {
+        let html = "";
+
+        switch (step) {
+          case 0: // Initial state
+            html += renderLinkedList([1, 2, 3, 4]);
+            html += renderArray([], [], [], false);
+            break;
+
+          case 1: // Collecting node 1
+            html += renderLinkedList([1, 2, 3, 4], [0]);
+            html += renderArray([1], [0], [], true);
+            break;
+
+          case 2: // All nodes collected
+            html += renderLinkedList([1, 2, 3, 4], [], [0, 1, 2, 3]);
+            html += renderArray([1, 2, 3, 4], [], [], true);
+            break;
+
+          case 3: // Swap first pair
+            html += renderLinkedList([1, 2, 3, 4], [], [0, 1, 2, 3]);
+            html += renderArray([2, 1, 3, 4], [0, 1], [], true);
+            html += renderSwapArrow(true, "Swap indices 0 ↔ 1");
+            break;
+
+          case 4: // Swap second pair
+            html += renderLinkedList([1, 2, 3, 4], [], [0, 1, 2, 3]);
+            html += renderArray([2, 1, 4, 3], [2, 3], [0, 1], true);
+            html += renderSwapArrow(true, "Swap indices 2 ↔ 3");
+            break;
+
+          case 5: // Rebuild start
+            html += renderArray([2, 1, 4, 3], [], [0, 1, 2, 3], true);
+            html += renderResultList([2, 1], [0, 1]);
+            break;
+
+          case 6: // Rebuild complete
+            html += renderArray([2, 1, 4, 3], [], [0, 1, 2, 3], true);
+            html += renderResultList([2, 1, 4, 3]);
+            break;
+
+          case 7: // Final result
+            html += `<div style="text-align: center; margin-bottom: 20px;">
+                        <span style="font-family: 'Permanent Marker', cursive; font-size: 2rem; color: #27ae60;">
+                            🎉 Success!
+                        </span>
+                    </div>`;
+            html += renderResultList([2, 1, 4, 3]);
+            break;
+        }
+
+        vizArea.innerHTML = html;
+      }
+
+      function updateVars(step) {
+        const stepData = steps[step];
+        let html = "";
+        stepData.vars.forEach((v) => {
+          html += `
+                    <div class="var-row">
+                        <span class="var-name">${v.name}</span>
+                        <span class="var-value">${v.value}</span>
+                    </div>
+                `;
+        });
+        varContent.innerHTML = html;
+      }
+
+      function updateUI() {
+        // Update step label
+        stepLabel.textContent = steps[currentStep].label;
+
+        // Update explanation
+        explanationTitle.textContent = steps[currentStep].explanation.title;
+        explanationText.innerHTML = steps[currentStep].explanation.text;
+
+        // Update dots
+        stepDots.forEach((dot, idx) => {
+          dot.classList.remove("active", "completed");
+          if (idx === currentStep) {
+            dot.classList.add("active");
+          } else if (idx < currentStep) {
+            dot.classList.add("completed");
+          }
+        });
+
+        // Update buttons
+        prevBtn.disabled = currentStep === 0;
+        nextBtn.disabled = currentStep === totalSteps - 1;
+
+        // Update variables
+        updateVars(currentStep);
+
+        // Render visualization
+        renderStep(currentStep);
+      }
+
+      // Event handlers
+      function nextStep() {
+        if (currentStep < totalSteps - 1) {
+          currentStep++;
+          updateUI();
+        }
+      }
+
+      function prevStep() {
+        if (currentStep > 0) {
+          currentStep--;
+          updateUI();
+        }
+      }
+
+      function reset() {
+        stopAutoPlay();
+        currentStep = 0;
+        updateUI();
+      }
+
+      function toggleAutoPlay() {
+        if (autoPlayInterval) {
+          stopAutoPlay();
+        } else {
+          startAutoPlay();
+        }
+      }
+
+      function startAutoPlay() {
+        autoBtn.innerHTML = "<span>⏸</span> Pause";
+        autoPlayInterval = setInterval(() => {
+          if (currentStep < totalSteps - 1) {
+            nextStep();
+          } else {
+            stopAutoPlay();
+          }
+        }, 2000);
+      }
+
+      function stopAutoPlay() {
+        autoBtn.innerHTML = "<span>▶▶</span> Auto Play";
+        if (autoPlayInterval) {
+          clearInterval(autoPlayInterval);
+          autoPlayInterval = null;
+        }
+      }
+
+      // Event listeners
+      nextBtn.addEventListener("click", nextStep);
+      prevBtn.addEventListener("click", prevStep);
+      resetBtn.addEventListener("click", reset);
+      autoBtn.addEventListener("click", toggleAutoPlay);
+
+      stepDots.forEach((dot) => {
+        dot.addEventListener("click", () => {
+          stopAutoPlay();
+          currentStep = parseInt(dot.dataset.step);
+          updateUI();
+        });
+      });
+
+      // Keyboard navigation
+      document.addEventListener("keydown", (e) => {
+        if (e.key === "ArrowRight") nextStep();
+        else if (e.key === "ArrowLeft") prevStep();
+        else if (e.key === " ") {
+          e.preventDefault();
+          toggleAutoPlay();
+        }
+      });
+
+      // Initial render
+      updateUI();
+    </script>
+  </body>
+</html>
