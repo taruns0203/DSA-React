@@ -1,0 +1,1410 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Box Pushing - Improved BFS with Reachability Checks</title>
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        min-height: 100vh;
+        padding: 20px;
+      }
+
+      .whiteboard {
+        background: #fff;
+        border-radius: 16px;
+        box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+        padding: 30px;
+        max-width: 1500px;
+        margin: 0 auto;
+      }
+
+      h1 {
+        text-align: center;
+        color: #2c3e50;
+        margin-bottom: 8px;
+        font-size: 1.8rem;
+      }
+
+      .subtitle {
+        text-align: center;
+        color: #7f8c8d;
+        margin-bottom: 25px;
+        font-size: 1rem;
+      }
+
+      .badge {
+        display: inline-block;
+        background: linear-gradient(135deg, #667eea, #764ba2);
+        color: white;
+        padding: 4px 12px;
+        border-radius: 20px;
+        font-size: 0.8rem;
+        margin-left: 10px;
+      }
+
+      .main-container {
+        display: grid;
+        grid-template-columns: 1fr 1.2fr;
+        gap: 25px;
+      }
+
+      .panel {
+        background: #f8f9fa;
+        border-radius: 12px;
+        padding: 20px;
+        border: 2px solid #e9ecef;
+      }
+
+      .section-title {
+        font-size: 1.1rem;
+        color: #2c3e50;
+        margin-bottom: 15px;
+        padding-bottom: 10px;
+        border-bottom: 3px solid #667eea;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+      }
+
+      .section-icon {
+        width: 28px;
+        height: 28px;
+        background: linear-gradient(135deg, #667eea, #764ba2);
+        border-radius: 6px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-size: 0.9rem;
+      }
+
+      /* Grid Styles */
+      .grids-container {
+        display: flex;
+        gap: 30px;
+        justify-content: center;
+        flex-wrap: wrap;
+        margin-bottom: 20px;
+      }
+
+      .grid-wrapper {
+        text-align: center;
+      }
+
+      .grid-label {
+        font-size: 0.9rem;
+        color: #555;
+        margin-bottom: 8px;
+        font-weight: 600;
+      }
+
+      .grid {
+        display: grid;
+        grid-template-columns: repeat(6, 45px);
+        gap: 2px;
+        background: #34495e;
+        padding: 3px;
+        border-radius: 8px;
+      }
+
+      .cell {
+        width: 45px;
+        height: 45px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1rem;
+        font-weight: bold;
+        border-radius: 4px;
+        transition: all 0.3s ease;
+        position: relative;
+      }
+
+      .cell.wall {
+        background: #2c3e50;
+        color: #2c3e50;
+      }
+      .cell.floor {
+        background: #ecf0f1;
+        color: #bdc3c7;
+      }
+      .cell.player {
+        background: #3498db;
+        color: white;
+      }
+      .cell.box {
+        background: #e74c3c;
+        color: white;
+      }
+      .cell.target {
+        background: #2ecc71;
+        color: white;
+      }
+      .cell.box-on-target {
+        background: #f39c12;
+        color: white;
+      }
+      .cell.reachable {
+        background: #a8e6cf;
+        border: 2px solid #2ecc71;
+      }
+      .cell.push-position {
+        background: #ffeaa7;
+        border: 3px solid #f39c12;
+        animation: pulseYellow 1s infinite;
+      }
+      .cell.path {
+        background: #74b9ff;
+      }
+      .cell.checking {
+        background: #dfe6e9;
+        border: 2px dashed #636e72;
+      }
+
+      @keyframes pulseYellow {
+        0%,
+        100% {
+          transform: scale(1);
+        }
+        50% {
+          transform: scale(1.05);
+        }
+      }
+
+      .cell.push-arrow::after {
+        content: "→";
+        position: absolute;
+        font-size: 1.2rem;
+        color: #e74c3c;
+      }
+
+      .legend {
+        display: flex;
+        gap: 12px;
+        flex-wrap: wrap;
+        justify-content: center;
+        margin-top: 15px;
+        padding: 10px;
+        background: white;
+        border-radius: 8px;
+      }
+
+      .legend-item {
+        display: flex;
+        align-items: center;
+        gap: 5px;
+        font-size: 0.8rem;
+        color: #555;
+      }
+
+      .legend-box {
+        width: 18px;
+        height: 18px;
+        border-radius: 3px;
+      }
+
+      /* Controls */
+      .controls {
+        display: flex;
+        gap: 10px;
+        justify-content: center;
+        margin: 20px 0;
+        flex-wrap: wrap;
+      }
+
+      button {
+        padding: 10px 20px;
+        font-size: 0.9rem;
+        border: none;
+        border-radius: 8px;
+        cursor: pointer;
+        transition: all 0.2s;
+        font-weight: 600;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+      }
+
+      button:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+      }
+      button:active {
+        transform: translateY(0);
+      }
+
+      .btn-primary {
+        background: linear-gradient(135deg, #667eea, #764ba2);
+        color: white;
+      }
+      .btn-success {
+        background: linear-gradient(135deg, #00b894, #00cec9);
+        color: white;
+      }
+      .btn-warning {
+        background: linear-gradient(135deg, #fdcb6e, #f39c12);
+        color: white;
+      }
+      .btn-danger {
+        background: linear-gradient(135deg, #e74c3c, #c0392b);
+        color: white;
+      }
+      .btn-info {
+        background: linear-gradient(135deg, #74b9ff, #0984e3);
+        color: white;
+      }
+
+      /* State Panel */
+      .state-panel {
+        background: white;
+        border-radius: 10px;
+        padding: 15px;
+        margin-bottom: 15px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+      }
+
+      .state-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 10px;
+      }
+
+      .state-item {
+        padding: 10px;
+        background: #f8f9fa;
+        border-radius: 8px;
+        border-left: 4px solid #667eea;
+      }
+
+      .state-label {
+        font-size: 0.75rem;
+        color: #7f8c8d;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+      }
+
+      .state-value {
+        font-size: 1.1rem;
+        font-weight: bold;
+        color: #2c3e50;
+        font-family: "Courier New", monospace;
+      }
+
+      .state-value.highlight {
+        color: #e74c3c;
+        background: linear-gradient(135deg, #ffeaa7, #fdcb6e);
+        padding: 2px 8px;
+        border-radius: 4px;
+      }
+
+      /* Reachability Panel */
+      .reachability-panel {
+        background: white;
+        border-radius: 10px;
+        padding: 15px;
+        margin-bottom: 15px;
+        border: 2px solid #a8e6cf;
+      }
+
+      .reachability-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 12px;
+      }
+
+      .reachability-title {
+        font-weight: bold;
+        color: #00b894;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+
+      .reachability-status {
+        padding: 5px 12px;
+        border-radius: 20px;
+        font-size: 0.85rem;
+        font-weight: 600;
+      }
+
+      .reachability-status.checking {
+        background: #ffeaa7;
+        color: #d68910;
+      }
+      .reachability-status.reachable {
+        background: #d4edda;
+        color: #155724;
+      }
+      .reachability-status.unreachable {
+        background: #f8d7da;
+        color: #721c24;
+      }
+
+      .reachability-info {
+        font-size: 0.9rem;
+        color: #555;
+        line-height: 1.5;
+      }
+
+      .direction-checks {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 8px;
+        margin-top: 12px;
+      }
+
+      .direction-item {
+        padding: 8px 12px;
+        background: #f8f9fa;
+        border-radius: 6px;
+        font-size: 0.85rem;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+
+      .direction-item.active {
+        background: #fff3cd;
+        border: 1px solid #f39c12;
+      }
+      .direction-item.success {
+        background: #d4edda;
+        border: 1px solid #28a745;
+      }
+      .direction-item.failed {
+        background: #f8d7da;
+        border: 1px solid #dc3545;
+      }
+
+      .direction-icon {
+        font-size: 1.1rem;
+      }
+
+      /* Queue */
+      .queue-container {
+        background: white;
+        border-radius: 10px;
+        padding: 15px;
+        max-height: 250px;
+        overflow-y: auto;
+      }
+
+      .queue-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 10px;
+        padding-bottom: 8px;
+        border-bottom: 2px solid #eee;
+      }
+
+      .queue-badge {
+        background: linear-gradient(135deg, #667eea, #764ba2);
+        color: white;
+        padding: 4px 12px;
+        border-radius: 20px;
+        font-size: 0.8rem;
+      }
+
+      .queue-item {
+        display: flex;
+        align-items: center;
+        padding: 10px;
+        background: #f8f9fa;
+        border-radius: 8px;
+        margin-bottom: 6px;
+        font-family: "Courier New", monospace;
+        font-size: 0.85rem;
+        transition: all 0.3s;
+      }
+
+      .queue-item.current {
+        background: linear-gradient(135deg, #fff3cd, #ffeaa7);
+        border: 2px solid #f39c12;
+      }
+
+      .queue-item-num {
+        width: 26px;
+        height: 26px;
+        background: #667eea;
+        color: white;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 0.75rem;
+        margin-right: 10px;
+      }
+
+      .queue-item-pushes {
+        margin-left: auto;
+        background: #e74c3c;
+        color: white;
+        padding: 3px 10px;
+        border-radius: 12px;
+        font-size: 0.75rem;
+      }
+
+      /* Explanation */
+      .explanation-box {
+        background: linear-gradient(135deg, #a8e6cf, #dcedc1);
+        border-radius: 10px;
+        padding: 15px;
+        margin-top: 15px;
+      }
+
+      .explanation-title {
+        font-weight: bold;
+        color: #00695c;
+        margin-bottom: 8px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+
+      .explanation-text {
+        color: #2d3436;
+        line-height: 1.6;
+        font-size: 0.95rem;
+      }
+
+      .code-highlight {
+        background: rgba(255, 255, 255, 0.7);
+        padding: 2px 6px;
+        border-radius: 4px;
+        font-family: "Courier New", monospace;
+        font-size: 0.9rem;
+      }
+
+      /* Algorithm comparison */
+      .comparison-box {
+        background: white;
+        border-radius: 10px;
+        padding: 15px;
+        margin-top: 15px;
+      }
+
+      .comparison-title {
+        font-weight: bold;
+        color: #2c3e50;
+        margin-bottom: 10px;
+      }
+
+      .comparison-table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 0.85rem;
+      }
+
+      .comparison-table th,
+      .comparison-table td {
+        padding: 8px 10px;
+        text-align: left;
+        border-bottom: 1px solid #eee;
+      }
+
+      .comparison-table th {
+        background: #f8f9fa;
+        color: #555;
+        font-weight: 600;
+      }
+
+      .comparison-table .highlight-row {
+        background: #e8f5e9;
+      }
+
+      /* Message */
+      .message-box {
+        padding: 15px;
+        border-radius: 10px;
+        margin: 15px 0;
+        text-align: center;
+        font-weight: 600;
+        display: none;
+      }
+
+      .message-box.success {
+        background: linear-gradient(135deg, #d4edda, #c3e6cb);
+        color: #155724;
+        display: block;
+      }
+
+      .message-box.info {
+        background: linear-gradient(135deg, #d1ecf1, #bee5eb);
+        color: #0c5460;
+        display: block;
+      }
+
+      /* Speed control */
+      .speed-control {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 15px;
+        margin: 15px 0;
+        padding: 12px;
+        background: white;
+        border-radius: 8px;
+      }
+
+      input[type="range"] {
+        width: 150px;
+        cursor: pointer;
+      }
+
+      /* Pseudocode */
+      .pseudocode {
+        background: #1e272e;
+        color: #d2dae2;
+        padding: 15px;
+        border-radius: 10px;
+        font-family: "Courier New", monospace;
+        font-size: 0.8rem;
+        line-height: 1.7;
+        overflow-x: auto;
+        margin-top: 15px;
+      }
+
+      .pseudocode .keyword {
+        color: #ff6b81;
+      }
+      .pseudocode .function {
+        color: #7bed9f;
+      }
+      .pseudocode .comment {
+        color: #636e72;
+      }
+      .pseudocode .string {
+        color: #ffeaa7;
+      }
+      .pseudocode .highlight-line {
+        background: rgba(255, 107, 129, 0.2);
+        display: block;
+        margin: 0 -15px;
+        padding: 0 15px;
+      }
+
+      /* Footer */
+      .footer-info {
+        margin-top: 20px;
+        padding: 15px;
+        background: linear-gradient(135deg, #667eea, #764ba2);
+        border-radius: 10px;
+        text-align: center;
+        color: white;
+      }
+
+      .complexity-grid {
+        display: flex;
+        justify-content: center;
+        gap: 40px;
+        margin-top: 10px;
+      }
+
+      .complexity-item {
+        text-align: center;
+      }
+
+      .complexity-label {
+        font-size: 0.8rem;
+        opacity: 0.9;
+      }
+
+      .complexity-value {
+        font-size: 1.1rem;
+        font-weight: bold;
+        font-family: "Courier New", monospace;
+      }
+
+      /* Responsive */
+      @media (max-width: 1100px) {
+        .main-container {
+          grid-template-columns: 1fr;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="whiteboard">
+      <h1>
+        📦 Box Pushing Problem <span class="badge">Improved Approach</span>
+      </h1>
+      <p class="subtitle">
+        BFS with Reachability Checks - Only track push states, verify player can
+        reach push position
+      </p>
+
+      <div class="main-container">
+        <div class="panel">
+          <div class="section-title">
+            <div class="section-icon">🎮</div>
+            Game Visualization
+          </div>
+
+          <div class="grids-container">
+            <div class="grid-wrapper">
+              <div class="grid-label">Main Grid (Box & Player State)</div>
+              <div class="grid" id="main-grid"></div>
+            </div>
+            <div class="grid-wrapper">
+              <div class="grid-label">Reachability Check (Player BFS)</div>
+              <div class="grid" id="reach-grid"></div>
+            </div>
+          </div>
+
+          <div class="legend">
+            <div class="legend-item">
+              <div class="legend-box" style="background: #2c3e50"></div>
+              <span>Wall</span>
+            </div>
+            <div class="legend-item">
+              <div class="legend-box" style="background: #3498db"></div>
+              <span>Player</span>
+            </div>
+            <div class="legend-item">
+              <div class="legend-box" style="background: #e74c3c"></div>
+              <span>Box</span>
+            </div>
+            <div class="legend-item">
+              <div class="legend-box" style="background: #2ecc71"></div>
+              <span>Target</span>
+            </div>
+            <div class="legend-item">
+              <div
+                class="legend-box"
+                style="background: #a8e6cf; border: 2px solid #2ecc71"
+              ></div>
+              <span>Reachable</span>
+            </div>
+            <div class="legend-item">
+              <div
+                class="legend-box"
+                style="background: #ffeaa7; border: 2px solid #f39c12"
+              ></div>
+              <span>Push Position</span>
+            </div>
+          </div>
+
+          <div class="controls">
+            <button class="btn-success" onclick="stepForward()">▶ Step</button>
+            <button class="btn-primary" onclick="autoPlay()">⏵ Auto</button>
+            <button class="btn-warning" onclick="pauseAuto()">⏸ Pause</button>
+            <button class="btn-danger" onclick="resetVisualization()">
+              ↺ Reset
+            </button>
+          </div>
+
+          <div class="speed-control">
+            <span>Speed:</span>
+            <input type="range" id="speed" min="200" max="2000" value="800" />
+            <span id="speed-value">800ms</span>
+          </div>
+
+          <div id="message-box" class="message-box"></div>
+
+          <div class="state-panel">
+            <div class="state-grid">
+              <div class="state-item">
+                <div class="state-label">Current Box Position</div>
+                <div class="state-value" id="box-pos">-</div>
+              </div>
+              <div class="state-item">
+                <div class="state-label">Current Player Position</div>
+                <div class="state-value" id="player-pos">-</div>
+              </div>
+              <div class="state-item">
+                <div class="state-label">Push Count</div>
+                <div class="state-value highlight" id="push-count">0</div>
+              </div>
+              <div class="state-item">
+                <div class="state-label">States Processed</div>
+                <div class="state-value" id="states-processed">0</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="reachability-panel">
+            <div class="reachability-header">
+              <div class="reachability-title">🔍 Reachability Check</div>
+              <div class="reachability-status" id="reach-status">Idle</div>
+            </div>
+            <div class="reachability-info" id="reach-info">
+              Before each push, we check if the player can walk to the required
+              position (without going through the box).
+            </div>
+            <div class="direction-checks" id="direction-checks">
+              <div class="direction-item" data-dir="up">
+                <span>⬆️ Push Up</span>
+                <span class="direction-icon">⏳</span>
+              </div>
+              <div class="direction-item" data-dir="down">
+                <span>⬇️ Push Down</span>
+                <span class="direction-icon">⏳</span>
+              </div>
+              <div class="direction-item" data-dir="left">
+                <span>⬅️ Push Left</span>
+                <span class="direction-icon">⏳</span>
+              </div>
+              <div class="direction-item" data-dir="right">
+                <span>➡️ Push Right</span>
+                <span class="direction-icon">⏳</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="panel">
+          <div class="section-title">
+            <div class="section-icon">📋</div>
+            BFS Push Queue
+          </div>
+
+          <div class="queue-container">
+            <div class="queue-header">
+              <span style="font-weight: bold; color: #2c3e50"
+                >Push States Only</span
+              >
+              <span class="queue-badge" id="queue-size">Size: 0</span>
+            </div>
+            <div id="queue-items"></div>
+          </div>
+
+          <div class="explanation-box">
+            <div class="explanation-title">💡 Current Step Explanation</div>
+            <div class="explanation-text" id="explanation">
+              <strong>Key Insight:</strong> Instead of tracking every player
+              move, we only queue states when a <em>push</em> happens. Before
+              pushing, we run a separate BFS to verify the player can reach the
+              required position.
+            </div>
+          </div>
+
+          <div class="comparison-box">
+            <div class="comparison-title">📊 Approach Comparison</div>
+            <table class="comparison-table">
+              <tr>
+                <th>Aspect</th>
+                <th>Brute Force</th>
+                <th>This Approach</th>
+              </tr>
+              <tr>
+                <td>Queue contains</td>
+                <td>All moves (walk + push)</td>
+                <td>Push moves only</td>
+              </tr>
+              <tr>
+                <td>State</td>
+                <td>(box, player, pushes)</td>
+                <td>(box, player, pushes)</td>
+              </tr>
+              <tr class="highlight-row">
+                <td>Reachability</td>
+                <td>Implicit in BFS</td>
+                <td>Explicit BFS check</td>
+              </tr>
+              <tr>
+                <td>Guarantees min pushes?</td>
+                <td>❌ No</td>
+                <td>✅ Yes</td>
+              </tr>
+            </table>
+          </div>
+
+          <div class="pseudocode">
+            <span class="keyword">function</span>
+            <span class="function">minPushBox</span>(grid):
+            <span class="comment">// Only queue push states!</span>
+            queue = [] visited = Set()
+
+            <span class="comment"
+              >// BFS level by level (each level = 1 push)</span
+            >
+            <span class="keyword">for</span> pushes = 0, 1, 2, ...:
+            <span class="keyword">for</span> each state in current level:
+            <span class="keyword">if</span> box at target:
+            <span class="keyword">return</span> pushes
+
+            <span class="keyword">for</span> each direction: push_pos = position
+            player needs
+            <span class="highlight-line"
+              ><span class="keyword">if</span>
+              <span class="function">canReach</span>(player, push_pos,
+              box):</span
+            >
+            <span class="comment">// Player CAN reach → valid push</span>
+            new_box = box + direction queue.add(new_box, old_box_pos)
+
+            <span class="keyword">function</span>
+            <span class="function">canReach</span>(from, to, box):
+            <span class="comment"
+              >// Separate BFS: can player walk from→to?</span
+            >
+            <span class="comment">// Box is treated as obstacle!</span>
+            <span class="keyword">return</span> BFS(from, to, avoiding box)
+          </div>
+
+          <div class="footer-info">
+            <strong>Improved Approach Complexity</strong>
+            <div class="complexity-grid">
+              <div class="complexity-item">
+                <div class="complexity-label">Time</div>
+                <div class="complexity-value">O(m²n² × mn)</div>
+              </div>
+              <div class="complexity-item">
+                <div class="complexity-label">Space</div>
+                <div class="complexity-value">O(m²n²)</div>
+              </div>
+              <div class="complexity-item">
+                <div class="complexity-label">Min Pushes?</div>
+                <div class="complexity-value">✅ Yes!</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      // Grid configuration - Example 1
+      const gridData = [
+        ["#", "#", "#", "#", "#", "#"],
+        ["#", "T", "#", "#", "#", "#"],
+        ["#", ".", ".", "B", ".", "#"],
+        ["#", ".", "#", "#", ".", "#"],
+        ["#", ".", ".", ".", "S", "#"],
+        ["#", "#", "#", "#", "#", "#"],
+      ];
+
+      const ROWS = 6,
+        COLS = 6;
+      const DIRS = {
+        up: [-1, 0],
+        down: [1, 0],
+        left: [0, -1],
+        right: [0, 1],
+      };
+      const DIR_ORDER = ["up", "down", "left", "right"];
+      const DIR_ARROWS = { up: "⬆️", down: "⬇️", left: "⬅️", right: "➡️" };
+
+      let playerPos, boxPos, targetPos;
+      let queue = []; // [{box: [r,c], player: [r,c], pushes: n}]
+      let visited = new Set();
+      let statesProcessed = 0;
+      let currentPushLevel = 0;
+      let isRunning = false;
+      let autoInterval = null;
+      let foundSolution = false;
+      let reachableCells = new Set();
+      let currentCheckDir = null;
+      let directionResults = {};
+
+      // Simulation state machine
+      let simState = "IDLE"; // IDLE, DEQUEUE, CHECK_DIRS, REACHABILITY_BFS, ADD_STATES, DONE
+      let currentStateData = null;
+      let dirIndex = 0;
+
+      function findPositions() {
+        for (let i = 0; i < ROWS; i++) {
+          for (let j = 0; j < COLS; j++) {
+            if (gridData[i][j] === "S") playerPos = [i, j];
+            if (gridData[i][j] === "B") boxPos = [i, j];
+            if (gridData[i][j] === "T") targetPos = [i, j];
+          }
+        }
+      }
+
+      function encodeState(br, bc, pr, pc) {
+        return `${br},${bc},${pr},${pc}`;
+      }
+
+      function isValid(r, c) {
+        return (
+          r >= 0 && r < ROWS && c >= 0 && c < COLS && gridData[r][c] !== "#"
+        );
+      }
+
+      // BFS to check if player can reach target position (avoiding box)
+      function canReach(from, to, boxPos) {
+        if (from[0] === to[0] && from[1] === to[1])
+          return {
+            reachable: true,
+            visited: new Set([`${from[0]},${from[1]}`]),
+          };
+
+        const visited = new Set();
+        const queue = [from];
+        visited.add(`${from[0]},${from[1]}`);
+
+        while (queue.length > 0) {
+          const [r, c] = queue.shift();
+
+          for (const dir of Object.values(DIRS)) {
+            const nr = r + dir[0],
+              nc = c + dir[1];
+            const key = `${nr},${nc}`;
+
+            if (
+              nr >= 0 &&
+              nr < ROWS &&
+              nc >= 0 &&
+              nc < COLS &&
+              gridData[nr][nc] !== "#" &&
+              !(nr === boxPos[0] && nc === boxPos[1]) &&
+              !visited.has(key)
+            ) {
+              if (nr === to[0] && nc === to[1]) {
+                visited.add(key);
+                return { reachable: true, visited };
+              }
+              visited.add(key);
+              queue.push([nr, nc]);
+            }
+          }
+        }
+        return { reachable: false, visited };
+      }
+
+      function renderMainGrid(box, player, pushPosition = null) {
+        const gridEl = document.getElementById("main-grid");
+        gridEl.innerHTML = "";
+
+        for (let i = 0; i < ROWS; i++) {
+          for (let j = 0; j < COLS; j++) {
+            const cell = document.createElement("div");
+            cell.className = "cell";
+
+            const isBox = box && box[0] === i && box[1] === j;
+            const isPlayer = player && player[0] === i && player[1] === j;
+            const isTarget = targetPos[0] === i && targetPos[1] === j;
+            const isPushPos =
+              pushPosition && pushPosition[0] === i && pushPosition[1] === j;
+
+            if (gridData[i][j] === "#") {
+              cell.classList.add("wall");
+              cell.textContent = "#";
+            } else if (isBox && isTarget) {
+              cell.classList.add("box-on-target");
+              cell.textContent = "★";
+            } else if (isBox) {
+              cell.classList.add("box");
+              cell.textContent = "B";
+            } else if (isPushPos && !isPlayer) {
+              cell.classList.add("push-position");
+              cell.textContent = "◎";
+            } else if (isPlayer) {
+              cell.classList.add("player");
+              cell.textContent = "S";
+            } else if (isTarget) {
+              cell.classList.add("target");
+              cell.textContent = "T";
+            } else {
+              cell.classList.add("floor");
+              cell.textContent = "·";
+            }
+
+            gridEl.appendChild(cell);
+          }
+        }
+      }
+
+      function renderReachGrid(box, player, reachable, targetPos = null) {
+        const gridEl = document.getElementById("reach-grid");
+        gridEl.innerHTML = "";
+
+        for (let i = 0; i < ROWS; i++) {
+          for (let j = 0; j < COLS; j++) {
+            const cell = document.createElement("div");
+            cell.className = "cell";
+            const key = `${i},${j}`;
+
+            const isBox = box && box[0] === i && box[1] === j;
+            const isPlayer = player && player[0] === i && player[1] === j;
+            const isReachable = reachable.has(key);
+            const isTargetPos =
+              targetPos && targetPos[0] === i && targetPos[1] === j;
+
+            if (gridData[i][j] === "#") {
+              cell.classList.add("wall");
+              cell.textContent = "#";
+            } else if (isBox) {
+              cell.classList.add("box");
+              cell.textContent = "B";
+            } else if (isTargetPos) {
+              cell.classList.add("push-position");
+              cell.textContent = "◎";
+            } else if (isPlayer) {
+              cell.classList.add("player");
+              cell.textContent = "S";
+            } else if (isReachable) {
+              cell.classList.add("reachable");
+              cell.textContent = "✓";
+            } else {
+              cell.classList.add("floor");
+              cell.textContent = "·";
+            }
+
+            gridEl.appendChild(cell);
+          }
+        }
+      }
+
+      function renderQueue() {
+        const queueEl = document.getElementById("queue-items");
+        const queueSizeEl = document.getElementById("queue-size");
+
+        queueEl.innerHTML = "";
+        queueSizeEl.textContent = `Size: ${queue.length}`;
+
+        const displayCount = Math.min(queue.length, 10);
+        for (let i = 0; i < displayCount; i++) {
+          const item = queue[i];
+          const div = document.createElement("div");
+          div.className = "queue-item";
+          if (i === 0) div.classList.add("current");
+
+          div.innerHTML = `
+                    <span class="queue-item-num">${i + 1}</span>
+                    Box:(${item.box[0]},${item.box[1]}) Player:(${
+            item.player[0]
+          },${item.player[1]})
+                    <span class="queue-item-pushes">Pushes: ${
+                      item.pushes
+                    }</span>
+                `;
+          queueEl.appendChild(div);
+        }
+
+        if (queue.length > 10) {
+          const moreDiv = document.createElement("div");
+          moreDiv.className = "queue-item";
+          moreDiv.style.justifyContent = "center";
+          moreDiv.textContent = `... and ${queue.length - 10} more`;
+          queueEl.appendChild(moreDiv);
+        }
+      }
+
+      function updateStateInfo(box, player, pushes) {
+        document.getElementById("box-pos").textContent = box
+          ? `(${box[0]}, ${box[1]})`
+          : "-";
+        document.getElementById("player-pos").textContent = player
+          ? `(${player[0]}, ${player[1]})`
+          : "-";
+        document.getElementById("push-count").textContent = pushes;
+        document.getElementById("states-processed").textContent =
+          statesProcessed;
+      }
+
+      function updateReachabilityStatus(status, info) {
+        const statusEl = document.getElementById("reach-status");
+        statusEl.textContent = status;
+        statusEl.className = "reachability-status";
+
+        if (status === "Checking...") statusEl.classList.add("checking");
+        else if (status === "Reachable ✓") statusEl.classList.add("reachable");
+        else if (status === "Unreachable ✗")
+          statusEl.classList.add("unreachable");
+
+        if (info) document.getElementById("reach-info").innerHTML = info;
+      }
+
+      function updateDirectionChecks(results, activeDir = null) {
+        const items = document.querySelectorAll(".direction-item");
+        items.forEach((item) => {
+          const dir = item.dataset.dir;
+          item.classList.remove("active", "success", "failed");
+          const icon = item.querySelector(".direction-icon");
+
+          if (dir === activeDir) {
+            item.classList.add("active");
+            icon.textContent = "🔄";
+          } else if (results[dir] === true) {
+            item.classList.add("success");
+            icon.textContent = "✅";
+          } else if (results[dir] === false) {
+            item.classList.add("failed");
+            icon.textContent = "❌";
+          } else {
+            icon.textContent = "⏳";
+          }
+        });
+      }
+
+      function updateExplanation(text) {
+        document.getElementById("explanation").innerHTML = text;
+      }
+
+      function showMessage(text, type) {
+        const msgBox = document.getElementById("message-box");
+        msgBox.textContent = text;
+        msgBox.className = `message-box ${type}`;
+      }
+
+      function initialize() {
+        findPositions();
+
+        queue = [{ box: [...boxPos], player: [...playerPos], pushes: 0 }];
+        visited.clear();
+        visited.add(
+          encodeState(boxPos[0], boxPos[1], playerPos[0], playerPos[1])
+        );
+        statesProcessed = 0;
+        foundSolution = false;
+        reachableCells = new Set();
+        directionResults = {};
+        simState = "IDLE";
+        currentStateData = null;
+        dirIndex = 0;
+
+        renderMainGrid(boxPos, playerPos);
+        renderReachGrid(boxPos, playerPos, new Set());
+        renderQueue();
+        updateStateInfo(boxPos, playerPos, 0);
+        updateReachabilityStatus(
+          "Idle",
+          "Click Step to begin processing states."
+        );
+        updateDirectionChecks({});
+        updateExplanation(`
+                <strong>Initialized!</strong> Initial state added to queue.<br>
+                Box at <span class="code-highlight">(${boxPos[0]},${boxPos[1]})</span>, 
+                Player at <span class="code-highlight">(${playerPos[0]},${playerPos[1]})</span>.<br><br>
+                <em>This approach only adds states to the queue when a push occurs.</em>
+            `);
+      }
+
+      function stepForward() {
+        if (foundSolution) return;
+
+        if (queue.length === 0) {
+          showMessage("No solution found! Queue empty.", "info");
+          return;
+        }
+
+        switch (simState) {
+          case "IDLE":
+            // Dequeue next state
+            currentStateData = queue.shift();
+            statesProcessed++;
+            dirIndex = 0;
+            directionResults = {};
+
+            const { box, player, pushes } = currentStateData;
+
+            // Check if solved
+            if (box[0] === targetPos[0] && box[1] === targetPos[1]) {
+              foundSolution = true;
+              renderMainGrid(box, player);
+              renderReachGrid(box, player, new Set());
+              updateStateInfo(box, player, pushes);
+              showMessage(
+                `🎉 Solution found! Minimum pushes: ${pushes}`,
+                "success"
+              );
+              updateExplanation(`
+                            <strong>🎉 TARGET REACHED!</strong><br>
+                            Box arrived at target <span class="code-highlight">(${targetPos[0]},${targetPos[1]})</span>!<br>
+                            Total pushes: <strong>${pushes}</strong><br>
+                            States processed: <strong>${statesProcessed}</strong>
+                        `);
+              pauseAuto();
+              return;
+            }
+
+            renderMainGrid(box, player);
+            renderReachGrid(box, player, new Set());
+            renderQueue();
+            updateStateInfo(box, player, pushes);
+            updateReachabilityStatus(
+              "Processing",
+              `Dequeued state. Now checking all 4 push directions...`
+            );
+            updateDirectionChecks({});
+            updateExplanation(`
+                        <strong>Step ${statesProcessed}:</strong> Dequeued state<br>
+                        Box: <span class="code-highlight">(${box[0]},${box[1]})</span>, 
+                        Player: <span class="code-highlight">(${player[0]},${player[1]})</span>, 
+                        Pushes: ${pushes}<br><br>
+                        Now we'll check each direction to see if a push is possible.
+                    `);
+
+            simState = "CHECK_DIRS";
+            break;
+
+          case "CHECK_DIRS":
+            if (dirIndex >= DIR_ORDER.length) {
+              // Done checking all directions
+              simState = "IDLE";
+              updateReachabilityStatus(
+                "Done",
+                "Finished checking all directions. Moving to next state..."
+              );
+              updateExplanation(`
+                            <strong>Direction checks complete!</strong><br>
+                            Valid pushes found: ${
+                              Object.values(directionResults).filter(
+                                (v) => v === true
+                              ).length
+                            }<br>
+                            New states added to queue. Continuing BFS...
+                        `);
+              return;
+            }
+
+            const dirName = DIR_ORDER[dirIndex];
+            const [dr, dc] = DIRS[dirName];
+            const {
+              box: curBox,
+              player: curPlayer,
+              pushes: curPushes,
+            } = currentStateData;
+
+            // Calculate push-from position (where player needs to stand)
+            const pushFromR = curBox[0] - dr;
+            const pushFromC = curBox[1] - dc;
+            const newBoxR = curBox[0] + dr;
+            const newBoxC = curBox[1] + dc;
+
+            updateDirectionChecks(directionResults, dirName);
+
+            // Check if positions are valid
+            if (!isValid(pushFromR, pushFromC) || !isValid(newBoxR, newBoxC)) {
+              directionResults[dirName] = false;
+              updateReachabilityStatus(
+                "Unreachable ✗",
+                `Push ${
+                  DIR_ARROWS[dirName]
+                } ${dirName.toUpperCase()}: Invalid positions (wall or out of bounds)`
+              );
+              renderMainGrid(curBox, curPlayer);
+              renderReachGrid(curBox, curPlayer, new Set());
+              dirIndex++;
+              return;
+            }
+
+            // Run reachability BFS
+            const pushFromPos = [pushFromR, pushFromC];
+            const result = canReach(curPlayer, pushFromPos, curBox);
+
+            renderMainGrid(curBox, curPlayer, pushFromPos);
+            renderReachGrid(curBox, curPlayer, result.visited, pushFromPos);
+
+            if (result.reachable) {
+              directionResults[dirName] = true;
+
+              // Check if this state was already visited
+              const newPlayer = [...curBox]; // Player moves to where box was
+              const newBox = [newBoxR, newBoxC];
+              const stateKey = encodeState(
+                newBox[0],
+                newBox[1],
+                newPlayer[0],
+                newPlayer[1]
+              );
+
+              if (!visited.has(stateKey)) {
+                visited.add(stateKey);
+                queue.push({
+                  box: newBox,
+                  player: newPlayer,
+                  pushes: curPushes + 1,
+                });
+
+                updateReachabilityStatus(
+                  "Reachable ✓",
+                  `Push ${
+                    DIR_ARROWS[dirName]
+                  } ${dirName.toUpperCase()}: Player CAN reach (${pushFromR},${pushFromC}). New state added!`
+                );
+                updateExplanation(`
+                                <strong>${
+                                  DIR_ARROWS[dirName]
+                                } Push ${dirName.toUpperCase()} - SUCCESS!</strong><br>
+                                Player can reach push position <span class="code-highlight">(${pushFromR},${pushFromC})</span><br>
+                                New state added: Box→<span class="code-highlight">(${newBoxR},${newBoxC})</span>, 
+                                Player→<span class="code-highlight">(${
+                                  curBox[0]
+                                },${curBox[1]})</span>, 
+                                Pushes: ${curPushes + 1}
+                            `);
+              } else {
+                updateReachabilityStatus(
+                  "Reachable ✓",
+                  `Push ${DIR_ARROWS[dirName]}: Reachable but state already visited.`
+                );
+              }
+              renderQueue();
+            } else {
+              directionResults[dirName] = false;
+              updateReachabilityStatus(
+                "Unreachable ✗",
+                `Push ${
+                  DIR_ARROWS[dirName]
+                } ${dirName.toUpperCase()}: Player CANNOT reach (${pushFromR},${pushFromC}). Box blocks path!`
+              );
+              updateExplanation(`
+                            <strong>${
+                              DIR_ARROWS[dirName]
+                            } Push ${dirName.toUpperCase()} - FAILED!</strong><br>
+                            Player cannot reach position <span class="code-highlight">(${pushFromR},${pushFromC})</span><br>
+                            The box at <span class="code-highlight">(${
+                              curBox[0]
+                            },${curBox[1]})</span> blocks the path!
+                        `);
+            }
+
+            dirIndex++;
+            break;
+        }
+      }
+
+      function autoPlay() {
+        if (isRunning) return;
+        isRunning = true;
+
+        const speed = parseInt(document.getElementById("speed").value);
+        autoInterval = setInterval(() => {
+          if (foundSolution || queue.length === 0) {
+            pauseAuto();
+            return;
+          }
+          stepForward();
+        }, speed);
+      }
+
+      function pauseAuto() {
+        isRunning = false;
+        if (autoInterval) {
+          clearInterval(autoInterval);
+          autoInterval = null;
+        }
+      }
+
+      function resetVisualization() {
+        pauseAuto();
+        document.getElementById("message-box").className = "message-box";
+        initialize();
+      }
+
+      document.getElementById("speed").addEventListener("input", function () {
+        document.getElementById("speed-value").textContent = this.value + "ms";
+        if (isRunning) {
+          pauseAuto();
+          autoPlay();
+        }
+      });
+
+      window.onload = initialize;
+    </script>
+  </body>
+</html>

@@ -1,0 +1,1182 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Box Pushing Problem - Brute Force BFS Visualization</title>
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+        background: #f5f5f0;
+        min-height: 100vh;
+        padding: 20px;
+      }
+
+      .whiteboard {
+        background: #fff;
+        border-radius: 12px;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+        padding: 30px;
+        max-width: 1400px;
+        margin: 0 auto;
+      }
+
+      h1 {
+        text-align: center;
+        color: #2c3e50;
+        margin-bottom: 10px;
+        font-size: 1.8rem;
+      }
+
+      .subtitle {
+        text-align: center;
+        color: #7f8c8d;
+        margin-bottom: 30px;
+        font-size: 1rem;
+      }
+
+      .main-container {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 30px;
+      }
+
+      .left-panel,
+      .right-panel {
+        background: #fafafa;
+        border-radius: 10px;
+        padding: 20px;
+        border: 2px dashed #ddd;
+      }
+
+      .section-title {
+        font-size: 1.1rem;
+        color: #2c3e50;
+        margin-bottom: 15px;
+        padding-bottom: 10px;
+        border-bottom: 2px solid #3498db;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+
+      .section-title::before {
+        content: "";
+        width: 12px;
+        height: 12px;
+        background: #3498db;
+        border-radius: 50%;
+      }
+
+      /* Grid Styles */
+      .grid-container {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        margin-bottom: 20px;
+      }
+
+      .grid {
+        display: grid;
+        grid-template-columns: repeat(6, 50px);
+        gap: 2px;
+        background: #34495e;
+        padding: 2px;
+        border-radius: 8px;
+      }
+
+      .cell {
+        width: 50px;
+        height: 50px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.2rem;
+        font-weight: bold;
+        border-radius: 4px;
+        transition: all 0.3s ease;
+        position: relative;
+      }
+
+      .cell.wall {
+        background: #2c3e50;
+        color: #2c3e50;
+      }
+
+      .cell.floor {
+        background: #ecf0f1;
+      }
+
+      .cell.player {
+        background: #3498db;
+        color: white;
+        animation: pulse 1s infinite;
+      }
+
+      .cell.box {
+        background: #e74c3c;
+        color: white;
+      }
+
+      .cell.target {
+        background: #2ecc71;
+        color: white;
+      }
+
+      .cell.box-on-target {
+        background: #f39c12;
+        color: white;
+      }
+
+      .cell.visited-player {
+        background: #d5e8f7;
+      }
+
+      .cell.push-highlight {
+        animation: pushAnim 0.5s ease;
+      }
+
+      @keyframes pulse {
+        0%,
+        100% {
+          transform: scale(1);
+        }
+        50% {
+          transform: scale(0.95);
+        }
+      }
+
+      @keyframes pushAnim {
+        0% {
+          transform: scale(1);
+        }
+        50% {
+          transform: scale(1.2);
+          background: #f39c12;
+        }
+        100% {
+          transform: scale(1);
+        }
+      }
+
+      .grid-labels {
+        display: flex;
+        margin-top: 10px;
+        gap: 15px;
+        flex-wrap: wrap;
+        justify-content: center;
+      }
+
+      .label {
+        display: flex;
+        align-items: center;
+        gap: 5px;
+        font-size: 0.85rem;
+        color: #555;
+      }
+
+      .label-box {
+        width: 20px;
+        height: 20px;
+        border-radius: 4px;
+      }
+
+      /* Controls */
+      .controls {
+        display: flex;
+        gap: 10px;
+        justify-content: center;
+        margin: 20px 0;
+        flex-wrap: wrap;
+      }
+
+      button {
+        padding: 10px 20px;
+        font-size: 0.95rem;
+        border: none;
+        border-radius: 6px;
+        cursor: pointer;
+        transition: all 0.2s;
+        font-weight: 500;
+      }
+
+      button:hover {
+        transform: translateY(-2px);
+      }
+
+      button:active {
+        transform: translateY(0);
+      }
+
+      .btn-primary {
+        background: #3498db;
+        color: white;
+      }
+
+      .btn-primary:hover {
+        background: #2980b9;
+      }
+
+      .btn-success {
+        background: #2ecc71;
+        color: white;
+      }
+
+      .btn-success:hover {
+        background: #27ae60;
+      }
+
+      .btn-danger {
+        background: #e74c3c;
+        color: white;
+      }
+
+      .btn-danger:hover {
+        background: #c0392b;
+      }
+
+      .btn-warning {
+        background: #f39c12;
+        color: white;
+      }
+
+      .btn-warning:hover {
+        background: #d68910;
+      }
+
+      /* State Info */
+      .state-info {
+        background: #fff;
+        border-radius: 8px;
+        padding: 15px;
+        margin-bottom: 15px;
+        border-left: 4px solid #3498db;
+      }
+
+      .state-row {
+        display: flex;
+        justify-content: space-between;
+        padding: 8px 0;
+        border-bottom: 1px dashed #eee;
+      }
+
+      .state-row:last-child {
+        border-bottom: none;
+      }
+
+      .state-label {
+        color: #7f8c8d;
+        font-size: 0.9rem;
+      }
+
+      .state-value {
+        font-weight: bold;
+        color: #2c3e50;
+        font-family: "Courier New", monospace;
+      }
+
+      .state-value.highlight {
+        color: #e74c3c;
+        background: #ffeaa7;
+        padding: 2px 8px;
+        border-radius: 4px;
+      }
+
+      /* Queue Visualization */
+      .queue-container {
+        background: #fff;
+        border-radius: 8px;
+        padding: 15px;
+        margin-bottom: 15px;
+        max-height: 300px;
+        overflow-y: auto;
+      }
+
+      .queue-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 10px;
+        padding-bottom: 10px;
+        border-bottom: 2px solid #eee;
+      }
+
+      .queue-title {
+        font-weight: bold;
+        color: #2c3e50;
+      }
+
+      .queue-size {
+        background: #3498db;
+        color: white;
+        padding: 4px 12px;
+        border-radius: 20px;
+        font-size: 0.85rem;
+      }
+
+      .queue-items {
+        display: flex;
+        flex-direction: column;
+        gap: 5px;
+      }
+
+      .queue-item {
+        display: flex;
+        align-items: center;
+        padding: 8px 12px;
+        background: #f8f9fa;
+        border-radius: 6px;
+        font-family: "Courier New", monospace;
+        font-size: 0.85rem;
+        transition: all 0.3s;
+      }
+
+      .queue-item.current {
+        background: #fff3cd;
+        border: 2px solid #f39c12;
+      }
+
+      .queue-item.processed {
+        background: #d4edda;
+        border: 1px solid #28a745;
+        opacity: 0.7;
+      }
+
+      .queue-item-index {
+        background: #3498db;
+        color: white;
+        width: 24px;
+        height: 24px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 0.75rem;
+        margin-right: 10px;
+      }
+
+      .queue-item-push {
+        margin-left: auto;
+        background: #e74c3c;
+        color: white;
+        padding: 2px 8px;
+        border-radius: 10px;
+        font-size: 0.75rem;
+      }
+
+      /* Visited States */
+      .visited-container {
+        background: #fff;
+        border-radius: 8px;
+        padding: 15px;
+        max-height: 200px;
+        overflow-y: auto;
+      }
+
+      .visited-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 10px;
+      }
+
+      .visited-count {
+        background: #9b59b6;
+        color: white;
+        padding: 4px 12px;
+        border-radius: 20px;
+        font-size: 0.85rem;
+      }
+
+      .visited-states {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 5px;
+      }
+
+      .visited-state {
+        background: #e8daef;
+        padding: 4px 8px;
+        border-radius: 4px;
+        font-family: "Courier New", monospace;
+        font-size: 0.75rem;
+        color: #6c3483;
+      }
+
+      /* Explanation Panel */
+      .explanation {
+        background: #fff;
+        border-radius: 8px;
+        padding: 15px;
+        margin-top: 15px;
+        border-left: 4px solid #9b59b6;
+      }
+
+      .explanation-title {
+        font-weight: bold;
+        color: #9b59b6;
+        margin-bottom: 10px;
+      }
+
+      .explanation-text {
+        color: #555;
+        line-height: 1.6;
+        font-size: 0.95rem;
+      }
+
+      .code-inline {
+        background: #f4f4f4;
+        padding: 2px 6px;
+        border-radius: 4px;
+        font-family: "Courier New", monospace;
+        font-size: 0.9rem;
+      }
+
+      /* Algorithm Steps */
+      .algo-steps {
+        background: #fff;
+        border-radius: 8px;
+        padding: 15px;
+        margin-top: 20px;
+      }
+
+      .step {
+        display: flex;
+        align-items: flex-start;
+        padding: 10px;
+        margin-bottom: 5px;
+        border-radius: 6px;
+        transition: all 0.3s;
+      }
+
+      .step.active {
+        background: #fff3cd;
+        border-left: 4px solid #f39c12;
+      }
+
+      .step.completed {
+        background: #d4edda;
+        border-left: 4px solid #28a745;
+      }
+
+      .step-number {
+        width: 28px;
+        height: 28px;
+        background: #bdc3c7;
+        color: white;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 0.85rem;
+        margin-right: 12px;
+        flex-shrink: 0;
+      }
+
+      .step.active .step-number {
+        background: #f39c12;
+      }
+
+      .step.completed .step-number {
+        background: #28a745;
+      }
+
+      .step-text {
+        color: #555;
+        font-size: 0.9rem;
+      }
+
+      /* Speed Control */
+      .speed-control {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 15px;
+        margin: 15px 0;
+        padding: 10px;
+        background: #fff;
+        border-radius: 8px;
+      }
+
+      .speed-label {
+        font-size: 0.9rem;
+        color: #555;
+      }
+
+      input[type="range"] {
+        width: 150px;
+        cursor: pointer;
+      }
+
+      /* Message Box */
+      .message-box {
+        padding: 15px;
+        border-radius: 8px;
+        margin: 15px 0;
+        text-align: center;
+        font-weight: 500;
+        display: none;
+      }
+
+      .message-box.success {
+        background: #d4edda;
+        color: #155724;
+        border: 1px solid #c3e6cb;
+        display: block;
+      }
+
+      .message-box.info {
+        background: #d1ecf1;
+        color: #0c5460;
+        border: 1px solid #bee5eb;
+        display: block;
+      }
+
+      /* Pseudocode */
+      .pseudocode {
+        background: #2c3e50;
+        color: #ecf0f1;
+        padding: 15px;
+        border-radius: 8px;
+        font-family: "Courier New", monospace;
+        font-size: 0.85rem;
+        line-height: 1.8;
+        overflow-x: auto;
+        margin-top: 15px;
+      }
+
+      .pseudocode .keyword {
+        color: #e74c3c;
+      }
+
+      .pseudocode .comment {
+        color: #7f8c8d;
+      }
+
+      .pseudocode .highlight-line {
+        background: rgba(241, 196, 15, 0.3);
+        display: block;
+        margin: 0 -15px;
+        padding: 0 15px;
+      }
+
+      /* Footer */
+      .footer-info {
+        margin-top: 20px;
+        padding: 15px;
+        background: #e8f4fd;
+        border-radius: 8px;
+        text-align: center;
+      }
+
+      .complexity {
+        display: flex;
+        justify-content: center;
+        gap: 30px;
+        margin-top: 10px;
+      }
+
+      .complexity-item {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+
+      .complexity-label {
+        font-size: 0.9rem;
+        color: #555;
+      }
+
+      .complexity-value {
+        font-family: "Courier New", monospace;
+        font-weight: bold;
+        color: #e74c3c;
+      }
+
+      /* Responsive */
+      @media (max-width: 1000px) {
+        .main-container {
+          grid-template-columns: 1fr;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="whiteboard">
+      <h1>📦 Box Pushing Problem - Brute Force BFS</h1>
+      <p class="subtitle">
+        Interactive visualization of the state-space search algorithm
+      </p>
+
+      <div class="main-container">
+        <div class="left-panel">
+          <div class="section-title">Game Grid</div>
+
+          <div class="grid-container">
+            <div class="grid" id="grid"></div>
+            <div class="grid-labels">
+              <div class="label">
+                <div class="label-box" style="background: #2c3e50"></div>
+                <span># Wall</span>
+              </div>
+              <div class="label">
+                <div
+                  class="label-box"
+                  style="background: #ecf0f1; border: 1px solid #ccc"
+                ></div>
+                <span>. Floor</span>
+              </div>
+              <div class="label">
+                <div class="label-box" style="background: #3498db"></div>
+                <span>S Player</span>
+              </div>
+              <div class="label">
+                <div class="label-box" style="background: #e74c3c"></div>
+                <span>B Box</span>
+              </div>
+              <div class="label">
+                <div class="label-box" style="background: #2ecc71"></div>
+                <span>T Target</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="state-info">
+            <div class="state-row">
+              <span class="state-label">Current State:</span>
+              <span class="state-value" id="current-state"
+                >(Box: -, Player: -)</span
+              >
+            </div>
+            <div class="state-row">
+              <span class="state-label">Push Count:</span>
+              <span class="state-value highlight" id="push-count">0</span>
+            </div>
+            <div class="state-row">
+              <span class="state-label">Steps Processed:</span>
+              <span class="state-value" id="steps-processed">0</span>
+            </div>
+            <div class="state-row">
+              <span class="state-label">Current Action:</span>
+              <span class="state-value" id="current-action"
+                >Ready to start</span
+              >
+            </div>
+          </div>
+
+          <div class="controls">
+            <button class="btn-success" onclick="stepForward()">▶ Step</button>
+            <button class="btn-primary" onclick="autoPlay()">
+              ⏵ Auto Play
+            </button>
+            <button class="btn-warning" onclick="pauseAuto()">⏸ Pause</button>
+            <button class="btn-danger" onclick="resetVisualization()">
+              ↺ Reset
+            </button>
+          </div>
+
+          <div class="speed-control">
+            <span class="speed-label">Speed:</span>
+            <input type="range" id="speed" min="100" max="1500" value="500" />
+            <span class="speed-label" id="speed-value">500ms</span>
+          </div>
+
+          <div id="message-box" class="message-box"></div>
+
+          <div class="explanation">
+            <div class="explanation-title">💡 What's Happening?</div>
+            <p class="explanation-text" id="explanation-text">
+              Click <strong>Step</strong> to process states one at a time, or
+              <strong>Auto Play</strong> to watch the algorithm run
+              automatically. The BFS explores all possible (box, player) states
+              to find the minimum pushes.
+            </p>
+          </div>
+        </div>
+
+        <div class="right-panel">
+          <div class="section-title">BFS Queue</div>
+
+          <div class="queue-container">
+            <div class="queue-header">
+              <span class="queue-title">States to Process</span>
+              <span class="queue-size" id="queue-size">Size: 0</span>
+            </div>
+            <div class="queue-items" id="queue-items"></div>
+          </div>
+
+          <div class="section-title">Visited States</div>
+
+          <div class="visited-container">
+            <div class="visited-header">
+              <span class="queue-title">Already Explored</span>
+              <span class="visited-count" id="visited-count">Count: 0</span>
+            </div>
+            <div class="visited-states" id="visited-states"></div>
+          </div>
+
+          <div class="section-title">Algorithm Steps</div>
+
+          <div class="algo-steps">
+            <div class="step" id="step-1">
+              <div class="step-number">1</div>
+              <div class="step-text">
+                Initialize: Find S, B, T positions. Add initial state to queue.
+              </div>
+            </div>
+            <div class="step" id="step-2">
+              <div class="step-number">2</div>
+              <div class="step-text">
+                Dequeue front state (box_pos, player_pos, pushes).
+              </div>
+            </div>
+            <div class="step" id="step-3">
+              <div class="step-number">3</div>
+              <div class="step-text">
+                Check if box is at target → Return pushes if yes.
+              </div>
+            </div>
+            <div class="step" id="step-4">
+              <div class="step-number">4</div>
+              <div class="step-text">
+                Try all 4 directions for player movement.
+              </div>
+            </div>
+            <div class="step" id="step-5">
+              <div class="step-number">5</div>
+              <div class="step-text">
+                If player moves into box → PUSH (add new state with pushes+1).
+              </div>
+            </div>
+            <div class="step" id="step-6">
+              <div class="step-number">6</div>
+              <div class="step-text">
+                Else → WALK (add new state with same pushes).
+              </div>
+            </div>
+            <div class="step" id="step-7">
+              <div class="step-number">7</div>
+              <div class="step-text">
+                Repeat until target reached or queue empty.
+              </div>
+            </div>
+          </div>
+
+          <div class="pseudocode">
+            <span class="keyword">function</span> minPushBox(grid):
+            <span class="comment"
+              >// State: (box_r, box_c, player_r, player_c, pushes)</span
+            >
+            queue = [initial_state] visited = Set()
+
+            <span class="keyword">while</span> queue not empty: state =
+            queue.dequeue() <span class="keyword">if</span> box at target:
+            <span class="keyword">return</span> pushes
+
+            <span class="keyword">for</span> each direction:
+            <span class="keyword">if</span> player moves into box:
+            <span class="comment">// PUSH: box moves, pushes++</span>
+            queue.enqueue(new_state)
+            <span class="keyword">else</span>:
+            <span class="comment">// WALK: only player moves</span>
+            queue.enqueue(new_state)
+
+            <span class="keyword">return</span> -1
+          </div>
+        </div>
+      </div>
+
+      <div class="footer-info">
+        <strong>Brute Force BFS Complexity Analysis</strong>
+        <div class="complexity">
+          <div class="complexity-item">
+            <span class="complexity-label">Time:</span>
+            <span class="complexity-value">O(m² × n²)</span>
+          </div>
+          <div class="complexity-item">
+            <span class="complexity-label">Space:</span>
+            <span class="complexity-value">O(m² × n²)</span>
+          </div>
+          <div class="complexity-item">
+            <span class="complexity-label">States:</span>
+            <span class="complexity-value">~m×n × m×n</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      // Grid configuration - Example 1
+      const gridData = [
+        ["#", "#", "#", "#", "#", "#"],
+        ["#", "T", "#", "#", "#", "#"],
+        ["#", ".", ".", "B", ".", "#"],
+        ["#", ".", "#", "#", ".", "#"],
+        ["#", ".", ".", ".", "S", "#"],
+        ["#", "#", "#", "#", "#", "#"],
+      ];
+
+      const ROWS = 6;
+      const COLS = 6;
+      const DIRS = [
+        [0, 1],
+        [0, -1],
+        [1, 0],
+        [-1, 0],
+      ];
+      const DIR_NAMES = ["Right", "Left", "Down", "Up"];
+
+      let playerPos, boxPos, targetPos;
+      let queue = [];
+      let visited = new Set();
+      let stepsProcessed = 0;
+      let isRunning = false;
+      let autoInterval = null;
+      let foundSolution = false;
+
+      // Find initial positions
+      function findPositions() {
+        for (let i = 0; i < ROWS; i++) {
+          for (let j = 0; j < COLS; j++) {
+            if (gridData[i][j] === "S") playerPos = [i, j];
+            if (gridData[i][j] === "B") boxPos = [i, j];
+            if (gridData[i][j] === "T") targetPos = [i, j];
+          }
+        }
+      }
+
+      // Encode state as string
+      function encodeState(br, bc, pr, pc) {
+        return `${br},${bc},${pr},${pc}`;
+      }
+
+      // Check if position is valid
+      function isValid(r, c) {
+        return (
+          r >= 0 && r < ROWS && c >= 0 && c < COLS && gridData[r][c] !== "#"
+        );
+      }
+
+      // Render the grid
+      function renderGrid(currentBox, currentPlayer) {
+        const gridEl = document.getElementById("grid");
+        gridEl.innerHTML = "";
+
+        for (let i = 0; i < ROWS; i++) {
+          for (let j = 0; j < COLS; j++) {
+            const cell = document.createElement("div");
+            cell.className = "cell";
+
+            const isBox =
+              currentBox && currentBox[0] === i && currentBox[1] === j;
+            const isPlayer =
+              currentPlayer && currentPlayer[0] === i && currentPlayer[1] === j;
+            const isTarget = targetPos[0] === i && targetPos[1] === j;
+
+            if (gridData[i][j] === "#") {
+              cell.classList.add("wall");
+              cell.textContent = "#";
+            } else if (isBox && isTarget) {
+              cell.classList.add("box-on-target");
+              cell.textContent = "★";
+            } else if (isBox) {
+              cell.classList.add("box");
+              cell.textContent = "B";
+            } else if (isPlayer) {
+              cell.classList.add("player");
+              cell.textContent = "S";
+            } else if (isTarget) {
+              cell.classList.add("target");
+              cell.textContent = "T";
+            } else {
+              cell.classList.add("floor");
+              cell.textContent = "·";
+            }
+
+            gridEl.appendChild(cell);
+          }
+        }
+      }
+
+      // Render the queue
+      function renderQueue(currentIndex = -1) {
+        const queueEl = document.getElementById("queue-items");
+        const queueSizeEl = document.getElementById("queue-size");
+
+        queueEl.innerHTML = "";
+        queueSizeEl.textContent = `Size: ${queue.length}`;
+
+        const displayCount = Math.min(queue.length, 15);
+        for (let i = 0; i < displayCount; i++) {
+          const item = queue[i];
+          const div = document.createElement("div");
+          div.className = "queue-item";
+          if (i === 0 && currentIndex === 0) {
+            div.classList.add("current");
+          }
+
+          div.innerHTML = `
+                    <span class="queue-item-index">${i + 1}</span>
+                    Box:(${item[0]},${item[1]}) Player:(${item[2]},${item[3]})
+                    <span class="queue-item-push">P:${item[4]}</span>
+                `;
+          queueEl.appendChild(div);
+        }
+
+        if (queue.length > 15) {
+          const moreDiv = document.createElement("div");
+          moreDiv.className = "queue-item";
+          moreDiv.style.justifyContent = "center";
+          moreDiv.textContent = `... and ${queue.length - 15} more states`;
+          queueEl.appendChild(moreDiv);
+        }
+      }
+
+      // Render visited states
+      function renderVisited() {
+        const visitedEl = document.getElementById("visited-states");
+        const visitedCountEl = document.getElementById("visited-count");
+
+        visitedEl.innerHTML = "";
+        visitedCountEl.textContent = `Count: ${visited.size}`;
+
+        const states = Array.from(visited).slice(-30);
+        states.forEach((state) => {
+          const div = document.createElement("div");
+          div.className = "visited-state";
+          div.textContent = state;
+          visitedEl.appendChild(div);
+        });
+
+        if (visited.size > 30) {
+          const moreDiv = document.createElement("div");
+          moreDiv.className = "visited-state";
+          moreDiv.textContent = `+${visited.size - 30} more`;
+          visitedEl.appendChild(moreDiv);
+        }
+      }
+
+      // Update state info
+      function updateStateInfo(br, bc, pr, pc, pushes, action) {
+        document.getElementById(
+          "current-state"
+        ).textContent = `(Box: ${br},${bc} | Player: ${pr},${pc})`;
+        document.getElementById("push-count").textContent = pushes;
+        document.getElementById("steps-processed").textContent = stepsProcessed;
+        document.getElementById("current-action").textContent = action;
+      }
+
+      // Update explanation
+      function updateExplanation(text) {
+        document.getElementById("explanation-text").innerHTML = text;
+      }
+
+      // Highlight algorithm step
+      function highlightStep(stepNum) {
+        for (let i = 1; i <= 7; i++) {
+          const step = document.getElementById(`step-${i}`);
+          step.classList.remove("active", "completed");
+          if (i < stepNum) {
+            step.classList.add("completed");
+          } else if (i === stepNum) {
+            step.classList.add("active");
+          }
+        }
+      }
+
+      // Show message
+      function showMessage(text, type) {
+        const msgBox = document.getElementById("message-box");
+        msgBox.textContent = text;
+        msgBox.className = `message-box ${type}`;
+      }
+
+      // Initialize
+      function initialize() {
+        findPositions();
+
+        // Initial state: (box_r, box_c, player_r, player_c, pushes)
+        const initialState = [
+          boxPos[0],
+          boxPos[1],
+          playerPos[0],
+          playerPos[1],
+          0,
+        ];
+        queue = [initialState];
+        visited.clear();
+        visited.add(
+          encodeState(boxPos[0], boxPos[1], playerPos[0], playerPos[1])
+        );
+        stepsProcessed = 0;
+        foundSolution = false;
+
+        renderGrid(boxPos, playerPos);
+        renderQueue();
+        renderVisited();
+        updateStateInfo(
+          boxPos[0],
+          boxPos[1],
+          playerPos[0],
+          playerPos[1],
+          0,
+          "Initialized"
+        );
+        highlightStep(1);
+        updateExplanation(`
+                <strong>Initialization complete!</strong><br>
+                Initial state added to queue: Box at <span class="code-inline">(${boxPos[0]},${boxPos[1]})</span>, 
+                Player at <span class="code-inline">(${playerPos[0]},${playerPos[1]})</span>.<br>
+                Target is at <span class="code-inline">(${targetPos[0]},${targetPos[1]})</span>. Let's start BFS!
+            `);
+      }
+
+      // Process one step
+      function stepForward() {
+        if (foundSolution || queue.length === 0) {
+          if (queue.length === 0 && !foundSolution) {
+            showMessage("No solution found! Queue is empty.", "info");
+          }
+          return;
+        }
+
+        // Dequeue
+        const [br, bc, pr, pc, pushes] = queue.shift();
+        stepsProcessed++;
+
+        highlightStep(2);
+        renderGrid([br, bc], [pr, pc]);
+        updateStateInfo(br, bc, pr, pc, pushes, "Processing state...");
+
+        // Check if box at target
+        if (br === targetPos[0] && bc === targetPos[1]) {
+          highlightStep(3);
+          foundSolution = true;
+          showMessage(
+            `🎉 Solution found! Minimum pushes: ${pushes}`,
+            "success"
+          );
+          updateExplanation(`
+                    <strong>🎉 TARGET REACHED!</strong><br>
+                    The box is now at the target position <span class="code-inline">(${br},${bc})</span>!<br>
+                    Total pushes needed: <strong>${pushes}</strong><br>
+                    Total states processed: <strong>${stepsProcessed}</strong>
+                `);
+          pauseAuto();
+          return;
+        }
+
+        highlightStep(4);
+        let newStatesAdded = [];
+
+        // Try all 4 directions
+        for (let d = 0; d < 4; d++) {
+          const [dr, dc] = DIRS[d];
+          const npr = pr + dr;
+          const npc = pc + dc;
+
+          if (!isValid(npr, npc)) continue;
+
+          if (npr === br && npc === bc) {
+            // PUSH
+            highlightStep(5);
+            const nbr = br + dr;
+            const nbc = bc + dc;
+
+            if (isValid(nbr, nbc)) {
+              const newState = encodeState(nbr, nbc, npr, npc);
+              if (!visited.has(newState)) {
+                visited.add(newState);
+                queue.push([nbr, nbc, npr, npc, pushes + 1]);
+                newStatesAdded.push(
+                  `PUSH ${DIR_NAMES[d]}: Box→(${nbr},${nbc})`
+                );
+              }
+            }
+          } else {
+            // WALK
+            highlightStep(6);
+            const newState = encodeState(br, bc, npr, npc);
+            if (!visited.has(newState)) {
+              visited.add(newState);
+              queue.push([br, bc, npr, npc, pushes]);
+              newStatesAdded.push(
+                `WALK ${DIR_NAMES[d]}: Player→(${npr},${npc})`
+              );
+            }
+          }
+        }
+
+        highlightStep(7);
+        renderQueue(0);
+        renderVisited();
+
+        const actionText =
+          newStatesAdded.length > 0
+            ? `Added ${newStatesAdded.length} new states`
+            : "No new states (all visited)";
+        updateStateInfo(br, bc, pr, pc, pushes, actionText);
+
+        updateExplanation(`
+                <strong>Step ${stepsProcessed}:</strong> Processed state with Box at <span class="code-inline">(${br},${bc})</span>, 
+                Player at <span class="code-inline">(${pr},${pc})</span>, Pushes: ${pushes}.<br><br>
+                <strong>New states added:</strong><br>
+                ${
+                  newStatesAdded.length > 0
+                    ? newStatesAdded.map((s) => `• ${s}`).join("<br>")
+                    : "• None (all neighbors already visited)"
+                }
+            `);
+      }
+
+      // Auto play
+      function autoPlay() {
+        if (isRunning) return;
+        isRunning = true;
+
+        const speed = document.getElementById("speed").value;
+        autoInterval = setInterval(() => {
+          if (foundSolution || queue.length === 0) {
+            pauseAuto();
+            return;
+          }
+          stepForward();
+        }, speed);
+      }
+
+      // Pause
+      function pauseAuto() {
+        isRunning = false;
+        if (autoInterval) {
+          clearInterval(autoInterval);
+          autoInterval = null;
+        }
+      }
+
+      // Reset
+      function resetVisualization() {
+        pauseAuto();
+        document.getElementById("message-box").className = "message-box";
+        initialize();
+      }
+
+      // Speed control
+      document.getElementById("speed").addEventListener("input", function () {
+        document.getElementById("speed-value").textContent = this.value + "ms";
+        if (isRunning) {
+          pauseAuto();
+          autoPlay();
+        }
+      });
+
+      // Initialize on load
+      window.onload = initialize;
+    </script>
+  </body>
+</html>

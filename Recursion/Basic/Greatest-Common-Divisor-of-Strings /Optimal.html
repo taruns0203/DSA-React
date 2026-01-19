@@ -1,0 +1,1405 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>GCD of Strings - GCD-Length Optimization</title>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      :root {
+        --bg-dark: #0a0a12;
+        --bg-card: #12121f;
+        --bg-elevated: #1a1a2e;
+        --accent-primary: #00d9ff;
+        --accent-secondary: #7c3aed;
+        --accent-tertiary: #06ffa5;
+        --accent-warning: #fbbf24;
+        --accent-danger: #f43f5e;
+        --text-primary: #f8fafc;
+        --text-secondary: #94a3b8;
+        --text-muted: #64748b;
+        --border-color: #1e293b;
+        --glow-primary: rgba(0, 217, 255, 0.25);
+        --glow-secondary: rgba(124, 58, 237, 0.25);
+        --glow-success: rgba(6, 255, 165, 0.25);
+      }
+
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        font-family: "Inter", sans-serif;
+        background: var(--bg-dark);
+        background-image: radial-gradient(
+            ellipse at 20% 20%,
+            rgba(0, 217, 255, 0.05) 0%,
+            transparent 50%
+          ),
+          radial-gradient(
+            ellipse at 80% 80%,
+            rgba(124, 58, 237, 0.05) 0%,
+            transparent 50%
+          );
+        color: var(--text-primary);
+        min-height: 100vh;
+        overflow-x: hidden;
+      }
+
+      .container {
+        max-width: 1400px;
+        margin: 0 auto;
+        padding: 2rem;
+      }
+
+      /* Header */
+      .header {
+        text-align: center;
+        margin-bottom: 2.5rem;
+        padding: 2.5rem;
+        background: linear-gradient(
+          135deg,
+          var(--bg-card) 0%,
+          rgba(124, 58, 237, 0.1) 100%
+        );
+        border-radius: 24px;
+        border: 1px solid var(--border-color);
+        position: relative;
+        overflow: hidden;
+      }
+
+      .header::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 3px;
+        background: linear-gradient(
+          90deg,
+          var(--accent-primary),
+          var(--accent-secondary),
+          var(--accent-tertiary)
+        );
+      }
+
+      .header h1 {
+        font-size: 2.75rem;
+        font-weight: 700;
+        background: linear-gradient(
+          135deg,
+          var(--accent-primary),
+          var(--accent-secondary)
+        );
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+        margin-bottom: 0.75rem;
+      }
+
+      .header .subtitle {
+        color: var(--text-secondary);
+        font-size: 1.15rem;
+      }
+
+      .badge-row {
+        display: flex;
+        justify-content: center;
+        gap: 1rem;
+        margin-top: 1.25rem;
+        flex-wrap: wrap;
+      }
+
+      .badge {
+        display: inline-block;
+        padding: 0.5rem 1.25rem;
+        border-radius: 25px;
+        font-size: 0.9rem;
+        font-weight: 500;
+      }
+
+      .badge.success {
+        background: rgba(6, 255, 165, 0.15);
+        color: var(--accent-tertiary);
+        border: 1px solid rgba(6, 255, 165, 0.3);
+      }
+
+      .badge.info {
+        background: rgba(0, 217, 255, 0.15);
+        color: var(--accent-primary);
+        border: 1px solid rgba(0, 217, 255, 0.3);
+      }
+
+      /* Whiteboard Sections */
+      .whiteboard {
+        background: var(--bg-card);
+        border-radius: 20px;
+        border: 1px solid var(--border-color);
+        padding: 2rem;
+        margin-bottom: 2rem;
+        position: relative;
+      }
+
+      .whiteboard-title {
+        font-size: 1.25rem;
+        font-weight: 600;
+        margin-bottom: 1.5rem;
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+      }
+
+      .whiteboard-title .icon {
+        width: 40px;
+        height: 40px;
+        background: linear-gradient(
+          135deg,
+          var(--accent-primary),
+          var(--accent-secondary)
+        );
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.25rem;
+      }
+
+      /* Input Display */
+      .input-section {
+        display: flex;
+        gap: 2rem;
+        margin-bottom: 2rem;
+        flex-wrap: wrap;
+      }
+
+      .input-box {
+        flex: 1;
+        min-width: 280px;
+        background: var(--bg-elevated);
+        border-radius: 16px;
+        padding: 1.5rem;
+        border: 1px solid var(--border-color);
+      }
+
+      .input-label {
+        font-size: 0.8rem;
+        color: var(--text-muted);
+        margin-bottom: 0.5rem;
+        text-transform: uppercase;
+        letter-spacing: 1.5px;
+      }
+
+      .input-value {
+        font-family: "JetBrains Mono", monospace;
+        font-size: 1.75rem;
+        font-weight: 600;
+        color: var(--accent-primary);
+      }
+
+      .string-display {
+        display: flex;
+        gap: 6px;
+        flex-wrap: wrap;
+        margin-top: 1rem;
+      }
+
+      .char-box {
+        width: 48px;
+        height: 48px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: linear-gradient(135deg, var(--accent-primary), #0891b2);
+        border-radius: 10px;
+        font-family: "JetBrains Mono", monospace;
+        font-size: 1.15rem;
+        font-weight: 600;
+        transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        position: relative;
+      }
+
+      .char-box.str2 {
+        background: linear-gradient(135deg, var(--accent-secondary), #8b5cf6);
+      }
+
+      .char-box.candidate {
+        background: linear-gradient(135deg, var(--accent-tertiary), #10b981);
+        transform: scale(1.1);
+        box-shadow: 0 0 25px var(--glow-success);
+      }
+
+      .char-box.dimmed {
+        opacity: 0.25;
+        transform: scale(0.9);
+      }
+
+      .char-box.highlight {
+        animation: pulse 1s ease-in-out infinite;
+      }
+
+      @keyframes pulse {
+        0%,
+        100% {
+          box-shadow: 0 0 0 0 var(--glow-primary);
+        }
+        50% {
+          box-shadow: 0 0 20px 5px var(--glow-primary);
+        }
+      }
+
+      /* GCD Calculation Section */
+      .gcd-section {
+        background: var(--bg-elevated);
+        border-radius: 16px;
+        padding: 2rem;
+        margin-bottom: 2rem;
+        border: 1px solid var(--border-color);
+      }
+
+      .gcd-title {
+        font-size: 1.1rem;
+        font-weight: 600;
+        margin-bottom: 1.5rem;
+        color: var(--accent-warning);
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+      }
+
+      .gcd-steps {
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+      }
+
+      .gcd-step {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        padding: 1rem 1.5rem;
+        background: var(--bg-dark);
+        border-radius: 12px;
+        border: 2px solid transparent;
+        transition: all 0.3s ease;
+        opacity: 0.4;
+      }
+
+      .gcd-step.active {
+        opacity: 1;
+        border-color: var(--accent-warning);
+        box-shadow: 0 0 20px rgba(251, 191, 36, 0.15);
+      }
+
+      .gcd-step.completed {
+        opacity: 1;
+        border-color: var(--accent-tertiary);
+      }
+
+      .gcd-step-number {
+        width: 32px;
+        height: 32px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: var(--bg-elevated);
+        border-radius: 50%;
+        font-weight: 600;
+        font-size: 0.9rem;
+        border: 2px solid var(--border-color);
+      }
+
+      .gcd-step.active .gcd-step-number {
+        background: var(--accent-warning);
+        border-color: var(--accent-warning);
+        color: var(--bg-dark);
+      }
+
+      .gcd-step.completed .gcd-step-number {
+        background: var(--accent-tertiary);
+        border-color: var(--accent-tertiary);
+        color: var(--bg-dark);
+      }
+
+      .gcd-formula {
+        font-family: "JetBrains Mono", monospace;
+        font-size: 1.1rem;
+        color: var(--text-primary);
+      }
+
+      .gcd-formula .num {
+        color: var(--accent-primary);
+        font-weight: 600;
+      }
+
+      .gcd-formula .op {
+        color: var(--text-muted);
+      }
+
+      .gcd-formula .result {
+        color: var(--accent-tertiary);
+        font-weight: 700;
+      }
+
+      .gcd-arrow {
+        color: var(--text-muted);
+        font-size: 1.5rem;
+      }
+
+      /* Key Insight Box */
+      .insight-box {
+        background: linear-gradient(
+          135deg,
+          rgba(124, 58, 237, 0.1),
+          rgba(0, 217, 255, 0.05)
+        );
+        border: 1px solid rgba(124, 58, 237, 0.3);
+        border-radius: 16px;
+        padding: 1.5rem;
+        margin-bottom: 2rem;
+      }
+
+      .insight-title {
+        font-size: 1rem;
+        font-weight: 600;
+        color: var(--accent-secondary);
+        margin-bottom: 0.75rem;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+      }
+
+      .insight-text {
+        color: var(--text-secondary);
+        line-height: 1.7;
+      }
+
+      .insight-text strong {
+        color: var(--accent-primary);
+      }
+
+      .insight-text code {
+        background: var(--bg-dark);
+        padding: 0.2rem 0.6rem;
+        border-radius: 6px;
+        font-family: "JetBrains Mono", monospace;
+        font-size: 0.9rem;
+        color: var(--accent-tertiary);
+      }
+
+      /* Verification Section */
+      .verification-section {
+        background: var(--bg-elevated);
+        border-radius: 16px;
+        padding: 2rem;
+        margin-top: 1.5rem;
+        border: 1px solid var(--border-color);
+      }
+
+      .verification-title {
+        font-size: 1.1rem;
+        font-weight: 600;
+        margin-bottom: 1.5rem;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+      }
+
+      .verification-test {
+        background: var(--bg-dark);
+        border-radius: 12px;
+        padding: 1.5rem;
+        margin-bottom: 1rem;
+        border: 2px solid transparent;
+        transition: all 0.3s ease;
+        opacity: 0.4;
+      }
+
+      .verification-test.active {
+        opacity: 1;
+        border-color: var(--accent-primary);
+      }
+
+      .verification-test.passed {
+        opacity: 1;
+        border-color: var(--accent-tertiary);
+        background: rgba(6, 255, 165, 0.05);
+      }
+
+      .verification-test.failed {
+        opacity: 1;
+        border-color: var(--accent-danger);
+        background: rgba(244, 63, 94, 0.05);
+      }
+
+      .test-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 1rem;
+      }
+
+      .test-name {
+        font-weight: 600;
+        color: var(--text-primary);
+      }
+
+      .test-status {
+        padding: 0.3rem 1rem;
+        border-radius: 20px;
+        font-size: 0.85rem;
+        font-weight: 500;
+      }
+
+      .test-status.pending {
+        background: rgba(100, 116, 139, 0.2);
+        color: var(--text-muted);
+      }
+
+      .test-status.running {
+        background: rgba(0, 217, 255, 0.2);
+        color: var(--accent-primary);
+      }
+
+      .test-status.pass {
+        background: rgba(6, 255, 165, 0.2);
+        color: var(--accent-tertiary);
+      }
+
+      .test-status.fail {
+        background: rgba(244, 63, 94, 0.2);
+        color: var(--accent-danger);
+      }
+
+      .repeat-visualization {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        flex-wrap: wrap;
+        margin: 1rem 0;
+      }
+
+      .repeat-group {
+        display: flex;
+        gap: 3px;
+        padding: 6px;
+        border: 2px dashed var(--accent-tertiary);
+        border-radius: 10px;
+        background: rgba(6, 255, 165, 0.05);
+      }
+
+      .repeat-group .char-box {
+        width: 38px;
+        height: 38px;
+        font-size: 1rem;
+        background: linear-gradient(135deg, var(--accent-tertiary), #10b981);
+      }
+
+      .operator {
+        font-size: 1.5rem;
+        color: var(--text-muted);
+        font-weight: 300;
+      }
+
+      .result-string {
+        display: flex;
+        gap: 3px;
+      }
+
+      .result-string .char-box {
+        width: 38px;
+        height: 38px;
+        font-size: 1rem;
+      }
+
+      /* Result Banner */
+      .result-banner {
+        background: linear-gradient(
+          135deg,
+          rgba(6, 255, 165, 0.15),
+          rgba(6, 255, 165, 0.05)
+        );
+        border: 2px solid var(--accent-tertiary);
+        border-radius: 20px;
+        padding: 2.5rem;
+        text-align: center;
+        margin: 2rem 0;
+        display: none;
+        animation: slideUp 0.5s ease;
+      }
+
+      .result-banner.visible {
+        display: block;
+      }
+
+      @keyframes slideUp {
+        from {
+          opacity: 0;
+          transform: translateY(30px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      .result-label {
+        font-size: 1.1rem;
+        color: var(--accent-tertiary);
+        margin-bottom: 0.5rem;
+        font-weight: 600;
+      }
+
+      .result-value {
+        font-family: "JetBrains Mono", monospace;
+        font-size: 3rem;
+        font-weight: 700;
+        color: var(--text-primary);
+        margin: 1rem 0;
+      }
+
+      .result-explanation {
+        color: var(--text-secondary);
+        line-height: 1.7;
+      }
+
+      /* Comparison Section */
+      .comparison-section {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 1.5rem;
+        margin-top: 2rem;
+      }
+
+      @media (max-width: 800px) {
+        .comparison-section {
+          grid-template-columns: 1fr;
+        }
+      }
+
+      .comparison-card {
+        background: var(--bg-elevated);
+        border-radius: 16px;
+        padding: 1.5rem;
+        border: 1px solid var(--border-color);
+      }
+
+      .comparison-card.optimized {
+        border-color: var(--accent-tertiary);
+        background: linear-gradient(
+          135deg,
+          var(--bg-elevated),
+          rgba(6, 255, 165, 0.05)
+        );
+      }
+
+      .comparison-title {
+        font-size: 1rem;
+        font-weight: 600;
+        margin-bottom: 1rem;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+      }
+
+      .comparison-card.optimized .comparison-title {
+        color: var(--accent-tertiary);
+      }
+
+      .comparison-item {
+        display: flex;
+        justify-content: space-between;
+        padding: 0.75rem 0;
+        border-bottom: 1px solid var(--border-color);
+      }
+
+      .comparison-item:last-child {
+        border-bottom: none;
+      }
+
+      .comparison-label {
+        color: var(--text-muted);
+      }
+
+      .comparison-value {
+        font-family: "JetBrains Mono", monospace;
+        font-weight: 600;
+        color: var(--text-primary);
+      }
+
+      /* Controls */
+      .controls {
+        display: flex;
+        justify-content: center;
+        gap: 1rem;
+        margin: 2rem 0;
+        flex-wrap: wrap;
+      }
+
+      .btn {
+        padding: 1rem 2rem;
+        border-radius: 14px;
+        font-size: 1rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        border: none;
+        display: flex;
+        align-items: center;
+        gap: 0.6rem;
+      }
+
+      .btn-primary {
+        background: linear-gradient(135deg, var(--accent-primary), #0891b2);
+        color: var(--bg-dark);
+      }
+
+      .btn-primary:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 15px 35px var(--glow-primary);
+      }
+
+      .btn-secondary {
+        background: var(--bg-elevated);
+        color: var(--text-primary);
+        border: 2px solid var(--border-color);
+      }
+
+      .btn-secondary:hover {
+        border-color: var(--accent-primary);
+        box-shadow: 0 0 20px var(--glow-primary);
+      }
+
+      .btn:disabled {
+        opacity: 0.4;
+        cursor: not-allowed;
+        transform: none !important;
+        box-shadow: none !important;
+      }
+
+      .speed-control {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        background: var(--bg-elevated);
+        padding: 0.75rem 1.5rem;
+        border-radius: 12px;
+        border: 1px solid var(--border-color);
+      }
+
+      .speed-label {
+        font-size: 0.85rem;
+        color: var(--text-muted);
+      }
+
+      .speed-slider {
+        -webkit-appearance: none;
+        width: 100px;
+        height: 6px;
+        border-radius: 3px;
+        background: var(--bg-dark);
+      }
+
+      .speed-slider::-webkit-slider-thumb {
+        -webkit-appearance: none;
+        width: 20px;
+        height: 20px;
+        border-radius: 50%;
+        background: linear-gradient(
+          135deg,
+          var(--accent-primary),
+          var(--accent-secondary)
+        );
+        cursor: pointer;
+      }
+
+      /* Timeline */
+      .timeline {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        gap: 0;
+        margin: 2rem 0;
+        padding: 1.5rem;
+        background: var(--bg-elevated);
+        border-radius: 16px;
+      }
+
+      .timeline-step {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+        position: relative;
+        padding: 0 2rem;
+      }
+
+      .timeline-step:not(:last-child)::after {
+        content: "";
+        position: absolute;
+        right: -20px;
+        top: 20px;
+        width: 40px;
+        height: 3px;
+        background: var(--border-color);
+        transition: background 0.3s ease;
+      }
+
+      .timeline-step.completed:not(:last-child)::after {
+        background: var(--accent-tertiary);
+      }
+
+      .timeline-dot {
+        width: 44px;
+        height: 44px;
+        border-radius: 50%;
+        background: var(--bg-dark);
+        border: 3px solid var(--border-color);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.2rem;
+        transition: all 0.3s ease;
+        margin-bottom: 0.75rem;
+      }
+
+      .timeline-step.active .timeline-dot {
+        border-color: var(--accent-primary);
+        box-shadow: 0 0 20px var(--glow-primary);
+        animation: pulse 1.5s ease-in-out infinite;
+      }
+
+      .timeline-step.completed .timeline-dot {
+        background: var(--accent-tertiary);
+        border-color: var(--accent-tertiary);
+      }
+
+      .timeline-label {
+        font-size: 0.85rem;
+        color: var(--text-muted);
+        max-width: 100px;
+      }
+
+      .timeline-step.active .timeline-label,
+      .timeline-step.completed .timeline-label {
+        color: var(--text-primary);
+      }
+
+      /* Current Step Display */
+      .current-step-display {
+        background: linear-gradient(
+          135deg,
+          var(--bg-elevated),
+          rgba(0, 217, 255, 0.05)
+        );
+        border: 1px solid var(--accent-primary);
+        border-radius: 16px;
+        padding: 1.5rem 2rem;
+        text-align: center;
+        margin-bottom: 2rem;
+      }
+
+      .current-step-label {
+        font-size: 0.8rem;
+        color: var(--text-muted);
+        text-transform: uppercase;
+        letter-spacing: 2px;
+        margin-bottom: 0.5rem;
+      }
+
+      .current-step-text {
+        font-size: 1.25rem;
+        font-weight: 600;
+        color: var(--accent-primary);
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <!-- Header -->
+      <div class="header">
+        <h1>⚡ GCD-Length Optimization</h1>
+        <p class="subtitle">
+          Key Insight: Only ONE candidate length needs to be checked!
+        </p>
+        <div class="badge-row">
+          <span class="badge success">✓ O(m + n) Time</span>
+          <span class="badge info">🎯 Single Check vs Multiple Iterations</span>
+        </div>
+      </div>
+
+      <!-- Key Insight -->
+      <div class="insight-box">
+        <div class="insight-title">💡 The Key Optimization</div>
+        <div class="insight-text">
+          <strong>Insight:</strong> If a common divisor string exists, its
+          length MUST be exactly
+          <code>GCD(len(str1), len(str2))</code>.<br /><br />
+          <strong>Why?</strong> If string <code>x</code> divides both strings,
+          then <code>len(x)</code> must divide both <code>len(str1)</code> and
+          <code>len(str2)</code>. The <strong>largest</strong> such length is
+          the GCD of both lengths!
+        </div>
+      </div>
+
+      <!-- Timeline -->
+      <div class="timeline">
+        <div class="timeline-step" id="timeline-1">
+          <div class="timeline-dot">1️⃣</div>
+          <div class="timeline-label">Compute GCD of Lengths</div>
+        </div>
+        <div class="timeline-step" id="timeline-2">
+          <div class="timeline-dot">2️⃣</div>
+          <div class="timeline-label">Extract Candidate</div>
+        </div>
+        <div class="timeline-step" id="timeline-3">
+          <div class="timeline-dot">3️⃣</div>
+          <div class="timeline-label">Verify str1</div>
+        </div>
+        <div class="timeline-step" id="timeline-4">
+          <div class="timeline-dot">4️⃣</div>
+          <div class="timeline-label">Verify str2</div>
+        </div>
+        <div class="timeline-step" id="timeline-5">
+          <div class="timeline-dot">5️⃣</div>
+          <div class="timeline-label">Return Result</div>
+        </div>
+      </div>
+
+      <!-- Current Step -->
+      <div class="current-step-display">
+        <div class="current-step-label">Current Step</div>
+        <div class="current-step-text" id="current-step-text">
+          Click "Start" to begin visualization
+        </div>
+      </div>
+
+      <!-- Input Display -->
+      <div class="whiteboard">
+        <div class="whiteboard-title">
+          <span class="icon">📥</span>
+          Input Strings
+        </div>
+
+        <div class="input-section">
+          <div class="input-box">
+            <div class="input-label">str1</div>
+            <div class="input-value">
+              "ABABAB"
+              <span style="color: var(--text-muted); font-size: 1rem"
+                >(length: 6)</span
+              >
+            </div>
+            <div class="string-display" id="str1-display"></div>
+          </div>
+          <div class="input-box">
+            <div class="input-label">str2</div>
+            <div class="input-value">
+              "ABAB"
+              <span style="color: var(--text-muted); font-size: 1rem"
+                >(length: 4)</span
+              >
+            </div>
+            <div class="string-display" id="str2-display"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- GCD Calculation -->
+      <div class="whiteboard" id="gcd-whiteboard" style="display: none">
+        <div class="whiteboard-title">
+          <span class="icon">🧮</span>
+          Step 1: Calculate GCD of Lengths
+        </div>
+
+        <div class="gcd-section">
+          <div class="gcd-title">📐 Euclidean Algorithm Trace</div>
+          <div class="gcd-steps" id="gcd-steps"></div>
+        </div>
+      </div>
+
+      <!-- Candidate Extraction -->
+      <div class="whiteboard" id="candidate-whiteboard" style="display: none">
+        <div class="whiteboard-title">
+          <span class="icon">✂️</span>
+          Step 2: Extract Candidate String
+        </div>
+
+        <div class="insight-box">
+          <div class="insight-text" id="candidate-text">
+            The GCD of lengths is <code id="gcd-result-display">?</code>.<br />
+            Therefore, the candidate is the first
+            <code id="gcd-len-display">?</code> characters of str1.
+          </div>
+        </div>
+
+        <div class="input-section">
+          <div class="input-box" style="text-align: center">
+            <div class="input-label">Candidate String</div>
+            <div
+              class="input-value"
+              id="candidate-value"
+              style="font-size: 2.5rem; color: var(--accent-tertiary)"
+            >
+              ?
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Verification -->
+      <div class="whiteboard" id="verify-whiteboard" style="display: none">
+        <div class="whiteboard-title">
+          <span class="icon">✅</span>
+          Steps 3-4: Verify Both Strings
+        </div>
+
+        <div
+          class="verification-section"
+          style="background: transparent; padding: 0; border: none"
+        >
+          <div class="verification-test" id="verify-str1">
+            <div class="test-header">
+              <span class="test-name">Test: Can candidate construct str1?</span>
+              <span class="test-status pending" id="status-str1">Pending</span>
+            </div>
+            <div class="repeat-visualization" id="repeat-viz-str1"></div>
+          </div>
+
+          <div class="verification-test" id="verify-str2">
+            <div class="test-header">
+              <span class="test-name">Test: Can candidate construct str2?</span>
+              <span class="test-status pending" id="status-str2">Pending</span>
+            </div>
+            <div class="repeat-visualization" id="repeat-viz-str2"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Result Banner -->
+      <div class="result-banner" id="result-banner">
+        <div class="result-label">🎉 GCD String Found!</div>
+        <div class="result-value" id="result-value">"AB"</div>
+        <div class="result-explanation" id="result-explanation"></div>
+      </div>
+
+      <!-- Controls -->
+      <div class="controls">
+        <button class="btn btn-primary" id="startBtn" onclick="start()">
+          ▶️ Start
+        </button>
+        <button
+          class="btn btn-secondary"
+          id="nextBtn"
+          onclick="nextStep()"
+          disabled
+        >
+          ⏭️ Next Step
+        </button>
+        <button class="btn btn-secondary" id="autoBtn" onclick="toggleAuto()">
+          🔄 Auto Play
+        </button>
+        <button class="btn btn-secondary" onclick="reset()">🔁 Reset</button>
+        <div class="speed-control">
+          <span class="speed-label">Speed:</span>
+          <input
+            type="range"
+            class="speed-slider"
+            id="speedSlider"
+            min="300"
+            max="2000"
+            value="1000"
+          />
+        </div>
+      </div>
+
+      <!-- Comparison -->
+      <div class="comparison-section">
+        <div class="comparison-card">
+          <div class="comparison-title">❌ Brute Force</div>
+          <div class="comparison-item">
+            <span class="comparison-label">Candidates Checked</span>
+            <span class="comparison-value">min(m, n) = 4</span>
+          </div>
+          <div class="comparison-item">
+            <span class="comparison-label">Time Complexity</span>
+            <span class="comparison-value" style="color: var(--accent-danger)"
+              >O(min(m,n) × (m+n))</span
+            >
+          </div>
+          <div class="comparison-item">
+            <span class="comparison-label">Approach</span>
+            <span class="comparison-value">Try all lengths</span>
+          </div>
+        </div>
+        <div class="comparison-card optimized">
+          <div class="comparison-title">✅ GCD Optimization</div>
+          <div class="comparison-item">
+            <span class="comparison-label">Candidates Checked</span>
+            <span class="comparison-value" style="color: var(--accent-tertiary)"
+              >1 (only GCD length)</span
+            >
+          </div>
+          <div class="comparison-item">
+            <span class="comparison-label">Time Complexity</span>
+            <span class="comparison-value" style="color: var(--accent-tertiary)"
+              >O(m + n)</span
+            >
+          </div>
+          <div class="comparison-item">
+            <span class="comparison-label">Approach</span>
+            <span class="comparison-value">Jump to GCD length</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      const str1 = "ABABAB";
+      const str2 = "ABAB";
+
+      let phase = "init";
+      let gcdStepIndex = 0;
+      let isAutoPlaying = false;
+      let autoPlayInterval = null;
+
+      // GCD steps for 6 and 4
+      const gcdSteps = [
+        {
+          a: 6,
+          b: 4,
+          formula: "GCD(6, 4)",
+          mod: "6 % 4 = 2",
+          next: "GCD(4, 2)",
+        },
+        {
+          a: 4,
+          b: 2,
+          formula: "GCD(4, 2)",
+          mod: "4 % 2 = 0",
+          next: "GCD(2, 0)",
+        },
+        { a: 2, b: 0, formula: "GCD(2, 0)", mod: "b = 0, return a", next: "2" },
+      ];
+
+      function initDisplays() {
+        document.getElementById("str1-display").innerHTML = str1
+          .split("")
+          .map((c) => `<div class="char-box">${c}</div>`)
+          .join("");
+
+        document.getElementById("str2-display").innerHTML = str2
+          .split("")
+          .map((c) => `<div class="char-box str2">${c}</div>`)
+          .join("");
+      }
+
+      function updateTimeline(step, status) {
+        const el = document.getElementById(`timeline-${step}`);
+        el.classList.remove("active", "completed");
+        if (status === "active") el.classList.add("active");
+        if (status === "completed") el.classList.add("completed");
+      }
+
+      function setCurrentStep(text) {
+        document.getElementById("current-step-text").textContent = text;
+      }
+
+      function start() {
+        document.getElementById("startBtn").disabled = true;
+        document.getElementById("nextBtn").disabled = false;
+        phase = "gcd-init";
+        nextStep();
+      }
+
+      function nextStep() {
+        if (phase === "gcd-init") {
+          document.getElementById("gcd-whiteboard").style.display = "block";
+          updateTimeline(1, "active");
+          setCurrentStep("Computing GCD(6, 4) using Euclidean Algorithm...");
+
+          // Initialize GCD steps display
+          const stepsContainer = document.getElementById("gcd-steps");
+          stepsContainer.innerHTML = gcdSteps
+            .map(
+              (step, i) => `
+                    <div class="gcd-step" id="gcd-step-${i}">
+                        <span class="gcd-step-number">${i + 1}</span>
+                        <span class="gcd-formula">
+                            <span class="num">${step.formula}</span>
+                            <span class="op"> → </span>
+                            <span class="num">${step.mod}</span>
+                            <span class="op"> → </span>
+                            <span class="result">${step.next}</span>
+                        </span>
+                    </div>
+                `
+            )
+            .join("");
+
+          gcdStepIndex = 0;
+          phase = "gcd-steps";
+        } else if (phase === "gcd-steps") {
+          if (gcdStepIndex < gcdSteps.length) {
+            const stepEl = document.getElementById(`gcd-step-${gcdStepIndex}`);
+            // Mark previous as completed
+            if (gcdStepIndex > 0) {
+              document
+                .getElementById(`gcd-step-${gcdStepIndex - 1}`)
+                .classList.remove("active");
+              document
+                .getElementById(`gcd-step-${gcdStepIndex - 1}`)
+                .classList.add("completed");
+            }
+            stepEl.classList.add("active");
+
+            const step = gcdSteps[gcdStepIndex];
+            setCurrentStep(`${step.formula}: ${step.mod} → ${step.next}`);
+
+            gcdStepIndex++;
+
+            if (gcdStepIndex === gcdSteps.length) {
+              phase = "gcd-done";
+            }
+          }
+        } else if (phase === "gcd-done") {
+          document
+            .getElementById(`gcd-step-${gcdStepIndex - 1}`)
+            .classList.remove("active");
+          document
+            .getElementById(`gcd-step-${gcdStepIndex - 1}`)
+            .classList.add("completed");
+          updateTimeline(1, "completed");
+          updateTimeline(2, "active");
+          setCurrentStep("GCD = 2. Extracting candidate string...");
+
+          // Show candidate section
+          document.getElementById("candidate-whiteboard").style.display =
+            "block";
+          document.getElementById("gcd-result-display").textContent = "2";
+          document.getElementById("gcd-len-display").textContent = "2";
+
+          phase = "extract-candidate";
+        } else if (phase === "extract-candidate") {
+          const candidate = str1.substring(0, 2);
+          document.getElementById(
+            "candidate-value"
+          ).textContent = `"${candidate}"`;
+
+          // Highlight candidate in str1
+          const boxes = document.querySelectorAll("#str1-display .char-box");
+          boxes.forEach((box, i) => {
+            if (i < 2) {
+              box.classList.add("candidate");
+            } else {
+              box.classList.add("dimmed");
+            }
+          });
+
+          updateTimeline(2, "completed");
+          setCurrentStep('Candidate: "AB" (first 2 characters of str1)');
+
+          phase = "verify-init";
+        } else if (phase === "verify-init") {
+          document.getElementById("verify-whiteboard").style.display = "block";
+          updateTimeline(3, "active");
+          setCurrentStep('Verifying: Can "AB" construct str1?');
+
+          phase = "verify-str1";
+        } else if (phase === "verify-str1") {
+          const candidate = "AB";
+          const repeatCount = 3;
+
+          const testEl = document.getElementById("verify-str1");
+          testEl.classList.add("active");
+          document.getElementById("status-str1").className =
+            "test-status running";
+          document.getElementById("status-str1").textContent = "Testing...";
+
+          // Build visualization
+          let html = "";
+          for (let i = 0; i < repeatCount; i++) {
+            html += `<div class="repeat-group">`;
+            html += candidate
+              .split("")
+              .map((c) => `<div class="char-box">${c}</div>`)
+              .join("");
+            html += `</div>`;
+            if (i < repeatCount - 1) html += '<span class="operator">+</span>';
+          }
+          html += '<span class="operator">=</span>';
+          html += '<div class="result-string">';
+          html += str1
+            .split("")
+            .map((c) => `<div class="char-box">${c}</div>`)
+            .join("");
+          html += "</div>";
+          html += '<span class="operator">✓</span>';
+
+          document.getElementById("repeat-viz-str1").innerHTML = html;
+
+          phase = "verify-str1-done";
+        } else if (phase === "verify-str1-done") {
+          const testEl = document.getElementById("verify-str1");
+          testEl.classList.remove("active");
+          testEl.classList.add("passed");
+          document.getElementById("status-str1").className = "test-status pass";
+          document.getElementById("status-str1").textContent = "✓ Pass";
+
+          updateTimeline(3, "completed");
+          updateTimeline(4, "active");
+          setCurrentStep('Verifying: Can "AB" construct str2?');
+
+          phase = "verify-str2";
+        } else if (phase === "verify-str2") {
+          const candidate = "AB";
+          const repeatCount = 2;
+
+          const testEl = document.getElementById("verify-str2");
+          testEl.classList.add("active");
+          document.getElementById("status-str2").className =
+            "test-status running";
+          document.getElementById("status-str2").textContent = "Testing...";
+
+          // Build visualization
+          let html = "";
+          for (let i = 0; i < repeatCount; i++) {
+            html += `<div class="repeat-group">`;
+            html += candidate
+              .split("")
+              .map((c) => `<div class="char-box">${c}</div>`)
+              .join("");
+            html += `</div>`;
+            if (i < repeatCount - 1) html += '<span class="operator">+</span>';
+          }
+          html += '<span class="operator">=</span>';
+          html += '<div class="result-string">';
+          html += str2
+            .split("")
+            .map((c) => `<div class="char-box str2">${c}</div>`)
+            .join("");
+          html += "</div>";
+          html += '<span class="operator">✓</span>';
+
+          document.getElementById("repeat-viz-str2").innerHTML = html;
+
+          phase = "verify-str2-done";
+        } else if (phase === "verify-str2-done") {
+          const testEl = document.getElementById("verify-str2");
+          testEl.classList.remove("active");
+          testEl.classList.add("passed");
+          document.getElementById("status-str2").className = "test-status pass";
+          document.getElementById("status-str2").textContent = "✓ Pass";
+
+          updateTimeline(4, "completed");
+          updateTimeline(5, "active");
+          setCurrentStep("Both verifications passed! Returning result...");
+
+          phase = "result";
+        } else if (phase === "result") {
+          updateTimeline(5, "completed");
+          setCurrentStep('✅ Complete! GCD String = "AB"');
+
+          const banner = document.getElementById("result-banner");
+          document.getElementById("result-value").textContent = '"AB"';
+          document.getElementById("result-explanation").innerHTML = `
+                    The string "<strong>AB</strong>" divides both strings:<br>
+                    • str1 = "AB" × 3 = "ABABAB" ✓<br>
+                    • str2 = "AB" × 2 = "ABAB" ✓<br><br>
+                    <strong>Only 1 candidate was checked</strong> (vs 4 in brute force)!
+                `;
+          banner.classList.add("visible");
+
+          document.getElementById("nextBtn").disabled = true;
+          stopAuto();
+          phase = "done";
+        }
+      }
+
+      function toggleAuto() {
+        if (isAutoPlaying) {
+          stopAuto();
+        } else {
+          startAuto();
+        }
+      }
+
+      function startAuto() {
+        if (phase === "done" || phase === "init") return;
+        isAutoPlaying = true;
+        document.getElementById("autoBtn").textContent = "⏸️ Pause";
+        const speed = 2300 - document.getElementById("speedSlider").value;
+        autoPlayInterval = setInterval(() => {
+          if (phase !== "done") {
+            nextStep();
+          } else {
+            stopAuto();
+          }
+        }, speed);
+      }
+
+      function stopAuto() {
+        isAutoPlaying = false;
+        document.getElementById("autoBtn").textContent = "🔄 Auto Play";
+        if (autoPlayInterval) {
+          clearInterval(autoPlayInterval);
+          autoPlayInterval = null;
+        }
+      }
+
+      function reset() {
+        stopAuto();
+        phase = "init";
+        gcdStepIndex = 0;
+
+        document.getElementById("startBtn").disabled = false;
+        document.getElementById("nextBtn").disabled = true;
+
+        // Reset timeline
+        for (let i = 1; i <= 5; i++) {
+          document
+            .getElementById(`timeline-${i}`)
+            .classList.remove("active", "completed");
+        }
+
+        // Hide sections
+        document.getElementById("gcd-whiteboard").style.display = "none";
+        document.getElementById("candidate-whiteboard").style.display = "none";
+        document.getElementById("verify-whiteboard").style.display = "none";
+        document.getElementById("result-banner").classList.remove("visible");
+
+        // Reset verification tests
+        document
+          .getElementById("verify-str1")
+          .classList.remove("active", "passed", "failed");
+        document
+          .getElementById("verify-str2")
+          .classList.remove("active", "passed", "failed");
+        document.getElementById("status-str1").className =
+          "test-status pending";
+        document.getElementById("status-str1").textContent = "Pending";
+        document.getElementById("status-str2").className =
+          "test-status pending";
+        document.getElementById("status-str2").textContent = "Pending";
+        document.getElementById("repeat-viz-str1").innerHTML = "";
+        document.getElementById("repeat-viz-str2").innerHTML = "";
+
+        setCurrentStep('Click "Start" to begin visualization');
+
+        // Reset character highlights
+        document.querySelectorAll(".char-box").forEach((box) => {
+          box.classList.remove("candidate", "dimmed", "highlight");
+        });
+
+        initDisplays();
+      }
+
+      // Initialize
+      initDisplays();
+    </script>
+  </body>
+</html>

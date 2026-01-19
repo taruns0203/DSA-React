@@ -1,0 +1,1442 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Brute Force: Pow(x, n) Visualization</title>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Fira+Code:wght@400;500&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        font-family: "Inter", sans-serif;
+        min-height: 100vh;
+        background: linear-gradient(
+          135deg,
+          #0f172a 0%,
+          rgba(127, 29, 29, 0.3) 50%,
+          #0f172a 100%
+        );
+        padding: 1.5rem;
+        color: white;
+      }
+
+      /* Header */
+      .header {
+        text-align: center;
+        margin-bottom: 1.5rem;
+      }
+
+      .header h1 {
+        font-size: 1.875rem;
+        font-weight: 700;
+        margin-bottom: 0.5rem;
+      }
+
+      .header p {
+        color: #fca5a5;
+      }
+
+      /* Warning Banner */
+      .warning-banner {
+        max-width: 56rem;
+        margin: 0 auto 1.5rem;
+      }
+
+      .warning-card {
+        background: rgba(239, 68, 68, 0.2);
+        border: 1px solid rgba(239, 68, 68, 0.5);
+        border-radius: 0.75rem;
+        padding: 1rem;
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+      }
+
+      .warning-icon {
+        font-size: 2.5rem;
+      }
+
+      .warning-title {
+        font-weight: 700;
+        color: #f87171;
+      }
+
+      .warning-text {
+        font-size: 0.875rem;
+        color: #d1d5db;
+      }
+
+      .warning-text .highlight {
+        color: #facc15;
+        font-weight: 700;
+      }
+
+      /* Controls Panel */
+      .controls-panel {
+        max-width: 56rem;
+        margin: 0 auto 1.5rem;
+      }
+
+      .controls-card {
+        background: rgba(255, 255, 255, 0.1);
+        backdrop-filter: blur(10px);
+        border-radius: 1rem;
+        padding: 1rem;
+        box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+      }
+
+      .controls-row {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        justify-content: center;
+        gap: 1rem;
+      }
+
+      .input-group {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        background: rgba(255, 255, 255, 0.1);
+        border-radius: 0.75rem;
+        padding: 0.5rem 1rem;
+      }
+
+      .input-group label {
+        color: #fde047;
+      }
+
+      .input-group input,
+      .input-group select {
+        width: 4rem;
+        background: rgba(255, 255, 255, 0.2);
+        border-radius: 0.5rem;
+        padding: 0.25rem 0.5rem;
+        text-align: center;
+        color: white;
+        border: 1px solid rgba(255, 255, 255, 0.3);
+        font-family: inherit;
+      }
+
+      .input-group select {
+        width: auto;
+      }
+
+      .input-group .hint {
+        font-size: 0.75rem;
+        color: #9ca3af;
+      }
+
+      .input-group input:focus,
+      .input-group select:focus {
+        outline: none;
+        border-color: #a78bfa;
+      }
+
+      /* Buttons */
+      .btn-group {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+      }
+
+      .btn {
+        border: none;
+        border-radius: 0.75rem;
+        padding: 0.5rem 1rem;
+        font-family: inherit;
+        font-weight: 500;
+        cursor: pointer;
+        transition: all 0.2s;
+        color: white;
+      }
+
+      .btn:hover {
+        transform: scale(1.05);
+      }
+
+      .btn:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+        transform: none;
+      }
+
+      .btn-purple {
+        background: #9333ea;
+      }
+      .btn-purple:hover:not(:disabled) {
+        background: #a855f7;
+      }
+
+      .btn-blue {
+        background: #2563eb;
+      }
+      .btn-blue:hover:not(:disabled) {
+        background: #3b82f6;
+      }
+
+      .btn-green {
+        background: #16a34a;
+      }
+      .btn-green:hover:not(:disabled) {
+        background: #22c55e;
+      }
+
+      .btn-red {
+        background: #dc2626;
+      }
+      .btn-red:hover:not(:disabled) {
+        background: #ef4444;
+      }
+
+      .btn-play {
+        padding: 0.5rem 1.5rem;
+        font-weight: 700;
+      }
+
+      /* Progress Bar */
+      .progress-section {
+        margin-top: 1rem;
+      }
+
+      .progress-labels {
+        display: flex;
+        justify-content: space-between;
+        font-size: 0.875rem;
+        color: #c4b5fd;
+        margin-bottom: 0.25rem;
+      }
+
+      .progress-bar {
+        height: 0.75rem;
+        background: rgba(255, 255, 255, 0.2);
+        border-radius: 9999px;
+        overflow: hidden;
+      }
+
+      .progress-fill {
+        height: 100%;
+        background: linear-gradient(to right, #ef4444, #f97316, #facc15);
+        transition: width 0.3s;
+      }
+
+      /* Cards */
+      .card {
+        background: rgba(255, 255, 255, 0.1);
+        backdrop-filter: blur(10px);
+        border-radius: 1rem;
+        padding: 1.5rem;
+        box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+      }
+
+      .card h2 {
+        font-size: 1.25rem;
+        font-weight: 700;
+        margin-bottom: 1rem;
+        text-align: center;
+      }
+
+      /* Multiplication Chain */
+      .chain-container {
+        max-width: 72rem;
+        margin: 0 auto 1.5rem;
+      }
+
+      .chain-description {
+        text-align: center;
+        color: #9ca3af;
+        margin-bottom: 1rem;
+        font-size: 0.875rem;
+      }
+
+      .multiplication-chain {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
+        padding: 1rem;
+      }
+
+      .chain-value {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 3.5rem;
+        height: 3.5rem;
+        border-radius: 0.75rem;
+        font-weight: 700;
+        font-size: 1.125rem;
+        transition: all 0.5s;
+        box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+      }
+
+      .chain-value.start {
+        background: linear-gradient(135deg, #4ade80, #16a34a);
+        color: white;
+      }
+
+      .chain-value.pending {
+        background: #374151;
+        color: #6b7280;
+        transform: scale(0.9);
+      }
+
+      .chain-symbol {
+        font-size: 1.5rem;
+        transition: all 0.3s;
+      }
+
+      .chain-symbol.active {
+        color: #facc15;
+        transform: scale(1.25);
+        animation: bounce 1s infinite;
+      }
+
+      .chain-symbol.complete {
+        color: #4ade80;
+      }
+
+      .chain-symbol.pending {
+        color: #4b5563;
+      }
+
+      .chain-x {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 3rem;
+        height: 3rem;
+        border-radius: 0.5rem;
+        font-weight: 700;
+        transition: all 0.5s;
+      }
+
+      .chain-x.active {
+        background: linear-gradient(135deg, #facc15, #f97316);
+        color: white;
+        transform: scale(1.1);
+        animation: pulse 1s infinite;
+        box-shadow: 0 0 20px rgba(250, 204, 21, 0.5);
+      }
+
+      .chain-x.complete {
+        background: linear-gradient(135deg, #60a5fa, #2563eb);
+        color: white;
+      }
+
+      .chain-x.pending {
+        background: #374151;
+        color: #6b7280;
+      }
+
+      .chain-result {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        min-width: 3.5rem;
+        height: 3.5rem;
+        padding: 0 0.5rem;
+        border-radius: 0.75rem;
+        font-weight: 700;
+        font-size: 1.125rem;
+        transition: all 0.5s;
+      }
+
+      .chain-result.active {
+        background: linear-gradient(135deg, #facc15, #f97316);
+        color: white;
+        transform: scale(1.1);
+        box-shadow: 0 0 20px rgba(250, 204, 21, 0.5);
+      }
+
+      .chain-result.complete {
+        background: linear-gradient(135deg, #4ade80, #16a34a);
+        color: white;
+      }
+
+      /* Main Content Grid */
+      .main-content {
+        max-width: 72rem;
+        margin: 0 auto;
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 1.5rem;
+      }
+
+      @media (min-width: 1024px) {
+        .main-content {
+          grid-template-columns: 1fr 1fr 1fr;
+        }
+      }
+
+      /* Linear Tree */
+      .linear-tree {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 0.25rem;
+        padding: 1rem 0;
+        max-height: 20rem;
+        overflow-y: auto;
+      }
+
+      .tree-connector {
+        width: 4px;
+        height: 1.5rem;
+        border-radius: 9999px;
+        transition: all 0.3s;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 0.75rem;
+      }
+
+      .tree-connector.active {
+        background: linear-gradient(to bottom, #a78bfa, #7c3aed);
+      }
+
+      .tree-connector.pending {
+        background: #374151;
+      }
+
+      .tree-node {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        padding: 0.5rem 1rem;
+        border-radius: 0.75rem;
+        transition: all 0.5s;
+      }
+
+      .tree-node.active {
+        background: linear-gradient(to right, #eab308, #f97316);
+        transform: scale(1.05);
+        box-shadow: 0 0 20px rgba(234, 179, 8, 0.3);
+      }
+
+      .tree-node.complete {
+        background: linear-gradient(
+          to right,
+          rgba(34, 197, 94, 0.8),
+          rgba(20, 184, 166, 0.8)
+        );
+      }
+
+      .tree-node.pending {
+        background: #374151;
+      }
+
+      .tree-node-emoji {
+        font-size: 1.25rem;
+      }
+
+      .tree-node-content {
+        color: white;
+      }
+
+      .tree-node-title {
+        font-weight: 700;
+        font-size: 0.875rem;
+      }
+
+      .tree-node-subtitle {
+        font-size: 0.75rem;
+        opacity: 0.8;
+      }
+
+      .tree-node-star {
+        color: #fde047;
+        animation: ping 1s infinite;
+      }
+
+      /* Current Operation */
+      .current-op {
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+      }
+
+      .big-emoji {
+        text-align: center;
+      }
+
+      .big-emoji span {
+        font-size: 4rem;
+        display: inline-block;
+        animation: bounce 1s infinite;
+      }
+
+      .message-box {
+        background: linear-gradient(
+          to right,
+          rgba(168, 85, 247, 0.3),
+          rgba(236, 72, 153, 0.3)
+        );
+        border-radius: 0.75rem;
+        padding: 1rem;
+        text-align: center;
+      }
+
+      .message-box p {
+        font-size: 1.125rem;
+        font-weight: 500;
+      }
+
+      .formula-box {
+        background: rgba(0, 0, 0, 0.3);
+        border-radius: 0.75rem;
+        padding: 1rem;
+        text-align: center;
+        font-family: "Fira Code", monospace;
+      }
+
+      .formula-box span {
+        color: #4ade80;
+        font-size: 1.25rem;
+      }
+
+      .current-result {
+        text-align: center;
+      }
+
+      .current-result-label {
+        color: #9ca3af;
+        font-size: 0.875rem;
+        margin-bottom: 0.5rem;
+      }
+
+      .current-result-value {
+        display: inline-block;
+        background: linear-gradient(to right, #eab308, #f97316);
+        border-radius: 1rem;
+        padding: 1rem 2rem;
+      }
+
+      .current-result-value span {
+        font-size: 2.5rem;
+        font-weight: 700;
+        color: white;
+      }
+
+      .iteration-counter {
+        display: flex;
+        justify-content: center;
+        gap: 0.25rem;
+        flex-wrap: wrap;
+      }
+
+      .iteration-dot {
+        width: 1.5rem;
+        height: 1.5rem;
+        border-radius: 9999px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 0.75rem;
+        font-weight: 700;
+        transition: all 0.3s;
+      }
+
+      .iteration-dot.current {
+        background: #eab308;
+        color: black;
+        transform: scale(1.25);
+      }
+
+      .iteration-dot.complete {
+        background: #22c55e;
+        color: white;
+      }
+
+      .iteration-dot.pending {
+        background: #374151;
+        color: #6b7280;
+      }
+
+      /* Operation Log */
+      .operation-log {
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+        max-height: 16rem;
+        overflow-y: auto;
+        padding-right: 0.5rem;
+      }
+
+      .log-entry {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        padding: 0.75rem;
+        border-radius: 0.75rem;
+        transition: all 0.3s;
+      }
+
+      .log-entry.current {
+        background: linear-gradient(
+          to right,
+          rgba(234, 179, 8, 0.3),
+          rgba(249, 115, 22, 0.3)
+        );
+        border: 1px solid #eab308;
+      }
+
+      .log-entry.past {
+        background: rgba(255, 255, 255, 0.05);
+      }
+
+      .log-emoji {
+        font-size: 1.5rem;
+      }
+
+      .log-content {
+        flex: 1;
+      }
+
+      .log-formula {
+        font-family: "Fira Code", monospace;
+        font-size: 0.875rem;
+        color: #4ade80;
+      }
+
+      .log-operation {
+        font-size: 0.75rem;
+        color: #9ca3af;
+      }
+
+      .log-result {
+        padding: 0.25rem 0.75rem;
+        border-radius: 0.5rem;
+        font-weight: 700;
+      }
+
+      .log-result.current {
+        background: #eab308;
+        color: black;
+      }
+
+      .log-result.past {
+        background: rgba(34, 197, 94, 0.3);
+        color: #4ade80;
+      }
+
+      /* Algorithm Explanation */
+      .explanation-section {
+        max-width: 72rem;
+        margin: 1.5rem auto 0;
+      }
+
+      .explanation-grid {
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 1.5rem;
+        margin-bottom: 1.5rem;
+      }
+
+      @media (min-width: 768px) {
+        .explanation-grid {
+          grid-template-columns: 1fr 1fr;
+        }
+      }
+
+      /* Pseudocode */
+      .pseudocode {
+        background: rgba(0, 0, 0, 0.3);
+        border-radius: 0.75rem;
+        padding: 1rem;
+      }
+
+      .pseudocode h3 {
+        font-weight: 700;
+        color: #4ade80;
+        margin-bottom: 0.75rem;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+      }
+
+      .pseudocode pre {
+        font-family: "Fira Code", monospace;
+        font-size: 0.875rem;
+        color: #d1d5db;
+        line-height: 1.6;
+        white-space: pre-wrap;
+      }
+
+      /* Complexity Cards */
+      .complexity-cards {
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+      }
+
+      .complexity-card {
+        border-radius: 0.75rem;
+        padding: 1rem;
+        border: 1px solid;
+      }
+
+      .complexity-card.time {
+        background: rgba(239, 68, 68, 0.2);
+        border-color: rgba(239, 68, 68, 0.3);
+      }
+
+      .complexity-card.space {
+        background: rgba(34, 197, 94, 0.2);
+        border-color: rgba(34, 197, 94, 0.3);
+      }
+
+      .complexity-card.problem {
+        background: rgba(234, 179, 8, 0.2);
+        border-color: rgba(234, 179, 8, 0.3);
+      }
+
+      .complexity-card h3 {
+        font-weight: 700;
+        margin-bottom: 0.5rem;
+      }
+
+      .complexity-card.time h3 {
+        color: #f87171;
+      }
+      .complexity-card.space h3 {
+        color: #4ade80;
+      }
+      .complexity-card.problem h3 {
+        color: #facc15;
+      }
+
+      .complexity-card p {
+        font-size: 0.875rem;
+        color: #d1d5db;
+      }
+
+      .complexity-card code {
+        color: #facc15;
+      }
+
+      .complexity-card .highlight-red {
+        color: #f87171;
+        font-weight: 700;
+      }
+
+      .complexity-card .highlight-yellow {
+        color: #facc15;
+        font-weight: 700;
+      }
+
+      /* Comparison Table */
+      .comparison-section {
+        background: linear-gradient(
+          to right,
+          rgba(239, 68, 68, 0.2),
+          rgba(168, 85, 247, 0.2),
+          rgba(34, 197, 94, 0.2)
+        );
+        border-radius: 0.75rem;
+        padding: 1rem;
+        margin-top: 1.5rem;
+      }
+
+      .comparison-section h3 {
+        font-weight: 700;
+        text-align: center;
+        margin-bottom: 1rem;
+      }
+
+      .comparison-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 1rem;
+        text-align: center;
+      }
+
+      .comparison-header {
+        color: #9ca3af;
+        font-size: 0.875rem;
+      }
+
+      .comparison-header.brute {
+        color: #f87171;
+        font-weight: 700;
+      }
+
+      .comparison-header.binary {
+        color: #4ade80;
+        font-weight: 700;
+      }
+
+      .comparison-value {
+        font-size: 1.125rem;
+      }
+
+      .comparison-value.brute {
+        color: #fca5a5;
+      }
+
+      .comparison-value.binary {
+        color: #86efac;
+      }
+
+      /* Stats */
+      .stats-row {
+        display: flex;
+        justify-content: center;
+        gap: 2rem;
+        margin-top: 1rem;
+      }
+
+      .stat {
+        text-align: center;
+      }
+
+      .stat-icon {
+        font-size: 1.875rem;
+      }
+
+      .stat-value {
+        font-weight: 700;
+      }
+
+      .stat-value.time {
+        color: #f87171;
+      }
+      .stat-value.space {
+        color: #4ade80;
+      }
+      .stat-value.ops {
+        color: #facc15;
+      }
+      .stat-value.tle {
+        color: #f87171;
+      }
+
+      .stat-label {
+        font-size: 0.75rem;
+        color: #9ca3af;
+      }
+
+      /* Animations */
+      @keyframes bounce {
+        0%,
+        100% {
+          transform: translateY(0);
+        }
+        50% {
+          transform: translateY(-5px);
+        }
+      }
+
+      @keyframes pulse {
+        0%,
+        100% {
+          opacity: 1;
+        }
+        50% {
+          opacity: 0.7;
+        }
+      }
+
+      @keyframes ping {
+        0% {
+          transform: scale(1);
+          opacity: 1;
+        }
+        75%,
+        100% {
+          transform: scale(1.5);
+          opacity: 0;
+        }
+      }
+
+      /* Scrollbar */
+      ::-webkit-scrollbar {
+        width: 6px;
+      }
+
+      ::-webkit-scrollbar-track {
+        background: rgba(255, 255, 255, 0.1);
+        border-radius: 3px;
+      }
+
+      ::-webkit-scrollbar-thumb {
+        background: rgba(255, 255, 255, 0.3);
+        border-radius: 3px;
+      }
+
+      ::-webkit-scrollbar-thumb:hover {
+        background: rgba(255, 255, 255, 0.5);
+      }
+    </style>
+  </head>
+  <body>
+    <!-- Header -->
+    <div class="header">
+      <h1>🐢 Brute Force: Pow(x, n) 🐢</h1>
+      <p>Multiply x by itself n times — Simple but SLOW! O(n) time</p>
+    </div>
+
+    <!-- Warning Banner -->
+    <div class="warning-banner">
+      <div class="warning-card">
+        <span class="warning-icon">⚠️</span>
+        <div>
+          <p class="warning-title">Why This Approach is Slow</p>
+          <p class="warning-text">
+            For n = <span id="warningN">10</span>, we need
+            <span class="highlight" id="warningOps">10 multiplications</span>.
+            If n = 2³¹, that's ~2 billion operations! 🤯
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Controls -->
+    <div class="controls-panel">
+      <div class="controls-card">
+        <div class="controls-row">
+          <!-- Input Controls -->
+          <div class="input-group">
+            <label>⚡ x =</label>
+            <input type="number" id="inputX" value="2" />
+          </div>
+
+          <div class="input-group">
+            <label>🔢 n =</label>
+            <input type="number" id="inputN" value="10" min="0" max="15" />
+            <span class="hint">(max 15 for viz)</span>
+          </div>
+
+          <!-- Playback Controls -->
+          <div class="btn-group">
+            <button class="btn btn-purple" id="btnReset">⏮️ Reset</button>
+            <button class="btn btn-blue" id="btnPrev">◀️ Prev</button>
+            <button class="btn btn-green btn-play" id="btnPlay">▶️ Play</button>
+            <button class="btn btn-blue" id="btnNext">Next ▶️</button>
+          </div>
+
+          <!-- Speed Control -->
+          <div class="input-group">
+            <label>🏃 Speed:</label>
+            <select id="speedSelect">
+              <option value="1500">🐢 Slow</option>
+              <option value="800" selected>🚶 Normal</option>
+              <option value="400">🏃 Fast</option>
+              <option value="200">🚀 Turbo</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- Progress Bar -->
+        <div class="progress-section">
+          <div class="progress-labels">
+            <span id="stepLabel">Step 0 of 10</span>
+            <span id="multLabel">10 total multiplications needed 😅</span>
+          </div>
+          <div class="progress-bar">
+            <div
+              class="progress-fill"
+              id="progressFill"
+              style="width: 0%"
+            ></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Multiplication Chain -->
+    <div class="chain-container">
+      <div class="card">
+        <h2>⛓️ Multiplication Chain</h2>
+        <p class="chain-description">
+          Each step multiplies the current result by x. That's
+          <span id="chainCount">10</span> multiplications!
+        </p>
+        <div class="multiplication-chain" id="multiplicationChain"></div>
+      </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="main-content">
+      <!-- Left: Linear Tree -->
+      <div class="card">
+        <h2>📊 Step-by-Step Progress</h2>
+        <div class="linear-tree" id="linearTree"></div>
+      </div>
+
+      <!-- Middle: Current Step -->
+      <div class="card">
+        <h2>🎯 Current Operation</h2>
+        <div class="current-op" id="currentOp"></div>
+      </div>
+
+      <!-- Right: Operation Log -->
+      <div class="card">
+        <h2>📝 Operation Log</h2>
+        <div class="operation-log" id="operationLog"></div>
+      </div>
+    </div>
+
+    <!-- Algorithm Explanation -->
+    <div class="explanation-section">
+      <div class="card">
+        <h2>🧠 Brute Force Algorithm</h2>
+
+        <div class="explanation-grid">
+          <!-- Pseudocode -->
+          <div class="pseudocode">
+            <h3><span>💻</span> Pseudocode</h3>
+            <pre>
+function pow(x, n):
+    result = 1
+    
+    for i from 1 to n:
+        result = result × x
+    
+    return result</pre
+            >
+          </div>
+
+          <!-- Complexity Analysis -->
+          <div class="complexity-cards">
+            <div class="complexity-card time">
+              <h3>⏱️ Time Complexity: O(n)</h3>
+              <p>
+                We perform exactly
+                <span class="highlight-yellow">n multiplications</span>, one for
+                each iteration of the loop.
+              </p>
+            </div>
+
+            <div class="complexity-card space">
+              <h3>💾 Space Complexity: O(1)</h3>
+              <p>
+                Only using a single variable <code>result</code> — constant
+                space!
+              </p>
+            </div>
+
+            <div class="complexity-card problem">
+              <h3>⚠️ The Problem</h3>
+              <p>
+                If n = 2³¹ ≈ 2 billion, we need
+                <span class="highlight-red">2 billion iterations!</span> That
+                would take ~20 seconds. Way too slow! 🐌
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Comparison -->
+        <div class="comparison-section">
+          <h3>📊 Brute Force vs Binary Exponentiation</h3>
+          <div class="comparison-grid">
+            <div class="comparison-header">n value</div>
+            <div class="comparison-header brute">🐢 Brute Force</div>
+            <div class="comparison-header binary">🚀 Binary Exp</div>
+
+            <div class="comparison-value">10</div>
+            <div class="comparison-value brute">10 ops</div>
+            <div class="comparison-value binary">4 ops</div>
+
+            <div class="comparison-value">100</div>
+            <div class="comparison-value brute">100 ops</div>
+            <div class="comparison-value binary">7 ops</div>
+
+            <div class="comparison-value">1,000</div>
+            <div class="comparison-value brute">1,000 ops</div>
+            <div class="comparison-value binary">10 ops</div>
+
+            <div class="comparison-value">1,000,000</div>
+            <div class="comparison-value brute">1,000,000 ops</div>
+            <div class="comparison-value binary">20 ops</div>
+
+            <div class="comparison-value">2³¹</div>
+            <div class="comparison-value brute">~2B ops 😱</div>
+            <div class="comparison-value binary">31 ops 🎉</div>
+          </div>
+        </div>
+
+        <!-- Bottom stats -->
+        <div class="stats-row">
+          <div class="stat">
+            <span class="stat-icon">🐢</span>
+            <p class="stat-value time">O(n)</p>
+            <p class="stat-label">Time</p>
+          </div>
+          <div class="stat">
+            <span class="stat-icon">✅</span>
+            <p class="stat-value space">O(1)</p>
+            <p class="stat-label">Space</p>
+          </div>
+          <div class="stat">
+            <span class="stat-icon">😅</span>
+            <p class="stat-value ops" id="opsCount">10</p>
+            <p class="stat-label" id="opsLabel">Ops for n=10</p>
+          </div>
+          <div class="stat">
+            <span class="stat-icon">❌</span>
+            <p class="stat-value tle">TLE</p>
+            <p class="stat-label">For large n</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      // State
+      let x = 2;
+      let n = 10;
+      let currentStep = 0;
+      let isPlaying = false;
+      let speed = 800;
+      let steps = [];
+      let playInterval = null;
+
+      // DOM Elements
+      const inputX = document.getElementById("inputX");
+      const inputN = document.getElementById("inputN");
+      const btnReset = document.getElementById("btnReset");
+      const btnPrev = document.getElementById("btnPrev");
+      const btnPlay = document.getElementById("btnPlay");
+      const btnNext = document.getElementById("btnNext");
+      const speedSelect = document.getElementById("speedSelect");
+      const stepLabel = document.getElementById("stepLabel");
+      const multLabel = document.getElementById("multLabel");
+      const progressFill = document.getElementById("progressFill");
+      const multiplicationChain = document.getElementById(
+        "multiplicationChain"
+      );
+      const linearTree = document.getElementById("linearTree");
+      const currentOp = document.getElementById("currentOp");
+      const operationLog = document.getElementById("operationLog");
+      const warningN = document.getElementById("warningN");
+      const warningOps = document.getElementById("warningOps");
+      const chainCount = document.getElementById("chainCount");
+      const opsCount = document.getElementById("opsCount");
+      const opsLabel = document.getElementById("opsLabel");
+
+      // Generate all multiplication steps
+      function generateSteps(base, exp) {
+        const allSteps = [];
+        let result = 1;
+
+        // Initial state
+        allSteps.push({
+          iteration: 0,
+          result: 1,
+          operation: "Initialize",
+          message: "🚀 Starting! result = 1",
+          emoji: "🎬",
+          formula: "result = 1",
+        });
+
+        // Each multiplication step
+        for (let i = 1; i <= exp; i++) {
+          const prevResult = result;
+          result = result * base;
+
+          allSteps.push({
+            iteration: i,
+            result: result,
+            prevResult: prevResult,
+            operation: `${prevResult} × ${base}`,
+            message: `🔄 Step ${i}: Multiply ${prevResult} × ${base} = ${result}`,
+            emoji: i === exp ? "🎉" : "⚡",
+            formula: `result = ${prevResult} × ${base} = ${result}`,
+            isLast: i === exp,
+          });
+        }
+
+        return allSteps;
+      }
+
+      function renderMultiplicationChain() {
+        const displayN = Math.min(n, 15);
+        let html = "";
+
+        // Starting value
+        html += `
+        <div class="chain-value start">1</div>
+      `;
+
+        // Multiplication steps
+        for (let i = 0; i < displayN; i++) {
+          const stepIndex = i + 1;
+          const isActive = currentStep === stepIndex;
+          const isComplete = currentStep > stepIndex;
+
+          // Multiplication symbol
+          let symbolClass = "pending";
+          if (isActive) symbolClass = "active";
+          else if (isComplete) symbolClass = "complete";
+
+          html += `<div class="chain-symbol ${symbolClass}">×</div>`;
+
+          // X value
+          let xClass = "pending";
+          if (isActive) xClass = "active";
+          else if (isComplete) xClass = "complete";
+
+          html += `<div class="chain-x ${xClass}">${x}</div>`;
+
+          // Equals and result (show after each step)
+          if (isActive || isComplete) {
+            html += `<div class="chain-symbol ${
+              isActive ? "active" : "complete"
+            }">=</div>`;
+            html += `<div class="chain-result ${
+              isActive ? "active" : "complete"
+            }">${steps[stepIndex]?.result || "?"}</div>`;
+          }
+        }
+
+        multiplicationChain.innerHTML = html;
+      }
+
+      function renderLinearTree() {
+        let html = "";
+
+        steps.forEach((step, idx) => {
+          const isActive = currentStep === idx;
+          const isComplete = currentStep > idx;
+          const isPending = currentStep < idx;
+
+          if (isPending) return;
+
+          // Connection line
+          if (idx > 0) {
+            html += `
+            <div class="tree-connector ${
+              isComplete || isActive ? "active" : "pending"
+            }">
+              ${isActive ? "⬇️" : ""}
+            </div>
+          `;
+          }
+
+          // Node
+          let nodeClass = "pending";
+          if (isActive) nodeClass = "active";
+          else if (isComplete) nodeClass = "complete";
+
+          html += `
+          <div class="tree-node ${nodeClass}">
+            <span class="tree-node-emoji">${step.emoji}</span>
+            <div class="tree-node-content">
+              <div class="tree-node-title">${
+                idx === 0 ? "Start" : `Step ${idx}`
+              }</div>
+              <div class="tree-node-subtitle">result = ${step.result}</div>
+            </div>
+            ${isActive ? '<span class="tree-node-star">⭐</span>' : ""}
+          </div>
+        `;
+        });
+
+        linearTree.innerHTML = html;
+      }
+
+      function renderCurrentOp() {
+        const stepData = steps[currentStep];
+        if (!stepData) {
+          currentOp.innerHTML =
+            '<p style="text-align: center; color: #9ca3af;">No step data</p>';
+          return;
+        }
+
+        const displayN = Math.min(n, 15);
+
+        // Iteration dots
+        let dotsHtml = "";
+        for (let i = 0; i <= displayN; i++) {
+          let dotClass = "pending";
+          if (i === currentStep) dotClass = "current";
+          else if (i < currentStep) dotClass = "complete";
+          dotsHtml += `<div class="iteration-dot ${dotClass}">${i}</div>`;
+        }
+
+        currentOp.innerHTML = `
+        <!-- Big emoji -->
+        <div class="big-emoji">
+          <span>${stepData.emoji}</span>
+        </div>
+
+        <!-- Message -->
+        <div class="message-box">
+          <p>${stepData.message}</p>
+        </div>
+
+        <!-- Formula -->
+        <div class="formula-box">
+          <span>${stepData.formula}</span>
+        </div>
+
+        <!-- Current Result -->
+        <div class="current-result">
+          <p class="current-result-label">Current Result:</p>
+          <div class="current-result-value">
+            <span>${stepData.result}</span>
+          </div>
+        </div>
+
+        <!-- Iteration counter -->
+        <div class="iteration-counter">
+          ${dotsHtml}
+        </div>
+      `;
+      }
+
+      function renderOperationLog() {
+        let html = "";
+
+        steps.slice(0, currentStep + 1).forEach((step, idx) => {
+          const isCurrent = idx === currentStep;
+
+          html += `
+          <div class="log-entry ${isCurrent ? "current" : "past"}">
+            <span class="log-emoji">${step.emoji}</span>
+            <div class="log-content">
+              <div class="log-formula">${step.formula}</div>
+              <div class="log-operation">${step.operation}</div>
+            </div>
+            <div class="log-result ${isCurrent ? "current" : "past"}">${
+            step.result
+          }</div>
+          </div>
+        `;
+        });
+
+        operationLog.innerHTML = html;
+      }
+
+      function updateProgress() {
+        const total = steps.length - 1;
+        const percent = total > 0 ? Math.round((currentStep / total) * 100) : 0;
+
+        stepLabel.textContent = `Step ${currentStep} of ${total}`;
+        progressFill.style.width = `${percent}%`;
+
+        // Update button states
+        btnPrev.disabled = currentStep === 0;
+        btnNext.disabled = currentStep >= steps.length - 1;
+      }
+
+      function updateLabels() {
+        const displayN = Math.min(n, 15);
+        warningN.textContent = n;
+        warningOps.textContent = `${n} multiplications`;
+        chainCount.textContent = displayN;
+        multLabel.textContent = `${displayN} total multiplications needed 😅`;
+        opsCount.textContent = displayN;
+        opsLabel.textContent = `Ops for n=${displayN}`;
+      }
+
+      function render() {
+        renderMultiplicationChain();
+        renderLinearTree();
+        renderCurrentOp();
+        renderOperationLog();
+        updateProgress();
+      }
+
+      function initialize() {
+        const displayN = Math.min(n, 15);
+        steps = generateSteps(x, displayN);
+        currentStep = 0;
+        updateLabels();
+        render();
+      }
+
+      function startPlaying() {
+        isPlaying = true;
+        btnPlay.textContent = "⏸️ Pause";
+        btnPlay.classList.remove("btn-green");
+        btnPlay.classList.add("btn-red");
+
+        playInterval = setInterval(() => {
+          if (currentStep >= steps.length - 1) {
+            stopPlaying();
+            return;
+          }
+          currentStep++;
+          render();
+        }, speed);
+      }
+
+      function stopPlaying() {
+        isPlaying = false;
+        btnPlay.textContent = "▶️ Play";
+        btnPlay.classList.remove("btn-red");
+        btnPlay.classList.add("btn-green");
+
+        if (playInterval) {
+          clearInterval(playInterval);
+          playInterval = null;
+        }
+      }
+
+      // Event Listeners
+      inputX.addEventListener("change", () => {
+        x = Number(inputX.value) || 2;
+        stopPlaying();
+        initialize();
+      });
+
+      inputN.addEventListener("change", () => {
+        n = Math.min(Math.max(0, Number(inputN.value) || 0), 15);
+        inputN.value = n;
+        stopPlaying();
+        initialize();
+      });
+
+      btnReset.addEventListener("click", () => {
+        stopPlaying();
+        currentStep = 0;
+        render();
+      });
+
+      btnPrev.addEventListener("click", () => {
+        if (currentStep > 0) {
+          currentStep--;
+          render();
+        }
+      });
+
+      btnNext.addEventListener("click", () => {
+        if (currentStep < steps.length - 1) {
+          currentStep++;
+          render();
+        }
+      });
+
+      btnPlay.addEventListener("click", () => {
+        if (isPlaying) {
+          stopPlaying();
+        } else {
+          startPlaying();
+        }
+      });
+
+      speedSelect.addEventListener("change", () => {
+        speed = Number(speedSelect.value);
+        if (isPlaying) {
+          stopPlaying();
+          startPlaying();
+        }
+      });
+
+      // Initialize on load
+      initialize();
+    </script>
+  </body>
+</html>

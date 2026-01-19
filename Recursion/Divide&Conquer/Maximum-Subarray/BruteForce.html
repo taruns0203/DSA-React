@@ -1,0 +1,1203 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Maximum Subarray - Brute Force Whiteboard</title>
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+        background: #1a1a2e;
+        min-height: 100vh;
+        padding: 20px;
+        color: #eee;
+      }
+
+      .container {
+        max-width: 1200px;
+        margin: 0 auto;
+      }
+
+      h1 {
+        text-align: center;
+        color: #00d9ff;
+        margin-bottom: 10px;
+        font-size: 2rem;
+        text-shadow: 0 0 20px rgba(0, 217, 255, 0.3);
+      }
+
+      .subtitle {
+        text-align: center;
+        color: #888;
+        margin-bottom: 30px;
+        font-size: 1rem;
+      }
+
+      .whiteboard {
+        background: #0f0f23;
+        border-radius: 20px;
+        padding: 30px;
+        box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5),
+          inset 0 0 100px rgba(255, 255, 255, 0.02);
+        border: 1px solid #333;
+      }
+
+      .array-section {
+        margin-bottom: 30px;
+      }
+
+      .section-title {
+        color: #ffcc00;
+        font-size: 1.1rem;
+        margin-bottom: 15px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+      }
+
+      .section-title::before {
+        content: "";
+        width: 4px;
+        height: 20px;
+        background: #ffcc00;
+        border-radius: 2px;
+      }
+
+      .array-container {
+        display: flex;
+        gap: 8px;
+        justify-content: center;
+        flex-wrap: wrap;
+        margin-bottom: 20px;
+      }
+
+      .array-cell {
+        width: 60px;
+        height: 60px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        background: #16213e;
+        border-radius: 10px;
+        border: 2px solid #0f3460;
+        transition: all 0.3s ease;
+        position: relative;
+      }
+
+      .array-cell.highlight-start {
+        border-color: #00ff88;
+        box-shadow: 0 0 15px rgba(0, 255, 136, 0.4);
+      }
+
+      .array-cell.highlight-end {
+        border-color: #ff6b6b;
+        box-shadow: 0 0 15px rgba(255, 107, 107, 0.4);
+      }
+
+      .array-cell.in-range {
+        background: linear-gradient(135deg, #1e3a5f, #2d5a87);
+        border-color: #4ecdc4;
+        transform: scale(1.05);
+      }
+
+      .array-cell.best-subarray {
+        background: linear-gradient(135deg, #2d5016, #4a7c23);
+        border-color: #7fff00;
+        box-shadow: 0 0 20px rgba(127, 255, 0, 0.3);
+      }
+
+      .cell-index {
+        font-size: 0.7rem;
+        color: #666;
+        position: absolute;
+        top: 3px;
+        left: 6px;
+      }
+
+      .cell-value {
+        font-size: 1.3rem;
+        font-weight: bold;
+        color: #fff;
+      }
+
+      .cell-value.negative {
+        color: #ff6b6b;
+      }
+
+      .cell-value.positive {
+        color: #4ecdc4;
+      }
+
+      .pointers {
+        display: flex;
+        justify-content: center;
+        gap: 8px;
+        margin-top: 10px;
+      }
+
+      .pointer-slot {
+        width: 60px;
+        height: 30px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 0.8rem;
+        font-weight: bold;
+      }
+
+      .pointer-i {
+        color: #00ff88;
+      }
+
+      .pointer-j {
+        color: #ff6b6b;
+      }
+
+      .pointer-k {
+        color: #ffcc00;
+      }
+
+      .controls {
+        display: flex;
+        justify-content: center;
+        gap: 15px;
+        margin: 30px 0;
+        flex-wrap: wrap;
+      }
+
+      button {
+        padding: 12px 25px;
+        font-size: 1rem;
+        border: none;
+        border-radius: 8px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        font-weight: bold;
+      }
+
+      .btn-primary {
+        background: linear-gradient(135deg, #00d9ff, #0099cc);
+        color: #000;
+      }
+
+      .btn-primary:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 5px 20px rgba(0, 217, 255, 0.4);
+      }
+
+      .btn-secondary {
+        background: linear-gradient(135deg, #444, #333);
+        color: #fff;
+      }
+
+      .btn-secondary:hover {
+        background: linear-gradient(135deg, #555, #444);
+      }
+
+      .btn-success {
+        background: linear-gradient(135deg, #00ff88, #00cc6a);
+        color: #000;
+      }
+
+      .btn-warning {
+        background: linear-gradient(135deg, #ffcc00, #ff9900);
+        color: #000;
+      }
+
+      .info-panel {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 20px;
+        margin: 30px 0;
+      }
+
+      .info-card {
+        background: #16213e;
+        border-radius: 12px;
+        padding: 20px;
+        border: 1px solid #0f3460;
+      }
+
+      .info-card h3 {
+        color: #888;
+        font-size: 0.85rem;
+        margin-bottom: 8px;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+      }
+
+      .info-card .value {
+        font-size: 1.8rem;
+        font-weight: bold;
+      }
+
+      .info-card .value.sum-positive {
+        color: #4ecdc4;
+      }
+
+      .info-card .value.sum-negative {
+        color: #ff6b6b;
+      }
+
+      .info-card .value.max-sum {
+        color: #7fff00;
+      }
+
+      .calculation-area {
+        background: #0a0a1a;
+        border-radius: 12px;
+        padding: 20px;
+        margin: 20px 0;
+        border: 1px solid #222;
+      }
+
+      .calc-title {
+        color: #ffcc00;
+        margin-bottom: 15px;
+        font-size: 0.9rem;
+      }
+
+      .calc-expression {
+        font-family: "Courier New", monospace;
+        font-size: 1.2rem;
+        color: #4ecdc4;
+        text-align: center;
+        padding: 15px;
+        background: #111;
+        border-radius: 8px;
+        overflow-x: auto;
+      }
+
+      .calc-expression .highlight {
+        color: #ffcc00;
+        font-weight: bold;
+      }
+
+      .progress-bar {
+        width: 100%;
+        height: 8px;
+        background: #222;
+        border-radius: 4px;
+        margin: 20px 0;
+        overflow: hidden;
+      }
+
+      .progress-fill {
+        height: 100%;
+        background: linear-gradient(90deg, #00d9ff, #00ff88);
+        border-radius: 4px;
+        transition: width 0.3s ease;
+      }
+
+      .step-counter {
+        text-align: center;
+        color: #888;
+        font-size: 0.9rem;
+        margin-bottom: 10px;
+      }
+
+      .legend {
+        display: flex;
+        justify-content: center;
+        gap: 30px;
+        margin-top: 20px;
+        flex-wrap: wrap;
+      }
+
+      .legend-item {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        font-size: 0.85rem;
+        color: #888;
+      }
+
+      .legend-box {
+        width: 20px;
+        height: 20px;
+        border-radius: 4px;
+      }
+
+      .legend-box.start {
+        border: 2px solid #00ff88;
+        background: transparent;
+      }
+
+      .legend-box.end {
+        border: 2px solid #ff6b6b;
+        background: transparent;
+      }
+
+      .legend-box.range {
+        background: linear-gradient(135deg, #1e3a5f, #2d5a87);
+        border: 2px solid #4ecdc4;
+      }
+
+      .legend-box.best {
+        background: linear-gradient(135deg, #2d5016, #4a7c23);
+        border: 2px solid #7fff00;
+      }
+
+      .code-panel {
+        background: #0a0a1a;
+        border-radius: 12px;
+        padding: 20px;
+        margin-top: 30px;
+        border: 1px solid #222;
+      }
+
+      .code-panel h3 {
+        color: #00d9ff;
+        margin-bottom: 15px;
+        font-size: 1rem;
+      }
+
+      .code-line {
+        font-family: "Courier New", monospace;
+        padding: 4px 10px;
+        color: #888;
+        font-size: 0.9rem;
+        border-left: 3px solid transparent;
+        transition: all 0.3s ease;
+      }
+
+      .code-line.active {
+        background: rgba(0, 217, 255, 0.1);
+        color: #fff;
+        border-left-color: #00d9ff;
+      }
+
+      .code-keyword {
+        color: #ff79c6;
+      }
+
+      .code-var {
+        color: #50fa7b;
+      }
+
+      .code-num {
+        color: #bd93f9;
+      }
+
+      .code-comment {
+        color: #6272a4;
+      }
+
+      .speed-control {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 15px;
+        margin: 20px 0;
+      }
+
+      .speed-control label {
+        color: #888;
+        font-size: 0.9rem;
+      }
+
+      .speed-slider {
+        width: 150px;
+        accent-color: #00d9ff;
+      }
+
+      .message-box {
+        background: linear-gradient(135deg, #1a1a2e, #16213e);
+        border: 1px solid #0f3460;
+        border-radius: 12px;
+        padding: 20px;
+        margin: 20px 0;
+        text-align: center;
+      }
+
+      .message-box.success {
+        border-color: #7fff00;
+        background: linear-gradient(135deg, #1a2e1a, #163e16);
+      }
+
+      .message-box h2 {
+        color: #fff;
+        margin-bottom: 10px;
+      }
+
+      .message-box p {
+        color: #888;
+      }
+
+      .loops-indicator {
+        display: flex;
+        justify-content: center;
+        gap: 30px;
+        margin: 20px 0;
+      }
+
+      .loop-badge {
+        padding: 8px 16px;
+        border-radius: 20px;
+        font-size: 0.85rem;
+        font-weight: bold;
+      }
+
+      .loop-badge.loop-i {
+        background: rgba(0, 255, 136, 0.2);
+        color: #00ff88;
+        border: 1px solid #00ff88;
+      }
+
+      .loop-badge.loop-j {
+        background: rgba(255, 107, 107, 0.2);
+        color: #ff6b6b;
+        border: 1px solid #ff6b6b;
+      }
+
+      .loop-badge.loop-k {
+        background: rgba(255, 204, 0, 0.2);
+        color: #ffcc00;
+        border: 1px solid #ffcc00;
+      }
+
+      .subarray-display {
+        text-align: center;
+        margin: 15px 0;
+        font-size: 1.2rem;
+      }
+
+      .subarray-display .bracket {
+        color: #888;
+      }
+
+      .subarray-display .values {
+        color: #4ecdc4;
+        font-weight: bold;
+      }
+
+      @keyframes pulse {
+        0%,
+        100% {
+          transform: scale(1);
+        }
+        50% {
+          transform: scale(1.05);
+        }
+      }
+
+      .pulsing {
+        animation: pulse 0.5s ease-in-out;
+      }
+
+      .best-result {
+        text-align: center;
+        margin-top: 20px;
+        padding: 20px;
+        background: linear-gradient(135deg, #1a2e1a, #163e16);
+        border-radius: 12px;
+        border: 2px solid #7fff00;
+        display: none;
+      }
+
+      .best-result.show {
+        display: block;
+      }
+
+      .best-result h3 {
+        color: #7fff00;
+        font-size: 1.5rem;
+        margin-bottom: 10px;
+      }
+
+      .complexity-note {
+        margin-top: 30px;
+        padding: 20px;
+        background: rgba(255, 107, 107, 0.1);
+        border: 1px solid #ff6b6b;
+        border-radius: 12px;
+      }
+
+      .complexity-note h4 {
+        color: #ff6b6b;
+        margin-bottom: 10px;
+      }
+
+      .complexity-note p {
+        color: #ccc;
+        font-size: 0.9rem;
+        line-height: 1.6;
+      }
+
+      .iteration-tracker {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 10px;
+        margin: 20px 0;
+      }
+
+      .tracker-item {
+        background: #16213e;
+        padding: 10px;
+        border-radius: 8px;
+        text-align: center;
+      }
+
+      .tracker-item .label {
+        font-size: 0.75rem;
+        color: #666;
+        margin-bottom: 5px;
+      }
+
+      .tracker-item .count {
+        font-size: 1.2rem;
+        font-weight: bold;
+        color: #4ecdc4;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <h1>🎯 Maximum Subarray - Brute Force</h1>
+      <p class="subtitle">
+        Interactive Whiteboard Visualization | O(n³) Solution
+      </p>
+
+      <div class="whiteboard">
+        <!-- Array Display -->
+        <div class="array-section">
+          <div class="section-title">Input Array</div>
+          <div class="array-container" id="arrayContainer"></div>
+          <div class="pointers" id="pointers"></div>
+        </div>
+
+        <!-- Loop Indicators -->
+        <div class="loops-indicator">
+          <div class="loop-badge loop-i">
+            i = <span id="iValue">-</span> (start)
+          </div>
+          <div class="loop-badge loop-j">
+            j = <span id="jValue">-</span> (end)
+          </div>
+          <div class="loop-badge loop-k">
+            k = <span id="kValue">-</span> (sum)
+          </div>
+        </div>
+
+        <!-- Current Subarray Display -->
+        <div class="subarray-display">
+          <span class="bracket">[</span>
+          <span class="values" id="subarrayValues">-</span>
+          <span class="bracket">]</span>
+        </div>
+
+        <!-- Calculation Area -->
+        <div class="calculation-area">
+          <div class="calc-title">📝 Current Calculation</div>
+          <div class="calc-expression" id="calcExpression">
+            Click "Start" to begin the visualization
+          </div>
+        </div>
+
+        <!-- Info Cards -->
+        <div class="info-panel">
+          <div class="info-card">
+            <h3>Current Sum</h3>
+            <div class="value" id="currentSum">0</div>
+          </div>
+          <div class="info-card">
+            <h3>Max Sum Found</h3>
+            <div class="value max-sum" id="maxSum">-∞</div>
+          </div>
+          <div class="info-card">
+            <h3>Best Subarray</h3>
+            <div
+              class="value"
+              id="bestSubarray"
+              style="font-size: 1rem; color: #7fff00"
+            >
+              -
+            </div>
+          </div>
+          <div class="info-card">
+            <h3>Subarrays Checked</h3>
+            <div class="value" id="subarraysChecked" style="color: #ffcc00">
+              0
+            </div>
+          </div>
+        </div>
+
+        <!-- Progress -->
+        <div class="step-counter">
+          Step <span id="currentStep">0</span> of <span id="totalSteps">0</span>
+        </div>
+        <div class="progress-bar">
+          <div class="progress-fill" id="progressFill"></div>
+        </div>
+
+        <!-- Speed Control -->
+        <div class="speed-control">
+          <label>Speed:</label>
+          <input
+            type="range"
+            class="speed-slider"
+            id="speedSlider"
+            min="100"
+            max="2000"
+            value="800"
+          />
+          <span id="speedValue">800ms</span>
+        </div>
+
+        <!-- Controls -->
+        <div class="controls">
+          <button class="btn-secondary" onclick="reset()">↺ Reset</button>
+          <button class="btn-primary" id="startBtn" onclick="start()">
+            ▶ Start
+          </button>
+          <button class="btn-warning" id="stepBtn" onclick="step()" disabled>
+            → Step
+          </button>
+          <button class="btn-success" id="autoBtn" onclick="toggleAuto()">
+            ⏩ Auto Play
+          </button>
+        </div>
+
+        <!-- Legend -->
+        <div class="legend">
+          <div class="legend-item">
+            <div class="legend-box start"></div>
+            <span>i (start index)</span>
+          </div>
+          <div class="legend-item">
+            <div class="legend-box end"></div>
+            <span>j (end index)</span>
+          </div>
+          <div class="legend-item">
+            <div class="legend-box range"></div>
+            <span>Current subarray</span>
+          </div>
+          <div class="legend-item">
+            <div class="legend-box best"></div>
+            <span>Best subarray</span>
+          </div>
+        </div>
+
+        <!-- Code Panel -->
+        <div class="code-panel">
+          <h3>💻 Algorithm Code</h3>
+          <div class="code-line" id="code-0">
+            <span class="code-keyword">function</span>
+            <span class="code-var">maxSubarray</span>(nums) {
+          </div>
+          <div class="code-line" id="code-1">
+            &nbsp;&nbsp;<span class="code-keyword">let</span> maxSum =
+            -Infinity;
+          </div>
+          <div class="code-line" id="code-2">
+            &nbsp;&nbsp;<span class="code-keyword">for</span> (<span
+              class="code-keyword"
+              >let</span
+            >
+            i = <span class="code-num">0</span>; i < n; i++) {
+            <span class="code-comment">// start index</span>
+          </div>
+          <div class="code-line" id="code-3">
+            &nbsp;&nbsp;&nbsp;&nbsp;<span class="code-keyword">for</span> (<span
+              class="code-keyword"
+              >let</span
+            >
+            j = i; j < n; j++) { <span class="code-comment">// end index</span>
+          </div>
+          <div class="code-line" id="code-4">
+            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="code-keyword"
+              >let</span
+            >
+            sum = <span class="code-num">0</span>;
+          </div>
+          <div class="code-line" id="code-5">
+            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="code-keyword"
+              >for</span
+            >
+            (<span class="code-keyword">let</span> k = i; k <= j; k++) {
+            <span class="code-comment">// calculate sum</span>
+          </div>
+          <div class="code-line" id="code-6">
+            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;sum += nums[k];
+          </div>
+          <div class="code-line" id="code-7">
+            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}
+          </div>
+          <div class="code-line" id="code-8">
+            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;maxSum = Math.max(maxSum, sum);
+          </div>
+          <div class="code-line" id="code-9">&nbsp;&nbsp;&nbsp;&nbsp;}</div>
+          <div class="code-line" id="code-10">&nbsp;&nbsp;}</div>
+          <div class="code-line" id="code-11">
+            &nbsp;&nbsp;<span class="code-keyword">return</span> maxSum;
+          </div>
+          <div class="code-line" id="code-12">}</div>
+        </div>
+
+        <!-- Result -->
+        <div class="best-result" id="bestResult">
+          <h3>🎉 Algorithm Complete!</h3>
+          <p>Maximum Subarray Sum: <strong id="finalSum">0</strong></p>
+          <p>Best Subarray: <strong id="finalSubarray">[]</strong></p>
+          <p>Total Operations: <strong id="finalOps">0</strong></p>
+        </div>
+
+        <!-- Complexity Note -->
+        <div class="complexity-note">
+          <h4>⚠️ Why This is Slow (O(n³))</h4>
+          <p>
+            For our array of <strong>9 elements</strong>, we check
+            <strong>45 subarrays</strong> with
+            <strong>165 total operations</strong>. <br /><br />
+            For <strong>n = 100,000</strong> elements, this would be
+            approximately <strong>10¹⁵ operations</strong> - taking over
+            <strong>100 days</strong> to complete! <br /><br />
+            This is why we need <strong>Kadane's Algorithm</strong> which solves
+            it in O(n) - just one pass through the array.
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      // Input array
+      const nums = [-2, 1, -3, 4, -1, 2, 1, -5, 4];
+      const n = nums.length;
+
+      // State
+      let steps = [];
+      let currentStepIndex = 0;
+      let isRunning = false;
+      let autoPlayInterval = null;
+      let speed = 800;
+
+      // Best tracking
+      let bestStart = 0;
+      let bestEnd = 0;
+      let bestSum = -Infinity;
+
+      // Initialize
+      function init() {
+        generateSteps();
+        renderArray();
+        document.getElementById("totalSteps").textContent = steps.length;
+        document
+          .getElementById("speedSlider")
+          .addEventListener("input", (e) => {
+            speed = parseInt(e.target.value);
+            document.getElementById("speedValue").textContent = speed + "ms";
+          });
+      }
+
+      // Generate all steps for the visualization
+      function generateSteps() {
+        steps = [];
+        let subarrayCount = 0;
+
+        // Initial state
+        steps.push({
+          type: "init",
+          codeLine: 1,
+          message: "Initialize maxSum = -∞",
+        });
+
+        for (let i = 0; i < n; i++) {
+          steps.push({
+            type: "outer-loop",
+            i: i,
+            codeLine: 2,
+            message: `Starting outer loop: i = ${i}`,
+          });
+
+          for (let j = i; j < n; j++) {
+            steps.push({
+              type: "middle-loop",
+              i: i,
+              j: j,
+              codeLine: 3,
+              message: `Checking subarray from index ${i} to ${j}`,
+            });
+
+            steps.push({
+              type: "init-sum",
+              i: i,
+              j: j,
+              codeLine: 4,
+              message: "Initialize sum = 0",
+            });
+
+            let sum = 0;
+            for (let k = i; k <= j; k++) {
+              sum += nums[k];
+              steps.push({
+                type: "inner-loop",
+                i: i,
+                j: j,
+                k: k,
+                currentSum: sum,
+                codeLine: 6,
+                message: `sum += nums[${k}] = ${nums[k]}, sum = ${sum}`,
+              });
+            }
+
+            subarrayCount++;
+            steps.push({
+              type: "compare",
+              i: i,
+              j: j,
+              sum: sum,
+              subarrayCount: subarrayCount,
+              codeLine: 8,
+              message: `Compare sum=${sum} with maxSum`,
+            });
+          }
+        }
+
+        steps.push({
+          type: "complete",
+          codeLine: 11,
+          message: "Algorithm complete!",
+        });
+      }
+
+      // Render array
+      function renderArray() {
+        const container = document.getElementById("arrayContainer");
+        container.innerHTML = "";
+
+        nums.forEach((num, idx) => {
+          const cell = document.createElement("div");
+          cell.className = "array-cell";
+          cell.id = `cell-${idx}`;
+          cell.innerHTML = `
+                    <span class="cell-index">${idx}</span>
+                    <span class="cell-value ${
+                      num < 0 ? "negative" : "positive"
+                    }">${num}</span>
+                `;
+          container.appendChild(cell);
+        });
+
+        // Render pointer slots
+        const pointers = document.getElementById("pointers");
+        pointers.innerHTML = "";
+        nums.forEach((_, idx) => {
+          const slot = document.createElement("div");
+          slot.className = "pointer-slot";
+          slot.id = `pointer-${idx}`;
+          pointers.appendChild(slot);
+        });
+      }
+
+      // Update visualization for a step
+      function updateVisualization(step) {
+        // Clear all highlights
+        document.querySelectorAll(".array-cell").forEach((cell) => {
+          cell.classList.remove("highlight-start", "highlight-end", "in-range");
+        });
+        document.querySelectorAll(".pointer-slot").forEach((slot) => {
+          slot.innerHTML = "";
+        });
+
+        // Clear code highlights
+        document.querySelectorAll(".code-line").forEach((line) => {
+          line.classList.remove("active");
+        });
+
+        // Highlight current code line
+        if (step.codeLine !== undefined) {
+          const codeLine = document.getElementById(`code-${step.codeLine}`);
+          if (codeLine) codeLine.classList.add("active");
+        }
+
+        // Update based on step type
+        if (step.type === "init") {
+          document.getElementById("calcExpression").innerHTML =
+            'maxSum = <span class="highlight">-∞</span>';
+          document.getElementById("maxSum").textContent = "-∞";
+        } else if (step.type === "outer-loop") {
+          document.getElementById("iValue").textContent = step.i;
+          document.getElementById("jValue").textContent = "-";
+          document.getElementById("kValue").textContent = "-";
+          document
+            .getElementById(`cell-${step.i}`)
+            .classList.add("highlight-start");
+          document.getElementById(`pointer-${step.i}`).innerHTML =
+            '<span class="pointer-i">i↓</span>';
+          document.getElementById(
+            "calcExpression"
+          ).innerHTML = `Starting with <span class="highlight">i = ${step.i}</span>`;
+        } else if (step.type === "middle-loop") {
+          document.getElementById("iValue").textContent = step.i;
+          document.getElementById("jValue").textContent = step.j;
+          document.getElementById("kValue").textContent = "-";
+
+          // Highlight range
+          for (let idx = step.i; idx <= step.j; idx++) {
+            document.getElementById(`cell-${idx}`).classList.add("in-range");
+          }
+          document
+            .getElementById(`cell-${step.i}`)
+            .classList.add("highlight-start");
+          document
+            .getElementById(`cell-${step.j}`)
+            .classList.add("highlight-end");
+
+          // Pointers
+          document.getElementById(`pointer-${step.i}`).innerHTML =
+            '<span class="pointer-i">i↓</span>';
+          if (step.i !== step.j) {
+            document.getElementById(`pointer-${step.j}`).innerHTML =
+              '<span class="pointer-j">j↓</span>';
+          } else {
+            document.getElementById(`pointer-${step.j}`).innerHTML =
+              '<span class="pointer-i">i</span><span class="pointer-j">j↓</span>';
+          }
+
+          // Show subarray
+          const subarray = nums.slice(step.i, step.j + 1);
+          document.getElementById("subarrayValues").textContent =
+            subarray.join(", ");
+
+          document.getElementById(
+            "calcExpression"
+          ).innerHTML = `Checking subarray[${step.i}..${
+            step.j
+          }] = [${subarray.join(", ")}]`;
+        } else if (step.type === "init-sum") {
+          document.getElementById("iValue").textContent = step.i;
+          document.getElementById("jValue").textContent = step.j;
+          document.getElementById("currentSum").textContent = "0";
+          document.getElementById("currentSum").className = "value";
+
+          for (let idx = step.i; idx <= step.j; idx++) {
+            document.getElementById(`cell-${idx}`).classList.add("in-range");
+          }
+
+          document.getElementById("calcExpression").innerHTML =
+            'sum = <span class="highlight">0</span>';
+        } else if (step.type === "inner-loop") {
+          document.getElementById("iValue").textContent = step.i;
+          document.getElementById("jValue").textContent = step.j;
+          document.getElementById("kValue").textContent = step.k;
+
+          // Highlight range
+          for (let idx = step.i; idx <= step.j; idx++) {
+            document.getElementById(`cell-${idx}`).classList.add("in-range");
+          }
+
+          // Show k pointer
+          document.getElementById(`pointer-${step.i}`).innerHTML =
+            '<span class="pointer-i">i↓</span>';
+          if (step.j !== step.i) {
+            document.getElementById(`pointer-${step.j}`).innerHTML =
+              '<span class="pointer-j">j↓</span>';
+          }
+          if (step.k !== step.i && step.k !== step.j) {
+            document.getElementById(`pointer-${step.k}`).innerHTML =
+              '<span class="pointer-k">k↓</span>';
+          } else if (step.k === step.i && step.k !== step.j) {
+            document.getElementById(`pointer-${step.i}`).innerHTML =
+              '<span class="pointer-i">i</span><span class="pointer-k">k↓</span>';
+          } else if (step.k === step.j && step.k !== step.i) {
+            document.getElementById(`pointer-${step.j}`).innerHTML =
+              '<span class="pointer-j">j</span><span class="pointer-k">k↓</span>';
+          } else {
+            document.getElementById(`pointer-${step.k}`).innerHTML =
+              '<span class="pointer-i">i</span><span class="pointer-j">j</span><span class="pointer-k">k↓</span>';
+          }
+
+          // Update current sum
+          document.getElementById("currentSum").textContent = step.currentSum;
+          document.getElementById("currentSum").className = `value ${
+            step.currentSum >= 0 ? "sum-positive" : "sum-negative"
+          }`;
+
+          // Show subarray
+          const subarray = nums.slice(step.i, step.j + 1);
+          document.getElementById("subarrayValues").textContent =
+            subarray.join(", ");
+
+          // Build calculation expression
+          const parts = nums.slice(step.i, step.k + 1).map((v, idx) => {
+            if (idx === step.k - step.i) {
+              return `<span class="highlight">${v >= 0 ? "+" + v : v}</span>`;
+            }
+            return v >= 0 && idx > 0 ? "+" + v : v;
+          });
+          document.getElementById(
+            "calcExpression"
+          ).innerHTML = `sum = ${parts.join(" ")} = <span class="highlight">${
+            step.currentSum
+          }</span>`;
+        } else if (step.type === "compare") {
+          document.getElementById("iValue").textContent = step.i;
+          document.getElementById("jValue").textContent = step.j;
+          document.getElementById("kValue").textContent = "-";
+
+          // Highlight range
+          for (let idx = step.i; idx <= step.j; idx++) {
+            document.getElementById(`cell-${idx}`).classList.add("in-range");
+          }
+
+          document.getElementById("currentSum").textContent = step.sum;
+          document.getElementById("currentSum").className = `value ${
+            step.sum >= 0 ? "sum-positive" : "sum-negative"
+          }`;
+
+          document.getElementById("subarraysChecked").textContent =
+            step.subarrayCount;
+
+          // Check if new max
+          if (step.sum > bestSum) {
+            bestSum = step.sum;
+            bestStart = step.i;
+            bestEnd = step.j;
+            document.getElementById("maxSum").textContent = bestSum;
+            document.getElementById("bestSubarray").textContent = `[${nums
+              .slice(bestStart, bestEnd + 1)
+              .join(", ")}]`;
+            document.getElementById(
+              "calcExpression"
+            ).innerHTML = `<span class="highlight">NEW MAX!</span> sum=${step.sum} > maxSum → maxSum = ${step.sum}`;
+          } else {
+            document.getElementById(
+              "calcExpression"
+            ).innerHTML = `sum=${step.sum} ≤ maxSum=${bestSum} → no update`;
+          }
+
+          // Show subarray
+          const subarray = nums.slice(step.i, step.j + 1);
+          document.getElementById("subarrayValues").textContent =
+            subarray.join(", ");
+        } else if (step.type === "complete") {
+          // Highlight best subarray
+          for (let idx = bestStart; idx <= bestEnd; idx++) {
+            document
+              .getElementById(`cell-${idx}`)
+              .classList.add("best-subarray");
+          }
+
+          document.getElementById("bestResult").classList.add("show");
+          document.getElementById("finalSum").textContent = bestSum;
+          document.getElementById("finalSubarray").textContent = `[${nums
+            .slice(bestStart, bestEnd + 1)
+            .join(", ")}]`;
+          document.getElementById("finalOps").textContent = steps.length;
+
+          document.getElementById(
+            "calcExpression"
+          ).innerHTML = `<span class="highlight">RESULT: ${bestSum}</span> from subarray [${nums
+            .slice(bestStart, bestEnd + 1)
+            .join(", ")}]`;
+        }
+
+        // Update progress
+        document.getElementById("currentStep").textContent =
+          currentStepIndex + 1;
+        const progress = ((currentStepIndex + 1) / steps.length) * 100;
+        document.getElementById("progressFill").style.width = progress + "%";
+      }
+
+      // Control functions
+      function start() {
+        document.getElementById("startBtn").disabled = true;
+        document.getElementById("stepBtn").disabled = false;
+        isRunning = true;
+        updateVisualization(steps[0]);
+      }
+
+      function step() {
+        if (currentStepIndex < steps.length - 1) {
+          currentStepIndex++;
+          updateVisualization(steps[currentStepIndex]);
+        }
+        if (currentStepIndex >= steps.length - 1) {
+          document.getElementById("stepBtn").disabled = true;
+          stopAuto();
+        }
+      }
+
+      function toggleAuto() {
+        if (autoPlayInterval) {
+          stopAuto();
+        } else {
+          startAuto();
+        }
+      }
+
+      function startAuto() {
+        if (!isRunning) start();
+        document.getElementById("autoBtn").textContent = "⏸ Pause";
+        autoPlayInterval = setInterval(() => {
+          if (currentStepIndex < steps.length - 1) {
+            step();
+          } else {
+            stopAuto();
+          }
+        }, speed);
+      }
+
+      function stopAuto() {
+        if (autoPlayInterval) {
+          clearInterval(autoPlayInterval);
+          autoPlayInterval = null;
+        }
+        document.getElementById("autoBtn").textContent = "⏩ Auto Play";
+      }
+
+      function reset() {
+        stopAuto();
+        currentStepIndex = 0;
+        bestSum = -Infinity;
+        bestStart = 0;
+        bestEnd = 0;
+        isRunning = false;
+
+        document.getElementById("startBtn").disabled = false;
+        document.getElementById("stepBtn").disabled = true;
+        document.getElementById("bestResult").classList.remove("show");
+
+        document.getElementById("iValue").textContent = "-";
+        document.getElementById("jValue").textContent = "-";
+        document.getElementById("kValue").textContent = "-";
+        document.getElementById("currentSum").textContent = "0";
+        document.getElementById("currentSum").className = "value";
+        document.getElementById("maxSum").textContent = "-∞";
+        document.getElementById("bestSubarray").textContent = "-";
+        document.getElementById("subarraysChecked").textContent = "0";
+        document.getElementById("subarrayValues").textContent = "-";
+        document.getElementById("currentStep").textContent = "0";
+        document.getElementById("progressFill").style.width = "0%";
+        document.getElementById("calcExpression").innerHTML =
+          'Click "Start" to begin the visualization';
+
+        // Clear highlights
+        document.querySelectorAll(".array-cell").forEach((cell) => {
+          cell.classList.remove(
+            "highlight-start",
+            "highlight-end",
+            "in-range",
+            "best-subarray"
+          );
+        });
+        document.querySelectorAll(".pointer-slot").forEach((slot) => {
+          slot.innerHTML = "";
+        });
+        document.querySelectorAll(".code-line").forEach((line) => {
+          line.classList.remove("active");
+        });
+      }
+
+      // Initialize on load
+      init();
+    </script>
+  </body>
+</html>

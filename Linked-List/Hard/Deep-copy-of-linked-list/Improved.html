@@ -1,0 +1,1495 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Hash Map Approach - Copy List with Random Pointer</title>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Caveat:wght@400;600;700&family=Patrick+Hand&family=Fira+Code:wght@400;500&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        font-family: "Patrick Hand", cursive;
+        background: #f5f5f0;
+        min-height: 100vh;
+        overflow-x: hidden;
+      }
+
+      /* Whiteboard texture */
+      .whiteboard {
+        background: linear-gradient(
+          135deg,
+          #fefefe 0%,
+          #f8f8f5 50%,
+          #fafaf7 100%
+        );
+        background-image: radial-gradient(
+            circle at 20% 80%,
+            rgba(120, 119, 198, 0.03) 0%,
+            transparent 50%
+          ),
+          radial-gradient(
+            circle at 80% 20%,
+            rgba(255, 119, 48, 0.03) 0%,
+            transparent 50%
+          ),
+          url("data:image/svg+xml,%3Csvg viewBox='0 0 400 400' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
+        min-height: 100vh;
+        position: relative;
+      }
+
+      /* Whiteboard frame */
+      .whiteboard::before {
+        content: "";
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        border: 12px solid #8b7355;
+        border-radius: 4px;
+        pointer-events: none;
+        z-index: 1000;
+        box-shadow: inset 0 0 30px rgba(139, 115, 85, 0.3),
+          0 0 60px rgba(0, 0, 0, 0.2);
+      }
+
+      .container {
+        max-width: 1400px;
+        margin: 0 auto;
+        padding: 30px 40px;
+      }
+
+      /* Title */
+      .title {
+        font-family: "Caveat", cursive;
+        font-size: 3.2rem;
+        font-weight: 700;
+        color: #2c3e50;
+        text-align: center;
+        margin-bottom: 10px;
+        text-shadow: 2px 2px 0 rgba(0, 0, 0, 0.05);
+        position: relative;
+      }
+
+      .title::after {
+        content: "";
+        display: block;
+        width: 300px;
+        height: 4px;
+        background: linear-gradient(
+          90deg,
+          transparent,
+          #e74c3c,
+          #3498db,
+          transparent
+        );
+        margin: 10px auto;
+        border-radius: 2px;
+      }
+
+      .subtitle {
+        font-family: "Patrick Hand", cursive;
+        font-size: 1.4rem;
+        color: #7f8c8d;
+        text-align: center;
+        margin-bottom: 30px;
+      }
+
+      /* Controls */
+      .controls {
+        display: flex;
+        justify-content: center;
+        gap: 15px;
+        margin-bottom: 30px;
+        flex-wrap: wrap;
+      }
+
+      .btn {
+        font-family: "Patrick Hand", cursive;
+        font-size: 1.2rem;
+        padding: 12px 28px;
+        border: 3px solid #2c3e50;
+        border-radius: 12px;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        background: #fff;
+        color: #2c3e50;
+        box-shadow: 4px 4px 0 rgba(0, 0, 0, 0.1);
+        position: relative;
+        overflow: hidden;
+      }
+
+      .btn:hover {
+        transform: translate(-2px, -2px);
+        box-shadow: 6px 6px 0 rgba(0, 0, 0, 0.15);
+      }
+
+      .btn:active {
+        transform: translate(2px, 2px);
+        box-shadow: 2px 2px 0 rgba(0, 0, 0, 0.1);
+      }
+
+      .btn.primary {
+        background: #3498db;
+        color: white;
+        border-color: #2980b9;
+      }
+
+      .btn.success {
+        background: #27ae60;
+        color: white;
+        border-color: #1e8449;
+      }
+
+      .btn.danger {
+        background: #e74c3c;
+        color: white;
+        border-color: #c0392b;
+      }
+
+      .btn:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+        transform: none;
+      }
+
+      /* Main content area */
+      .main-content {
+        display: grid;
+        grid-template-columns: 1fr 350px;
+        gap: 30px;
+        margin-bottom: 30px;
+      }
+
+      @media (max-width: 1100px) {
+        .main-content {
+          grid-template-columns: 1fr;
+        }
+      }
+
+      /* Visualization area */
+      .viz-area {
+        background: rgba(255, 255, 255, 0.7);
+        border: 3px solid #bdc3c7;
+        border-radius: 16px;
+        padding: 25px;
+        min-height: 500px;
+        position: relative;
+        box-shadow: inset 0 0 20px rgba(0, 0, 0, 0.03),
+          5px 5px 0 rgba(0, 0, 0, 0.05);
+      }
+
+      .viz-title {
+        font-family: "Caveat", cursive;
+        font-size: 1.8rem;
+        color: #2c3e50;
+        margin-bottom: 20px;
+        padding-bottom: 10px;
+        border-bottom: 2px dashed #bdc3c7;
+      }
+
+      /* Lists container */
+      .lists-container {
+        display: flex;
+        flex-direction: column;
+        gap: 60px;
+      }
+
+      .list-section {
+        position: relative;
+      }
+
+      .list-label {
+        font-family: "Caveat", cursive;
+        font-size: 1.5rem;
+        color: #7f8c8d;
+        margin-bottom: 15px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+      }
+
+      .list-label .marker {
+        width: 12px;
+        height: 12px;
+        border-radius: 50%;
+      }
+
+      .list-label.original .marker {
+        background: #3498db;
+      }
+
+      .list-label.copy .marker {
+        background: #e74c3c;
+      }
+
+      /* Nodes container */
+      .nodes-row {
+        display: flex;
+        align-items: center;
+        gap: 20px;
+        position: relative;
+        min-height: 100px;
+        padding: 20px 0;
+      }
+
+      /* Node styling */
+      .node {
+        width: 70px;
+        height: 70px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-family: "Fira Code", monospace;
+        font-size: 1.3rem;
+        font-weight: 600;
+        position: relative;
+        transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+        z-index: 10;
+      }
+
+      .node.original {
+        background: linear-gradient(145deg, #74b9ff, #3498db);
+        border: 4px solid #2980b9;
+        color: white;
+        box-shadow: 4px 4px 0 rgba(41, 128, 185, 0.3),
+          inset 0 -3px 10px rgba(0, 0, 0, 0.1);
+      }
+
+      .node.copy {
+        background: linear-gradient(145deg, #ff7675, #e74c3c);
+        border: 4px solid #c0392b;
+        color: white;
+        box-shadow: 4px 4px 0 rgba(192, 57, 43, 0.3),
+          inset 0 -3px 10px rgba(0, 0, 0, 0.1);
+        opacity: 0;
+        transform: scale(0);
+      }
+
+      .node.copy.visible {
+        opacity: 1;
+        transform: scale(1);
+      }
+
+      .node.highlight {
+        animation: pulse 0.6s ease infinite;
+        box-shadow: 0 0 0 8px rgba(241, 196, 15, 0.4);
+      }
+
+      @keyframes pulse {
+        0%,
+        100% {
+          transform: scale(1);
+        }
+        50% {
+          transform: scale(1.08);
+        }
+      }
+
+      .node-index {
+        position: absolute;
+        bottom: -25px;
+        left: 50%;
+        transform: translateX(-50%);
+        font-family: "Caveat", cursive;
+        font-size: 1.1rem;
+        color: #7f8c8d;
+      }
+
+      /* Arrows */
+      .arrow-container {
+        position: absolute;
+        pointer-events: none;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+      }
+
+      .arrow-svg {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        overflow: visible;
+      }
+
+      .next-arrow {
+        stroke: #2c3e50;
+        stroke-width: 3;
+        fill: none;
+        marker-end: url(#arrowhead);
+      }
+
+      .random-arrow {
+        stroke: #9b59b6;
+        stroke-width: 2.5;
+        stroke-dasharray: 8, 4;
+        fill: none;
+        marker-end: url(#arrowhead-random);
+        opacity: 0;
+        transition: opacity 0.5s ease;
+      }
+
+      .random-arrow.visible {
+        opacity: 1;
+      }
+
+      .mapping-line {
+        stroke: #27ae60;
+        stroke-width: 2;
+        stroke-dasharray: 5, 5;
+        fill: none;
+        opacity: 0;
+        transition: opacity 0.5s ease;
+      }
+
+      .mapping-line.visible {
+        opacity: 1;
+        animation: dash 1s linear infinite;
+      }
+
+      @keyframes dash {
+        to {
+          stroke-dashoffset: -20;
+        }
+      }
+
+      /* Hash Map panel */
+      .hashmap-panel {
+        background: rgba(255, 255, 255, 0.9);
+        border: 3px solid #27ae60;
+        border-radius: 16px;
+        padding: 20px;
+        box-shadow: 5px 5px 0 rgba(39, 174, 96, 0.2);
+      }
+
+      .hashmap-title {
+        font-family: "Caveat", cursive;
+        font-size: 1.6rem;
+        color: #27ae60;
+        margin-bottom: 15px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+      }
+
+      .hashmap-title::before {
+        content: "{ }";
+        font-family: "Fira Code", monospace;
+        font-size: 1.2rem;
+      }
+
+      .hashmap-entries {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        max-height: 400px;
+        overflow-y: auto;
+      }
+
+      .hashmap-entry {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding: 12px 15px;
+        background: #f8f9fa;
+        border-radius: 10px;
+        border: 2px solid #e9ecef;
+        opacity: 0;
+        transform: translateX(-20px);
+        transition: all 0.4s ease;
+      }
+
+      .hashmap-entry.visible {
+        opacity: 1;
+        transform: translateX(0);
+      }
+
+      .hashmap-entry.highlight {
+        background: #fff9c4;
+        border-color: #f1c40f;
+      }
+
+      .entry-key,
+      .entry-value {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+
+      .mini-node {
+        width: 35px;
+        height: 35px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-family: "Fira Code", monospace;
+        font-size: 0.9rem;
+        font-weight: 600;
+        color: white;
+      }
+
+      .mini-node.original {
+        background: #3498db;
+        border: 2px solid #2980b9;
+      }
+
+      .mini-node.copy {
+        background: #e74c3c;
+        border: 2px solid #c0392b;
+      }
+
+      .arrow-symbol {
+        font-size: 1.5rem;
+        color: #27ae60;
+      }
+
+      /* Step info */
+      .step-info {
+        background: linear-gradient(135deg, #2c3e50, #34495e);
+        color: white;
+        border-radius: 16px;
+        padding: 25px;
+        margin-top: 30px;
+        box-shadow: 5px 5px 0 rgba(0, 0, 0, 0.1);
+      }
+
+      .step-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 15px;
+      }
+
+      .step-number {
+        font-family: "Caveat", cursive;
+        font-size: 1.4rem;
+        background: #f1c40f;
+        color: #2c3e50;
+        padding: 5px 20px;
+        border-radius: 20px;
+        font-weight: 700;
+      }
+
+      .step-phase {
+        font-family: "Patrick Hand", cursive;
+        font-size: 1.2rem;
+        color: #bdc3c7;
+      }
+
+      .step-description {
+        font-family: "Patrick Hand", cursive;
+        font-size: 1.3rem;
+        line-height: 1.6;
+      }
+
+      .step-description code {
+        font-family: "Fira Code", monospace;
+        background: rgba(255, 255, 255, 0.1);
+        padding: 2px 8px;
+        border-radius: 4px;
+        font-size: 1rem;
+      }
+
+      /* Code panel */
+      .code-panel {
+        background: #1e1e1e;
+        border-radius: 16px;
+        padding: 20px;
+        margin-top: 30px;
+        box-shadow: 5px 5px 0 rgba(0, 0, 0, 0.2);
+        overflow: hidden;
+      }
+
+      .code-header {
+        display: flex;
+        gap: 8px;
+        margin-bottom: 15px;
+      }
+
+      .code-dot {
+        width: 12px;
+        height: 12px;
+        border-radius: 50%;
+      }
+
+      .code-dot.red {
+        background: #ff5f56;
+      }
+      .code-dot.yellow {
+        background: #ffbd2e;
+      }
+      .code-dot.green {
+        background: #27c93f;
+      }
+
+      .code-content {
+        font-family: "Fira Code", monospace;
+        font-size: 0.85rem;
+        color: #d4d4d4;
+        line-height: 1.8;
+        overflow-x: auto;
+      }
+
+      .code-line {
+        padding: 2px 0;
+        transition: background 0.3s ease;
+      }
+
+      .code-line.highlight {
+        background: rgba(241, 196, 15, 0.2);
+        margin: 0 -20px;
+        padding: 2px 20px;
+      }
+
+      .code-keyword {
+        color: #569cd6;
+      }
+      .code-function {
+        color: #dcdcaa;
+      }
+      .code-variable {
+        color: #9cdcfe;
+      }
+      .code-string {
+        color: #ce9178;
+      }
+      .code-comment {
+        color: #6a9955;
+      }
+      .code-number {
+        color: #b5cea8;
+      }
+
+      /* Progress bar */
+      .progress-container {
+        margin-top: 20px;
+      }
+
+      .progress-bar {
+        height: 8px;
+        background: #ecf0f1;
+        border-radius: 4px;
+        overflow: hidden;
+      }
+
+      .progress-fill {
+        height: 100%;
+        background: linear-gradient(90deg, #3498db, #27ae60);
+        border-radius: 4px;
+        transition: width 0.4s ease;
+      }
+
+      .progress-text {
+        font-family: "Patrick Hand", cursive;
+        font-size: 1rem;
+        color: #7f8c8d;
+        margin-top: 8px;
+        text-align: center;
+      }
+
+      /* Legend */
+      .legend {
+        display: flex;
+        justify-content: center;
+        gap: 30px;
+        margin-top: 20px;
+        flex-wrap: wrap;
+      }
+
+      .legend-item {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        font-family: "Patrick Hand", cursive;
+        font-size: 1.1rem;
+        color: #7f8c8d;
+      }
+
+      .legend-color {
+        width: 20px;
+        height: 20px;
+        border-radius: 4px;
+      }
+
+      .legend-color.original {
+        background: #3498db;
+      }
+      .legend-color.copy {
+        background: #e74c3c;
+      }
+      .legend-color.random {
+        background: repeating-linear-gradient(
+          90deg,
+          #9b59b6,
+          #9b59b6 4px,
+          transparent 4px,
+          transparent 8px
+        );
+      }
+      .legend-color.mapping {
+        background: repeating-linear-gradient(
+          90deg,
+          #27ae60,
+          #27ae60 3px,
+          transparent 3px,
+          transparent 6px
+        );
+      }
+
+      /* Null pointer */
+      .null-text {
+        font-family: "Fira Code", monospace;
+        font-size: 1rem;
+        color: #95a5a6;
+        padding: 10px;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="whiteboard">
+      <div class="container">
+        <h1 class="title">Hash Map Approach</h1>
+        <p class="subtitle">
+          Copy Linked List with Random Pointer • O(n) Time • O(n) Space
+        </p>
+
+        <div class="controls">
+          <button class="btn danger" id="resetBtn">⟲ Reset</button>
+          <button class="btn" id="prevBtn" disabled>← Previous</button>
+          <button class="btn primary" id="nextBtn">Next →</button>
+          <button class="btn success" id="autoBtn">▶ Auto Play</button>
+        </div>
+
+        <div class="main-content">
+          <div class="viz-area">
+            <div class="viz-title">
+              📋 Input: [[7,null], [13,0], [11,4], [10,2], [1,0]]
+            </div>
+
+            <div class="lists-container">
+              <!-- Original List -->
+              <div class="list-section" id="originalSection">
+                <div class="list-label original">
+                  <span class="marker"></span>
+                  Original List
+                </div>
+                <div class="nodes-row" id="originalNodes">
+                  <!-- Nodes will be generated by JS -->
+                </div>
+              </div>
+
+              <!-- Copy List -->
+              <div class="list-section" id="copySection">
+                <div class="list-label copy">
+                  <span class="marker"></span>
+                  Copied List
+                </div>
+                <div class="nodes-row" id="copyNodes">
+                  <!-- Copy nodes will be generated by JS -->
+                </div>
+              </div>
+            </div>
+
+            <!-- SVG for arrows -->
+            <svg class="arrow-svg" id="arrowSvg">
+              <defs>
+                <marker
+                  id="arrowhead"
+                  markerWidth="10"
+                  markerHeight="7"
+                  refX="9"
+                  refY="3.5"
+                  orient="auto"
+                >
+                  <polygon points="0 0, 10 3.5, 0 7" fill="#2c3e50" />
+                </marker>
+                <marker
+                  id="arrowhead-random"
+                  markerWidth="10"
+                  markerHeight="7"
+                  refX="9"
+                  refY="3.5"
+                  orient="auto"
+                >
+                  <polygon points="0 0, 10 3.5, 0 7" fill="#9b59b6" />
+                </marker>
+                <marker
+                  id="arrowhead-mapping"
+                  markerWidth="10"
+                  markerHeight="7"
+                  refX="9"
+                  refY="3.5"
+                  orient="auto"
+                >
+                  <polygon points="0 0, 10 3.5, 0 7" fill="#27ae60" />
+                </marker>
+              </defs>
+            </svg>
+          </div>
+
+          <!-- Hash Map Panel -->
+          <div class="hashmap-panel">
+            <div class="hashmap-title">Hash Map</div>
+            <div class="hashmap-entries" id="hashmapEntries">
+              <div
+                style="
+                  color: #95a5a6;
+                  font-style: italic;
+                  text-align: center;
+                  padding: 20px;
+                "
+              >
+                Map will be populated during Pass 1
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Step Info -->
+        <div class="step-info">
+          <div class="step-header">
+            <span class="step-number" id="stepNumber">Step 0 / 15</span>
+            <span class="step-phase" id="stepPhase">Initialization</span>
+          </div>
+          <div class="step-description" id="stepDescription">
+            Click "Next" to begin the Hash Map approach visualization. We'll
+            create a deep copy of the linked list using a hash map to track
+            original → copy node mappings.
+          </div>
+        </div>
+
+        <!-- Progress -->
+        <div class="progress-container">
+          <div class="progress-bar">
+            <div
+              class="progress-fill"
+              id="progressFill"
+              style="width: 0%"
+            ></div>
+          </div>
+          <div class="progress-text" id="progressText">Ready to start</div>
+        </div>
+
+        <!-- Code Panel -->
+        <div class="code-panel">
+          <div class="code-header">
+            <div class="code-dot red"></div>
+            <div class="code-dot yellow"></div>
+            <div class="code-dot green"></div>
+          </div>
+          <div class="code-content" id="codeContent">
+            <div class="code-line" data-line="1">
+              <span class="code-keyword">function</span>
+              <span class="code-function">copyRandomList</span>(<span
+                class="code-variable"
+                >head</span
+              >) {
+            </div>
+            <div class="code-line" data-line="2">
+              <span class="code-keyword">if</span> (<span class="code-variable"
+                >head</span
+              >
+              === <span class="code-keyword">null</span>)
+              <span class="code-keyword">return</span>
+              <span class="code-keyword">null</span>;
+            </div>
+            <div class="code-line" data-line="3"></div>
+            <div class="code-line" data-line="4">
+              <span class="code-keyword">const</span>
+              <span class="code-variable">map</span> =
+              <span class="code-keyword">new</span>
+              <span class="code-function">Map</span>();
+              <span class="code-comment">// original → copy</span>
+            </div>
+            <div class="code-line" data-line="5"></div>
+            <div class="code-line" data-line="6">
+              <span class="code-comment">// Pass 1: Create all copy nodes</span>
+            </div>
+            <div class="code-line" data-line="7">
+              <span class="code-keyword">let</span>
+              <span class="code-variable">curr</span> =
+              <span class="code-variable">head</span>;
+            </div>
+            <div class="code-line" data-line="8">
+              <span class="code-keyword">while</span> (<span
+                class="code-variable"
+                >curr</span
+              >
+              !== <span class="code-keyword">null</span>) {
+            </div>
+            <div class="code-line" data-line="9">
+              <span class="code-variable">map</span>.<span class="code-function"
+                >set</span
+              >(<span class="code-variable">curr</span>,
+              <span class="code-keyword">new</span>
+              <span class="code-function">Node</span>(<span
+                class="code-variable"
+                >curr</span
+              >.<span class="code-variable">val</span>));
+            </div>
+            <div class="code-line" data-line="10">
+              <span class="code-variable">curr</span> =
+              <span class="code-variable">curr</span>.<span
+                class="code-variable"
+                >next</span
+              >;
+            </div>
+            <div class="code-line" data-line="11">}</div>
+            <div class="code-line" data-line="12"></div>
+            <div class="code-line" data-line="13">
+              <span class="code-comment"
+                >// Pass 2: Set next and random pointers</span
+              >
+            </div>
+            <div class="code-line" data-line="14">
+              <span class="code-variable">curr</span> =
+              <span class="code-variable">head</span>;
+            </div>
+            <div class="code-line" data-line="15">
+              <span class="code-keyword">while</span> (<span
+                class="code-variable"
+                >curr</span
+              >
+              !== <span class="code-keyword">null</span>) {
+            </div>
+            <div class="code-line" data-line="16">
+              <span class="code-variable">map</span>.<span class="code-function"
+                >get</span
+              >(<span class="code-variable">curr</span>).<span
+                class="code-variable"
+                >next</span
+              >
+              = <span class="code-variable">map</span>.<span
+                class="code-function"
+                >get</span
+              >(<span class="code-variable">curr</span>.<span
+                class="code-variable"
+                >next</span
+              >);
+            </div>
+            <div class="code-line" data-line="17">
+              <span class="code-variable">map</span>.<span class="code-function"
+                >get</span
+              >(<span class="code-variable">curr</span>).<span
+                class="code-variable"
+                >random</span
+              >
+              = <span class="code-variable">map</span>.<span
+                class="code-function"
+                >get</span
+              >(<span class="code-variable">curr</span>.<span
+                class="code-variable"
+                >random</span
+              >);
+            </div>
+            <div class="code-line" data-line="18">
+              <span class="code-variable">curr</span> =
+              <span class="code-variable">curr</span>.<span
+                class="code-variable"
+                >next</span
+              >;
+            </div>
+            <div class="code-line" data-line="19">}</div>
+            <div class="code-line" data-line="20"></div>
+            <div class="code-line" data-line="21">
+              <span class="code-keyword">return</span>
+              <span class="code-variable">map</span>.<span class="code-function"
+                >get</span
+              >(<span class="code-variable">head</span>);
+            </div>
+            <div class="code-line" data-line="22">}</div>
+          </div>
+        </div>
+
+        <!-- Legend -->
+        <div class="legend">
+          <div class="legend-item">
+            <div class="legend-color original"></div>
+            <span>Original Node</span>
+          </div>
+          <div class="legend-item">
+            <div class="legend-color copy"></div>
+            <span>Copy Node</span>
+          </div>
+          <div class="legend-item">
+            <div class="legend-color random"></div>
+            <span>Random Pointer</span>
+          </div>
+          <div class="legend-item">
+            <div class="legend-color mapping"></div>
+            <span>Hash Map Link</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      // Data
+      const listData = [
+        { val: 7, randomIdx: null },
+        { val: 13, randomIdx: 0 },
+        { val: 11, randomIdx: 4 },
+        { val: 10, randomIdx: 2 },
+        { val: 1, randomIdx: 0 },
+      ];
+
+      // Steps definition
+      const steps = [
+        {
+          phase: "Initialization",
+          description:
+            "We have a linked list with 5 nodes. Each node has a value, a <code>next</code> pointer, and a <code>random</code> pointer. Our goal is to create a complete deep copy.",
+          highlightLines: [1, 2],
+          action: "init",
+        },
+        {
+          phase: "Pass 1 - Setup",
+          description:
+            "Initialize an empty <code>Map</code> to store the mapping from original nodes to their copies. Set <code>curr = head</code> to start traversal.",
+          highlightLines: [4, 7],
+          action: "setupPass1",
+        },
+        {
+          phase: "Pass 1 - Create Node",
+          description:
+            "Create copy of node <code>[7]</code>. Store mapping: <code>original[0] → copy[0]</code> in the hash map.",
+          highlightLines: [8, 9, 10],
+          action: "createCopy",
+          nodeIndex: 0,
+        },
+        {
+          phase: "Pass 1 - Create Node",
+          description:
+            "Create copy of node <code>[13]</code>. Store mapping: <code>original[1] → copy[1]</code> in the hash map.",
+          highlightLines: [8, 9, 10],
+          action: "createCopy",
+          nodeIndex: 1,
+        },
+        {
+          phase: "Pass 1 - Create Node",
+          description:
+            "Create copy of node <code>[11]</code>. Store mapping: <code>original[2] → copy[2]</code> in the hash map.",
+          highlightLines: [8, 9, 10],
+          action: "createCopy",
+          nodeIndex: 2,
+        },
+        {
+          phase: "Pass 1 - Create Node",
+          description:
+            "Create copy of node <code>[10]</code>. Store mapping: <code>original[3] → copy[3]</code> in the hash map.",
+          highlightLines: [8, 9, 10],
+          action: "createCopy",
+          nodeIndex: 3,
+        },
+        {
+          phase: "Pass 1 - Create Node",
+          description:
+            "Create copy of node <code>[1]</code>. Store mapping: <code>original[4] → copy[4]</code> in the hash map. Pass 1 complete!",
+          highlightLines: [8, 9, 10, 11],
+          action: "createCopy",
+          nodeIndex: 4,
+        },
+        {
+          phase: "Pass 2 - Setup",
+          description:
+            "All copy nodes created! Now reset <code>curr = head</code> to set up <code>next</code> and <code>random</code> pointers using our hash map.",
+          highlightLines: [13, 14],
+          action: "setupPass2",
+        },
+        {
+          phase: "Pass 2 - Set Pointers",
+          description:
+            "For <code>copy[0]</code>: Set <code>next → copy[1]</code>. Random is <code>null</code>, so <code>random → null</code>.",
+          highlightLines: [15, 16, 17, 18],
+          action: "setPointers",
+          nodeIndex: 0,
+        },
+        {
+          phase: "Pass 2 - Set Pointers",
+          description:
+            "For <code>copy[1]</code>: Set <code>next → copy[2]</code>. Original's random points to node[0], so <code>random → copy[0]</code>.",
+          highlightLines: [15, 16, 17, 18],
+          action: "setPointers",
+          nodeIndex: 1,
+        },
+        {
+          phase: "Pass 2 - Set Pointers",
+          description:
+            "For <code>copy[2]</code>: Set <code>next → copy[3]</code>. Original's random points to node[4], so <code>random → copy[4]</code>.",
+          highlightLines: [15, 16, 17, 18],
+          action: "setPointers",
+          nodeIndex: 2,
+        },
+        {
+          phase: "Pass 2 - Set Pointers",
+          description:
+            "For <code>copy[3]</code>: Set <code>next → copy[4]</code>. Original's random points to node[2], so <code>random → copy[2]</code>.",
+          highlightLines: [15, 16, 17, 18],
+          action: "setPointers",
+          nodeIndex: 3,
+        },
+        {
+          phase: "Pass 2 - Set Pointers",
+          description:
+            "For <code>copy[4]</code>: Set <code>next → null</code>. Original's random points to node[0], so <code>random → copy[0]</code>.",
+          highlightLines: [15, 16, 17, 18, 19],
+          action: "setPointers",
+          nodeIndex: 4,
+        },
+        {
+          phase: "Return Result",
+          description:
+            "Return <code>map.get(head)</code> which gives us <code>copy[0]</code> - the head of our newly created deep copy!",
+          highlightLines: [21],
+          action: "complete",
+        },
+        {
+          phase: "✅ Complete!",
+          description:
+            "Deep copy created successfully! The copied list is completely independent - all <code>next</code> and <code>random</code> pointers reference only copy nodes, never original nodes.",
+          highlightLines: [],
+          action: "done",
+        },
+      ];
+
+      // State
+      let currentStep = 0;
+      let autoPlayInterval = null;
+      let copyNodesCreated = [];
+      let pointersSet = [];
+
+      // DOM elements
+      const nextBtn = document.getElementById("nextBtn");
+      const prevBtn = document.getElementById("prevBtn");
+      const resetBtn = document.getElementById("resetBtn");
+      const autoBtn = document.getElementById("autoBtn");
+      const stepNumber = document.getElementById("stepNumber");
+      const stepPhase = document.getElementById("stepPhase");
+      const stepDescription = document.getElementById("stepDescription");
+      const progressFill = document.getElementById("progressFill");
+      const progressText = document.getElementById("progressText");
+      const hashmapEntries = document.getElementById("hashmapEntries");
+      const originalNodesContainer = document.getElementById("originalNodes");
+      const copyNodesContainer = document.getElementById("copyNodes");
+      const arrowSvg = document.getElementById("arrowSvg");
+
+      // Initialize
+      function init() {
+        createOriginalNodes();
+        createCopyNodes();
+        updateUI();
+      }
+
+      function createOriginalNodes() {
+        originalNodesContainer.innerHTML = "";
+        listData.forEach((node, idx) => {
+          const nodeEl = document.createElement("div");
+          nodeEl.className = "node original";
+          nodeEl.id = `orig-${idx}`;
+          nodeEl.innerHTML = `
+                    ${node.val}
+                    <span class="node-index">idx ${idx}</span>
+                `;
+          originalNodesContainer.appendChild(nodeEl);
+
+          if (idx < listData.length - 1) {
+            const arrow = document.createElement("span");
+            arrow.innerHTML = "→";
+            arrow.style.fontSize = "1.5rem";
+            arrow.style.color = "#2c3e50";
+            originalNodesContainer.appendChild(arrow);
+          }
+        });
+
+        const nullText = document.createElement("span");
+        nullText.className = "null-text";
+        nullText.textContent = "→ null";
+        originalNodesContainer.appendChild(nullText);
+      }
+
+      function createCopyNodes() {
+        copyNodesContainer.innerHTML = "";
+        listData.forEach((node, idx) => {
+          const nodeEl = document.createElement("div");
+          nodeEl.className = "node copy";
+          nodeEl.id = `copy-${idx}`;
+          nodeEl.innerHTML = `
+                    ${node.val}'
+                    <span class="node-index">copy ${idx}</span>
+                `;
+          copyNodesContainer.appendChild(nodeEl);
+
+          if (idx < listData.length - 1) {
+            const arrow = document.createElement("span");
+            arrow.innerHTML = "→";
+            arrow.style.fontSize = "1.5rem";
+            arrow.style.color = "#c0392b";
+            arrow.style.opacity = "0";
+            arrow.className = "copy-arrow";
+            arrow.id = `copy-arrow-${idx}`;
+            copyNodesContainer.appendChild(arrow);
+          }
+        });
+
+        const nullText = document.createElement("span");
+        nullText.className = "null-text";
+        nullText.id = "copy-null";
+        nullText.textContent = "→ null";
+        nullText.style.opacity = "0";
+        copyNodesContainer.appendChild(nullText);
+      }
+
+      function updateUI() {
+        const step = steps[currentStep];
+
+        // Update step info
+        stepNumber.textContent = `Step ${currentStep} / ${steps.length - 1}`;
+        stepPhase.textContent = step.phase;
+        stepDescription.innerHTML = step.description;
+
+        // Update progress
+        const progress = (currentStep / (steps.length - 1)) * 100;
+        progressFill.style.width = `${progress}%`;
+        progressText.textContent =
+          currentStep === steps.length - 1
+            ? "Complete!"
+            : `${Math.round(progress)}% complete`;
+
+        // Update code highlighting
+        document.querySelectorAll(".code-line").forEach((line) => {
+          line.classList.remove("highlight");
+        });
+        step.highlightLines.forEach((lineNum) => {
+          const line = document.querySelector(
+            `.code-line[data-line="${lineNum}"]`
+          );
+          if (line) line.classList.add("highlight");
+        });
+
+        // Update buttons
+        prevBtn.disabled = currentStep === 0;
+        nextBtn.disabled = currentStep === steps.length - 1;
+
+        // Execute action
+        executeAction(step);
+      }
+
+      function executeAction(step) {
+        // Clear all highlights
+        document
+          .querySelectorAll(".node")
+          .forEach((n) => n.classList.remove("highlight"));
+
+        switch (step.action) {
+          case "init":
+            resetVisualization();
+            break;
+
+          case "setupPass1":
+            hashmapEntries.innerHTML = `
+                        <div style="color: #95a5a6; font-style: italic; text-align: center; padding: 10px;">
+                            Empty map - ready to populate
+                        </div>
+                    `;
+            document.getElementById("orig-0")?.classList.add("highlight");
+            break;
+
+          case "createCopy":
+            const idx = step.nodeIndex;
+            // Highlight original
+            document.getElementById(`orig-${idx}`)?.classList.add("highlight");
+
+            // Show copy node
+            const copyNode = document.getElementById(`copy-${idx}`);
+            if (copyNode) {
+              copyNode.classList.add("visible");
+              copyNode.classList.add("highlight");
+            }
+
+            // Update hashmap
+            updateHashmapDisplay(idx);
+            copyNodesCreated.push(idx);
+            break;
+
+          case "setupPass2":
+            document.getElementById("orig-0")?.classList.add("highlight");
+            document.getElementById("copy-0")?.classList.add("highlight");
+            // Highlight all entries in hashmap
+            document
+              .querySelectorAll(".hashmap-entry")
+              .forEach((e) => e.classList.add("highlight"));
+            setTimeout(() => {
+              document
+                .querySelectorAll(".hashmap-entry")
+                .forEach((e) => e.classList.remove("highlight"));
+            }, 500);
+            break;
+
+          case "setPointers":
+            const nodeIdx = step.nodeIndex;
+            document
+              .getElementById(`orig-${nodeIdx}`)
+              ?.classList.add("highlight");
+            document
+              .getElementById(`copy-${nodeIdx}`)
+              ?.classList.add("highlight");
+
+            // Show next arrow
+            if (nodeIdx < listData.length - 1) {
+              const arrow = document.getElementById(`copy-arrow-${nodeIdx}`);
+              if (arrow) arrow.style.opacity = "1";
+            }
+            if (nodeIdx === listData.length - 1) {
+              document.getElementById("copy-null").style.opacity = "1";
+            }
+
+            // Highlight hashmap entry
+            const entry = document.getElementById(`hashmap-entry-${nodeIdx}`);
+            if (entry) {
+              entry.classList.add("highlight");
+              setTimeout(() => entry.classList.remove("highlight"), 800);
+            }
+
+            pointersSet.push(nodeIdx);
+            drawRandomArrows();
+            break;
+
+          case "complete":
+            // Show all
+            document
+              .querySelectorAll(".copy")
+              .forEach((n) => n.classList.add("visible"));
+            document
+              .querySelectorAll(".copy-arrow")
+              .forEach((a) => (a.style.opacity = "1"));
+            document.getElementById("copy-null").style.opacity = "1";
+            drawRandomArrows();
+            break;
+
+          case "done":
+            // Final state - highlight copy list
+            document.querySelectorAll(".node.copy").forEach((n) => {
+              n.classList.add("highlight");
+            });
+            break;
+        }
+      }
+
+      function updateHashmapDisplay(upToIndex) {
+        hashmapEntries.innerHTML = "";
+        for (let i = 0; i <= upToIndex; i++) {
+          const entry = document.createElement("div");
+          entry.className = "hashmap-entry visible";
+          entry.id = `hashmap-entry-${i}`;
+          entry.innerHTML = `
+                    <div class="entry-key">
+                        <div class="mini-node original">${listData[i].val}</div>
+                    </div>
+                    <span class="arrow-symbol">→</span>
+                    <div class="entry-value">
+                        <div class="mini-node copy">${listData[i].val}'</div>
+                    </div>
+                `;
+          hashmapEntries.appendChild(entry);
+        }
+      }
+
+      function drawRandomArrows() {
+        // Clear existing random arrows
+        arrowSvg
+          .querySelectorAll(".random-arrow-copy")
+          .forEach((a) => a.remove());
+
+        pointersSet.forEach((idx) => {
+          const randomIdx = listData[idx].randomIdx;
+          if (randomIdx !== null) {
+            const fromNode = document.getElementById(`copy-${idx}`);
+            const toNode = document.getElementById(`copy-${randomIdx}`);
+
+            if (fromNode && toNode) {
+              const fromRect = fromNode.getBoundingClientRect();
+              const toRect = toNode.getBoundingClientRect();
+              const svgRect = arrowSvg.getBoundingClientRect();
+
+              const fromX = fromRect.left - svgRect.left + fromRect.width / 2;
+              const fromY = fromRect.top - svgRect.top + fromRect.height;
+              const toX = toRect.left - svgRect.left + toRect.width / 2;
+              const toY = toRect.top - svgRect.top + toRect.height;
+
+              // Create curved path
+              const midY = fromY + 40 + (idx % 2) * 20;
+              const path = document.createElementNS(
+                "http://www.w3.org/2000/svg",
+                "path"
+              );
+              path.setAttribute(
+                "d",
+                `M ${fromX} ${fromY} Q ${fromX} ${midY}, ${
+                  (fromX + toX) / 2
+                } ${midY} T ${toX} ${toY - 5}`
+              );
+              path.setAttribute(
+                "class",
+                "random-arrow random-arrow-copy visible"
+              );
+              path.setAttribute("marker-end", "url(#arrowhead-random)");
+              arrowSvg.appendChild(path);
+            }
+          }
+        });
+      }
+
+      function resetVisualization() {
+        copyNodesCreated = [];
+        pointersSet = [];
+
+        // Reset copy nodes
+        document.querySelectorAll(".node.copy").forEach((n) => {
+          n.classList.remove("visible", "highlight");
+        });
+
+        // Reset arrows
+        document
+          .querySelectorAll(".copy-arrow")
+          .forEach((a) => (a.style.opacity = "0"));
+        document.getElementById("copy-null").style.opacity = "0";
+
+        // Clear random arrows
+        arrowSvg
+          .querySelectorAll(".random-arrow-copy")
+          .forEach((a) => a.remove());
+
+        // Reset hashmap
+        hashmapEntries.innerHTML = `
+                <div style="color: #95a5a6; font-style: italic; text-align: center; padding: 20px;">
+                    Map will be populated during Pass 1
+                </div>
+            `;
+      }
+
+      // Event listeners
+      nextBtn.addEventListener("click", () => {
+        if (currentStep < steps.length - 1) {
+          currentStep++;
+          updateUI();
+        }
+      });
+
+      prevBtn.addEventListener("click", () => {
+        if (currentStep > 0) {
+          currentStep--;
+          // Need to rebuild state up to this point
+          resetVisualization();
+          currentStep = 0;
+          updateUI();
+
+          // Replay steps up to target
+          const targetStep = parseInt(stepNumber.textContent.split(" ")[1]);
+          // Actually just decrement and rebuild
+        }
+        // Simpler: just reset and replay to currentStep
+        const target = currentStep;
+        currentStep = 0;
+        resetVisualization();
+
+        // Fast-forward
+        for (let i = 0; i <= target; i++) {
+          currentStep = i;
+          const step = steps[i];
+          if (step.action === "createCopy") {
+            const idx = step.nodeIndex;
+            document.getElementById(`copy-${idx}`)?.classList.add("visible");
+            copyNodesCreated.push(idx);
+            updateHashmapDisplay(idx);
+          } else if (step.action === "setPointers") {
+            const nodeIdx = step.nodeIndex;
+            if (nodeIdx < listData.length - 1) {
+              const arrow = document.getElementById(`copy-arrow-${nodeIdx}`);
+              if (arrow) arrow.style.opacity = "1";
+            }
+            if (nodeIdx === listData.length - 1) {
+              document.getElementById("copy-null").style.opacity = "1";
+            }
+            pointersSet.push(nodeIdx);
+          }
+        }
+        drawRandomArrows();
+        updateUI();
+      });
+
+      resetBtn.addEventListener("click", () => {
+        stopAutoPlay();
+        currentStep = 0;
+        resetVisualization();
+        updateUI();
+      });
+
+      autoBtn.addEventListener("click", () => {
+        if (autoPlayInterval) {
+          stopAutoPlay();
+        } else {
+          startAutoPlay();
+        }
+      });
+
+      function startAutoPlay() {
+        autoBtn.textContent = "⏸ Pause";
+        autoBtn.classList.remove("success");
+        autoBtn.classList.add("danger");
+
+        autoPlayInterval = setInterval(() => {
+          if (currentStep < steps.length - 1) {
+            currentStep++;
+            updateUI();
+          } else {
+            stopAutoPlay();
+          }
+        }, 2000);
+      }
+
+      function stopAutoPlay() {
+        if (autoPlayInterval) {
+          clearInterval(autoPlayInterval);
+          autoPlayInterval = null;
+        }
+        autoBtn.textContent = "▶ Auto Play";
+        autoBtn.classList.remove("danger");
+        autoBtn.classList.add("success");
+      }
+
+      // Keyboard navigation
+      document.addEventListener("keydown", (e) => {
+        if (e.key === "ArrowRight" && currentStep < steps.length - 1) {
+          currentStep++;
+          updateUI();
+        } else if (e.key === "ArrowLeft" && currentStep > 0) {
+          prevBtn.click();
+        } else if (e.key === " ") {
+          e.preventDefault();
+          autoBtn.click();
+        }
+      });
+
+      // Handle window resize
+      window.addEventListener("resize", () => {
+        drawRandomArrows();
+      });
+
+      // Initialize
+      init();
+    </script>
+  </body>
+</html>

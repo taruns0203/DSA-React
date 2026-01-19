@@ -1,0 +1,1112 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Recursive Binary Exponentiation Visualization</title>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        font-family: "Inter", sans-serif;
+        min-height: 100vh;
+        background: linear-gradient(
+          135deg,
+          #0f172a 0%,
+          #581c87 50%,
+          #0f172a 100%
+        );
+        padding: 1.5rem;
+        color: white;
+      }
+
+      /* Header */
+      .header {
+        text-align: center;
+        margin-bottom: 1.5rem;
+      }
+
+      .header h1 {
+        font-size: 1.875rem;
+        font-weight: 700;
+        margin-bottom: 0.5rem;
+      }
+
+      .header p {
+        color: #c4b5fd;
+      }
+
+      /* Controls Panel */
+      .controls-panel {
+        max-width: 56rem;
+        margin: 0 auto 1.5rem;
+      }
+
+      .controls-card {
+        background: rgba(255, 255, 255, 0.1);
+        backdrop-filter: blur(10px);
+        border-radius: 1rem;
+        padding: 1rem;
+        box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+      }
+
+      .controls-row {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        justify-content: center;
+        gap: 1rem;
+      }
+
+      .input-group {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        background: rgba(255, 255, 255, 0.1);
+        border-radius: 0.75rem;
+        padding: 0.5rem 1rem;
+      }
+
+      .input-group label {
+        color: #fde047;
+      }
+
+      .input-group input,
+      .input-group select {
+        width: 4rem;
+        background: rgba(255, 255, 255, 0.2);
+        border-radius: 0.5rem;
+        padding: 0.25rem 0.5rem;
+        text-align: center;
+        color: white;
+        border: 1px solid rgba(255, 255, 255, 0.3);
+        font-family: inherit;
+      }
+
+      .input-group select {
+        width: auto;
+      }
+
+      .input-group input:focus,
+      .input-group select:focus {
+        outline: none;
+        border-color: #a78bfa;
+      }
+
+      /* Buttons */
+      .btn-group {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+      }
+
+      .btn {
+        border: none;
+        border-radius: 0.75rem;
+        padding: 0.5rem 1rem;
+        font-family: inherit;
+        font-weight: 500;
+        cursor: pointer;
+        transition: all 0.2s;
+        color: white;
+      }
+
+      .btn:hover {
+        transform: scale(1.05);
+      }
+
+      .btn:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+        transform: none;
+      }
+
+      .btn-purple {
+        background: #9333ea;
+      }
+      .btn-purple:hover:not(:disabled) {
+        background: #a855f7;
+      }
+
+      .btn-blue {
+        background: #2563eb;
+      }
+      .btn-blue:hover:not(:disabled) {
+        background: #3b82f6;
+      }
+
+      .btn-green {
+        background: #16a34a;
+      }
+      .btn-green:hover:not(:disabled) {
+        background: #22c55e;
+      }
+
+      .btn-red {
+        background: #dc2626;
+      }
+      .btn-red:hover:not(:disabled) {
+        background: #ef4444;
+      }
+
+      .btn-play {
+        padding: 0.5rem 1.5rem;
+        font-weight: 700;
+      }
+
+      /* Progress Bar */
+      .progress-section {
+        margin-top: 1rem;
+      }
+
+      .progress-labels {
+        display: flex;
+        justify-content: space-between;
+        font-size: 0.875rem;
+        color: #c4b5fd;
+        margin-bottom: 0.25rem;
+      }
+
+      .progress-bar {
+        height: 0.5rem;
+        background: rgba(255, 255, 255, 0.2);
+        border-radius: 9999px;
+        overflow: hidden;
+      }
+
+      .progress-fill {
+        height: 100%;
+        background: linear-gradient(to right, #4ade80, #facc15, #f97316);
+        transition: width 0.3s;
+      }
+
+      /* Main Content */
+      .main-content {
+        max-width: 72rem;
+        margin: 0 auto;
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 1.5rem;
+      }
+
+      @media (min-width: 1024px) {
+        .main-content {
+          grid-template-columns: 1fr 1fr;
+        }
+      }
+
+      .card {
+        background: rgba(255, 255, 255, 0.1);
+        backdrop-filter: blur(10px);
+        border-radius: 1rem;
+        padding: 1.5rem;
+        box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+      }
+
+      .card h2 {
+        font-size: 1.25rem;
+        font-weight: 700;
+        margin-bottom: 1rem;
+        text-align: center;
+      }
+
+      /* Legend */
+      .legend {
+        display: flex;
+        justify-content: center;
+        gap: 1rem;
+        margin-bottom: 1rem;
+        font-size: 0.875rem;
+        flex-wrap: wrap;
+      }
+
+      .legend-item {
+        display: flex;
+        align-items: center;
+        gap: 0.25rem;
+      }
+
+      .legend-color {
+        width: 1rem;
+        height: 1rem;
+        border-radius: 0.25rem;
+      }
+
+      .legend-active {
+        background: linear-gradient(135deg, #facc15, #f97316);
+      }
+
+      .legend-complete {
+        background: linear-gradient(135deg, #4ade80, #16a34a);
+      }
+
+      /* Tree */
+      .tree-container {
+        overflow: auto;
+        max-height: 24rem;
+        padding: 1rem 0;
+      }
+
+      .tree-level {
+        display: flex;
+        justify-content: center;
+        gap: 1rem;
+        position: relative;
+        margin-bottom: 0.5rem;
+      }
+
+      .tree-node-wrapper {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+      }
+
+      .tree-connector {
+        width: 2px;
+        height: 1rem;
+        background: linear-gradient(to bottom, #a78bfa, #7c3aed);
+        margin-bottom: 0.25rem;
+      }
+
+      .tree-node {
+        border: 2px solid;
+        border-radius: 0.75rem;
+        padding: 0.75rem;
+        box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+        transition: all 0.5s;
+        min-width: 6rem;
+        text-align: center;
+        cursor: pointer;
+      }
+
+      .tree-node:hover {
+        transform: scale(1.05);
+      }
+
+      .tree-node.active {
+        background: linear-gradient(135deg, #facc15, #f97316);
+        border-color: #fde047;
+        animation: bounce 1s infinite;
+      }
+
+      .tree-node.complete {
+        background: linear-gradient(135deg, #4ade80, #16a34a);
+        border-color: #86efac;
+      }
+
+      .tree-node-title {
+        color: white;
+        font-weight: 700;
+        font-size: 0.875rem;
+      }
+
+      .tree-node-subtitle {
+        color: white;
+        font-size: 0.75rem;
+        opacity: 0.9;
+      }
+
+      .tree-node-result {
+        margin-top: 0.25rem;
+        background: rgba(255, 255, 255, 0.3);
+        border-radius: 0.5rem;
+        padding: 0.25rem 0.5rem;
+      }
+
+      .tree-node-result span {
+        color: white;
+        font-weight: 700;
+        font-size: 0.875rem;
+      }
+
+      @keyframes bounce {
+        0%,
+        100% {
+          transform: translateY(0);
+        }
+        50% {
+          transform: translateY(-5px);
+        }
+      }
+
+      @keyframes pulse {
+        0%,
+        100% {
+          opacity: 1;
+        }
+        50% {
+          opacity: 0.7;
+        }
+      }
+
+      /* Step Details */
+      .step-details {
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+      }
+
+      .step-badge-container {
+        display: flex;
+        justify-content: center;
+      }
+
+      .step-badge {
+        padding: 0.5rem 1.5rem;
+        border-radius: 9999px;
+        font-weight: 700;
+        font-size: 1.125rem;
+      }
+
+      .step-badge.descend {
+        background: linear-gradient(to right, #3b82f6, #a855f7);
+      }
+
+      .step-badge.return {
+        background: linear-gradient(to right, #22c55e, #14b8a6);
+      }
+
+      .step-message {
+        background: rgba(255, 255, 255, 0.1);
+        border-radius: 0.75rem;
+        padding: 1rem;
+        text-align: center;
+        font-size: 1.125rem;
+      }
+
+      .step-formula {
+        background: linear-gradient(
+          to right,
+          rgba(168, 85, 247, 0.3),
+          rgba(236, 72, 153, 0.3)
+        );
+        border-radius: 0.75rem;
+        padding: 1rem;
+        text-align: center;
+      }
+
+      .step-formula-label {
+        font-size: 0.875rem;
+        color: #c4b5fd;
+        margin-bottom: 0.25rem;
+      }
+
+      .step-formula-value {
+        font-size: 1.5rem;
+        font-family: monospace;
+        font-weight: 700;
+      }
+
+      /* Depth Indicator */
+      .depth-section {
+        text-align: center;
+      }
+
+      .depth-label {
+        color: #c4b5fd;
+        margin-bottom: 0.5rem;
+      }
+
+      .depth-indicators {
+        display: flex;
+        justify-content: center;
+        gap: 0.25rem;
+      }
+
+      .depth-box {
+        width: 2rem;
+        height: 2rem;
+        border-radius: 0.5rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 700;
+        transition: all 0.3s;
+      }
+
+      .depth-box.current {
+        background: linear-gradient(135deg, #facc15, #f97316);
+        transform: scale(1.25);
+      }
+
+      .depth-box.past {
+        background: rgba(34, 197, 94, 0.5);
+      }
+
+      .depth-box.future {
+        background: rgba(255, 255, 255, 0.2);
+      }
+
+      /* Key Insight */
+      .insight-box {
+        background: rgba(234, 179, 8, 0.2);
+        border: 1px solid rgba(234, 179, 8, 0.5);
+        border-radius: 0.75rem;
+        padding: 1rem;
+      }
+
+      .insight-label {
+        color: #fde047;
+        font-size: 0.875rem;
+        margin-bottom: 0.25rem;
+      }
+
+      .insight-text {
+        font-size: 0.875rem;
+      }
+
+      /* Explanation Section */
+      .explanation-section {
+        max-width: 72rem;
+        margin: 1.5rem auto 0;
+      }
+
+      .explanation-grid {
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 1rem;
+        margin-bottom: 1rem;
+      }
+
+      @media (min-width: 768px) {
+        .explanation-grid {
+          grid-template-columns: repeat(3, 1fr);
+        }
+      }
+
+      .explanation-card {
+        border-radius: 0.75rem;
+        padding: 1rem;
+        border: 1px solid;
+      }
+
+      .explanation-card.divide {
+        background: rgba(59, 130, 246, 0.2);
+        border-color: rgba(59, 130, 246, 0.3);
+      }
+
+      .explanation-card.conquer {
+        background: rgba(168, 85, 247, 0.2);
+        border-color: rgba(168, 85, 247, 0.3);
+      }
+
+      .explanation-card.combine {
+        background: rgba(34, 197, 94, 0.2);
+        border-color: rgba(34, 197, 94, 0.3);
+      }
+
+      .explanation-card h3 {
+        font-weight: 700;
+        margin-bottom: 0.5rem;
+      }
+
+      .explanation-card.divide h3 {
+        color: #93c5fd;
+      }
+      .explanation-card.conquer h3 {
+        color: #d8b4fe;
+      }
+      .explanation-card.combine h3 {
+        color: #86efac;
+      }
+
+      .explanation-card p {
+        font-size: 0.875rem;
+      }
+
+      .explanation-formula {
+        margin-top: 0.5rem;
+        background: rgba(255, 255, 255, 0.1);
+        border-radius: 0.5rem;
+        padding: 0.5rem;
+        font-family: monospace;
+        text-align: center;
+      }
+
+      .explanation-formula.small {
+        font-size: 0.75rem;
+      }
+
+      /* Complexity Stats */
+      .complexity-stats {
+        display: flex;
+        justify-content: center;
+        gap: 2rem;
+        margin-top: 1rem;
+      }
+
+      .stat {
+        text-align: center;
+      }
+
+      .stat-icon {
+        font-size: 1.5rem;
+      }
+
+      .stat-value {
+        font-weight: 700;
+      }
+
+      .stat-value.time {
+        color: #4ade80;
+      }
+      .stat-value.space {
+        color: #facc15;
+      }
+      .stat-value.calls {
+        color: #c084fc;
+      }
+
+      .stat-label {
+        font-size: 0.75rem;
+        color: #9ca3af;
+      }
+    </style>
+  </head>
+  <body>
+    <!-- Header -->
+    <div class="header">
+      <h1>🚀 Recursive Binary Exponentiation 🚀</h1>
+      <p>Watch how x^n is computed in O(log n) time!</p>
+    </div>
+
+    <!-- Controls -->
+    <div class="controls-panel">
+      <div class="controls-card">
+        <div class="controls-row">
+          <!-- Input Controls -->
+          <div class="input-group">
+            <label>⚡ x =</label>
+            <input type="number" id="inputX" value="2" />
+          </div>
+
+          <div class="input-group">
+            <label>🔢 n =</label>
+            <input type="number" id="inputN" value="10" min="0" max="20" />
+          </div>
+
+          <!-- Playback Controls -->
+          <div class="btn-group">
+            <button class="btn btn-purple" id="btnReset">⏮️ Reset</button>
+            <button class="btn btn-blue" id="btnPrev">◀️ Prev</button>
+            <button class="btn btn-green btn-play" id="btnPlay">▶️ Play</button>
+            <button class="btn btn-blue" id="btnNext">Next ▶️</button>
+          </div>
+
+          <!-- Speed Control -->
+          <div class="input-group">
+            <label>🏃 Speed:</label>
+            <select id="speedSelect">
+              <option value="2000">🐢 Slow</option>
+              <option value="1000" selected>🚶 Normal</option>
+              <option value="500">🏃 Fast</option>
+              <option value="250">🚀 Turbo</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- Progress Bar -->
+        <div class="progress-section">
+          <div class="progress-labels">
+            <span id="stepLabel">Step 1 of 1</span>
+            <span id="percentLabel">0% complete</span>
+          </div>
+          <div class="progress-bar">
+            <div
+              class="progress-fill"
+              id="progressFill"
+              style="width: 0%"
+            ></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="main-content">
+      <!-- Left: Recursive Tree -->
+      <div class="card">
+        <h2>🌳 Recursive Call Tree</h2>
+
+        <!-- Legend -->
+        <div class="legend">
+          <div class="legend-item">
+            <span class="legend-color legend-active"></span>
+            <span>Active</span>
+          </div>
+          <div class="legend-item">
+            <span class="legend-color legend-complete"></span>
+            <span>Complete</span>
+          </div>
+          <div class="legend-item">
+            <span>📗 Even</span>
+          </div>
+          <div class="legend-item">
+            <span>📙 Odd</span>
+          </div>
+        </div>
+
+        <div class="tree-container" id="treeContainer"></div>
+      </div>
+
+      <!-- Right: Step Details -->
+      <div class="card">
+        <h2>📋 Current Step Details</h2>
+        <div class="step-details" id="stepDetails"></div>
+      </div>
+    </div>
+
+    <!-- Bottom: Algorithm Explanation -->
+    <div class="explanation-section">
+      <div class="card">
+        <h2>🧠 How Binary Exponentiation Works</h2>
+
+        <div class="explanation-grid">
+          <div class="explanation-card divide">
+            <h3>1️⃣ Divide</h3>
+            <p>Split the problem: x^n becomes x^(n/2). This halves our work!</p>
+            <div class="explanation-formula">pow(x, n) → pow(x, n÷2)</div>
+          </div>
+
+          <div class="explanation-card conquer">
+            <h3>2️⃣ Conquer</h3>
+            <p>Recurse until n=0 (base case). Then start returning results.</p>
+            <div class="explanation-formula">pow(x, 0) = 1 🎯</div>
+          </div>
+
+          <div class="explanation-card combine">
+            <h3>3️⃣ Combine</h3>
+            <p>Square the result. If n was odd, also multiply by x.</p>
+            <div class="explanation-formula small">
+              <div>Even: half × half</div>
+              <div>Odd: half × half × x</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Complexity -->
+        <div class="complexity-stats">
+          <div class="stat">
+            <span class="stat-icon">⏱️</span>
+            <p class="stat-value time">O(log n)</p>
+            <p class="stat-label">Time</p>
+          </div>
+          <div class="stat">
+            <span class="stat-icon">💾</span>
+            <p class="stat-value space">O(log n)</p>
+            <p class="stat-label">Space (Stack)</p>
+          </div>
+          <div class="stat">
+            <span class="stat-icon">📊</span>
+            <p class="stat-value calls" id="callsCount">4</p>
+            <p class="stat-label" id="callsLabel">Calls for n=10</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      // State
+      let x = 2;
+      let n = 10;
+      let currentStep = 0;
+      let isPlaying = false;
+      let speed = 1000;
+      let steps = [];
+      let treeNodes = [];
+      let playInterval = null;
+
+      // DOM Elements
+      const inputX = document.getElementById("inputX");
+      const inputN = document.getElementById("inputN");
+      const btnReset = document.getElementById("btnReset");
+      const btnPrev = document.getElementById("btnPrev");
+      const btnPlay = document.getElementById("btnPlay");
+      const btnNext = document.getElementById("btnNext");
+      const speedSelect = document.getElementById("speedSelect");
+      const stepLabel = document.getElementById("stepLabel");
+      const percentLabel = document.getElementById("percentLabel");
+      const progressFill = document.getElementById("progressFill");
+      const treeContainer = document.getElementById("treeContainer");
+      const stepDetails = document.getElementById("stepDetails");
+      const callsCount = document.getElementById("callsCount");
+      const callsLabel = document.getElementById("callsLabel");
+
+      // Generate all steps for the recursion
+      function generateSteps(base, exp) {
+        const allSteps = [];
+        const nodes = [];
+        let nodeId = 0;
+
+        function recurse(x, n, depth, parentId = null) {
+          const currentId = nodeId++;
+          const isEven = n % 2 === 0;
+
+          nodes.push({
+            id: currentId,
+            parentId,
+            x,
+            n,
+            depth,
+            result: null,
+            isEven,
+            phase: "descending",
+          });
+
+          allSteps.push({
+            type: "descend",
+            nodeId: currentId,
+            x,
+            n,
+            depth,
+            message:
+              n === 0
+                ? "🎯 Base case reached! n=0, return 1"
+                : `📞 Call pow(${x}, ${n}) - ${
+                    isEven ? "EVEN" : "ODD"
+                  } exponent`,
+            formula:
+              n === 0
+                ? "x⁰ = 1"
+                : isEven
+                ? `${x}^${n} = (${x}^${Math.floor(n / 2)})²`
+                : `${x}^${n} = ${x} × (${x}^${Math.floor(n / 2)})²`,
+          });
+
+          if (n === 0) {
+            const nodeIndex = nodes.findIndex((node) => node.id === currentId);
+            nodes[nodeIndex].result = 1;
+            nodes[nodeIndex].phase = "complete";
+
+            allSteps.push({
+              type: "return",
+              nodeId: currentId,
+              result: 1,
+              depth,
+              message: "✅ Return 1 (base case)",
+              calculation: "1",
+            });
+            return 1;
+          }
+
+          const half = recurse(x, Math.floor(n / 2), depth + 1, currentId);
+
+          let result;
+          let calculation;
+          if (n % 2 === 0) {
+            result = half * half;
+            calculation = `${half} × ${half} = ${result}`;
+          } else {
+            result = half * half * x;
+            calculation = `${half} × ${half} × ${x} = ${result}`;
+          }
+
+          const nodeIndex = nodes.findIndex((node) => node.id === currentId);
+          nodes[nodeIndex].result = result;
+          nodes[nodeIndex].phase = "complete";
+
+          allSteps.push({
+            type: "return",
+            nodeId: currentId,
+            result,
+            depth,
+            half,
+            isEven: n % 2 === 0,
+            message:
+              n % 2 === 0
+                ? `🔄 n=${n} is EVEN: half² = ${half}² = ${result}`
+                : `🔄 n=${n} is ODD: half² × x = ${half}² × ${x} = ${result}`,
+            calculation,
+          });
+
+          return result;
+        }
+
+        recurse(base, Math.abs(exp), 0);
+        return { steps: allSteps, nodes };
+      }
+
+      function getNodeStatus(nodeId) {
+        const relevantSteps = steps.slice(0, currentStep + 1);
+        const lastStepForNode = [...relevantSteps]
+          .reverse()
+          .find((s) => s.nodeId === nodeId);
+
+        if (!lastStepForNode) return "hidden";
+        if (lastStepForNode.type === "return") return "complete";
+        return "active";
+      }
+
+      function getNodeResult(nodeId) {
+        const relevantSteps = steps.slice(0, currentStep + 1);
+        const returnStep = relevantSteps.find(
+          (s) => s.nodeId === nodeId && s.type === "return"
+        );
+        return returnStep?.result;
+      }
+
+      function renderTree() {
+        if (treeNodes.length === 0) {
+          treeContainer.innerHTML = "";
+          return;
+        }
+
+        const maxDepth = Math.max(...treeNodes.map((n) => n.depth), 0);
+        const levels = [];
+
+        for (let d = 0; d <= maxDepth; d++) {
+          levels.push(treeNodes.filter((n) => n.depth === d));
+        }
+
+        let html =
+          '<div style="display: flex; flex-direction: column; align-items: center; gap: 0.5rem;">';
+
+        levels.forEach((level, depth) => {
+          html += '<div class="tree-level">';
+
+          level.forEach((node) => {
+            const status = getNodeStatus(node.id);
+            const result = getNodeResult(node.id);
+
+            if (status === "hidden") return;
+
+            const emoji = node.n === 0 ? "🎯" : node.isEven ? "📗" : "📙";
+
+            html += '<div class="tree-node-wrapper">';
+
+            // Connection line to parent
+            if (node.parentId !== null) {
+              html += '<div class="tree-connector"></div>';
+            }
+
+            // Node
+            html += `
+            <div class="tree-node ${status}">
+              <div class="tree-node-title">${emoji} n=${node.n}</div>
+              <div class="tree-node-subtitle">pow(${node.x}, ${node.n})</div>
+              ${
+                result !== undefined
+                  ? `
+                <div class="tree-node-result">
+                  <span>✨ ${result}</span>
+                </div>
+              `
+                  : ""
+              }
+            </div>
+          `;
+
+            html += "</div>";
+          });
+
+          html += "</div>";
+        });
+
+        html += "</div>";
+        treeContainer.innerHTML = html;
+      }
+
+      function renderStepDetails() {
+        const currentStepData = steps[currentStep];
+
+        if (!currentStepData) {
+          stepDetails.innerHTML =
+            '<p style="text-align: center; color: #9ca3af;">No step data available</p>';
+          return;
+        }
+
+        const maxDepth = Math.max(...treeNodes.map((n) => n.depth), 0);
+
+        let depthIndicatorsHtml = "";
+        for (let i = 0; i <= maxDepth; i++) {
+          let depthClass = "future";
+          if (i === currentStepData.depth) depthClass = "current";
+          else if (i < currentStepData.depth) depthClass = "past";
+          depthIndicatorsHtml += `<div class="depth-box ${depthClass}">${i}</div>`;
+        }
+
+        const insightText =
+          currentStepData.type === "descend"
+            ? "We divide the problem in half at each level. Instead of n multiplications, we only need log₂(n) recursive calls!"
+            : "On the way back up, we combine results. If n was even, we square. If n was odd, we square AND multiply by x.";
+
+        stepDetails.innerHTML = `
+        <!-- Step Type Badge -->
+        <div class="step-badge-container">
+          <span class="step-badge ${currentStepData.type}">
+            ${
+              currentStepData.type === "descend" ? "📞 CALLING" : "↩️ RETURNING"
+            }
+          </span>
+        </div>
+
+        <!-- Message -->
+        <div class="step-message">
+          <p>${currentStepData.message}</p>
+        </div>
+
+        <!-- Formula/Calculation -->
+        <div class="step-formula">
+          <p class="step-formula-label">
+            ${
+              currentStepData.type === "descend"
+                ? "📐 Formula:"
+                : "🧮 Calculation:"
+            }
+          </p>
+          <p class="step-formula-value">
+            ${
+              currentStepData.type === "descend"
+                ? currentStepData.formula
+                : currentStepData.calculation
+            }
+          </p>
+        </div>
+
+        <!-- Depth Indicator -->
+        <div class="depth-section">
+          <p class="depth-label">🔽 Recursion Depth</p>
+          <div class="depth-indicators">
+            ${depthIndicatorsHtml}
+          </div>
+        </div>
+
+        <!-- Key Insight -->
+        <div class="insight-box">
+          <p class="insight-label">💡 Key Insight:</p>
+          <p class="insight-text">${insightText}</p>
+        </div>
+      `;
+      }
+
+      function updateProgress() {
+        const total = steps.length;
+        const current = currentStep + 1;
+        const percent = Math.round((current / total) * 100);
+
+        stepLabel.textContent = `Step ${current} of ${total}`;
+        percentLabel.textContent = `${percent}% complete`;
+        progressFill.style.width = `${percent}%`;
+
+        // Update button states
+        btnPrev.disabled = currentStep === 0;
+        btnNext.disabled = currentStep >= steps.length - 1;
+      }
+
+      function updateCallsInfo() {
+        const calls = Math.ceil(Math.log2(n || 1)) + 1;
+        callsCount.textContent = calls;
+        callsLabel.textContent = `Calls for n=${n}`;
+      }
+
+      function initialize() {
+        const result = generateSteps(x, n);
+        steps = result.steps;
+        treeNodes = result.nodes;
+        currentStep = 0;
+
+        renderTree();
+        renderStepDetails();
+        updateProgress();
+        updateCallsInfo();
+      }
+
+      function startPlaying() {
+        isPlaying = true;
+        btnPlay.textContent = "⏸️ Pause";
+        btnPlay.classList.remove("btn-green");
+        btnPlay.classList.add("btn-red");
+
+        playInterval = setInterval(() => {
+          if (currentStep >= steps.length - 1) {
+            stopPlaying();
+            return;
+          }
+          currentStep++;
+          renderTree();
+          renderStepDetails();
+          updateProgress();
+        }, speed);
+      }
+
+      function stopPlaying() {
+        isPlaying = false;
+        btnPlay.textContent = "▶️ Play";
+        btnPlay.classList.remove("btn-red");
+        btnPlay.classList.add("btn-green");
+
+        if (playInterval) {
+          clearInterval(playInterval);
+          playInterval = null;
+        }
+      }
+
+      // Event Listeners
+      inputX.addEventListener("change", () => {
+        x = Number(inputX.value) || 2;
+        stopPlaying();
+        initialize();
+      });
+
+      inputN.addEventListener("change", () => {
+        n = Math.min(Math.max(0, Number(inputN.value) || 0), 20);
+        inputN.value = n;
+        stopPlaying();
+        initialize();
+      });
+
+      btnReset.addEventListener("click", () => {
+        stopPlaying();
+        currentStep = 0;
+        renderTree();
+        renderStepDetails();
+        updateProgress();
+      });
+
+      btnPrev.addEventListener("click", () => {
+        if (currentStep > 0) {
+          currentStep--;
+          renderTree();
+          renderStepDetails();
+          updateProgress();
+        }
+      });
+
+      btnNext.addEventListener("click", () => {
+        if (currentStep < steps.length - 1) {
+          currentStep++;
+          renderTree();
+          renderStepDetails();
+          updateProgress();
+        }
+      });
+
+      btnPlay.addEventListener("click", () => {
+        if (isPlaying) {
+          stopPlaying();
+        } else {
+          startPlaying();
+        }
+      });
+
+      speedSelect.addEventListener("change", () => {
+        speed = Number(speedSelect.value);
+        if (isPlaying) {
+          stopPlaying();
+          startPlaying();
+        }
+      });
+
+      // Initialize on load
+      initialize();
+    </script>
+  </body>
+</html>

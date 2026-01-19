@@ -1,0 +1,1321 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Reverse Nodes in K-Group - Recursive Approach</title>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Caveat:wght@400;600;700&family=Architects+Daughter&family=Fira+Code:wght@400;500&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        font-family: "Architects Daughter", cursive;
+        background: #1a1a2e;
+        min-height: 100vh;
+        overflow-x: hidden;
+      }
+
+      /* Chalkboard container */
+      .chalkboard {
+        max-width: 1300px;
+        margin: 0 auto;
+        padding: 40px;
+        background: linear-gradient(
+          135deg,
+          #2d4a3e 0%,
+          #1e3a2f 50%,
+          #2d4a3e 100%
+        );
+        min-height: 100vh;
+        position: relative;
+        box-shadow: inset 0 0 150px rgba(0, 0, 0, 0.4),
+          0 0 50px rgba(0, 0, 0, 0.5);
+      }
+
+      /* Chalk dust texture */
+      .chalkboard::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%' height='100%' filter='url(%23noise)'/%3E%3C/svg%3E");
+        opacity: 0.03;
+        pointer-events: none;
+      }
+
+      /* Wooden frame */
+      .chalkboard::after {
+        content: "";
+        position: absolute;
+        top: 10px;
+        left: 10px;
+        right: 10px;
+        bottom: 10px;
+        border: 8px solid #5d4037;
+        border-radius: 5px;
+        box-shadow: inset 0 0 20px rgba(0, 0, 0, 0.3),
+          0 0 10px rgba(0, 0, 0, 0.2);
+        pointer-events: none;
+      }
+
+      .content {
+        position: relative;
+        z-index: 1;
+      }
+
+      .header {
+        text-align: center;
+        margin-bottom: 30px;
+      }
+
+      .header h1 {
+        font-family: "Caveat", cursive;
+        font-size: 3.2rem;
+        color: #fff;
+        font-weight: 700;
+        text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+        letter-spacing: 2px;
+      }
+
+      .header .subtitle {
+        font-size: 1.5rem;
+        color: #ffd93d;
+        margin-top: 5px;
+        font-family: "Caveat", cursive;
+      }
+
+      .chalk-line {
+        width: 400px;
+        height: 3px;
+        background: linear-gradient(
+          90deg,
+          transparent,
+          rgba(255, 255, 255, 0.6),
+          transparent
+        );
+        margin: 15px auto;
+        border-radius: 2px;
+      }
+
+      /* Problem box - chalk style */
+      .problem-box {
+        background: rgba(255, 255, 255, 0.05);
+        border: 2px dashed rgba(255, 255, 255, 0.4);
+        border-radius: 10px;
+        padding: 20px;
+        margin-bottom: 25px;
+        color: #fff;
+      }
+
+      .problem-box code {
+        font-family: "Fira Code", monospace;
+        background: rgba(255, 209, 61, 0.2);
+        padding: 2px 8px;
+        border-radius: 4px;
+        color: #ffd93d;
+      }
+
+      /* Controls */
+      .controls {
+        display: flex;
+        justify-content: center;
+        gap: 15px;
+        margin-bottom: 25px;
+        flex-wrap: wrap;
+      }
+
+      .btn {
+        font-family: "Architects Daughter", cursive;
+        font-size: 1.1rem;
+        padding: 12px 25px;
+        border: 2px solid rgba(255, 255, 255, 0.6);
+        background: rgba(255, 255, 255, 0.1);
+        color: #fff;
+        border-radius: 8px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+      }
+
+      .btn:hover {
+        background: rgba(255, 255, 255, 0.2);
+        transform: translateY(-2px);
+      }
+
+      .btn:active {
+        transform: translateY(0);
+      }
+
+      .btn.primary {
+        background: rgba(102, 187, 106, 0.3);
+        border-color: #66bb6a;
+      }
+
+      .btn.warning {
+        background: rgba(255, 167, 38, 0.3);
+        border-color: #ffa726;
+      }
+
+      .btn.danger {
+        background: rgba(239, 83, 80, 0.3);
+        border-color: #ef5350;
+      }
+
+      .btn:disabled {
+        opacity: 0.4;
+        cursor: not-allowed;
+        transform: none;
+      }
+
+      /* Step indicator */
+      .step-indicator {
+        text-align: center;
+        margin-bottom: 20px;
+        font-family: "Caveat", cursive;
+        font-size: 1.5rem;
+        color: rgba(255, 255, 255, 0.7);
+      }
+
+      .step-indicator .current {
+        color: #ffd93d;
+        font-weight: 700;
+        font-size: 1.8rem;
+      }
+
+      /* Progress bar */
+      .progress-container {
+        margin: 15px 0 25px;
+        background: rgba(255, 255, 255, 0.1);
+        border-radius: 10px;
+        height: 10px;
+        overflow: hidden;
+      }
+
+      .progress-bar {
+        height: 100%;
+        background: linear-gradient(90deg, #66bb6a, #ffd93d, #ef5350);
+        border-radius: 10px;
+        transition: width 0.5s ease;
+      }
+
+      /* Main visualization */
+      .viz-container {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 25px;
+      }
+
+      @media (max-width: 900px) {
+        .viz-container {
+          grid-template-columns: 1fr;
+        }
+      }
+
+      .section {
+        background: rgba(0, 0, 0, 0.2);
+        border: 2px solid rgba(255, 255, 255, 0.2);
+        border-radius: 15px;
+        padding: 20px;
+      }
+
+      .section.full-width {
+        grid-column: 1 / -1;
+      }
+
+      .section-title {
+        font-family: "Caveat", cursive;
+        font-size: 1.5rem;
+        color: #81d4fa;
+        margin-bottom: 15px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+        padding-bottom: 10px;
+      }
+
+      /* Linked List visualization */
+      .linked-list {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 5px;
+        flex-wrap: wrap;
+        min-height: 70px;
+      }
+
+      .node {
+        width: 50px;
+        height: 50px;
+        background: rgba(255, 255, 255, 0.1);
+        border: 3px solid #fff;
+        border-radius: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-family: "Fira Code", monospace;
+        font-size: 1.3rem;
+        font-weight: 600;
+        color: #fff;
+        position: relative;
+        transition: all 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+      }
+
+      .node.processing {
+        background: rgba(255, 209, 61, 0.3);
+        border-color: #ffd93d;
+        box-shadow: 0 0 20px rgba(255, 209, 61, 0.5);
+        transform: scale(1.1);
+      }
+
+      .node.reversed {
+        background: rgba(102, 187, 106, 0.3);
+        border-color: #66bb6a;
+        box-shadow: 0 0 15px rgba(102, 187, 106, 0.4);
+      }
+
+      .node.checking {
+        background: rgba(129, 212, 250, 0.3);
+        border-color: #81d4fa;
+      }
+
+      .node.incomplete {
+        background: rgba(239, 83, 80, 0.2);
+        border-color: #ef5350;
+        border-style: dashed;
+      }
+
+      .arrow {
+        font-size: 1.5rem;
+        color: rgba(255, 255, 255, 0.5);
+        transition: all 0.3s ease;
+      }
+
+      .arrow.active {
+        color: #ffd93d;
+      }
+
+      /* Call Stack Visualization */
+      .call-stack {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+        min-height: 200px;
+      }
+
+      .stack-frame {
+        background: rgba(255, 255, 255, 0.05);
+        border: 2px solid rgba(255, 255, 255, 0.3);
+        border-radius: 8px;
+        padding: 12px 15px;
+        transition: all 0.4s ease;
+        position: relative;
+      }
+
+      .stack-frame.active {
+        background: rgba(255, 209, 61, 0.2);
+        border-color: #ffd93d;
+        box-shadow: 0 0 20px rgba(255, 209, 61, 0.3);
+      }
+
+      .stack-frame.completed {
+        background: rgba(102, 187, 106, 0.2);
+        border-color: #66bb6a;
+      }
+
+      .stack-frame.returning {
+        background: rgba(129, 212, 250, 0.2);
+        border-color: #81d4fa;
+        animation: pulse-return 0.8s ease infinite;
+      }
+
+      @keyframes pulse-return {
+        0%,
+        100% {
+          box-shadow: 0 0 10px rgba(129, 212, 250, 0.3);
+        }
+        50% {
+          box-shadow: 0 0 25px rgba(129, 212, 250, 0.6);
+        }
+      }
+
+      .frame-header {
+        font-family: "Fira Code", monospace;
+        font-size: 0.9rem;
+        color: #81d4fa;
+        margin-bottom: 8px;
+      }
+
+      .frame-content {
+        font-family: "Fira Code", monospace;
+        font-size: 0.85rem;
+        color: rgba(255, 255, 255, 0.8);
+        line-height: 1.5;
+      }
+
+      .frame-content .var {
+        color: #66bb6a;
+      }
+
+      .frame-content .val {
+        color: #ffd93d;
+      }
+
+      .frame-badge {
+        position: absolute;
+        top: -10px;
+        right: 10px;
+        background: #ef5350;
+        color: white;
+        font-size: 0.7rem;
+        padding: 2px 8px;
+        border-radius: 10px;
+        font-family: "Fira Code", monospace;
+      }
+
+      .frame-badge.return {
+        background: #66bb6a;
+      }
+
+      /* Reversal Animation Area */
+      .reversal-viz {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 10px;
+        min-height: 80px;
+        flex-wrap: wrap;
+      }
+
+      .reversal-node {
+        width: 45px;
+        height: 45px;
+        background: rgba(255, 209, 61, 0.3);
+        border: 3px solid #ffd93d;
+        border-radius: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-family: "Fira Code", monospace;
+        font-size: 1.2rem;
+        color: #fff;
+        transition: all 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+      }
+
+      .reversal-node.moving {
+        animation: swap-anim 0.6s ease;
+      }
+
+      @keyframes swap-anim {
+        0% {
+          transform: translateY(0);
+        }
+        50% {
+          transform: translateY(-20px);
+        }
+        100% {
+          transform: translateY(0);
+        }
+      }
+
+      .pointer-label {
+        font-family: "Fira Code", monospace;
+        font-size: 0.75rem;
+        color: #81d4fa;
+        text-align: center;
+        margin-top: 5px;
+      }
+
+      /* Variable tracker */
+      .var-tracker {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+        gap: 10px;
+      }
+
+      .var-box {
+        background: rgba(255, 255, 255, 0.05);
+        border: 2px solid rgba(255, 255, 255, 0.2);
+        border-radius: 8px;
+        padding: 10px;
+        text-align: center;
+        transition: all 0.3s ease;
+      }
+
+      .var-box.active {
+        border-color: #ffd93d;
+        box-shadow: 0 0 15px rgba(255, 209, 61, 0.3);
+      }
+
+      .var-name {
+        font-family: "Fira Code", monospace;
+        font-size: 0.8rem;
+        color: rgba(255, 255, 255, 0.5);
+        margin-bottom: 5px;
+      }
+
+      .var-value {
+        font-family: "Fira Code", monospace;
+        font-size: 1.1rem;
+        color: #fff;
+        font-weight: 600;
+      }
+
+      /* Explanation */
+      .explanation {
+        background: rgba(255, 209, 61, 0.1);
+        border: 2px solid rgba(255, 209, 61, 0.4);
+        border-radius: 15px;
+        padding: 20px;
+        margin-top: 25px;
+        color: #fff;
+      }
+
+      .explanation-text {
+        font-size: 1.15rem;
+        line-height: 1.7;
+      }
+
+      .explanation-text .highlight-text {
+        color: #ffd93d;
+        font-weight: 600;
+      }
+
+      .explanation-text .code-inline {
+        font-family: "Fira Code", monospace;
+        background: rgba(255, 255, 255, 0.1);
+        padding: 2px 6px;
+        border-radius: 4px;
+        font-size: 0.95rem;
+      }
+
+      /* Code section */
+      .code-section {
+        background: #1e1e1e;
+        border-radius: 10px;
+        padding: 15px;
+        margin-top: 15px;
+        overflow: hidden;
+      }
+
+      .code-header {
+        background: #333;
+        margin: -15px -15px 15px -15px;
+        padding: 8px 15px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+
+      .code-dot {
+        width: 12px;
+        height: 12px;
+        border-radius: 50%;
+      }
+      .code-dot.red {
+        background: #ff5f56;
+      }
+      .code-dot.yellow {
+        background: #ffbd2e;
+      }
+      .code-dot.green {
+        background: #27ca40;
+      }
+
+      .code-content {
+        font-family: "Fira Code", monospace;
+        font-size: 0.85rem;
+        color: #d4d4d4;
+        line-height: 1.6;
+        overflow-x: auto;
+      }
+
+      .code-line {
+        padding: 2px 0;
+        padding-left: 10px;
+        margin-left: -10px;
+        transition: all 0.3s ease;
+      }
+
+      .code-line.active {
+        background: rgba(255, 209, 61, 0.2);
+        border-left: 3px solid #ffd93d;
+      }
+
+      .code-keyword {
+        color: #c586c0;
+      }
+      .code-function {
+        color: #dcdcaa;
+      }
+      .code-variable {
+        color: #9cdcfe;
+      }
+      .code-number {
+        color: #b5cea8;
+      }
+      .code-comment {
+        color: #6a9955;
+      }
+      .code-string {
+        color: #ce9178;
+      }
+
+      /* Recursion Tree */
+      .recursion-tree {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        padding: 20px 0;
+      }
+
+      .tree-level {
+        display: flex;
+        justify-content: center;
+        gap: 20px;
+        margin: 10px 0;
+        position: relative;
+      }
+
+      .tree-node {
+        background: rgba(255, 255, 255, 0.1);
+        border: 2px solid rgba(255, 255, 255, 0.3);
+        border-radius: 8px;
+        padding: 8px 15px;
+        font-family: "Fira Code", monospace;
+        font-size: 0.85rem;
+        color: #fff;
+        position: relative;
+        transition: all 0.4s ease;
+      }
+
+      .tree-node.active {
+        background: rgba(255, 209, 61, 0.3);
+        border-color: #ffd93d;
+        box-shadow: 0 0 20px rgba(255, 209, 61, 0.4);
+      }
+
+      .tree-node.complete {
+        background: rgba(102, 187, 106, 0.3);
+        border-color: #66bb6a;
+      }
+
+      .tree-connector {
+        width: 2px;
+        height: 20px;
+        background: rgba(255, 255, 255, 0.3);
+        margin: 0 auto;
+      }
+
+      /* Chalk decorations */
+      .chalk-star {
+        position: absolute;
+        color: rgba(255, 255, 255, 0.3);
+        font-size: 2rem;
+        pointer-events: none;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="chalkboard">
+      <div class="content">
+        <!-- Header -->
+        <div class="header">
+          <h1>🔄 Reverse Nodes in K-Group</h1>
+          <div class="subtitle">
+            Recursive Approach - Call Stack Visualization
+          </div>
+          <div class="chalk-line"></div>
+        </div>
+
+        <!-- Problem Box -->
+        <div class="problem-box">
+          <p style="font-size: 1.2rem; margin-bottom: 8px">
+            <strong>Input:</strong> <code>head = [1, 2, 3, 4, 5]</code>,
+            <code>k = 2</code>
+          </p>
+          <p style="font-size: 1.2rem">
+            <strong>Expected Output:</strong> <code>[2, 1, 4, 3, 5]</code>
+          </p>
+        </div>
+
+        <!-- Controls -->
+        <div class="controls">
+          <button class="btn warning" id="prevBtn" disabled>◀ Previous</button>
+          <button class="btn primary" id="nextBtn">Next ▶</button>
+          <button class="btn" id="autoBtn">▶ Auto Play</button>
+          <button class="btn danger" id="resetBtn">↺ Reset</button>
+        </div>
+
+        <!-- Progress -->
+        <div class="progress-container">
+          <div class="progress-bar" id="progressBar" style="width: 0%"></div>
+        </div>
+
+        <!-- Step Indicator -->
+        <div class="step-indicator">
+          Step <span class="current" id="stepNum">0</span> of
+          <span id="totalSteps">15</span>
+        </div>
+
+        <!-- Main Visualization -->
+        <div class="viz-container">
+          <!-- Current Linked List State -->
+          <div class="section">
+            <div class="section-title"><span>🔗</span> Current List State</div>
+            <div class="linked-list" id="linkedList"></div>
+          </div>
+
+          <!-- Call Stack -->
+          <div class="section">
+            <div class="section-title"><span>📚</span> Call Stack</div>
+            <div class="call-stack" id="callStack">
+              <div
+                style="
+                  color: rgba(255, 255, 255, 0.4);
+                  text-align: center;
+                  padding: 20px;
+                "
+              >
+                Stack is empty
+              </div>
+            </div>
+          </div>
+
+          <!-- Reversal Visualization -->
+          <div class="section">
+            <div class="section-title">
+              <span>🔄</span> Current Reversal Operation
+            </div>
+            <div class="reversal-viz" id="reversalViz">
+              <div style="color: rgba(255, 255, 255, 0.4)">
+                No reversal in progress
+              </div>
+            </div>
+            <div class="var-tracker" id="varTracker" style="margin-top: 15px">
+              <div class="var-box">
+                <div class="var-name">prev</div>
+                <div class="var-value" id="var-prev">-</div>
+              </div>
+              <div class="var-box">
+                <div class="var-name">current</div>
+                <div class="var-value" id="var-current">-</div>
+              </div>
+              <div class="var-box">
+                <div class="var-name">count</div>
+                <div class="var-value" id="var-count">-</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Code Section -->
+          <div class="section">
+            <div class="section-title"><span>💻</span> Code Execution</div>
+            <div class="code-section">
+              <div class="code-header">
+                <div class="code-dot red"></div>
+                <div class="code-dot yellow"></div>
+                <div class="code-dot green"></div>
+              </div>
+              <div class="code-content" id="codeBlock">
+                <div class="code-line" data-line="1">
+                  <span class="code-keyword">function</span>
+                  <span class="code-function">reverseKGroup</span>(head, k) {
+                </div>
+                <div class="code-line" data-line="2">
+                  <span class="code-comment">// Check if k nodes exist</span>
+                </div>
+                <div class="code-line" data-line="3">
+                  <span class="code-keyword">let</span>
+                  <span class="code-variable">count</span> =
+                  <span class="code-number">0</span>,
+                  <span class="code-variable">curr</span> = head;
+                </div>
+                <div class="code-line" data-line="4">
+                  <span class="code-keyword">while</span> (curr && count < k) {
+                </div>
+                <div class="code-line" data-line="5">
+                  curr = curr.next; count++;
+                </div>
+                <div class="code-line" data-line="6">}</div>
+                <div class="code-line" data-line="7">
+                  <span class="code-keyword">if</span> (count < k)
+                  <span class="code-keyword">return</span> head;
+                </div>
+                <div class="code-line" data-line="8"></div>
+                <div class="code-line" data-line="9">
+                  <span class="code-comment">// Reverse k nodes</span>
+                </div>
+                <div class="code-line" data-line="10">
+                  <span class="code-keyword">let</span>
+                  <span class="code-variable">prev</span> =
+                  <span class="code-keyword">null</span>,
+                  <span class="code-variable">curr</span> = head;
+                </div>
+                <div class="code-line" data-line="11">
+                  <span class="code-keyword">for</span> (<span
+                    class="code-keyword"
+                    >let</span
+                  >
+                  i = <span class="code-number">0</span>; i < k; i++) {
+                </div>
+                <div class="code-line" data-line="12">
+                  <span class="code-keyword">let</span> next = curr.next;
+                </div>
+                <div class="code-line" data-line="13">curr.next = prev;</div>
+                <div class="code-line" data-line="14">
+                  prev = curr; curr = next;
+                </div>
+                <div class="code-line" data-line="15">}</div>
+                <div class="code-line" data-line="16"></div>
+                <div class="code-line" data-line="17">
+                  <span class="code-comment">// Recurse & connect</span>
+                </div>
+                <div class="code-line" data-line="18">
+                  head.next =
+                  <span class="code-function">reverseKGroup</span>(curr, k);
+                </div>
+                <div class="code-line" data-line="19">
+                  <span class="code-keyword">return</span> prev;
+                </div>
+                <div class="code-line" data-line="20">}</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Explanation -->
+        <div class="explanation">
+          <div class="explanation-text" id="explanation">
+            Welcome! This visualization shows the
+            <span class="highlight-text">Recursive Approach</span> for reversing
+            nodes in k-groups. Click <span class="highlight-text">Next</span> to
+            see how recursion builds the call stack and resolves from the
+            deepest level back up.
+          </div>
+        </div>
+      </div>
+
+      <!-- Decorations -->
+      <div class="chalk-star" style="top: 80px; right: 60px">✦</div>
+      <div class="chalk-star" style="bottom: 120px; left: 40px">✧</div>
+      <div class="chalk-star" style="top: 200px; left: 80px">★</div>
+    </div>
+
+    <script>
+      const steps = [
+        {
+          list: { nodes: [1, 2, 3, 4, 5], states: ["", "", "", "", ""] },
+          stack: [],
+          reversal: { nodes: [], prev: "-", current: "-", count: "-" },
+          activeLine: null,
+          explanation:
+            "We start with linked list <span class='highlight-text'>1 → 2 → 3 → 4 → 5</span> and k = 2. The recursive approach will process groups from left to right, building a call stack.",
+        },
+        {
+          list: {
+            nodes: [1, 2, 3, 4, 5],
+            states: ["checking", "checking", "", "", ""],
+          },
+          stack: [
+            {
+              id: 1,
+              head: "1",
+              status: "active",
+              action: "Checking k nodes...",
+            },
+          ],
+          reversal: { nodes: [], prev: "-", current: "1", count: "0" },
+          activeLine: 3,
+          explanation:
+            "<span class='highlight-text'>Call 1:</span> reverseKGroup(1, 2). First, we check if at least k=2 nodes exist starting from node 1.",
+        },
+        {
+          list: {
+            nodes: [1, 2, 3, 4, 5],
+            states: ["checking", "checking", "", "", ""],
+          },
+          stack: [
+            {
+              id: 1,
+              head: "1",
+              status: "active",
+              action: "count=2 ✓ (k nodes exist)",
+            },
+          ],
+          reversal: { nodes: [], prev: "-", current: "3", count: "2" },
+          activeLine: 5,
+          explanation:
+            "We traverse: count 1→2. After counting, <span class='code-inline'>count = 2</span> which equals k. ✅ We have enough nodes to reverse!",
+        },
+        {
+          list: {
+            nodes: [1, 2, 3, 4, 5],
+            states: ["processing", "processing", "", "", ""],
+          },
+          stack: [
+            {
+              id: 1,
+              head: "1",
+              status: "active",
+              action: "Reversing nodes 1,2...",
+            },
+          ],
+          reversal: { nodes: [1, 2], prev: "null", current: "1", count: "2" },
+          activeLine: 10,
+          explanation:
+            "<span class='highlight-text'>Reversing first k=2 nodes.</span> Initialize: prev = null, current = 1. We'll reverse pointers for nodes 1 and 2.",
+        },
+        {
+          list: {
+            nodes: [1, 2, 3, 4, 5],
+            states: ["processing", "processing", "", "", ""],
+          },
+          stack: [
+            {
+              id: 1,
+              head: "1",
+              status: "active",
+              action: "i=0: 1.next = null",
+            },
+          ],
+          reversal: {
+            nodes: [1, 2],
+            prev: "1",
+            current: "2",
+            count: "2",
+            arrows: ["1←"],
+          },
+          activeLine: 13,
+          explanation:
+            "<span class='highlight-text'>i=0:</span> Set 1.next = prev (null). Now prev = 1, current = 2. Node 1 now points to null.",
+        },
+        {
+          list: {
+            nodes: [1, 2, 3, 4, 5],
+            states: ["reversed", "processing", "", "", ""],
+          },
+          stack: [
+            { id: 1, head: "1", status: "active", action: "i=1: 2.next = 1" },
+          ],
+          reversal: {
+            nodes: [2, 1],
+            prev: "2",
+            current: "3",
+            count: "2",
+            arrows: ["2→1"],
+          },
+          activeLine: 14,
+          explanation:
+            "<span class='highlight-text'>i=1:</span> Set 2.next = prev (1). Now prev = 2, current = 3. Segment reversed: <span class='highlight-text'>2 → 1</span>",
+        },
+        {
+          list: {
+            nodes: [2, 1, 3, 4, 5],
+            states: ["reversed", "reversed", "", "", ""],
+          },
+          stack: [
+            {
+              id: 1,
+              head: "1",
+              status: "active",
+              action: "Reversed! Now recurse on node 3",
+            },
+          ],
+          reversal: { nodes: [2, 1], prev: "2", current: "3", count: "-" },
+          activeLine: 18,
+          explanation:
+            "First group reversed! prev = 2 (new head), original head (1) is now the tail. Now we <span class='highlight-text'>recurse</span> on the remaining list starting at node 3.",
+        },
+        {
+          list: {
+            nodes: [2, 1, 3, 4, 5],
+            states: ["reversed", "reversed", "checking", "checking", ""],
+          },
+          stack: [
+            {
+              id: 1,
+              head: "1",
+              status: "waiting",
+              action: "Waiting for recursive result...",
+            },
+            {
+              id: 2,
+              head: "3",
+              status: "active",
+              action: "Checking k nodes...",
+            },
+          ],
+          reversal: { nodes: [], prev: "-", current: "3", count: "0" },
+          activeLine: 3,
+          explanation:
+            "<span class='highlight-text'>Call 2:</span> reverseKGroup(3, 2). New stack frame! Checking if k=2 nodes exist from node 3.",
+        },
+        {
+          list: {
+            nodes: [2, 1, 3, 4, 5],
+            states: ["reversed", "reversed", "checking", "checking", ""],
+          },
+          stack: [
+            { id: 1, head: "1", status: "waiting", action: "Waiting..." },
+            { id: 2, head: "3", status: "active", action: "count=2 ✓" },
+          ],
+          reversal: { nodes: [], prev: "-", current: "5", count: "2" },
+          activeLine: 5,
+          explanation:
+            "Counted nodes 3 and 4. <span class='code-inline'>count = 2 = k</span>. ✅ Enough nodes! Proceed to reverse.",
+        },
+        {
+          list: {
+            nodes: [2, 1, 3, 4, 5],
+            states: ["reversed", "reversed", "processing", "processing", ""],
+          },
+          stack: [
+            { id: 1, head: "1", status: "waiting", action: "Waiting..." },
+            { id: 2, head: "3", status: "active", action: "Reversing 3,4..." },
+          ],
+          reversal: { nodes: [3, 4], prev: "null", current: "3", count: "2" },
+          activeLine: 10,
+          explanation:
+            "<span class='highlight-text'>Reversing second group.</span> prev = null, current = 3.",
+        },
+        {
+          list: {
+            nodes: [2, 1, 4, 3, 5],
+            states: ["reversed", "reversed", "reversed", "reversed", ""],
+          },
+          stack: [
+            { id: 1, head: "1", status: "waiting", action: "Waiting..." },
+            {
+              id: 2,
+              head: "3",
+              status: "active",
+              action: "Reversed! Recurse on node 5",
+            },
+          ],
+          reversal: { nodes: [4, 3], prev: "4", current: "5", count: "-" },
+          activeLine: 18,
+          explanation:
+            "After reversing: 4 → 3. prev = 4 (new head), tail = 3. Now <span class='highlight-text'>recurse on node 5</span>.",
+        },
+        {
+          list: {
+            nodes: [2, 1, 4, 3, 5],
+            states: [
+              "reversed",
+              "reversed",
+              "reversed",
+              "reversed",
+              "incomplete",
+            ],
+          },
+          stack: [
+            { id: 1, head: "1", status: "waiting", action: "Waiting..." },
+            { id: 2, head: "3", status: "waiting", action: "Waiting..." },
+            {
+              id: 3,
+              head: "5",
+              status: "active",
+              action: "Checking k nodes...",
+            },
+          ],
+          reversal: { nodes: [], prev: "-", current: "5", count: "0" },
+          activeLine: 4,
+          explanation:
+            "<span class='highlight-text'>Call 3:</span> reverseKGroup(5, 2). Checking if k=2 nodes exist from node 5.",
+        },
+        {
+          list: {
+            nodes: [2, 1, 4, 3, 5],
+            states: [
+              "reversed",
+              "reversed",
+              "reversed",
+              "reversed",
+              "incomplete",
+            ],
+          },
+          stack: [
+            { id: 1, head: "1", status: "waiting", action: "Waiting..." },
+            { id: 2, head: "3", status: "waiting", action: "Waiting..." },
+            {
+              id: 3,
+              head: "5",
+              status: "active",
+              action: "count=1 < k ✗ BASE CASE!",
+            },
+          ],
+          reversal: { nodes: [], prev: "-", current: "null", count: "1" },
+          activeLine: 7,
+          explanation:
+            "Only 1 node! <span class='code-inline'>count = 1 < k = 2</span>. ❌ <span class='highlight-text'>BASE CASE reached!</span> Return head (5) unchanged.",
+        },
+        {
+          list: {
+            nodes: [2, 1, 4, 3, 5],
+            states: [
+              "reversed",
+              "reversed",
+              "reversed",
+              "reversed",
+              "incomplete",
+            ],
+          },
+          stack: [
+            { id: 1, head: "1", status: "waiting", action: "Waiting..." },
+            {
+              id: 2,
+              head: "3",
+              status: "returning",
+              action: "3.next = 5, return 4",
+            },
+          ],
+          reversal: {
+            nodes: [4, 3, 5],
+            prev: "-",
+            current: "-",
+            count: "-",
+            connection: true,
+          },
+          activeLine: 18,
+          explanation:
+            "<span class='highlight-text'>Call 3 returns 5.</span> Back in Call 2: Connect tail (3) to returned value: <span class='code-inline'>3.next = 5</span>. Return prev (4).",
+        },
+        {
+          list: {
+            nodes: [2, 1, 4, 3, 5],
+            states: [
+              "reversed",
+              "reversed",
+              "reversed",
+              "reversed",
+              "incomplete",
+            ],
+          },
+          stack: [
+            {
+              id: 1,
+              head: "1",
+              status: "returning",
+              action: "1.next = 4, return 2",
+            },
+          ],
+          reversal: {
+            nodes: [2, 1, 4, 3, 5],
+            prev: "-",
+            current: "-",
+            count: "-",
+            connection: true,
+          },
+          activeLine: 18,
+          explanation:
+            "<span class='highlight-text'>Call 2 returns 4.</span> Back in Call 1: Connect tail (1) to returned value: <span class='code-inline'>1.next = 4</span>. Return prev (2).",
+        },
+        {
+          list: {
+            nodes: [2, 1, 4, 3, 5],
+            states: [
+              "reversed",
+              "reversed",
+              "reversed",
+              "reversed",
+              "incomplete",
+            ],
+          },
+          stack: [],
+          reversal: { nodes: [], prev: "-", current: "-", count: "-" },
+          activeLine: 19,
+          explanation:
+            "🎉 <span class='highlight-text'>DONE!</span> Call 1 returns 2 as the new head. Final list: <span class='highlight-text'>2 → 1 → 4 → 3 → 5</span>. The recursion elegantly handled all connections!",
+        },
+      ];
+
+      let currentStep = 0;
+      let autoPlayInterval = null;
+
+      const linkedListEl = document.getElementById("linkedList");
+      const callStackEl = document.getElementById("callStack");
+      const reversalVizEl = document.getElementById("reversalViz");
+      const explanationEl = document.getElementById("explanation");
+      const stepNumEl = document.getElementById("stepNum");
+      const totalStepsEl = document.getElementById("totalSteps");
+      const progressBar = document.getElementById("progressBar");
+      const prevBtn = document.getElementById("prevBtn");
+      const nextBtn = document.getElementById("nextBtn");
+      const autoBtn = document.getElementById("autoBtn");
+      const resetBtn = document.getElementById("resetBtn");
+
+      totalStepsEl.textContent = steps.length - 1;
+      render();
+
+      prevBtn.addEventListener("click", () => {
+        if (currentStep > 0) {
+          currentStep--;
+          render();
+        }
+      });
+
+      nextBtn.addEventListener("click", () => {
+        if (currentStep < steps.length - 1) {
+          currentStep++;
+          render();
+        }
+      });
+
+      autoBtn.addEventListener("click", () => {
+        if (autoPlayInterval) {
+          clearInterval(autoPlayInterval);
+          autoPlayInterval = null;
+          autoBtn.textContent = "▶ Auto Play";
+        } else {
+          autoBtn.textContent = "⏸ Pause";
+          autoPlayInterval = setInterval(() => {
+            if (currentStep < steps.length - 1) {
+              currentStep++;
+              render();
+            } else {
+              clearInterval(autoPlayInterval);
+              autoPlayInterval = null;
+              autoBtn.textContent = "▶ Auto Play";
+            }
+          }, 2000);
+        }
+      });
+
+      resetBtn.addEventListener("click", () => {
+        if (autoPlayInterval) {
+          clearInterval(autoPlayInterval);
+          autoPlayInterval = null;
+          autoBtn.textContent = "▶ Auto Play";
+        }
+        currentStep = 0;
+        render();
+      });
+
+      document.addEventListener("keydown", (e) => {
+        if (e.key === "ArrowRight" && currentStep < steps.length - 1) {
+          currentStep++;
+          render();
+        } else if (e.key === "ArrowLeft" && currentStep > 0) {
+          currentStep--;
+          render();
+        }
+      });
+
+      function render() {
+        const step = steps[currentStep];
+
+        stepNumEl.textContent = currentStep;
+        progressBar.style.width = `${
+          (currentStep / (steps.length - 1)) * 100
+        }%`;
+
+        prevBtn.disabled = currentStep === 0;
+        nextBtn.disabled = currentStep === steps.length - 1;
+
+        renderLinkedList(step.list);
+        renderCallStack(step.stack);
+        renderReversal(step.reversal);
+        highlightCode(step.activeLine);
+        explanationEl.innerHTML = step.explanation;
+      }
+
+      function renderLinkedList(config) {
+        const { nodes, states } = config;
+        let html = "";
+
+        nodes.forEach((val, i) => {
+          let stateClass = states[i] || "";
+          html += `<div class="node ${stateClass}">${val}</div>`;
+          if (i < nodes.length - 1) {
+            html += `<span class="arrow">→</span>`;
+          }
+        });
+        html += `<span class="arrow">→</span><span style="color: rgba(255,255,255,0.4); font-family: 'Fira Code';">null</span>`;
+        linkedListEl.innerHTML = html;
+      }
+
+      function renderCallStack(stack) {
+        if (stack.length === 0) {
+          callStackEl.innerHTML =
+            '<div style="color: rgba(255,255,255,0.4); text-align: center; padding: 20px;">Stack is empty</div>';
+          return;
+        }
+
+        let html = "";
+        // Render in reverse order (newest on top)
+        for (let i = stack.length - 1; i >= 0; i--) {
+          const frame = stack[i];
+          let statusClass = frame.status;
+          let badge = "";
+
+          if (frame.status === "returning") {
+            badge = '<span class="frame-badge return">RETURNING</span>';
+          } else if (frame.status === "active") {
+            badge = '<span class="frame-badge">ACTIVE</span>';
+          }
+
+          html += `
+                    <div class="stack-frame ${statusClass}">
+                        ${badge}
+                        <div class="frame-header">Call ${frame.id}: reverseKGroup(${frame.head}, 2)</div>
+                        <div class="frame-content">${frame.action}</div>
+                    </div>
+                `;
+        }
+        callStackEl.innerHTML = html;
+      }
+
+      function renderReversal(config) {
+        const { nodes, prev, current, count, connection } = config;
+
+        document.getElementById("var-prev").textContent = prev;
+        document.getElementById("var-current").textContent = current;
+        document.getElementById("var-count").textContent = count;
+
+        if (nodes.length === 0) {
+          reversalVizEl.innerHTML =
+            '<div style="color: rgba(255,255,255,0.4);">No reversal in progress</div>';
+          return;
+        }
+
+        let html = "";
+        nodes.forEach((val, i) => {
+          html += `<div class="reversal-node">${val}</div>`;
+          if (i < nodes.length - 1) {
+            html += `<span class="arrow active">→</span>`;
+          }
+        });
+
+        if (connection) {
+          html =
+            '<div style="color: #66bb6a; font-size: 0.9rem; width: 100%; text-align: center; margin-bottom: 10px;">✓ Connected!</div>' +
+            html;
+        }
+
+        reversalVizEl.innerHTML = html;
+      }
+
+      function highlightCode(lineNum) {
+        document.querySelectorAll(".code-line").forEach((line) => {
+          line.classList.remove("active");
+        });
+
+        if (lineNum) {
+          const line = document.querySelector(
+            `.code-line[data-line="${lineNum}"]`
+          );
+          if (line) line.classList.add("active");
+        }
+      }
+    </script>
+  </body>
+</html>
