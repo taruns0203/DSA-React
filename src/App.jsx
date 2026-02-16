@@ -15,6 +15,8 @@ import PrefixSumsVisualizer from "./pages/arrays/PrefixSum.jsx";
 import SlidingWindowVisualizer from "./pages/arrays/SlidingWindow.jsx";
 import LinkedListTopicPage from "./pages/linkedList/Home.jsx";
 import LinkedListVisualizer from "./pages/linkedList/LinkedListVisualizer.jsx";
+import StackQueueHome from "./pages/stack-queue/Home.jsx";
+import BinarySearchTreeHome from "./pages/binary-search-tree/Home.jsx";
 import { useEffect } from "react";
 
 const HLJS_THEME = `
@@ -70,6 +72,9 @@ export default function App() {
           path="/linked-list/visualizer"
           element={<LinkedListVisualizer />}
         />
+
+        <Route path="/stack-queue" element={<StackQueueHome />} />
+        <Route path="/binary-search-tree" element={<BinarySearchTreeHome />} />
         <Route
           path="/recursion"
           element={<LegacyPage sourcePath="/Recursion/index.html" />}

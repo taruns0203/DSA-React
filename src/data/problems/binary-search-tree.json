@@ -1,0 +1,218 @@
+{
+  "slug": "binary-search-tree",
+  "title": "Binary Tree & BST",
+  "techniques": {
+    "traversal": {
+      "title": "Traversal",
+      "description": "Visit every node in a specific order — inorder, preorder, postorder, or level-order — each unlocking different algorithmic insights.",
+      "icon": "🚶",
+      "color": "var(--accent)",
+      "problems": {
+        "binary-tree-inorder-traversal": {
+          "title": "Binary Tree Inorder Traversal",
+          "problemSlug": "binary-tree-inorder-traversal"
+        },
+        "binary-tree-preorder-traversal": {
+          "title": "Binary Tree Preorder Traversal",
+          "problemSlug": "binary-tree-preorder-traversal"
+        },
+        "binary-tree-postorder-traversal": {
+          "title": "Binary Tree Postorder Traversal",
+          "problemSlug": "binary-tree-postorder-traversal"
+        },
+        "binary-tree-level-order-traversal": {
+          "title": "Binary Tree Level Order Traversal",
+          "problemSlug": "binary-tree-level-order-traversal"
+        },
+        "binary-tree-zigzag-level-order-traversal": {
+          "title": "Binary Tree Zigzag Level Order Traversal",
+          "problemSlug": "binary-tree-zigzag-level-order-traversal"
+        },
+        "binary-tree-level-order-traversal-ii": {
+          "title": "Binary Tree Level Order Traversal II",
+          "problemSlug": "binary-tree-level-order-traversal-ii"
+        }
+      }
+    },
+    "construction": {
+      "title": "Construction",
+      "description": "Rebuild trees from traversal sequences or convert sorted data into balanced BSTs — mastering the inverse of traversal operations.",
+      "icon": "🏗️",
+      "color": "var(--accent-2)",
+      "problems": {
+        "construct-binary-tree-from-preorder-and-inorder-traversal": {
+          "title": "Construct Binary Tree from Preorder and Inorder Traversal",
+          "problemSlug": "construct-binary-tree-from-preorder-and-inorder-traversal"
+        },
+        "construct-binary-tree-from-inorder-and-postorder-traversal": {
+          "title": "Construct Binary Tree from Inorder and Postorder Traversal",
+          "problemSlug": "construct-binary-tree-from-inorder-and-postorder-traversal"
+        },
+        "construct-binary-tree-from-preorder-and-postorder-traversal": {
+          "title": "Construct Binary Tree from Preorder and Postorder Traversal",
+          "problemSlug": "construct-binary-tree-from-preorder-and-postorder-traversal"
+        },
+        "convert-sorted-array-to-binary-search-tree": {
+          "title": "Convert Sorted Array to Binary Search Tree",
+          "problemSlug": "convert-sorted-array-to-binary-search-tree"
+        },
+        "convert-sorted-list-to-binary-search-tree": {
+          "title": "Convert Sorted List to Binary Search Tree",
+          "problemSlug": "convert-sorted-list-to-binary-search-tree"
+        },
+        "serialize-binary-tree": {
+          "title": "Serialize Binary Tree",
+          "problemSlug": "serialize-binary-tree"
+        }
+      }
+    },
+    "mirror": {
+      "title": "Mirror & Symmetry",
+      "description": "Invert, mirror, and compare tree structures — exploiting the recursive symmetry inherent in binary trees.",
+      "icon": "🪞",
+      "color": "var(--accent-5)",
+      "problems": {
+        "invert-binary-tree": {
+          "title": "Invert Binary Tree",
+          "problemSlug": "invert-binary-tree"
+        },
+        "symmetric-tree": {
+          "title": "Symmetric Tree",
+          "problemSlug": "symmetric-tree"
+        },
+        "flip-equivalent-binary-trees": {
+          "title": "Flip Equivalent Binary Trees",
+          "problemSlug": "flip-equivalent-binary-trees"
+        },
+        "same-tree": {
+          "title": "Same Tree",
+          "problemSlug": "same-tree"
+        },
+        "subtree-of-another-tree": {
+          "title": "Subtree of Another Tree",
+          "problemSlug": "subtree-of-another-tree"
+        }
+      }
+    },
+    "pathsum": {
+      "title": "Path Sum & Root to Leaf",
+      "description": "Trace paths from root to leaf accumulating values — a pattern combining DFS backtracking with running totals.",
+      "icon": "🛤️",
+      "color": "var(--accent-3)",
+      "problems": {
+        "path-sum": {
+          "title": "Path Sum",
+          "problemSlug": "path-sum"
+        },
+        "path-sum-ii": {
+          "title": "Path Sum II",
+          "problemSlug": "path-sum-ii"
+        },
+        "sum-root-to-leaf-numbers": {
+          "title": "Sum Root to Leaf Numbers",
+          "problemSlug": "sum-root-to-leaf-numbers"
+        },
+        "binary-tree-maximum-path-sum": {
+          "title": "Binary Tree Maximum Path Sum",
+          "problemSlug": "binary-tree-maximum-path-sum"
+        },
+        "path-sum-iii": {
+          "title": "Path Sum III",
+          "problemSlug": "path-sum-iii"
+        }
+      }
+    },
+    "search": {
+      "title": "Ancestor & Search",
+      "description": "Find lowest common ancestors, search BSTs, and extract ordered statistics using the BST property and recursive decomposition.",
+      "icon": "🔍",
+      "color": "var(--accent-4)",
+      "problems": {
+        "lowest-common-ancestor-of-a-binary-tree": {
+          "title": "Lowest Common Ancestor of a Binary Tree",
+          "problemSlug": "lowest-common-ancestor-of-a-binary-tree"
+        },
+        "lca-of-bst": {
+          "title": "LCA of BST",
+          "problemSlug": "lca-of-bst"
+        },
+        "search-in-a-binary-search-tree": {
+          "title": "Search in a Binary Search Tree",
+          "problemSlug": "search-in-a-binary-search-tree"
+        },
+        "kth-smallest-element-in-bst": {
+          "title": "Kth Smallest Element in BST",
+          "problemSlug": "kth-smallest-element-in-bst"
+        },
+        "closest-binary-search-tree-value": {
+          "title": "Closest Binary Search Tree Value",
+          "problemSlug": "closest-binary-search-tree-value"
+        },
+        "lca-of-deepest-leaves": {
+          "title": "LCA of Deepest Leaves",
+          "problemSlug": "lca-of-deepest-leaves"
+        },
+        "find-mode-in-bst": {
+          "title": "Find Mode in BST",
+          "problemSlug": "find-mode-in-bst"
+        },
+        "two-sum-iv": {
+          "title": "Two Sum IV",
+          "problemSlug": "two-sum-iv"
+        }
+      }
+    },
+    "validation": {
+      "title": "Validation & Properties",
+      "description": "Measure diameter, depth, balance, and completeness — validate structural invariants that define correct BSTs and balanced trees.",
+      "icon": "✅",
+      "color": "var(--accent)",
+      "problems": {
+        "diameter-of-binary-tree": {
+          "title": "Diameter of Binary Tree",
+          "problemSlug": "diameter-of-binary-tree"
+        },
+        "count-complete-tree-nodes": {
+          "title": "Count Complete Tree Nodes",
+          "problemSlug": "count-complete-tree-nodes"
+        },
+        "balanced-binary-tree": {
+          "title": "Balanced Binary Tree",
+          "problemSlug": "balanced-binary-tree"
+        },
+        "binary-tree-longest-consecutive-sequence": {
+          "title": "Binary Tree Longest Consecutive Sequence",
+          "problemSlug": "binary-tree-longest-consecutive-sequence"
+        },
+        "subtree-of-another-tree-validation": {
+          "title": "Subtree of Another Tree",
+          "problemSlug": "subtree-of-another-tree-val"
+        },
+        "minimum-depth-of-binary-tree": {
+          "title": "Minimum Depth of Binary Tree",
+          "problemSlug": "minimum-depth-of-binary-tree"
+        },
+        "maximum-depth-of-binary-tree": {
+          "title": "Maximum Depth of Binary Tree",
+          "problemSlug": "maximum-depth-of-binary-tree"
+        },
+        "binary-tree-tilt": {
+          "title": "Binary Tree Tilt",
+          "problemSlug": "binary-tree-tilt"
+        },
+        "check-completeness-of-a-binary-tree": {
+          "title": "Check Completeness of a Binary Tree",
+          "problemSlug": "check-completeness-of-a-binary-tree"
+        },
+        "validate-binary-search-tree": {
+          "title": "Validate Binary Search Tree",
+          "problemSlug": "validate-binary-search-tree"
+        },
+        "recover-binary-search-tree": {
+          "title": "Recover Binary Search Tree",
+          "problemSlug": "recover-binary-search-tree"
+        }
+      }
+    }
+  }
+}

@@ -8,16 +8,6 @@
       "icon": "🐇🐢",
       "color": "var(--accent)",
       "problems": {
-        "linked-list-cycle": {
-          "title": "Linked List Cycle",
-          "problemSlug": "linked-list-cycle",
-          "visualLink": "/legacy/Linked-List/Medium/Detect-a-cycle/index.html"
-        },
-        "linked-list-cycle-ii": {
-          "title": "Linked List Cycle II",
-          "problemSlug": "linked-list-cycle-ii",
-          "visualLink": "/linked-list/visualizer"
-        },
         "middle-of-the-linked-list": {
           "breadcrumb": [
             "Linked List",

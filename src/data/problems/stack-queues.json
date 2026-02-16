@@ -1,0 +1,154 @@
+{
+  "slug": "stack-queues",
+  "title": "Stack & Queues",
+  "techniques": {
+    "design": {
+      "title": "Design Problems",
+      "description": "Architect data structures from scratch — implement stacks, queues, and complex systems using fundamental operations as building blocks.",
+      "icon": "🏗️",
+      "color": "var(--accent)",
+      "problems": {
+        "implement-queue-using-stacks": {
+          "title": "Implement Queue using Stacks Here",
+          "problemSlug": "implement-queue-using-stacks"
+        },
+        "implement-stack-using-queues": {
+          "title": "Implement Stack using Queues",
+          "problemSlug": "implement-stack-using-queues"
+        },
+        "design-browser-history": {
+          "title": "Design Browser History",
+          "problemSlug": "design-browser-history"
+        },
+        "design-hit-counter": {
+          "title": "Design Hit Counter",
+          "problemSlug": "design-hit-counter"
+        },
+        "design-circular-queue": {
+          "title": "Design Circular Queue",
+          "problemSlug": "design-circular-queue"
+        },
+        "design-twitter": {
+          "title": "Design Twitter",
+          "problemSlug": "design-twitter"
+        },
+        "design-snake-game": {
+          "title": "Design Snake Game",
+          "problemSlug": "design-snake-game"
+        },
+        "max-frequency-stack": {
+          "title": "Max Frequency Stack",
+          "problemSlug": "max-frequency-stack"
+        },
+        "baseball-game": {
+          "title": "Baseball Game",
+          "problemSlug": "baseball-game"
+        }
+      }
+    },
+    "monotonic": {
+      "title": "Monotonic Stack",
+      "description": "Maintain elements in strictly increasing or decreasing order to solve next-greater, previous-smaller, and histogram problems in O(n) time.",
+      "icon": "📈",
+      "color": "var(--accent-3)",
+      "problems": {
+        "next-greater-element-i": {
+          "title": "Next Greater Element I",
+          "problemSlug": "next-greater-element-i"
+        },
+        "largest-rectangle-in-histogram": {
+          "title": "Largest Rectangle in Histogram",
+          "problemSlug": "largest-rectangle-in-histogram"
+        },
+        "online-stock-span": {
+          "title": "Online Stock Span",
+          "problemSlug": "online-stock-span"
+        },
+        "daily-temperatures": {
+          "title": "Daily Temperatures",
+          "problemSlug": "daily-temperatures"
+        },
+        "remove-duplicate-letters": {
+          "title": "Remove Duplicate Letters",
+          "problemSlug": "remove-duplicate-letters"
+        }
+      }
+    },
+    "expression": {
+      "title": "Expression Evaluation",
+      "description": "Parse and evaluate mathematical expressions, nested structures, and path strings using stacks to manage operator precedence and nesting depth.",
+      "icon": "🧮",
+      "color": "var(--accent-4)",
+      "problems": {
+        "basic-calculator-ii": {
+          "title": "Basic Calculator II",
+          "problemSlug": "basic-calculator-ii"
+        },
+        "evaluate-division": {
+          "title": "Evaluate Division",
+          "problemSlug": "evaluate-division"
+        },
+        "simplify-path": {
+          "title": "Simplify Path",
+          "problemSlug": "simplify-path"
+        },
+        "basic-calculator": {
+          "title": "Basic Calculator",
+          "problemSlug": "basic-calculator"
+        },
+        "decode-string": {
+          "title": "Decode String",
+          "problemSlug": "decode-string"
+        },
+        "evaluate-reverse-polish-notation": {
+          "title": "Evaluate Reverse Polish Notation",
+          "problemSlug": "evaluate-reverse-polish-notation"
+        }
+      }
+    },
+    "sliding": {
+      "title": "Sliding Window & Monotonic Queue",
+      "description": "Combine sliding windows with deques and monotonic queues to track min/max/extremes over a moving range in amortised O(1) per step.",
+      "icon": "🪟",
+      "color": "var(--accent-5)",
+      "problems": {
+        "sliding-window-maximum": {
+          "title": "Sliding Window Maximum",
+          "problemSlug": "sliding-window-maximum"
+        },
+        "design-circular-deque": {
+          "title": "Design Circular Deque",
+          "problemSlug": "design-circular-deque"
+        },
+        "moving-average-from-data-stream": {
+          "title": "Moving Average from Data Stream",
+          "problemSlug": "moving-average-from-data-stream"
+        },
+        "first-unique-number": {
+          "title": "First Unique Number",
+          "problemSlug": "first-unique-number"
+        },
+        "max-sum-of-rectangle-no-larger-than-k": {
+          "title": "Max Sum of Rectangle No Larger Than K",
+          "problemSlug": "max-sum-of-rectangle-no-larger-than-k"
+        },
+        "middle-back-queue": {
+          "title": "Middle Back Queue",
+          "problemSlug": "middle-back-queue"
+        },
+        "shortest-subarray": {
+          "title": "Shortest Subarray",
+          "problemSlug": "shortest-subarray"
+        },
+        "max-consecutive-ones": {
+          "title": "Max Consecutive Ones",
+          "problemSlug": "max-consecutive-ones"
+        },
+        "longest-continuous-subarray-with-absolute-diff-less-than-or-equal-to-limit": {
+          "title": "Longest Continuous Subarray With Absolute Diff Less Than or Equal to Limit",
+          "problemSlug": "longest-continuous-subarray-with-absolute-diff-less-than-or-equal-to-limit"
+        }
+      }
+    }
+  }
+}

@@ -1,9 +1,13 @@
 import arraysProblems from "./arrays.json";
+import binarySearchTreeProblems from "./binary-search-tree.json";
 import linkedListProblems from "./linked-list.json";
+import stackQueuesProblems from "./stack-queues.json";
 
 const dsaDataMap = {
   [arraysProblems.slug]: arraysProblems,
+  [binarySearchTreeProblems.slug]: binarySearchTreeProblems,
   [linkedListProblems.slug]: linkedListProblems,
+  [stackQueuesProblems.slug]: stackQueuesProblems,
 };
 
 function normalizeTechnique(technique) {
