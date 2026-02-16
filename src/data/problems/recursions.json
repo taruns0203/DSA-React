@@ -1,0 +1,246 @@
+{
+  "slug": "recursions",
+  "title": "Recursion",
+  "techniques": {
+    "basic": {
+      "title": "Basic Recursion & Base Cases",
+      "description": "Understand the anatomy of recursion — base cases that terminate, recursive cases that reduce, and the call stack that tracks state. The foundation of all recursive thinking.",
+      "icon": "🔄",
+      "color": "var(--accent)",
+      "problems": {
+        "fibonacci-number": {
+          "title": "Fibonacci Number",
+          "problemSlug": "fibonacci-number"
+        },
+        "power-of-two": {
+          "title": "Power of Two",
+          "problemSlug": "power-of-two"
+        },
+        "power-of-three": {
+          "title": "Power of Three",
+          "problemSlug": "power-of-three"
+        },
+        "climbing-stairs": {
+          "title": "Climbing Stairs",
+          "problemSlug": "climbing-stairs"
+        },
+        "reverse-string": {
+          "title": "Reverse String",
+          "problemSlug": "reverse-string"
+        },
+        "sum-of-all-subset-xor-totals": {
+          "title": "Sum of All Subset XOR Totals",
+          "problemSlug": "sum-of-all-subset-xor-totals"
+        }
+      }
+    },
+    "backtrack": {
+      "title": "Backtracking",
+      "description": "Explore all candidate solutions by building choices incrementally and abandoning (backtracking) paths that violate constraints — the brute-force meets pruning paradigm.",
+      "icon": "🧭",
+      "color": "var(--accent-2)",
+      "problems": {
+        "permutations": {
+          "title": "Permutations",
+          "problemSlug": "permutations"
+        },
+        "permutations-ii": {
+          "title": "Permutations II",
+          "problemSlug": "permutations-ii"
+        },
+        "combinations": {
+          "title": "Combinations",
+          "problemSlug": "combinations"
+        },
+        "combination-sum": {
+          "title": "Combination Sum",
+          "problemSlug": "combination-sum"
+        },
+        "combination-sum-ii": {
+          "title": "Combination Sum II",
+          "problemSlug": "combination-sum-ii"
+        },
+        "subsets": {
+          "title": "Subsets",
+          "problemSlug": "subsets"
+        },
+        "subsets-ii": {
+          "title": "Subsets II",
+          "problemSlug": "subsets-ii"
+        },
+        "n-queens": {
+          "title": "N-Queens",
+          "problemSlug": "n-queens"
+        },
+        "sudoku-solver": {
+          "title": "Sudoku Solver",
+          "problemSlug": "sudoku-solver"
+        },
+        "word-search": {
+          "title": "Word Search",
+          "problemSlug": "word-search"
+        },
+        "palindrome-partitioning": {
+          "title": "Palindrome Partitioning",
+          "problemSlug": "palindrome-partitioning"
+        },
+        "letter-combinations-of-phone-number": {
+          "title": "Letter Combinations of Phone Number",
+          "problemSlug": "letter-combinations-of-phone-number"
+        }
+      }
+    },
+    "divide": {
+      "title": "Divide & Conquer",
+      "description": "Split the problem in half, solve each recursively, then merge — achieving O(n log n) for sorting, O(log n) for search, and elegant structural decomposition.",
+      "icon": "✂️",
+      "color": "var(--accent-3)",
+      "problems": {
+        "merge-sort": {
+          "title": "Merge Sort",
+          "problemSlug": "merge-sort"
+        },
+        "quick-sort": {
+          "title": "Quick Sort",
+          "problemSlug": "quick-sort"
+        },
+        "maximum-subarray": {
+          "title": "Maximum Subarray",
+          "problemSlug": "maximum-subarray"
+        },
+        "kth-largest-element": {
+          "title": "Kth Largest Element",
+          "problemSlug": "kth-largest-element"
+        },
+        "count-of-smaller-numbers-after-self": {
+          "title": "Count of Smaller Numbers After Self",
+          "problemSlug": "count-of-smaller-numbers-after-self"
+        },
+        "closest-pair-of-points": {
+          "title": "Closest Pair of Points",
+          "problemSlug": "closest-pair-of-points"
+        },
+        "different-ways-to-add-parentheses": {
+          "title": "Different Ways to Add Parentheses",
+          "problemSlug": "different-ways-to-add-parentheses"
+        }
+      }
+    },
+    "tree": {
+      "title": "Tree Recursion",
+      "description": "Trees are inherently recursive — each subtree is itself a tree. Traverse, transform, and query trees using pre/in/post-order recursive patterns.",
+      "icon": "🌳",
+      "color": "var(--accent-4)",
+      "problems": {
+        "maximum-depth-of-binary-tree": {
+          "title": "Maximum Depth of Binary Tree",
+          "problemSlug": "maximum-depth-of-binary-tree"
+        },
+        "invert-binary-tree": {
+          "title": "Invert Binary Tree",
+          "problemSlug": "invert-binary-tree"
+        },
+        "symmetric-tree": {
+          "title": "Symmetric Tree",
+          "problemSlug": "symmetric-tree"
+        },
+        "path-sum": {
+          "title": "Path Sum",
+          "problemSlug": "path-sum"
+        },
+        "lowest-common-ancestor": {
+          "title": "Lowest Common Ancestor",
+          "problemSlug": "lowest-common-ancestor"
+        },
+        "flatten-binary-tree-to-linked-list": {
+          "title": "Flatten Binary Tree to Linked List",
+          "problemSlug": "flatten-binary-tree-to-linked-list"
+        },
+        "construct-binary-tree-from-preorder-and-inorder": {
+          "title": "Construct Binary Tree from Preorder and Inorder",
+          "problemSlug": "construct-binary-tree-from-preorder-and-inorder"
+        },
+        "serialize-and-deserialize-binary-tree": {
+          "title": "Serialize and Deserialize Binary Tree",
+          "problemSlug": "serialize-and-deserialize-binary-tree"
+        }
+      }
+    },
+    "memo": {
+      "title": "Recursion with Memoization",
+      "description": "Cache sub-problem results to transform exponential recursion into polynomial time — the top-down approach to dynamic programming using a memo table or hash map.",
+      "icon": "📝",
+      "color": "var(--accent-5)",
+      "problems": {
+        "word-break": {
+          "title": "Word Break",
+          "problemSlug": "word-break"
+        },
+        "coin-change": {
+          "title": "Coin Change",
+          "problemSlug": "coin-change"
+        },
+        "unique-paths": {
+          "title": "Unique Paths",
+          "problemSlug": "unique-paths"
+        },
+        "longest-increasing-subsequence": {
+          "title": "Longest Increasing Subsequence",
+          "problemSlug": "longest-increasing-subsequence"
+        },
+        "house-robber": {
+          "title": "House Robber",
+          "problemSlug": "house-robber"
+        },
+        "decode-ways": {
+          "title": "Decode Ways",
+          "problemSlug": "decode-ways"
+        },
+        "target-sum": {
+          "title": "Target Sum",
+          "problemSlug": "target-sum"
+        },
+        "partition-equal-subset-sum": {
+          "title": "Partition Equal Subset Sum",
+          "problemSlug": "partition-equal-subset-sum"
+        }
+      }
+    },
+    "advanced": {
+      "title": "Advanced Recursion",
+      "description": "Generate all valid structures, solve constraint-satisfaction problems, and implement recursive descent parsers — patterns that push recursion to its creative limits.",
+      "icon": "🧬",
+      "color": "var(--accent-6)",
+      "problems": {
+        "generate-parentheses": {
+          "title": "Generate Parentheses",
+          "problemSlug": "generate-parentheses"
+        },
+        "regular-expression-matching": {
+          "title": "Regular Expression Matching",
+          "problemSlug": "regular-expression-matching"
+        },
+        "wildcard-matching": {
+          "title": "Wildcard Matching",
+          "problemSlug": "wildcard-matching"
+        },
+        "strobogrammatic-number-ii": {
+          "title": "Strobogrammatic Number II",
+          "problemSlug": "strobogrammatic-number-ii"
+        },
+        "expression-add-operators": {
+          "title": "Expression Add Operators",
+          "problemSlug": "expression-add-operators"
+        },
+        "remove-invalid-parentheses": {
+          "title": "Remove Invalid Parentheses",
+          "problemSlug": "remove-invalid-parentheses"
+        },
+        "optimal-account-balancing": {
+          "title": "Optimal Account Balancing",
+          "problemSlug": "optimal-account-balancing"
+        }
+      }
+    }
+  }
+}

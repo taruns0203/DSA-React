@@ -1,0 +1,206 @@
+{
+  "slug": "priority-queue",
+  "title": "Priority Queues",
+  "techniques": {
+    "kth": {
+      "title": "Finding Kth Largest/Smallest",
+      "description": "Use a min-heap of size K to efficiently track the Kth largest element in a stream, or a max-heap for the Kth smallest - O(n log k) vs sorting's O(n log n).",
+      "icon": "🏅",
+      "color": "var(--accent)",
+      "problems": {
+        "kth-largest-element-in-an-array": {
+          "title": "Kth Largest Element in an Array",
+          "problemSlug": "kth-largest-element-in-an-array"
+        },
+        "kth-smallest-element-in-a-sorted-matrix": {
+          "title": "Kth Smallest Element in a Sorted Matrix",
+          "problemSlug": "kth-smallest-element-in-a-sorted-matrix"
+        },
+        "find-median-from-data-stream": {
+          "title": "Find Median from Data Stream",
+          "problemSlug": "find-median-from-data-stream"
+        },
+        "k-closest-points-to-origin": {
+          "title": "K Closest Points to Origin",
+          "problemSlug": "k-closest-points-to-origin"
+        },
+        "kth-largest-element-in-a-stream": {
+          "title": "Kth Largest Element in a Stream",
+          "problemSlug": "kth-largest-element-in-a-stream"
+        }
+      }
+    },
+    "topk": {
+      "title": "Top K Frequent Elements",
+      "description": "Combine frequency counting with a heap to extract the K most (or least) frequent items - a pattern bridging hash maps and priority queues.",
+      "icon": "📊",
+      "color": "var(--accent-2)",
+      "problems": {
+        "top-k-frequent-elements": {
+          "title": "Top K Frequent Elements",
+          "problemSlug": "top-k-frequent-elements"
+        },
+        "sort-characters-by-frequency": {
+          "title": "Sort Characters By Frequency",
+          "problemSlug": "sort-characters-by-frequency"
+        },
+        "top-k-frequent-words": {
+          "title": "Top K Frequent Words",
+          "problemSlug": "top-k-frequent-words"
+        },
+        "top-k-frequent-elements-in-sorted-matrix": {
+          "title": "Top K Frequent Elements in Sorted Matrix",
+          "problemSlug": "top-k-frequent-elements-in-sorted-matrix"
+        },
+        "maximum-frequency-stack": {
+          "title": "Maximum Frequency Stack",
+          "problemSlug": "maximum-frequency-stack"
+        },
+        "task-scheduler": {
+          "title": "Task Scheduler",
+          "problemSlug": "task-scheduler"
+        },
+        "sort-array-by-increasing-frequency": {
+          "title": "Sort Array by Increasing Frequency",
+          "problemSlug": "sort-array-by-increasing-frequency"
+        }
+      }
+    },
+    "merge": {
+      "title": "Merge K Lists",
+      "description": "Maintain a min-heap of K list heads to always extract the global minimum - merging K sorted sequences in O(N log K) total time.",
+      "icon": "🔀",
+      "color": "var(--accent-3)",
+      "problems": {
+        "merge-k-sorted-lists": {
+          "title": "Merge K Sorted Lists",
+          "problemSlug": "merge-k-sorted-lists"
+        },
+        "merge-sorted-array": {
+          "title": "Merge Sorted Array",
+          "problemSlug": "merge-sorted-array"
+        },
+        "merge-intervals": {
+          "title": "Merge Intervals",
+          "problemSlug": "merge-intervals"
+        },
+        "find-smallest-common-number": {
+          "title": "Find Smallest Common Number",
+          "problemSlug": "find-smallest-common-number"
+        },
+        "smallest-range-covering-elements-from-k-lists": {
+          "title": "Smallest Range Covering Elements from K Lists",
+          "problemSlug": "smallest-range-covering-elements-from-k-lists"
+        },
+        "kth-smallest-value": {
+          "title": "Kth Smallest Value",
+          "problemSlug": "kth-smallest-value"
+        },
+        "k-pairs-with-smallest-sums": {
+          "title": "K Pairs with Smallest Sums",
+          "problemSlug": "k-pairs-with-smallest-sums"
+        }
+      }
+    },
+    "sliding": {
+      "title": "Sliding Window Maximum/Minimum",
+      "description": "Use a monotonic deque or heap to track the current window's extremum as it slides - achieving amortised O(1) per element for range queries.",
+      "icon": "🪟",
+      "color": "var(--accent-4)",
+      "problems": {
+        "sliding-window-maximum": {
+          "title": "Sliding Window Maximum",
+          "problemSlug": "sliding-window-maximum"
+        },
+        "maximum-sum-of-subarray-of-size-k": {
+          "title": "Maximum Sum of Subarray of Size K",
+          "problemSlug": "maximum-sum-of-subarray-of-size-k"
+        },
+        "minimum-window-substring": {
+          "title": "Minimum Window Substring",
+          "problemSlug": "minimum-window-substring"
+        },
+        "max-consecutive-ones-iii": {
+          "title": "Max Consecutive Ones III",
+          "problemSlug": "max-consecutive-ones-iii"
+        },
+        "longest-continuous-subarray-with-absolute-diff-less-than-or-equal-to-limit": {
+          "title": "Longest Continuous Subarray With Absolute Diff <= Limit",
+          "problemSlug": "longest-continuous-subarray-with-absolute-diff-less-than-or-equal-to-limit"
+        }
+      }
+    },
+    "design": {
+      "title": "Design Problems",
+      "description": "Architect systems using heaps as the scheduling backbone - leaderboards, feed ranking, hit counting, and priority-driven game state.",
+      "icon": "🏗️",
+      "color": "var(--accent-5)",
+      "problems": {
+        "design-twitter": {
+          "title": "Design Twitter",
+          "problemSlug": "design-twitter"
+        },
+        "design-hit-counter": {
+          "title": "Design Hit Counter",
+          "problemSlug": "design-hit-counter"
+        },
+        "design-browser-history": {
+          "title": "Design Browser History",
+          "problemSlug": "design-browser-history"
+        },
+        "design-snake-game": {
+          "title": "Design Snake Game",
+          "problemSlug": "design-snake-game"
+        },
+        "design-a-leaderboard": {
+          "title": "Design a Leaderboard",
+          "problemSlug": "design-a-leaderboard"
+        },
+        "design-food-rating-system": {
+          "title": "Design Food Rating System",
+          "problemSlug": "design-food-rating-system"
+        }
+      }
+    },
+    "construct": {
+      "title": "Construction & Manipulation",
+      "description": "Rearrange sequences by greedily extracting the highest-frequency character from a max-heap - ensuring spacing constraints and lexicographic order.",
+      "icon": "🧩",
+      "color": "var(--accent)",
+      "problems": {
+        "rearrange-string-k-distance-apart": {
+          "title": "Rearrange String K Distance Apart",
+          "problemSlug": "rearrange-string-k-distance-apart"
+        },
+        "reorganize-string": {
+          "title": "Reorganize String",
+          "problemSlug": "reorganize-string"
+        },
+        "rearrange-words-in-a-sentence": {
+          "title": "Rearrange Words in a Sentence",
+          "problemSlug": "rearrange-words-in-a-sentence"
+        }
+      }
+    },
+    "graphs": {
+      "title": "With Graphs",
+      "description": "Priority queues power Dijkstra's and best-first graph traversals - always expanding the most promising frontier node for shortest-path problems.",
+      "icon": "🗺️",
+      "color": "var(--accent-2)",
+      "problems": {
+        "path-with-maximum-probability": {
+          "title": "Path with Maximum Probability",
+          "problemSlug": "path-with-maximum-probability"
+        },
+        "the-maze-ii": {
+          "title": "The Maze II",
+          "problemSlug": "the-maze-ii"
+        },
+        "kth-smallest-element-in-a-sorted-matrix-graph": {
+          "title": "Kth Smallest Element in a Sorted Matrix",
+          "problemSlug": "kth-smallest-element-in-a-sorted-matrix-graph"
+        }
+      }
+    }
+  }
+}

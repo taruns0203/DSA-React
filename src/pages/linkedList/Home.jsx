@@ -99,6 +99,7 @@ const TECHNIQUES = (linkedListTechniques || []).map((technique, index) => ({
   icon: technique.icon || "🔗",
   title: technique.title || technique.id || `Technique ${index + 1}`,
   desc: technique.desc || "",
+  link: technique.link || "/linked-list/visualizer",
   color: technique.color || TECHNIQUE_COLORS[index % TECHNIQUE_COLORS.length],
   problems: (technique.problems || []).map((problem) => ({
     name:
@@ -916,7 +917,12 @@ export default function LinkedListTopicPage() {
                       </div>
                       <div className="ll-tech-info">
                         <div className="ll-tech-name ll-heading">
-                          {tech.title}
+                          <Link
+                            to={tech.link}
+                            style={{ textDecoration: "none", color: "inherit" }}
+                          >
+                            {tech.title}
+                          </Link>
                         </div>
                         <div className="ll-tech-desc">{tech.desc}</div>
                       </div>

@@ -13,10 +13,30 @@ import MergeIntervalsVisualizer from "./pages/arrays/MergeIntervals.jsx";
 import SortingVisualizer from "./pages/arrays/SortingVisualizer.jsx";
 import PrefixSumsVisualizer from "./pages/arrays/PrefixSum.jsx";
 import SlidingWindowVisualizer from "./pages/arrays/SlidingWindow.jsx";
+import DummyNodeVisualizer from "./pages/linkedList/DummyNode.jsx";
+import FastSlowVisualizer from "./pages/linkedList/Fast&Slow.jsx";
+import LinkedListRecursionVisualizer from "./pages/linkedList/Recursion.jsx";
+import InPlaceReversalVisualizer from "./pages/linkedList/InPlaceReversal.jsx";
 import LinkedListTopicPage from "./pages/linkedList/Home.jsx";
 import LinkedListVisualizer from "./pages/linkedList/LinkedListVisualizer.jsx";
 import StackQueueHome from "./pages/stack-queue/Home.jsx";
+import StackVisualizer from "./pages/stack-queue/StackVisualizer.jsx";
+import QueueVisualizer from "./pages/stack-queue/QueueVisualizer.jsx";
 import BinarySearchTreeHome from "./pages/binary-search-tree/Home.jsx";
+import BSTVisualizer from "./pages/binary-search-tree/BinarySearchTree.jsx";
+import BinaryTreeVisualizer from "./pages/binary-search-tree/BinaryTree.jsx";
+import PriorityQueueHome from "./pages/priority-queue/Home.jsx";
+import PriorityQueueVisualizer from "./pages/priority-queue/PriorityQueueVisualizer.jsx";
+import DynamicProgrammingHome from "./pages/dynamic-programming/Home.jsx";
+import DPVisualizer from "./pages/dynamic-programming/DPVisualizer.jsx";
+import GraphHome from "./pages/graphs/Home.jsx";
+import GraphVisualizer from "./pages/graphs/GraphVisualize.jsx";
+import RecursionsHome from "./pages/recursions/Home.jsx";
+import RecursionTreeVisualizer from "./pages/recursions/RecursionVisualizer.jsx";
+import BinarySearchHome from "./pages/binary-search/Home.jsx";
+import BinarySearchVisualizer from "./pages/binary-search/BSVisualizer.jsx";
+import StringsHome from "./pages/strings/Home.jsx";
+import StringVisualizer from "./pages/strings/StringVisualize.jsx";
 import { useEffect } from "react";
 
 const HLJS_THEME = `
@@ -72,9 +92,68 @@ export default function App() {
           path="/linked-list/visualizer"
           element={<LinkedListVisualizer />}
         />
+        <Route
+          path="/linked-list/dummy-node"
+          element={<DummyNodeVisualizer />}
+        />
+        <Route
+          path="/linked-list/fast-slow-pointers"
+          element={<FastSlowVisualizer />}
+        />
+        <Route
+          path="/linked-list/recursion"
+          element={<LinkedListRecursionVisualizer />}
+        />
+        <Route
+          path="/linked-list/in-place-reversal"
+          element={<InPlaceReversalVisualizer />}
+        />
 
         <Route path="/stack-queue" element={<StackQueueHome />} />
+        <Route
+          path="/stack-queue/stack-visualizer"
+          element={<StackVisualizer />}
+        />
+        <Route
+          path="/stack-queue/queue-visualizer"
+          element={<QueueVisualizer />}
+        />
         <Route path="/binary-search-tree" element={<BinarySearchTreeHome />} />
+        <Route
+          path="/binary-search-tree/binary-search-tree-visualizer"
+          element={<BSTVisualizer />}
+        />
+        <Route
+          path="/binary-search-tree/binary-tree-visualizer"
+          element={<BinaryTreeVisualizer />}
+        />
+        <Route path="/priority-queue" element={<PriorityQueueHome />} />
+        <Route
+          path="/priority-queue/priority-queue-visualizer"
+          element={<PriorityQueueVisualizer />}
+        />
+        <Route
+          path="/dynamic-programming"
+          element={<DynamicProgrammingHome />}
+        />
+        <Route
+          path="/dynamic-programming/dp-visualizer"
+          element={<DPVisualizer />}
+        />
+        <Route path="/graphs" element={<GraphHome />} />
+        <Route path="/graphs/graph-visualizer" element={<GraphVisualizer />} />
+        <Route path="/recursions" element={<RecursionsHome />} />
+        <Route
+          path="/recursions/recursion-tree-visualizer"
+          element={<RecursionTreeVisualizer />}
+        />
+        <Route path="/binary-search" element={<BinarySearchHome />} />
+        <Route
+          path="/binary-search/visualizer"
+          element={<BinarySearchVisualizer />}
+        />
+        <Route path="/strings" element={<StringsHome />} />
+        <Route path="/strings/visualizer" element={<StringVisualizer />} />
         <Route
           path="/recursion"
           element={<LegacyPage sourcePath="/Recursion/index.html" />}

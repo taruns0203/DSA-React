@@ -1,0 +1,290 @@
+{
+  "slug": "dynamic-programming",
+  "title": "Dynamic Programming",
+  "techniques": {
+    "1d": {
+      "title": "1D Dynamic Programming",
+      "description": "Build solutions from a single-dimension state — climbing stairs, house robber, and Fibonacci-style recurrences where dp[i] depends on a few prior states.",
+      "icon": "📏",
+      "color": "var(--accent)",
+      "problems": {
+        "climbing-stairs": {
+          "title": "Climbing Stairs",
+          "problemSlug": "climbing-stairs"
+        },
+        "house-robber": {
+          "title": "House Robber",
+          "problemSlug": "house-robber"
+        },
+        "house-robber-ii": {
+          "title": "House Robber II",
+          "problemSlug": "house-robber-ii"
+        },
+        "decode-ways": {
+          "title": "Decode Ways",
+          "problemSlug": "decode-ways"
+        },
+        "coin-change": {
+          "title": "Coin Change",
+          "problemSlug": "coin-change"
+        },
+        "maximum-subarray": {
+          "title": "Maximum Subarray",
+          "problemSlug": "maximum-subarray"
+        },
+        "word-break": {
+          "title": "Word Break",
+          "problemSlug": "word-break"
+        },
+        "longest-increasing-subsequence": {
+          "title": "Longest Increasing Subsequence",
+          "problemSlug": "longest-increasing-subsequence"
+        },
+        "perfect-squares": {
+          "title": "Perfect Squares",
+          "problemSlug": "perfect-squares"
+        },
+        "jump-game": {
+          "title": "Jump Game",
+          "problemSlug": "jump-game"
+        },
+        "jump-game-ii": {
+          "title": "Jump Game II",
+          "problemSlug": "jump-game-ii"
+        }
+      }
+    },
+    "2d": {
+      "title": "2D Dynamic Programming",
+      "description": "Grid and matrix problems where dp[i][j] depends on adjacent cells — path counting, minimum cost, and edit distance over a 2D state space.",
+      "icon": "🔲",
+      "color": "var(--accent-2)",
+      "problems": {
+        "unique-paths": {
+          "title": "Unique Paths",
+          "problemSlug": "unique-paths"
+        },
+        "unique-paths-ii": {
+          "title": "Unique Paths II",
+          "problemSlug": "unique-paths-ii"
+        },
+        "minimum-path-sum": {
+          "title": "Minimum Path Sum",
+          "problemSlug": "minimum-path-sum"
+        },
+        "edit-distance": {
+          "title": "Edit Distance",
+          "problemSlug": "edit-distance"
+        },
+        "maximal-square": {
+          "title": "Maximal Square",
+          "problemSlug": "maximal-square"
+        },
+        "longest-common-subsequence": {
+          "title": "Longest Common Subsequence",
+          "problemSlug": "longest-common-subsequence"
+        },
+        "interleaving-string": {
+          "title": "Interleaving String",
+          "problemSlug": "interleaving-string"
+        },
+        "distinct-subsequences": {
+          "title": "Distinct Subsequences",
+          "problemSlug": "distinct-subsequences"
+        }
+      }
+    },
+    "knapsack": {
+      "title": "Knapsack Patterns",
+      "description": "Choose items within a capacity constraint to maximise value — 0/1 knapsack, unbounded knapsack, subset sum, and partition problems.",
+      "icon": "🎒",
+      "color": "var(--accent-6)",
+      "problems": {
+        "partition-equal-subset-sum": {
+          "title": "Partition Equal Subset Sum",
+          "problemSlug": "partition-equal-subset-sum"
+        },
+        "target-sum": {
+          "title": "Target Sum",
+          "problemSlug": "target-sum"
+        },
+        "coin-change-2": {
+          "title": "Coin Change 2",
+          "problemSlug": "coin-change-2"
+        },
+        "ones-and-zeroes": {
+          "title": "Ones and Zeroes",
+          "problemSlug": "ones-and-zeroes"
+        },
+        "last-stone-weight-ii": {
+          "title": "Last Stone Weight II",
+          "problemSlug": "last-stone-weight-ii"
+        },
+        "profitable-schemes": {
+          "title": "Profitable Schemes",
+          "problemSlug": "profitable-schemes"
+        }
+      }
+    },
+    "string": {
+      "title": "String DP",
+      "description": "Compare, match, and transform strings using 2D tables — palindromes, regex matching, and subsequence counting over character pairs.",
+      "icon": "🔤",
+      "color": "var(--accent-4)",
+      "problems": {
+        "longest-palindromic-substring": {
+          "title": "Longest Palindromic Substring",
+          "problemSlug": "longest-palindromic-substring"
+        },
+        "palindromic-substrings": {
+          "title": "Palindromic Substrings",
+          "problemSlug": "palindromic-substrings"
+        },
+        "longest-palindromic-subsequence": {
+          "title": "Longest Palindromic Subsequence",
+          "problemSlug": "longest-palindromic-subsequence"
+        },
+        "regular-expression-matching": {
+          "title": "Regular Expression Matching",
+          "problemSlug": "regular-expression-matching"
+        },
+        "wildcard-matching": {
+          "title": "Wildcard Matching",
+          "problemSlug": "wildcard-matching"
+        },
+        "minimum-ascii-delete-sum": {
+          "title": "Minimum ASCII Delete Sum",
+          "problemSlug": "minimum-ascii-delete-sum"
+        }
+      }
+    },
+    "interval": {
+      "title": "Interval & Range DP",
+      "description": "Solve over contiguous sub-ranges by splitting at every midpoint — matrix chain multiplication, burst balloons, and optimal BSTs.",
+      "icon": "📐",
+      "color": "var(--accent-5)",
+      "problems": {
+        "burst-balloons": {
+          "title": "Burst Balloons",
+          "problemSlug": "burst-balloons"
+        },
+        "minimum-cost-tree-from-leaf-values": {
+          "title": "Minimum Cost Tree From Leaf Values",
+          "problemSlug": "minimum-cost-tree-from-leaf-values"
+        },
+        "stone-game": {
+          "title": "Stone Game",
+          "problemSlug": "stone-game"
+        },
+        "minimum-score-triangulation": {
+          "title": "Minimum Score Triangulation",
+          "problemSlug": "minimum-score-triangulation"
+        },
+        "strange-printer": {
+          "title": "Strange Printer",
+          "problemSlug": "strange-printer"
+        }
+      }
+    },
+    "tree": {
+      "title": "Tree DP",
+      "description": "Combine subtree solutions bottom-up via post-order traversal — house robber on trees, binary tree cameras, and maximum path sums.",
+      "icon": "🌲",
+      "color": "var(--accent-3)",
+      "problems": {
+        "house-robber-iii": {
+          "title": "House Robber III",
+          "problemSlug": "house-robber-iii"
+        },
+        "binary-tree-maximum-path-sum": {
+          "title": "Binary Tree Maximum Path Sum",
+          "problemSlug": "binary-tree-maximum-path-sum"
+        },
+        "binary-tree-cameras": {
+          "title": "Binary Tree Cameras",
+          "problemSlug": "binary-tree-cameras"
+        },
+        "unique-binary-search-trees": {
+          "title": "Unique Binary Search Trees",
+          "problemSlug": "unique-binary-search-trees"
+        },
+        "unique-binary-search-trees-ii": {
+          "title": "Unique Binary Search Trees II",
+          "problemSlug": "unique-binary-search-trees-ii"
+        },
+        "diameter-of-binary-tree": {
+          "title": "Diameter of Binary Tree",
+          "problemSlug": "diameter-of-binary-tree"
+        }
+      }
+    },
+    "state": {
+      "title": "State Machine DP",
+      "description": "Model transitions between finite states — buy/sell stocks with cooldown or transaction limits, and paint house variations.",
+      "icon": "🎭",
+      "color": "var(--accent)",
+      "problems": {
+        "best-time-to-buy-and-sell-stock": {
+          "title": "Best Time to Buy and Sell Stock",
+          "problemSlug": "best-time-to-buy-and-sell-stock"
+        },
+        "best-time-to-buy-and-sell-stock-ii": {
+          "title": "Best Time to Buy and Sell Stock II",
+          "problemSlug": "best-time-to-buy-and-sell-stock-ii"
+        },
+        "best-time-to-buy-and-sell-stock-iii": {
+          "title": "Best Time to Buy and Sell Stock III",
+          "problemSlug": "best-time-to-buy-and-sell-stock-iii"
+        },
+        "best-time-to-buy-and-sell-stock-iv": {
+          "title": "Best Time to Buy and Sell Stock IV",
+          "problemSlug": "best-time-to-buy-and-sell-stock-iv"
+        },
+        "best-time-with-cooldown": {
+          "title": "Best Time With Cooldown",
+          "problemSlug": "best-time-with-cooldown"
+        },
+        "best-time-with-transaction-fee": {
+          "title": "Best Time With Transaction Fee",
+          "problemSlug": "best-time-with-transaction-fee"
+        },
+        "paint-house": {
+          "title": "Paint House",
+          "problemSlug": "paint-house"
+        },
+        "paint-house-ii": {
+          "title": "Paint House II",
+          "problemSlug": "paint-house-ii"
+        }
+      }
+    },
+    "bitmask": {
+      "title": "Bitmask DP",
+      "description": "Encode visited/chosen subsets as bitmasks to solve permutation, assignment, and travelling salesman problems in O(2ⁿ · n) time.",
+      "icon": "🧬",
+      "color": "var(--accent-2)",
+      "problems": {
+        "shortest-path-visiting-all-nodes": {
+          "title": "Shortest Path Visiting All Nodes",
+          "problemSlug": "shortest-path-visiting-all-nodes"
+        },
+        "partition-to-k-equal-sum-subsets": {
+          "title": "Partition to K Equal Sum Subsets",
+          "problemSlug": "partition-to-k-equal-sum-subsets"
+        },
+        "can-i-win": {
+          "title": "Can I Win",
+          "problemSlug": "can-i-win"
+        },
+        "minimum-number-of-work-sessions": {
+          "title": "Minimum Number of Work Sessions",
+          "problemSlug": "minimum-number-of-work-sessions"
+        },
+        "number-of-ways-to-wear-hats": {
+          "title": "Number of Ways to Wear Hats",
+          "problemSlug": "number-of-ways-to-wear-hats"
+        }
+      }
+    }
+  }
+}

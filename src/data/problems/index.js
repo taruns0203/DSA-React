@@ -1,13 +1,25 @@
 import arraysProblems from "./arrays.json";
+import binarySearchProblems from "./binary-search.json";
 import binarySearchTreeProblems from "./binary-search-tree.json";
+import dynamicProgrammingProblems from "./dynamic-programming.json";
+import graphProblems from "./graphs.json";
 import linkedListProblems from "./linked-list.json";
+import priorityQueueProblems from "./priority-queue.json";
+import recursionsProblems from "./recursions.json";
 import stackQueuesProblems from "./stack-queues.json";
+import stringsProblems from "./strings.json";
 
 const dsaDataMap = {
   [arraysProblems.slug]: arraysProblems,
+  [binarySearchProblems.slug]: binarySearchProblems,
   [binarySearchTreeProblems.slug]: binarySearchTreeProblems,
+  [dynamicProgrammingProblems.slug]: dynamicProgrammingProblems,
+  [graphProblems.slug]: graphProblems,
   [linkedListProblems.slug]: linkedListProblems,
+  [priorityQueueProblems.slug]: priorityQueueProblems,
+  [recursionsProblems.slug]: recursionsProblems,
   [stackQueuesProblems.slug]: stackQueuesProblems,
+  [stringsProblems.slug]: stringsProblems,
 };
 
 function normalizeTechnique(technique) {

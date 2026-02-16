@@ -1,0 +1,230 @@
+{
+  "slug": "strings",
+  "title": "Strings",
+  "techniques": {
+    "basic": {
+      "title": "String Fundamentals",
+      "description": "Core string operations — reversal, rotation, comparison, and character frequency counting. Build fluency with the building blocks before tackling pattern matching.",
+      "icon": "🔤",
+      "color": "var(--accent-2)",
+      "problems": {
+        "reverse-string": {
+          "title": "Reverse String",
+          "problemSlug": "reverse-string"
+        },
+        "reverse-words-in-a-string": {
+          "title": "Reverse Words in a String",
+          "problemSlug": "reverse-words-in-a-string"
+        },
+        "valid-anagram": {
+          "title": "Valid Anagram",
+          "problemSlug": "valid-anagram"
+        },
+        "group-anagrams": {
+          "title": "Group Anagrams",
+          "problemSlug": "group-anagrams"
+        },
+        "first-unique-character-in-a-string": {
+          "title": "First Unique Character in a String",
+          "problemSlug": "first-unique-character-in-a-string"
+        },
+        "longest-common-prefix": {
+          "title": "Longest Common Prefix",
+          "problemSlug": "longest-common-prefix"
+        },
+        "roman-to-integer": {
+          "title": "Roman to Integer",
+          "problemSlug": "roman-to-integer"
+        },
+        "string-to-integer-atoi": {
+          "title": "String to Integer (atoi)",
+          "problemSlug": "string-to-integer-atoi"
+        }
+      }
+    },
+    "window": {
+      "title": "Sliding Window on Strings",
+      "description": "Maintain a character-frequency window that expands and contracts — the key to substring search, anagram detection, and minimum-window problems in O(n).",
+      "icon": "🪟",
+      "color": "var(--accent-3)",
+      "problems": {
+        "longest-substring-without-repeating-characters": {
+          "title": "Longest Substring Without Repeating Characters",
+          "problemSlug": "longest-substring-without-repeating-characters"
+        },
+        "minimum-window-substring": {
+          "title": "Minimum Window Substring",
+          "problemSlug": "minimum-window-substring"
+        },
+        "permutation-in-string": {
+          "title": "Permutation in String",
+          "problemSlug": "permutation-in-string"
+        },
+        "find-all-anagrams-in-a-string": {
+          "title": "Find All Anagrams in a String",
+          "problemSlug": "find-all-anagrams-in-a-string"
+        },
+        "longest-repeating-character-replacement": {
+          "title": "Longest Repeating Character Replacement",
+          "problemSlug": "longest-repeating-character-replacement"
+        },
+        "substring-with-concatenation-of-all-words": {
+          "title": "Substring with Concatenation of All Words",
+          "problemSlug": "substring-with-concatenation-of-all-words"
+        },
+        "fruit-into-baskets": {
+          "title": "Fruit Into Baskets",
+          "problemSlug": "fruit-into-baskets"
+        }
+      }
+    },
+    "twoptr": {
+      "title": "Two Pointers & Palindromes",
+      "description": "Converge inward from both ends or expand outward from center — the natural pattern for palindrome verification, partitioning, and symmetric string operations.",
+      "icon": "👈👉",
+      "color": "var(--accent)",
+      "problems": {
+        "valid-palindrome": {
+          "title": "Valid Palindrome",
+          "problemSlug": "valid-palindrome"
+        },
+        "valid-palindrome-ii": {
+          "title": "Valid Palindrome II",
+          "problemSlug": "valid-palindrome-ii"
+        },
+        "longest-palindromic-substring": {
+          "title": "Longest Palindromic Substring",
+          "problemSlug": "longest-palindromic-substring"
+        },
+        "palindromic-substrings": {
+          "title": "Palindromic Substrings",
+          "problemSlug": "palindromic-substrings"
+        },
+        "shortest-palindrome": {
+          "title": "Shortest Palindrome",
+          "problemSlug": "shortest-palindrome"
+        },
+        "longest-palindromic-subsequence": {
+          "title": "Longest Palindromic Subsequence",
+          "problemSlug": "longest-palindromic-subsequence"
+        }
+      }
+    },
+    "dp": {
+      "title": "String Dynamic Programming",
+      "description": "Compare two strings character by character in a 2D table — edit distance, LCS, regex matching, and interleaving. The classic O(m×n) string DP framework.",
+      "icon": "📐",
+      "color": "var(--accent-4)",
+      "problems": {
+        "edit-distance": {
+          "title": "Edit Distance",
+          "problemSlug": "edit-distance"
+        },
+        "longest-common-subsequence": {
+          "title": "Longest Common Subsequence",
+          "problemSlug": "longest-common-subsequence"
+        },
+        "regular-expression-matching": {
+          "title": "Regular Expression Matching",
+          "problemSlug": "regular-expression-matching"
+        },
+        "wildcard-matching": {
+          "title": "Wildcard Matching",
+          "problemSlug": "wildcard-matching"
+        },
+        "distinct-subsequences": {
+          "title": "Distinct Subsequences",
+          "problemSlug": "distinct-subsequences"
+        },
+        "interleaving-string": {
+          "title": "Interleaving String",
+          "problemSlug": "interleaving-string"
+        },
+        "minimum-ascii-delete-sum": {
+          "title": "Minimum ASCII Delete Sum",
+          "problemSlug": "minimum-ascii-delete-sum"
+        },
+        "word-break": {
+          "title": "Word Break",
+          "problemSlug": "word-break"
+        },
+        "word-break-ii": {
+          "title": "Word Break II",
+          "problemSlug": "word-break-ii"
+        }
+      }
+    },
+    "pattern": {
+      "title": "Pattern Matching",
+      "description": "Advanced string search algorithms — KMP prefix function, Rabin-Karp rolling hash, and trie-based multi-pattern matching for O(n+m) text search.",
+      "icon": "🔎",
+      "color": "var(--accent-5)",
+      "problems": {
+        "implement-strstr": {
+          "title": "Implement strStr()",
+          "problemSlug": "implement-strstr"
+        },
+        "repeated-string-match": {
+          "title": "Repeated String Match",
+          "problemSlug": "repeated-string-match"
+        },
+        "repeated-substring-pattern": {
+          "title": "Repeated Substring Pattern",
+          "problemSlug": "repeated-substring-pattern"
+        },
+        "shortest-palindrome-kmp": {
+          "title": "Shortest Palindrome (KMP)",
+          "problemSlug": "shortest-palindrome-kmp"
+        },
+        "longest-happy-prefix": {
+          "title": "Longest Happy Prefix",
+          "problemSlug": "longest-happy-prefix"
+        },
+        "count-unique-characters-of-all-substrings": {
+          "title": "Count Unique Characters of All Substrings",
+          "problemSlug": "count-unique-characters-of-all-substrings"
+        }
+      }
+    },
+    "build": {
+      "title": "Construction & Transformation",
+      "description": "Build, decode, compress, and reorganise strings — parentheses generation, encoding/decoding, and greedy character rearrangement under constraints.",
+      "icon": "🏗️",
+      "color": "var(--accent-6)",
+      "problems": {
+        "generate-parentheses": {
+          "title": "Generate Parentheses",
+          "problemSlug": "generate-parentheses"
+        },
+        "decode-string": {
+          "title": "Decode String",
+          "problemSlug": "decode-string"
+        },
+        "encode-and-decode-strings": {
+          "title": "Encode and Decode Strings",
+          "problemSlug": "encode-and-decode-strings"
+        },
+        "reorganize-string": {
+          "title": "Reorganize String",
+          "problemSlug": "reorganize-string"
+        },
+        "remove-all-adjacent-duplicates-in-string-ii": {
+          "title": "Remove All Adjacent Duplicates in String II",
+          "problemSlug": "remove-all-adjacent-duplicates-in-string-ii"
+        },
+        "simplify-path": {
+          "title": "Simplify Path",
+          "problemSlug": "simplify-path"
+        },
+        "basic-calculator-ii": {
+          "title": "Basic Calculator II",
+          "problemSlug": "basic-calculator-ii"
+        },
+        "multiply-strings": {
+          "title": "Multiply Strings",
+          "problemSlug": "multiply-strings"
+        }
+      }
+    }
+  }
+}

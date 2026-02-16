@@ -103,6 +103,419 @@
             }
           ]
         },
+        "intersection-of-two-linked-lists": {
+          "breadcrumb": [
+            "Linked List",
+            "Fast & Slow Pointers",
+            "Intersection of Two Linked Lists"
+          ],
+          "title": "Intersection of Two Linked Lists",
+          "difficulty": "Easy",
+          "problemSlug": "intersection-of-two-linked-lists",
+          "categoryPath": "linked-list/fast-and-slow",
+          "tags": ["Linked List", "Two Pointers", "Hashing"],
+          "description": "Given the heads of two singly linked lists headA and headB, return the node at which the two lists intersect. If the two linked lists have no intersection, return null.",
+          "examples": [
+            {
+              "input": "listA = [4,1,8,4,5], listB = [5,6,1,8,4,5]",
+              "output": "8",
+              "explanation": "The two lists intersect at node with value 8."
+            },
+            {
+              "input": "listA = [2,6,4], listB = [1,5]",
+              "output": "null",
+              "explanation": "The two lists do not intersect."
+            }
+          ],
+          "constraints": [
+            "The number of nodes in each list is in the range [0, 3 * 10⁴].",
+            "-10⁵ ≤ Node.val ≤ 10⁵",
+            "The lists are guaranteed to have no cycles."
+          ],
+          "approaches": [
+            {
+              "title": "Brute Force — Compare Every Node",
+              "badge": "Brute Force",
+              "intuition": "For each node in list A, check every node in list B to see if they are the same reference.",
+              "steps": [
+                "Traverse each node in list A.",
+                "For each node, traverse entire list B.",
+                "If nodes match by reference, return that node."
+              ],
+              "code": "var getIntersectionNode = function(headA, headB) {\n    let a = headA;\n    while (a) {\n        let b = headB;\n        while (b) {\n            if (a === b) return a;\n            b = b.next;\n        }\n        a = a.next;\n    }\n    return null;\n};",
+              "language": "javascript",
+              "timeComplexity": "O(n * m)",
+              "timeType": "bad",
+              "spaceComplexity": "O(1)",
+              "spaceType": "good",
+              "pros": ["Very straightforward", "Easy to reason about"],
+              "cons": ["Too slow for large lists"],
+              "visualLink": "/legacy/Linked-List/Fast-Slow/Intersection/1-bruteforce-visualization.html",
+              "notesLink": ""
+            },
+            {
+              "title": "Improved — Hash Set",
+              "badge": "Improved",
+              "intuition": "Store all nodes of list A in a set. Then traverse list B and check if any node exists in the set.",
+              "steps": [
+                "Traverse list A and add nodes to set.",
+                "Traverse list B.",
+                "If a node exists in set, return it."
+              ],
+              "code": "var getIntersectionNode = function(headA, headB) {\n    const set = new Set();\n    let current = headA;\n\n    while (current) {\n        set.add(current);\n        current = current.next;\n    }\n\n    current = headB;\n    while (current) {\n        if (set.has(current)) return current;\n        current = current.next;\n    }\n\n    return null;\n};",
+              "language": "javascript",
+              "timeComplexity": "O(n + m)",
+              "timeType": "good",
+              "spaceComplexity": "O(n)",
+              "spaceType": "warning",
+              "pros": ["Linear time", "Simple logic"],
+              "cons": ["Uses extra memory"],
+              "visualLink": "/legacy/Linked-List/Fast-Slow/Intersection/2-hashset-visualization.html",
+              "notesLink": ""
+            },
+            {
+              "title": "Improved — Length Difference Technique",
+              "badge": "Improved",
+              "intuition": "If the lists intersect, they share the same tail. Compute lengths, advance the longer list by the length difference, then move both together.",
+              "steps": [
+                "Compute length of both lists.",
+                "Advance pointer of longer list by difference.",
+                "Move both pointers one step at a time.",
+                "Return intersection if found."
+              ],
+              "code": "var getIntersectionNode = function(headA, headB) {\n    function getLength(head) {\n        let length = 0;\n        while (head) {\n            length++;\n            head = head.next;\n        }\n        return length;\n    }\n\n    let lenA = getLength(headA);\n    let lenB = getLength(headB);\n\n    let a = headA;\n    let b = headB;\n\n    while (lenA > lenB) {\n        a = a.next;\n        lenA--;\n    }\n\n    while (lenB > lenA) {\n        b = b.next;\n        lenB--;\n    }\n\n    while (a && b) {\n        if (a === b) return a;\n        a = a.next;\n        b = b.next;\n    }\n\n    return null;\n};",
+              "language": "javascript",
+              "timeComplexity": "O(n + m)",
+              "timeType": "good",
+              "spaceComplexity": "O(1)",
+              "spaceType": "good",
+              "pros": ["No extra memory", "Logical alignment approach"],
+              "cons": ["Requires two passes for length"],
+              "visualLink": "/legacy/Linked-List/Fast-Slow/Intersection/3-length-difference-visualization.html",
+              "notesLink": ""
+            },
+            {
+              "title": "Optimal — Two-Pointer Switching Technique",
+              "badge": "Optimal",
+              "intuition": "Traverse both lists with two pointers. When one pointer reaches the end, redirect it to the other list’s head. After at most two passes, they will meet at intersection or null.",
+              "steps": [
+                "Initialize two pointers at headA and headB.",
+                "Move both forward one step.",
+                "If a pointer reaches null, redirect it to the other list.",
+                "They will meet at intersection or null."
+              ],
+              "code": "var getIntersectionNode = function(headA, headB) {\n    if (!headA || !headB) return null;\n\n    let a = headA;\n    let b = headB;\n\n    while (a !== b) {\n        a = a ? a.next : headB;\n        b = b ? b.next : headA;\n    }\n\n    return a;\n};",
+              "language": "javascript",
+              "timeComplexity": "O(n + m)",
+              "timeType": "good",
+              "spaceComplexity": "O(1)",
+              "spaceType": "good",
+              "pros": [
+                "Most elegant solution",
+                "No length calculation needed",
+                "Single traversal logic",
+                "Interview-preferred optimal approach"
+              ],
+              "cons": ["Less intuitive initially"],
+              "visualLink": "/legacy/Linked-List/Fast-Slow/Intersection/4-pointer-switching-visualization.html",
+              "notesLink": ""
+            }
+          ]
+        },
+        "linked-list-cycle": {
+          "breadcrumb": [
+            "Linked List",
+            "Fast & Slow Pointers",
+            "Linked List Cycle"
+          ],
+          "title": "Linked List Cycle",
+          "difficulty": "Easy",
+          "problemSlug": "linked-list-cycle",
+          "categoryPath": "linked-list/fast-and-slow",
+          "tags": ["Linked List", "Two Pointers", "Hashing", "Cycle Detection"],
+          "description": "Given head, the head of a linked list, determine if the linked list has a cycle in it. Return true if there is a cycle, otherwise return false.",
+          "examples": [
+            {
+              "input": "head = [3,2,0,-4], pos = 1",
+              "output": "true",
+              "explanation": "There is a cycle in the linked list, where the tail connects to the node at index 1."
+            },
+            {
+              "input": "head = [1,2], pos = 0",
+              "output": "true",
+              "explanation": "The tail connects to the head node, forming a cycle."
+            },
+            {
+              "input": "head = [1], pos = -1",
+              "output": "false",
+              "explanation": "There is no cycle in the linked list."
+            }
+          ],
+          "constraints": [
+            "The number of nodes in the list is in the range [0, 10⁴].",
+            "-10⁵ ≤ Node.val ≤ 10⁵",
+            "pos is -1 or a valid index in the linked list."
+          ],
+          "approaches": [
+            {
+              "title": "Brute Force — Hash Set",
+              "badge": "Brute Force",
+              "intuition": "Traverse the list and store each visited node in a set. If we encounter a node that already exists in the set, a cycle exists.",
+              "steps": [
+                "Initialize empty set.",
+                "Traverse linked list.",
+                "If node already in set → return true.",
+                "Else add node to set."
+              ],
+              "code": "var hasCycle = function(head) {\n    const visited = new Set();\n    let current = head;\n\n    while (current) {\n        if (visited.has(current)) return true;\n        visited.add(current);\n        current = current.next;\n    }\n\n    return false;\n};",
+              "language": "javascript",
+              "timeComplexity": "O(n)",
+              "timeType": "good",
+              "spaceComplexity": "O(n)",
+              "spaceType": "warning",
+              "pros": ["Very simple logic", "Easy to understand"],
+              "cons": ["Uses extra memory"],
+              "visualLink": "/legacy/Linked-List/Fast-Slow/Cycle/1-hashset-visualization.html",
+              "notesLink": ""
+            },
+            {
+              "title": "Improved — Modify Node Values",
+              "badge": "Improved",
+              "intuition": "Mark visited nodes by modifying their values. If a marked node is encountered again, a cycle exists.",
+              "steps": [
+                "Traverse list.",
+                "If node.val is already marked → cycle exists.",
+                "Else mark node.val."
+              ],
+              "code": "var hasCycle = function(head) {\n    let current = head;\n\n    while (current) {\n        if (current.val === 'visited') return true;\n        current.val = 'visited';\n        current = current.next;\n    }\n\n    return false;\n};",
+              "language": "javascript",
+              "timeComplexity": "O(n)",
+              "timeType": "good",
+              "spaceComplexity": "O(1)",
+              "spaceType": "good",
+              "pros": ["Constant extra space", "Simple logic"],
+              "cons": [
+                "Modifies the input list",
+                "Not allowed in many interview scenarios"
+              ],
+              "visualLink": "/legacy/Linked-List/Fast-Slow/Cycle/2-modify-values-visualization.html",
+              "notesLink": ""
+            },
+            {
+              "title": "Optimal — Two-Pointer (Floyd’s Cycle Detection)",
+              "badge": "Optimal",
+              "intuition": "Use two pointers: slow moves one step, fast moves two steps. If there is a cycle, they will eventually meet.",
+              "steps": [
+                "Initialize slow and fast to head.",
+                "Move slow by 1 and fast by 2.",
+                "If they meet → cycle exists.",
+                "If fast reaches null → no cycle."
+              ],
+              "code": "var hasCycle = function(head) {\n    let slow = head;\n    let fast = head;\n\n    while (fast !== null && fast.next !== null) {\n        slow = slow.next;\n        fast = fast.next.next;\n\n        if (slow === fast) return true;\n    }\n\n    return false;\n};",
+              "language": "javascript",
+              "timeComplexity": "O(n)",
+              "timeType": "good",
+              "spaceComplexity": "O(1)",
+              "spaceType": "good",
+              "pros": [
+                "Constant extra space",
+                "Elegant pointer logic",
+                "Interview-standard solution"
+              ],
+              "cons": ["Requires understanding pointer speed reasoning"],
+              "visualLink": "/legacy/Linked-List/Fast-Slow/Cycle/3-floyd-visualization.html",
+              "notesLink": ""
+            }
+          ]
+        },
+        "remove-nth-node-from-end-of-list": {
+          "breadcrumb": [
+            "Linked List",
+            "Fast & Slow Pointers",
+            "Remove Nth Node From End of List"
+          ],
+          "title": "Remove Nth Node From End of List",
+          "difficulty": "Medium",
+          "problemSlug": "remove-nth-node-from-end-of-list",
+          "categoryPath": "linked-list/fast-and-slow",
+          "tags": ["Linked List", "Two Pointers", "Fast and Slow Pointer"],
+          "description": "Given the head of a linked list, remove the nth node from the end of the list and return its head.",
+          "examples": [
+            {
+              "input": "head = [1,2,3,4,5], n = 2",
+              "output": "[1,2,3,5]",
+              "explanation": "The 2nd node from the end is 4, so we remove it."
+            },
+            {
+              "input": "head = [1], n = 1",
+              "output": "[]",
+              "explanation": "Removing the only node results in an empty list."
+            },
+            {
+              "input": "head = [1,2], n = 1",
+              "output": "[1]",
+              "explanation": "The last node is removed."
+            }
+          ],
+          "constraints": [
+            "The number of nodes in the list is sz.",
+            "1 ≤ sz ≤ 30",
+            "0 ≤ Node.val ≤ 100",
+            "1 ≤ n ≤ sz"
+          ],
+          "approaches": [
+            {
+              "title": "Brute Force — Compute Length First",
+              "badge": "Brute Force",
+              "intuition": "First compute the total length of the list. The node to remove is at position (length - n) from the start.",
+              "steps": [
+                "Traverse list to compute length.",
+                "Compute indexToRemove = length - n.",
+                "Traverse again to node before that index.",
+                "Adjust pointers to skip target node."
+              ],
+              "code": "var removeNthFromEnd = function(head, n) {\n    let length = 0;\n    let current = head;\n\n    while (current) {\n        length++;\n        current = current.next;\n    }\n\n    if (length === n) return head.next;\n\n    let indexToRemove = length - n;\n    current = head;\n\n    for (let i = 1; i < indexToRemove; i++) {\n        current = current.next;\n    }\n\n    current.next = current.next.next;\n    return head;\n};",
+              "language": "javascript",
+              "timeComplexity": "O(n)",
+              "timeType": "good",
+              "spaceComplexity": "O(1)",
+              "spaceType": "good",
+              "pros": ["Easy to understand", "Straightforward logic"],
+              "cons": ["Requires two passes"],
+              "visualLink": "/legacy/Linked-List/Fast-Slow/Remove-Nth/1-length-visualization.html",
+              "notesLink": ""
+            },
+            {
+              "title": "Optimal — Two Pointers (One Pass)",
+              "badge": "Optimal",
+              "intuition": "Use two pointers with a gap of n nodes. Move fast pointer n steps ahead. Then move both pointers together until fast reaches the end. Slow will be right before the node to remove.",
+              "steps": [
+                "Create a dummy node pointing to head (handles edge cases).",
+                "Move fast pointer n steps ahead.",
+                "Move both fast and slow until fast reaches end.",
+                "Remove slow.next node."
+              ],
+              "code": "var removeNthFromEnd = function(head, n) {\n    const dummy = new ListNode(0);\n    dummy.next = head;\n\n    let slow = dummy;\n    let fast = dummy;\n\n    for (let i = 0; i <= n; i++) {\n        fast = fast.next;\n    }\n\n    while (fast) {\n        slow = slow.next;\n        fast = fast.next;\n    }\n\n    slow.next = slow.next.next;\n\n    return dummy.next;\n};",
+              "language": "javascript",
+              "timeComplexity": "O(n)",
+              "timeType": "good",
+              "spaceComplexity": "O(1)",
+              "spaceType": "good",
+              "pros": [
+                "Single pass solution",
+                "Constant extra space",
+                "Handles head removal cleanly with dummy node",
+                "Interview-preferred approach"
+              ],
+              "cons": ["Requires careful pointer handling"],
+              "visualLink": "/legacy/Linked-List/Fast-Slow/Remove-Nth/2-two-pointer-visualization.html",
+              "notesLink": ""
+            }
+          ]
+        },
+        "odd-even-linked-list": {
+          "breadcrumb": [
+            "Linked List",
+            "Fast & Slow Pointers",
+            "Odd Even Linked List"
+          ],
+          "title": "Odd Even Linked List",
+          "difficulty": "Medium",
+          "problemSlug": "odd-even-linked-list",
+          "categoryPath": "linked-list/fast-and-slow",
+          "tags": ["Linked List", "Two Pointers", "In-Place Manipulation"],
+          "description": "Given the head of a singly linked list, group all nodes with odd indices together followed by the nodes with even indices, and return the reordered list. The relative order inside the odd and even groups must remain the same.",
+          "examples": [
+            {
+              "input": "head = [1,2,3,4,5]",
+              "output": "[1,3,5,2,4]",
+              "explanation": "Odd index nodes: 1,3,5. Even index nodes: 2,4."
+            },
+            {
+              "input": "head = [2,1,3,5,6,4,7]",
+              "output": "[2,3,6,7,1,5,4]",
+              "explanation": "Nodes are rearranged preserving internal order."
+            }
+          ],
+          "constraints": [
+            "The number of nodes in the list is in the range [0, 10⁴].",
+            "-10⁶ ≤ Node.val ≤ 10⁶"
+          ],
+          "approaches": [
+            {
+              "title": "Brute Force — Store Values and Rebuild",
+              "badge": "Brute Force",
+              "intuition": "Traverse the list, store values of odd and even indexed nodes separately, then rewrite the list with odd values first followed by even values.",
+              "steps": [
+                "Traverse list and store odd-index values in array.",
+                "Store even-index values in another array.",
+                "Traverse again and overwrite node values."
+              ],
+              "code": "var oddEvenList = function(head) {\n    if (!head) return head;\n\n    const oddVals = [];\n    const evenVals = [];\n\n    let current = head;\n    let index = 1;\n\n    while (current) {\n        if (index % 2 === 1) oddVals.push(current.val);\n        else evenVals.push(current.val);\n        current = current.next;\n        index++;\n    }\n\n    current = head;\n    for (let val of oddVals.concat(evenVals)) {\n        current.val = val;\n        current = current.next;\n    }\n\n    return head;\n};",
+              "language": "javascript",
+              "timeComplexity": "O(n)",
+              "timeType": "good",
+              "spaceComplexity": "O(n)",
+              "spaceType": "warning",
+              "pros": ["Simple logic", "Easy to implement"],
+              "cons": [
+                "Uses extra memory",
+                "Does not preserve node structure (modifies values only)"
+              ],
+              "visualLink": "/legacy/Linked-List/Fast-Slow/Odd-Even/1-bruteforce-visualization.html",
+              "notesLink": ""
+            },
+            {
+              "title": "Improved — Collect Nodes Instead of Values",
+              "badge": "Improved",
+              "intuition": "Instead of storing values, store references to odd and even nodes, then reconnect them.",
+              "steps": [
+                "Traverse and store odd nodes in array.",
+                "Store even nodes in another array.",
+                "Reconnect odd nodes followed by even nodes."
+              ],
+              "code": "var oddEvenList = function(head) {\n    if (!head) return head;\n\n    const oddNodes = [];\n    const evenNodes = [];\n\n    let current = head;\n    let index = 1;\n\n    while (current) {\n        if (index % 2 === 1) oddNodes.push(current);\n        else evenNodes.push(current);\n        current = current.next;\n        index++;\n    }\n\n    const nodes = oddNodes.concat(evenNodes);\n\n    for (let i = 0; i < nodes.length - 1; i++) {\n        nodes[i].next = nodes[i + 1];\n    }\n\n    nodes[nodes.length - 1].next = null;\n\n    return nodes[0];\n};",
+              "language": "javascript",
+              "timeComplexity": "O(n)",
+              "timeType": "good",
+              "spaceComplexity": "O(n)",
+              "spaceType": "warning",
+              "pros": [
+                "Preserves node structure",
+                "Conceptually clearer than value rewrite"
+              ],
+              "cons": ["Still uses extra memory"],
+              "visualLink": "/legacy/Linked-List/Fast-Slow/Odd-Even/2-node-collection-visualization.html",
+              "notesLink": ""
+            },
+            {
+              "title": "Optimal — In-Place Pointer Manipulation",
+              "badge": "Optimal",
+              "intuition": "Maintain two chains: one for odd nodes and one for even nodes. Traverse once, rewire pointers, then connect odd chain to even chain.",
+              "steps": [
+                "Initialize odd = head, even = head.next.",
+                "Store evenHead for later connection.",
+                "Rewire odd.next and even.next alternately.",
+                "Attach even list after odd list."
+              ],
+              "code": "var oddEvenList = function(head) {\n    if (!head || !head.next) return head;\n\n    let odd = head;\n    let even = head.next;\n    const evenHead = even;\n\n    while (even && even.next) {\n        odd.next = even.next;\n        odd = odd.next;\n\n        even.next = odd.next;\n        even = even.next;\n    }\n\n    odd.next = evenHead;\n    return head;\n};",
+              "language": "javascript",
+              "timeComplexity": "O(n)",
+              "timeType": "good",
+              "spaceComplexity": "O(1)",
+              "spaceType": "good",
+              "pros": [
+                "Single pass",
+                "Constant extra space",
+                "Preserves original node objects",
+                "Interview-standard optimal solution"
+              ],
+              "cons": ["Requires careful pointer rewiring"],
+              "visualLink": "/legacy/Linked-List/Fast-Slow/Odd-Even/3-inplace-visualization.html",
+              "notesLink": ""
+            }
+          ]
+        },
         "palindrome-linked-list": {
           "title": "Palindrome Linked List",
           "problemSlug": "palindrome-linked-list",

@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 import { stackTechniques } from "../../data/stackTechniques";
+import { Link } from "react-router-dom";
 
 /* ================================================================
    STACK & QUEUES — DSA Visualizer Platform Topic Page
@@ -879,9 +880,26 @@ export default function StackQueuesTopicPage() {
                 scheduling, BFS, and buffering — together they underpin nearly
                 every algorithmic pattern.
               </p>
-              <a href="stack-queues-visualizer.html" className="sq-hero-cta">
-                Open Visualizer <span className="arr">→</span>
-              </a>
+              <div>
+                <Link
+                  to="/stack-queue/stack-visualizer"
+                  className="sq-hero-cta"
+                  style={{
+                    textDecoration: "none",
+                    color: "inherit",
+                    marginRight: "1rem",
+                  }}
+                >
+                  Stack <span className="arrow">→</span>
+                </Link>
+                <Link
+                  to="/stack-queue/queue-visualizer"
+                  className="sq-hero-cta"
+                  style={{ textDecoration: "none", color: "inherit" }}
+                >
+                  Queue <span className="arrow">→</span>
+                </Link>
+              </div>
             </div>
 
             {/* Dual animated visual */}

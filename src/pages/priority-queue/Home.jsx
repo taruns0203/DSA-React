@@ -1,4 +1,6 @@
 import { useState, useEffect, useRef, useCallback } from "react";
+import { priorityQueueTechniques } from "../../data/priorityQueueTechniques";
+import { Link } from "react-router-dom";
 
 /* ================================================================
    PRIORITY QUEUES — DSA Visualizer Platform Topic Page
@@ -137,158 +139,7 @@ const HEAP_EDGES = [
 const BUBBLE_PATH = [14, 6, 2, 0];
 
 // ─── TECHNIQUES DATA ─────────────────────────────────────────────
-const TECHNIQUES = [
-  {
-    id: "kth",
-    icon: "🏅",
-    title: "Finding Kth Largest/Smallest",
-    desc: "Use a min-heap of size K to efficiently track the Kth largest element in a stream, or a max-heap for the Kth smallest — O(n log k) vs sorting's O(n log n).",
-    accent: "var(--accent)",
-    problems: [
-      {
-        name: "Kth Largest Element in an Array",
-        slug: "kth-largest-element-in-an-array",
-      },
-      {
-        name: "Kth Smallest Element in a Sorted Matrix",
-        slug: "kth-smallest-element-in-a-sorted-matrix",
-      },
-      {
-        name: "Find Median from Data Stream",
-        slug: "find-median-from-data-stream",
-      },
-      {
-        name: "K Closest Points to Origin",
-        slug: "k-closest-points-to-origin",
-      },
-      {
-        name: "Kth Largest Element in a Stream",
-        slug: "kth-largest-element-in-a-stream",
-      },
-    ],
-  },
-  {
-    id: "topk",
-    icon: "📊",
-    title: "Top K Frequent Elements",
-    desc: "Combine frequency counting with a heap to extract the K most (or least) frequent items — a pattern bridging hash maps and priority queues.",
-    accent: "var(--accent-2)",
-    problems: [
-      { name: "Top K Frequent Elements", slug: "top-k-frequent-elements" },
-      {
-        name: "Sort Characters By Frequency",
-        slug: "sort-characters-by-frequency",
-      },
-      { name: "Top K Frequent Words", slug: "top-k-frequent-words" },
-      {
-        name: "Top K Frequent Elements in Sorted Matrix",
-        slug: "top-k-frequent-elements-in-sorted-matrix",
-      },
-      { name: "Maximum Frequency Stack", slug: "maximum-frequency-stack" },
-      { name: "Task Scheduler", slug: "task-scheduler" },
-      {
-        name: "Sort Array by Increasing Frequency",
-        slug: "sort-array-by-increasing-frequency",
-      },
-    ],
-  },
-  {
-    id: "merge",
-    icon: "🔀",
-    title: "Merge K Lists",
-    desc: "Maintain a min-heap of K list heads to always extract the global minimum — merging K sorted sequences in O(N log K) total time.",
-    accent: "var(--accent-3)",
-    problems: [
-      { name: "Merge K Sorted Lists", slug: "merge-k-sorted-lists" },
-      { name: "Merge Sorted Array", slug: "merge-sorted-array" },
-      { name: "Merge Intervals", slug: "merge-intervals" },
-      {
-        name: "Find Smallest Common Number",
-        slug: "find-smallest-common-number",
-      },
-      {
-        name: "Smallest Range Covering Elements from K Lists",
-        slug: "smallest-range-covering-elements-from-k-lists",
-      },
-      { name: "Kth Smallest Value", slug: "kth-smallest-value" },
-      {
-        name: "K Pairs with Smallest Sums",
-        slug: "k-pairs-with-smallest-sums",
-      },
-    ],
-  },
-  {
-    id: "sliding",
-    icon: "🪟",
-    title: "Sliding Window Maximum/Minimum",
-    desc: "Use a monotonic deque or heap to track the current window's extremum as it slides — achieving amortised O(1) per element for range queries.",
-    accent: "var(--accent-4)",
-    problems: [
-      { name: "Sliding Window Maximum", slug: "sliding-window-maximum" },
-      {
-        name: "Maximum Sum of Subarray of Size K",
-        slug: "maximum-sum-of-subarray-of-size-k",
-      },
-      { name: "Minimum Window Substring", slug: "minimum-window-substring" },
-      { name: "Max Consecutive Ones III", slug: "max-consecutive-ones-iii" },
-      {
-        name: "Longest Continuous Subarray With Absolute Diff ≤ Limit",
-        slug: "longest-continuous-subarray-with-absolute-diff-less-than-or-equal-to-limit",
-      },
-    ],
-  },
-  {
-    id: "design",
-    icon: "🏗️",
-    title: "Design Problems",
-    desc: "Architect systems using heaps as the scheduling backbone — leaderboards, feed ranking, hit counting, and priority-driven game state.",
-    accent: "var(--accent-5)",
-    problems: [
-      { name: "Design Twitter", slug: "design-twitter" },
-      { name: "Design Hit Counter", slug: "design-hit-counter" },
-      { name: "Design Browser History", slug: "design-browser-history" },
-      { name: "Design Snake Game", slug: "design-snake-game" },
-      { name: "Design a Leaderboard", slug: "design-a-leaderboard" },
-      { name: "Design Food Rating System", slug: "design-food-rating-system" },
-    ],
-  },
-  {
-    id: "construct",
-    icon: "🧩",
-    title: "Construction & Manipulation",
-    desc: "Rearrange sequences by greedily extracting the highest-frequency character from a max-heap — ensuring spacing constraints and lexicographic order.",
-    accent: "var(--accent)",
-    problems: [
-      {
-        name: "Rearrange String K Distance Apart",
-        slug: "rearrange-string-k-distance-apart",
-      },
-      { name: "Reorganize String", slug: "reorganize-string" },
-      {
-        name: "Rearrange Words in a Sentence",
-        slug: "rearrange-words-in-a-sentence",
-      },
-    ],
-  },
-  {
-    id: "graphs",
-    icon: "🗺️",
-    title: "With Graphs",
-    desc: "Priority queues power Dijkstra's and best-first graph traversals — always expanding the most promising frontier node for shortest-path problems.",
-    accent: "var(--accent-2)",
-    problems: [
-      {
-        name: "Path with Maximum Probability",
-        slug: "path-with-maximum-probability",
-      },
-      { name: "The Maze II", slug: "the-maze-ii" },
-      {
-        name: "Kth Smallest Element in a Sorted Matrix",
-        slug: "kth-smallest-element-in-a-sorted-matrix-graph",
-      },
-    ],
-  },
-];
+const TECHNIQUES = priorityQueueTechniques;
 
 const COMPLEXITIES = [
   { op: "Insert", val: "O(log n)", tier: "good" },
@@ -965,9 +816,17 @@ export default function PriorityQueuePage() {
                 behind Dijkstra, task scheduling, K-way merges, and median
                 tracking.
               </p>
-              <a href="priority-queue-visualizer.html" className="pq-cta">
+              <Link
+                to="/priority-queue/priority-queue-visualizer"
+                className="pq-cta"
+                style={{
+                  textDecoration: "none",
+                  color: "inherit",
+                  marginRight: "1rem",
+                }}
+              >
                 Open Visualizer <span className="ar">→</span>
-              </a>
+              </Link>
             </div>
 
             {/* Heap visual + array representation */}
@@ -1083,7 +942,7 @@ export default function PriorityQueuePage() {
                           {tech.problems.map((p, pi) => (
                             <a
                               key={pi}
-                              href={`${p.slug}-visualizer.html`}
+                              href={p.href || `${p.slug}-visualizer.html`}
                               className="pq-plink"
                             >
                               <span className="pq-pn pq-mono">

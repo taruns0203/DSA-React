@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef, useCallback } from "react";
+import { Link } from "react-router-dom";
 import { binarySearchTreeTechniques } from "../../data/binarySearchTreeTechniques";
 
 /* ================================================================
@@ -762,9 +763,33 @@ export default function BinaryTreeBSTPage() {
                 right for O(log n) search, insert, and delete — the foundation
                 of balanced trees, heaps, and segment trees.
               </p>
-              <a href="binary-tree-bst-visualizer.html" className="bt-cta">
+              <div>
+                <Link
+                  to="/binary-search-tree/binary-tree-visualizer"
+                  className="bt-cta"
+                  style={{
+                    textDecoration: "none",
+                    color: "inherit",
+                    marginRight: "1rem",
+                  }}
+                >
+                  Binary Tree <span className="arrow">→</span>
+                </Link>
+                <Link
+                  to="/binary-search-tree/binary-search-tree-visualizer"
+                  className="bt-cta"
+                  style={{
+                    textDecoration: "none",
+                    color: "inherit",
+                    marginRight: "1rem",
+                  }}
+                >
+                  Binary Search Tree <span className="arrow">→</span>
+                </Link>
+              </div>
+              {/* <a href="binary-tree-bst-visualizer.html" className="bt-cta">
                 Open Visualizer <span className="ar">→</span>
-              </a>
+              </a> */}
             </div>
 
             {/* Animated SVG Tree */}

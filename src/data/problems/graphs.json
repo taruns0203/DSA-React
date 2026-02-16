@@ -1,0 +1,246 @@
+{
+  "slug": "graphs",
+  "title": "Graphs",
+  "techniques": {
+    "bfs": {
+      "title": "BFS — Breadth-First Search",
+      "description": "Explore level by level using a queue — the go-to for shortest path in unweighted graphs, level-order traversal, and multi-source flood-fill.",
+      "icon": "🌊",
+      "color": "var(--accent)",
+      "problems": {
+        "number-of-islands": {
+          "title": "Number of Islands",
+          "problemSlug": "number-of-islands"
+        },
+        "rotting-oranges": {
+          "title": "Rotting Oranges",
+          "problemSlug": "rotting-oranges"
+        },
+        "word-ladder": {
+          "title": "Word Ladder",
+          "problemSlug": "word-ladder"
+        },
+        "shortest-path-in-binary-matrix": {
+          "title": "Shortest Path in Binary Matrix",
+          "problemSlug": "shortest-path-in-binary-matrix"
+        },
+        "open-the-lock": {
+          "title": "Open the Lock",
+          "problemSlug": "open-the-lock"
+        },
+        "minimum-knight-moves": {
+          "title": "Minimum Knight Moves",
+          "problemSlug": "minimum-knight-moves"
+        },
+        "walls-and-gates": {
+          "title": "Walls and Gates",
+          "problemSlug": "walls-and-gates"
+        },
+        "pacific-atlantic-water-flow": {
+          "title": "Pacific Atlantic Water Flow",
+          "problemSlug": "pacific-atlantic-water-flow"
+        }
+      }
+    },
+    "dfs": {
+      "title": "DFS — Depth-First Search",
+      "description": "Dive deep before backtracking using recursion or a stack — ideal for connected components, cycle detection, path enumeration, and topological ordering.",
+      "icon": "🔦",
+      "color": "var(--accent-2)",
+      "problems": {
+        "clone-graph": {
+          "title": "Clone Graph",
+          "problemSlug": "clone-graph"
+        },
+        "number-of-connected-components": {
+          "title": "Number of Connected Components",
+          "problemSlug": "number-of-connected-components"
+        },
+        "graph-valid-tree": {
+          "title": "Graph Valid Tree",
+          "problemSlug": "graph-valid-tree"
+        },
+        "all-paths-from-source-to-target": {
+          "title": "All Paths From Source to Target",
+          "problemSlug": "all-paths-from-source-to-target"
+        },
+        "surrounded-regions": {
+          "title": "Surrounded Regions",
+          "problemSlug": "surrounded-regions"
+        },
+        "max-area-of-island": {
+          "title": "Max Area of Island",
+          "problemSlug": "max-area-of-island"
+        },
+        "course-schedule": {
+          "title": "Course Schedule",
+          "problemSlug": "course-schedule"
+        },
+        "course-schedule-ii": {
+          "title": "Course Schedule II",
+          "problemSlug": "course-schedule-ii"
+        }
+      }
+    },
+    "dijkstra": {
+      "title": "Dijkstra & Shortest Paths",
+      "description": "Find shortest paths in weighted graphs using a priority queue — O((V+E) log V). Extends to Bellman-Ford for negative weights and A* for heuristic search.",
+      "icon": "⚖️",
+      "color": "var(--accent-3)",
+      "problems": {
+        "network-delay-time": {
+          "title": "Network Delay Time",
+          "problemSlug": "network-delay-time"
+        },
+        "path-with-maximum-probability": {
+          "title": "Path with Maximum Probability",
+          "problemSlug": "path-with-maximum-probability"
+        },
+        "cheapest-flights-within-k-stops": {
+          "title": "Cheapest Flights Within K Stops",
+          "problemSlug": "cheapest-flights-within-k-stops"
+        },
+        "swim-in-rising-water": {
+          "title": "Swim in Rising Water",
+          "problemSlug": "swim-in-rising-water"
+        },
+        "path-with-minimum-effort": {
+          "title": "Path with Minimum Effort",
+          "problemSlug": "path-with-minimum-effort"
+        },
+        "the-maze-ii": {
+          "title": "The Maze II",
+          "problemSlug": "the-maze-ii"
+        }
+      }
+    },
+    "topo": {
+      "title": "Topological Sort",
+      "description": "Linear ordering of DAG vertices where every edge u→v has u before v — solved via Kahn's BFS (in-degree) or DFS post-order reversal.",
+      "icon": "📐",
+      "color": "var(--accent-4)",
+      "problems": {
+        "course-schedule-topo": {
+          "title": "Course Schedule",
+          "problemSlug": "course-schedule-topo"
+        },
+        "course-schedule-ii-topo": {
+          "title": "Course Schedule II",
+          "problemSlug": "course-schedule-ii-topo"
+        },
+        "alien-dictionary": {
+          "title": "Alien Dictionary",
+          "problemSlug": "alien-dictionary"
+        },
+        "sequence-reconstruction": {
+          "title": "Sequence Reconstruction",
+          "problemSlug": "sequence-reconstruction"
+        },
+        "minimum-height-trees": {
+          "title": "Minimum Height Trees",
+          "problemSlug": "minimum-height-trees"
+        },
+        "longest-increasing-path-in-matrix": {
+          "title": "Longest Increasing Path in Matrix",
+          "problemSlug": "longest-increasing-path-in-matrix"
+        },
+        "parallel-courses": {
+          "title": "Parallel Courses",
+          "problemSlug": "parallel-courses"
+        }
+      }
+    },
+    "union": {
+      "title": "Union-Find / Disjoint Sets",
+      "description": "Track connected components with near-O(1) union and find via path compression and union by rank — essential for Kruskal's MST and dynamic connectivity.",
+      "icon": "🔗",
+      "color": "var(--accent-5)",
+      "problems": {
+        "number-of-provinces": {
+          "title": "Number of Provinces",
+          "problemSlug": "number-of-provinces"
+        },
+        "redundant-connection": {
+          "title": "Redundant Connection",
+          "problemSlug": "redundant-connection"
+        },
+        "accounts-merge": {
+          "title": "Accounts Merge",
+          "problemSlug": "accounts-merge"
+        },
+        "smallest-string-with-swaps": {
+          "title": "Smallest String With Swaps",
+          "problemSlug": "smallest-string-with-swaps"
+        },
+        "satisfiability-of-equality-equations": {
+          "title": "Satisfiability of Equality Equations",
+          "problemSlug": "satisfiability-of-equality-equations"
+        },
+        "most-stones-removed": {
+          "title": "Most Stones Removed",
+          "problemSlug": "most-stones-removed"
+        },
+        "earliest-moment-when-everyone-becomes-friends": {
+          "title": "Earliest Moment When Everyone Becomes Friends",
+          "problemSlug": "earliest-moment-when-everyone-becomes-friends"
+        }
+      }
+    },
+    "mst": {
+      "title": "Minimum Spanning Tree",
+      "description": "Connect all vertices with minimum total edge weight using Kruskal's (sort + union-find) or Prim's (priority queue) — O(E log E).",
+      "icon": "🌉",
+      "color": "var(--accent-6)",
+      "problems": {
+        "min-cost-to-connect-all-points": {
+          "title": "Min Cost to Connect All Points",
+          "problemSlug": "min-cost-to-connect-all-points"
+        },
+        "connecting-cities-with-minimum-cost": {
+          "title": "Connecting Cities With Minimum Cost",
+          "problemSlug": "connecting-cities-with-minimum-cost"
+        },
+        "optimize-water-distribution": {
+          "title": "Optimize Water Distribution",
+          "problemSlug": "optimize-water-distribution"
+        },
+        "find-critical-and-pseudo-critical-edges": {
+          "title": "Find Critical and Pseudo-Critical Edges",
+          "problemSlug": "find-critical-and-pseudo-critical-edges"
+        }
+      }
+    },
+    "advanced": {
+      "title": "Advanced Graph",
+      "description": "Bipartite checking, Euler paths, strongly connected components, articulation points, and graph colouring — structural problems requiring deeper analysis.",
+      "icon": "🧬",
+      "color": "var(--accent)",
+      "problems": {
+        "is-graph-bipartite": {
+          "title": "Is Graph Bipartite?",
+          "problemSlug": "is-graph-bipartite"
+        },
+        "possible-bipartition": {
+          "title": "Possible Bipartition",
+          "problemSlug": "possible-bipartition"
+        },
+        "critical-connections-in-a-network": {
+          "title": "Critical Connections in a Network",
+          "problemSlug": "critical-connections-in-a-network"
+        },
+        "reconstruct-itinerary": {
+          "title": "Reconstruct Itinerary",
+          "problemSlug": "reconstruct-itinerary"
+        },
+        "evaluate-division": {
+          "title": "Evaluate Division",
+          "problemSlug": "evaluate-division"
+        },
+        "graph-coloring": {
+          "title": "Graph Coloring",
+          "problemSlug": "graph-coloring"
+        }
+      }
+    }
+  }
+}
