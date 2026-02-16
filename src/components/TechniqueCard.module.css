@@ -1,0 +1,236 @@
+.card {
+  background: var(--bg-card);
+  border: 1px solid var(--border-card);
+  border-radius: var(--radius-m);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  overflow: hidden;
+  transition: background var(--transition), border-color 0.3s ease, box-shadow 0.3s ease;
+  animation: fadeUp 0.6s ease both;
+}
+
+.card:hover {
+  border-color: var(--border-hover);
+  box-shadow: var(--shadow-hover);
+}
+
+.open {
+  border-color: var(--border-hover);
+  box-shadow: var(--shadow-hover);
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 1.3rem 1.5rem;
+  cursor: pointer;
+  user-select: none;
+  transition: background 0.25s ease;
+  width: 100%;
+  background: transparent;
+  color: inherit;
+  text-align: left;
+}
+
+.header:hover {
+  background: var(--glow);
+}
+
+.header:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: -2px;
+  border-radius: var(--radius-m);
+}
+
+.icon {
+  width: 42px;
+  height: 42px;
+  border-radius: var(--radius-s);
+  display: grid;
+  place-items: center;
+  font-size: 1.15rem;
+  flex-shrink: 0;
+  transition: transform 0.35s var(--bounce), background var(--transition);
+}
+
+.card:hover .icon,
+.open .icon {
+  transform: scale(1.08) rotate(-4deg);
+}
+
+.pointers {
+  background: rgba(56, 182, 255, 0.1);
+}
+
+.intervals {
+  background: rgba(168, 85, 247, 0.1);
+}
+
+.sorting {
+  background: rgba(244, 63, 94, 0.1);
+}
+
+.info {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.name {
+  font-family: var(--font-heading);
+  font-size: 1.05rem;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  color: inherit;
+}
+
+.desc {
+  font-size: 0.82rem;
+  color: var(--text-2);
+  margin-top: 2px;
+  line-height: 1.5;
+}
+
+.count {
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+  color: var(--text-3);
+  padding: 3px 10px;
+  border-radius: 20px;
+  background: var(--bg-tag);
+  flex-shrink: 0;
+  transition: background var(--transition);
+}
+
+.chevron {
+  width: 20px;
+  height: 20px;
+  color: var(--text-3);
+  transition: transform 0.4s var(--bounce), color 0.3s ease;
+  flex-shrink: 0;
+}
+
+.open .chevron {
+  transform: rotate(180deg);
+  color: var(--accent);
+}
+
+.body {
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.open .body {
+  max-height: 600px;
+}
+
+.bodyInner {
+  padding: 0 1.5rem 1.5rem;
+  opacity: 0;
+  transform: translateY(-8px);
+  transition: opacity 0.35s ease 0.1s, transform 0.35s ease 0.1s;
+}
+
+.open .bodyInner {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.divider {
+  height: 1px;
+  background: var(--border);
+  margin-bottom: 1rem;
+}
+
+.problemsList {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.problemLink {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 14px;
+  border-radius: var(--radius-s);
+  background: var(--problem-bg);
+  transition: all 0.25s ease;
+  cursor: pointer;
+  text-decoration: none;
+  color: var(--text-1);
+  position: relative;
+  overflow: hidden;
+}
+
+.problemLink::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 3px;
+  background: linear-gradient(180deg, var(--accent), var(--accent-2));
+  opacity: 0;
+  transition: opacity 0.25s ease;
+}
+
+.problemLink:hover {
+  background: var(--problem-hover);
+  transform: translateX(4px);
+}
+
+.problemLink:hover::before {
+  opacity: 1;
+}
+
+.disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+.problemNumber {
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+  color: var(--text-3);
+  font-weight: 600;
+  width: 22px;
+  text-align: center;
+  flex-shrink: 0;
+}
+
+.problemName {
+  font-family: var(--font-heading);
+  font-size: 0.88rem;
+  font-weight: 600;
+  flex: 1;
+}
+
+.problemArrow {
+  color: var(--text-3);
+  opacity: 0;
+  transform: translateX(-6px);
+  transition: all 0.25s ease;
+  font-family: var(--font-heading);
+  font-size: 0.8rem;
+}
+
+.problemLink:hover .problemArrow {
+  opacity: 1;
+  transform: translateX(0);
+  color: var(--accent);
+}
+
+@keyframes fadeUp {
+  from {
+    opacity: 0;
+    transform: translateY(22px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}

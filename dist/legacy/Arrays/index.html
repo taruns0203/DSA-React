@@ -1,0 +1,1336 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Array — DSA Visualizer Platform</title>
+<style>
+/* =======================================================
+   THEME VARIABLES
+   ======================================================= */
+:root {
+  --transition: 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+  --bounce: cubic-bezier(0.34, 1.56, 0.64, 1);
+  --font-heading: 'Segoe UI', system-ui, sans-serif;
+  --font-body: Georgia, 'Times New Roman', serif;
+  --font-mono: 'Cascadia Code', 'Fira Code', 'SF Mono', 'Consolas', monospace;
+  --radius-s: 8px;
+  --radius-m: 14px;
+  --radius-l: 22px;
+}
+
+[data-theme="dark"] {
+  --bg-root: #060610;
+  --bg-hero: #080816;
+  --bg-section: #0a0a18;
+  --bg-card: rgba(16, 16, 38, 0.65);
+  --bg-card-hover: rgba(22, 22, 52, 0.8);
+  --bg-glass: rgba(16, 16, 42, 0.45);
+  --bg-input: rgba(20, 20, 48, 0.6);
+  --bg-tag: rgba(56, 182, 255, 0.08);
+  --text-1: #e4e4f0;
+  --text-2: #8a8aaa;
+  --text-3: #55556e;
+  --accent: #38b6ff;
+  --accent-2: #a855f7;
+  --accent-3: #f43f5e;
+  --accent-4: #22d3ee;
+  --accent-5: #34d399;
+  --border: rgba(56, 182, 255, 0.08);
+  --border-card: rgba(56, 182, 255, 0.1);
+  --border-hover: rgba(56, 182, 255, 0.25);
+  --glow: rgba(56, 182, 255, 0.06);
+  --glow-strong: rgba(56, 182, 255, 0.15);
+  --shadow-card: 0 8px 40px rgba(0, 0, 0, 0.35);
+  --shadow-hover: 0 12px 48px rgba(56, 182, 255, 0.08);
+  --hero-grad-1: #060610;
+  --hero-grad-2: #0c0c28;
+  --hero-grad-3: #100820;
+  --cell-bg: rgba(56, 182, 255, 0.04);
+  --cell-border: rgba(56, 182, 255, 0.2);
+  --cell-active: rgba(56, 182, 255, 0.12);
+  --cell-text: var(--accent);
+  --grid-line: rgba(56, 182, 255, 0.03);
+  --noise-opacity: 0.025;
+  --overlay: rgba(6, 6, 16, 0.88);
+  --problem-bg: rgba(56, 182, 255, 0.03);
+  --problem-hover: rgba(56, 182, 255, 0.08);
+  --complexity-good: #34d399;
+  --complexity-mid: #fbbf24;
+  --complexity-bad: #f43f5e;
+}
+
+[data-theme="light"] {
+  --bg-root: #f6f7fb;
+  --bg-hero: #eef0f8;
+  --bg-section: #f0f2f9;
+  --bg-card: rgba(255, 255, 255, 0.7);
+  --bg-card-hover: rgba(255, 255, 255, 0.9);
+  --bg-glass: rgba(255, 255, 255, 0.55);
+  --bg-input: rgba(240, 242, 252, 0.7);
+  --bg-tag: rgba(30, 100, 200, 0.06);
+  --text-1: #141430;
+  --text-2: #5a5a7a;
+  --text-3: #9898ae;
+  --accent: #1a6fcc;
+  --accent-2: #8b3fd9;
+  --accent-3: #dc2649;
+  --accent-4: #0891b2;
+  --accent-5: #059669;
+  --border: rgba(30, 100, 200, 0.08);
+  --border-card: rgba(30, 100, 200, 0.12);
+  --border-hover: rgba(30, 100, 200, 0.3);
+  --glow: rgba(30, 100, 200, 0.04);
+  --glow-strong: rgba(30, 100, 200, 0.08);
+  --shadow-card: 0 8px 40px rgba(30, 50, 100, 0.07);
+  --shadow-hover: 0 12px 48px rgba(30, 100, 200, 0.06);
+  --hero-grad-1: #eef0f8;
+  --hero-grad-2: #e0e4f4;
+  --hero-grad-3: #f0eaf8;
+  --cell-bg: rgba(30, 100, 200, 0.04);
+  --cell-border: rgba(30, 100, 200, 0.22);
+  --cell-active: rgba(30, 100, 200, 0.1);
+  --cell-text: var(--accent);
+  --grid-line: rgba(30, 100, 200, 0.035);
+  --noise-opacity: 0.012;
+  --overlay: rgba(246, 247, 251, 0.92);
+  --problem-bg: rgba(30, 100, 200, 0.03);
+  --problem-hover: rgba(30, 100, 200, 0.07);
+  --complexity-good: #059669;
+  --complexity-mid: #d97706;
+  --complexity-bad: #dc2649;
+}
+
+/* =======================================================
+   RESET & BASE
+   ======================================================= */
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+html { scroll-behavior: smooth; }
+
+body {
+  font-family: var(--font-body);
+  background: var(--bg-root);
+  color: var(--text-1);
+  line-height: 1.65;
+  overflow-x: hidden;
+  transition: background var(--transition), color var(--transition);
+}
+
+/* --- Noise overlay --- */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background: url("data:image/svg+xml,%3Csvg viewBox='0 0 512 512' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='1'/%3E%3C/svg%3E");
+  opacity: var(--noise-opacity);
+  pointer-events: none;
+  z-index: 10000;
+}
+
+/* --- Blueprint grid --- */
+body::after {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background:
+    linear-gradient(var(--grid-line) 1px, transparent 1px),
+    linear-gradient(90deg, var(--grid-line) 1px, transparent 1px);
+  background-size: 48px 48px;
+  pointer-events: none;
+  z-index: 0;
+}
+
+a { color: inherit; text-decoration: none; }
+
+::-webkit-scrollbar { width: 5px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--accent); border-radius: 10px; opacity: 0.4; }
+
+/* =======================================================
+   TOP BAR
+   ======================================================= */
+.topbar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 999;
+  height: 60px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 clamp(1rem, 4vw, 3rem);
+  background: var(--overlay);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  border-bottom: 1px solid var(--border);
+  transition: background var(--transition);
+}
+
+.topbar-brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-family: var(--font-heading);
+  font-weight: 700;
+  font-size: 0.95rem;
+  letter-spacing: -0.01em;
+  cursor: pointer;
+}
+
+.topbar-logo {
+  width: 32px;
+  height: 32px;
+  border-radius: var(--radius-s);
+  background: linear-gradient(135deg, var(--accent), var(--accent-2));
+  display: grid;
+  place-items: center;
+  font-size: 0.7rem;
+  font-weight: 800;
+  color: #fff;
+  letter-spacing: 0.02em;
+  position: relative;
+}
+.topbar-logo::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: var(--radius-s);
+  background: linear-gradient(135deg, transparent 50%, rgba(255,255,255,0.15));
+}
+
+.topbar-sep {
+  color: var(--text-3);
+  font-weight: 300;
+  margin: 0 2px;
+}
+
+.topbar-topic {
+  color: var(--accent);
+}
+
+.topbar-actions {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+/* --- Back button --- */
+.back-btn {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  padding: 5px 14px;
+  border-radius: var(--radius-s);
+  background: var(--bg-glass);
+  border: 1px solid var(--border-card);
+  color: var(--text-2);
+  font-family: var(--font-heading);
+  font-size: 0.78rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+.back-btn:hover {
+  color: var(--text-1);
+  border-color: var(--border-hover);
+}
+
+/* --- Theme toggle --- */
+.theme-toggle {
+  width: 50px;
+  height: 26px;
+  border-radius: 20px;
+  background: var(--bg-glass);
+  border: 1.5px solid var(--border-card);
+  cursor: pointer;
+  position: relative;
+  transition: all 0.3s ease;
+  flex-shrink: 0;
+}
+.theme-toggle:hover {
+  border-color: var(--border-hover);
+  box-shadow: 0 0 20px var(--glow);
+}
+
+.toggle-knob {
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--accent), var(--accent-2));
+  transition: transform 0.4s var(--bounce);
+  display: grid;
+  place-items: center;
+  font-size: 10px;
+}
+[data-theme="light"] .toggle-knob { transform: translateX(24px); }
+
+/* =======================================================
+   HERO SECTION
+   ======================================================= */
+.hero {
+  position: relative;
+  min-height: 88vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 100px clamp(1.5rem, 5vw, 4rem) 4rem;
+  overflow: hidden;
+}
+
+/* --- Animated gradient backdrop --- */
+.hero-gradient {
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(ellipse 70% 50% at 30% 20%, var(--hero-grad-2) 0%, transparent 70%),
+    radial-gradient(ellipse 60% 60% at 80% 70%, var(--hero-grad-3) 0%, transparent 60%),
+    var(--hero-grad-1);
+  transition: background var(--transition);
+  z-index: 0;
+}
+
+/* --- Floating orbs --- */
+.hero-orb {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(90px);
+  pointer-events: none;
+  z-index: 1;
+}
+.hero-orb--1 {
+  width: 500px; height: 500px;
+  background: var(--accent);
+  opacity: 0.08;
+  top: -15%;  right: -8%;
+  animation: orbDrift 16s ease-in-out infinite;
+}
+.hero-orb--2 {
+  width: 350px; height: 350px;
+  background: var(--accent-2);
+  opacity: 0.07;
+  bottom: -5%; left: -5%;
+  animation: orbDrift 20s ease-in-out infinite reverse;
+}
+.hero-orb--3 {
+  width: 200px; height: 200px;
+  background: var(--accent-4);
+  opacity: 0.06;
+  top: 45%; left: 55%;
+  animation: orbDrift 14s ease-in-out 3s infinite;
+}
+
+@keyframes orbDrift {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  33% { transform: translate(25px, -35px) scale(1.06); }
+  66% { transform: translate(-20px, 18px) scale(0.94); }
+}
+
+/* --- Hero content --- */
+.hero-content {
+  position: relative;
+  z-index: 2;
+  max-width: 960px;
+  width: 100%;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 4rem;
+  align-items: center;
+}
+
+@media (max-width: 800px) {
+  .hero-content {
+    grid-template-columns: 1fr;
+    gap: 2.5rem;
+    text-align: center;
+  }
+  .hero-text { align-items: center; }
+}
+
+.hero-text {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 1.2rem;
+}
+
+/* Breadcrumb */
+.hero-breadcrumb {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-family: var(--font-heading);
+  font-size: 0.72rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.13em;
+  color: var(--text-3);
+  animation: fadeUp 0.7s ease both;
+}
+.hero-breadcrumb .sep { opacity: 0.4; }
+.hero-breadcrumb .current { color: var(--accent); }
+
+/* Title */
+.hero-title {
+  font-family: var(--font-heading);
+  font-size: clamp(2.8rem, 6vw, 4.4rem);
+  font-weight: 800;
+  letter-spacing: -0.045em;
+  line-height: 1.05;
+  animation: fadeUp 0.7s ease 0.1s both;
+}
+.hero-title .thin {
+  font-weight: 300;
+  color: var(--text-2);
+}
+
+/* Subtitle / desc */
+.hero-desc {
+  font-size: clamp(0.95rem, 1.8vw, 1.08rem);
+  color: var(--text-2);
+  max-width: 440px;
+  line-height: 1.75;
+  animation: fadeUp 0.7s ease 0.2s both;
+}
+
+/* CTA button */
+.hero-cta {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: 14px 32px;
+  border-radius: var(--radius-m);
+  background: linear-gradient(135deg, var(--accent), var(--accent-2));
+  color: #fff;
+  font-family: var(--font-heading);
+  font-weight: 700;
+  font-size: 0.95rem;
+  letter-spacing: -0.01em;
+  border: none;
+  cursor: pointer;
+  position: relative;
+  overflow: hidden;
+  transition: transform 0.3s var(--bounce), box-shadow 0.3s ease;
+  animation: fadeUp 0.7s ease 0.35s both;
+  text-decoration: none;
+}
+.hero-cta::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg, transparent 40%, rgba(255,255,255,0.15));
+  transition: opacity 0.3s ease;
+}
+.hero-cta:hover {
+  transform: translateY(-3px) scale(1.02);
+  box-shadow: 0 10px 40px rgba(56, 182, 255, 0.2), 0 0 0 1px rgba(255,255,255,0.08) inset;
+}
+.hero-cta:active { transform: scale(0.98); }
+.hero-cta .arrow {
+  transition: transform 0.3s ease;
+}
+.hero-cta:hover .arrow { transform: translateX(4px); }
+
+/* --- Animated Memory Cells Diagram --- */
+.hero-visual {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1.2rem;
+  animation: fadeUp 0.8s ease 0.25s both;
+}
+
+.memory-label {
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+  color: var(--text-3);
+  text-transform: uppercase;
+  letter-spacing: 0.14em;
+  align-self: flex-start;
+}
+
+.memory-row {
+  display: flex;
+  gap: 0;
+}
+
+.memory-cell {
+  width: 64px;
+  height: 64px;
+  border: 1.5px solid var(--cell-border);
+  background: var(--cell-bg);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  transition: background 0.4s ease, border-color 0.4s ease, box-shadow 0.4s ease;
+  animation: cellReveal 0.5s ease both;
+}
+
+.memory-cell:nth-child(1) { animation-delay: 0.4s; }
+.memory-cell:nth-child(2) { animation-delay: 0.48s; }
+.memory-cell:nth-child(3) { animation-delay: 0.56s; }
+.memory-cell:nth-child(4) { animation-delay: 0.64s; }
+.memory-cell:nth-child(5) { animation-delay: 0.72s; }
+.memory-cell:nth-child(6) { animation-delay: 0.80s; }
+.memory-cell:nth-child(7) { animation-delay: 0.88s; }
+
+@keyframes cellReveal {
+  from { opacity: 0; transform: scaleX(0.3); }
+  to { opacity: 1; transform: scaleX(1); }
+}
+
+.memory-cell:first-child { border-radius: var(--radius-s) 0 0 var(--radius-s); }
+.memory-cell:last-child { border-radius: 0 var(--radius-s) var(--radius-s) 0; }
+
+.memory-cell:not(:first-child) { border-left: none; }
+
+.memory-cell .val {
+  font-family: var(--font-mono);
+  font-weight: 700;
+  font-size: 1.05rem;
+  color: var(--cell-text);
+}
+.memory-cell .idx {
+  position: absolute;
+  bottom: -22px;
+  font-family: var(--font-mono);
+  font-size: 0.6rem;
+  color: var(--text-3);
+  font-weight: 600;
+}
+.memory-cell .addr {
+  position: absolute;
+  top: -22px;
+  font-family: var(--font-mono);
+  font-size: 0.55rem;
+  color: var(--text-3);
+  opacity: 0.6;
+}
+
+.memory-cell.active {
+  background: var(--cell-active);
+  border-color: var(--accent);
+  box-shadow: 0 0 18px var(--glow-strong);
+}
+
+/* Pointer indicator that slides */
+.pointer-track {
+  width: calc(7 * 64px);
+  height: 20px;
+  position: relative;
+  margin-top: 1.2rem;
+}
+
+.pointer {
+  position: absolute;
+  top: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  transition: left 0.6s var(--bounce);
+}
+.pointer-arrow {
+  width: 0;
+  height: 0;
+  border-left: 6px solid transparent;
+  border-right: 6px solid transparent;
+  border-bottom: 8px solid var(--accent);
+}
+.pointer-label {
+  font-family: var(--font-mono);
+  font-size: 0.6rem;
+  font-weight: 700;
+  color: var(--accent);
+  margin-top: 2px;
+  letter-spacing: 0.04em;
+}
+
+/* Complexity ribbon */
+.complexity-strip {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+  margin-top: 0.6rem;
+  animation: fadeUp 0.7s ease 0.9s both;
+}
+
+.complexity-chip {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  padding: 4px 12px;
+  border-radius: 20px;
+  background: var(--bg-glass);
+  border: 1px solid var(--border-card);
+  font-family: var(--font-mono);
+  font-size: 0.65rem;
+  font-weight: 600;
+  backdrop-filter: blur(8px);
+  transition: background var(--transition), border-color var(--transition);
+}
+.complexity-chip .op {
+  color: var(--text-3);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+.complexity-chip .big-o { font-weight: 700; }
+.complexity-chip .big-o.good { color: var(--complexity-good); }
+.complexity-chip .big-o.mid { color: var(--complexity-mid); }
+.complexity-chip .big-o.bad { color: var(--complexity-bad); }
+
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(22px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* =======================================================
+   SECTION COMMON
+   ======================================================= */
+.section {
+  padding: 5rem clamp(1.5rem, 5vw, 4rem);
+  position: relative;
+  z-index: 1;
+}
+
+.section-inner {
+  max-width: 920px;
+  margin: 0 auto;
+}
+
+.section-header {
+  margin-bottom: 2.5rem;
+  animation: fadeUp 0.6s ease both;
+}
+
+.section-eyebrow {
+  font-family: var(--font-heading);
+  font-size: 0.68rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.16em;
+  color: var(--accent);
+  margin-bottom: 0.5rem;
+}
+
+.section-title {
+  font-family: var(--font-heading);
+  font-size: clamp(1.5rem, 3.5vw, 2rem);
+  font-weight: 800;
+  letter-spacing: -0.035em;
+}
+
+.section-subtitle {
+  color: var(--text-2);
+  font-size: 0.95rem;
+  margin-top: 0.4rem;
+  max-width: 560px;
+}
+
+/* =======================================================
+   TECHNIQUE ACCORDION CARDS
+   ======================================================= */
+.techniques-list {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.technique-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border-card);
+  border-radius: var(--radius-m);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  overflow: hidden;
+  transition: background var(--transition), border-color 0.3s ease, box-shadow 0.3s ease;
+  animation: fadeUp 0.6s ease both;
+}
+.technique-card:nth-child(1) { animation-delay: 0.05s; }
+.technique-card:nth-child(2) { animation-delay: 0.12s; }
+.technique-card:nth-child(3) { animation-delay: 0.19s; }
+
+.technique-card:hover {
+  border-color: var(--border-hover);
+  box-shadow: var(--shadow-hover);
+}
+
+.technique-card.open {
+  border-color: var(--border-hover);
+  box-shadow: var(--shadow-hover);
+}
+
+/* --- Card header (clickable) --- */
+.technique-header {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 1.3rem 1.5rem;
+  cursor: pointer;
+  user-select: none;
+  transition: background 0.25s ease;
+}
+.technique-header:hover {
+  background: var(--glow);
+}
+
+.technique-icon {
+  width: 42px;
+  height: 42px;
+  border-radius: var(--radius-s);
+  display: grid;
+  place-items: center;
+  font-size: 1.15rem;
+  flex-shrink: 0;
+  transition: transform 0.35s var(--bounce), background var(--transition);
+}
+.technique-card:hover .technique-icon,
+.technique-card.open .technique-icon {
+  transform: scale(1.08) rotate(-4deg);
+}
+
+.technique-icon--pointers { background: rgba(56, 182, 255, 0.1); }
+.technique-icon--intervals { background: rgba(168, 85, 247, 0.1); }
+.technique-icon--sorting { background: rgba(244, 63, 94, 0.1); }
+
+.technique-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.technique-name {
+  font-family: var(--font-heading);
+  font-size: 1.05rem;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+}
+
+.technique-desc {
+  font-size: 0.82rem;
+  color: var(--text-2);
+  margin-top: 2px;
+  line-height: 1.5;
+}
+
+.technique-count {
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+  color: var(--text-3);
+  padding: 3px 10px;
+  border-radius: 20px;
+  background: var(--bg-tag);
+  flex-shrink: 0;
+  transition: background var(--transition);
+}
+
+.technique-chevron {
+  width: 20px;
+  height: 20px;
+  color: var(--text-3);
+  transition: transform 0.4s var(--bounce), color 0.3s ease;
+  flex-shrink: 0;
+}
+.technique-card.open .technique-chevron {
+  transform: rotate(180deg);
+  color: var(--accent);
+}
+
+/* --- Expandable body --- */
+.technique-body {
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.technique-card.open .technique-body {
+  max-height: 600px;
+}
+
+.technique-body-inner {
+  padding: 0 1.5rem 1.5rem;
+  opacity: 0;
+  transform: translateY(-8px);
+  transition: opacity 0.35s ease 0.1s, transform 0.35s ease 0.1s;
+}
+.technique-card.open .technique-body-inner {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* --- Separator --- */
+.problems-divider {
+  height: 1px;
+  background: var(--border);
+  margin-bottom: 1rem;
+}
+
+/* --- Problem list --- */
+.problems-list {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.problem-link {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 14px;
+  border-radius: var(--radius-s);
+  background: var(--problem-bg);
+  transition: all 0.25s ease;
+  cursor: pointer;
+  text-decoration: none;
+  color: var(--text-1);
+  position: relative;
+  overflow: hidden;
+}
+.problem-link::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 3px;
+  background: linear-gradient(180deg, var(--accent), var(--accent-2));
+  opacity: 0;
+  transition: opacity 0.25s ease;
+}
+.problem-link:hover {
+  background: var(--problem-hover);
+  transform: translateX(4px);
+}
+.problem-link:hover::before { opacity: 1; }
+
+.problem-number {
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+  color: var(--text-3);
+  font-weight: 600;
+  width: 22px;
+  text-align: center;
+  flex-shrink: 0;
+}
+
+.problem-name {
+  font-family: var(--font-heading);
+  font-size: 0.88rem;
+  font-weight: 600;
+  flex: 1;
+}
+
+.problem-arrow {
+  color: var(--text-3);
+  opacity: 0;
+  transform: translateX(-6px);
+  transition: all 0.25s ease;
+  font-family: var(--font-heading);
+  font-size: 0.8rem;
+}
+.problem-link:hover .problem-arrow {
+  opacity: 1;
+  transform: translateX(0);
+  color: var(--accent);
+}
+
+/* =======================================================
+   INFO STRIP (between hero and techniques)
+   ======================================================= */
+.info-strip {
+  position: relative;
+  z-index: 1;
+  padding: 0 clamp(1.5rem, 5vw, 4rem);
+}
+
+.info-strip-inner {
+  max-width: 920px;
+  margin: -2rem auto 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1rem;
+}
+
+.info-card {
+  background: var(--bg-card);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid var(--border-card);
+  border-radius: var(--radius-m);
+  padding: 1.3rem 1.4rem;
+  transition: all 0.35s ease;
+  animation: fadeUp 0.6s ease both;
+}
+.info-card:nth-child(1) { animation-delay: 0.5s; }
+.info-card:nth-child(2) { animation-delay: 0.58s; }
+.info-card:nth-child(3) { animation-delay: 0.66s; }
+.info-card:nth-child(4) { animation-delay: 0.74s; }
+
+.info-card:hover {
+  border-color: var(--border-hover);
+  box-shadow: var(--shadow-hover);
+  transform: translateY(-2px);
+}
+
+.info-card-icon {
+  font-size: 1.3rem;
+  margin-bottom: 0.6rem;
+}
+
+.info-card-title {
+  font-family: var(--font-heading);
+  font-size: 0.8rem;
+  font-weight: 700;
+  margin-bottom: 0.3rem;
+  letter-spacing: -0.01em;
+}
+
+.info-card-text {
+  font-size: 0.78rem;
+  color: var(--text-2);
+  line-height: 1.55;
+}
+
+/* =======================================================
+   FOOTER
+   ======================================================= */
+.footer {
+  position: relative;
+  z-index: 1;
+  padding: 2.5rem clamp(1.5rem, 5vw, 4rem);
+  text-align: center;
+  border-top: 1px solid var(--border);
+  font-family: var(--font-heading);
+  font-size: 0.75rem;
+  color: var(--text-3);
+  transition: border-color var(--transition);
+}
+.footer a { color: var(--accent); }
+
+/* =======================================================
+   RESPONSIVE
+   ======================================================= */
+@media (max-width: 600px) {
+  .hero { min-height: auto; padding-top: 90px; padding-bottom: 2rem; }
+  .memory-cell { width: 46px; height: 46px; }
+  .memory-cell .val { font-size: 0.85rem; }
+  .pointer-track { width: calc(7 * 46px); }
+  .technique-header { padding: 1rem 1.1rem; gap: 10px; }
+  .technique-body-inner { padding: 0 1.1rem 1.1rem; }
+  .info-strip-inner { grid-template-columns: 1fr 1fr; }
+}
+</style>
+</head>
+<body>
+
+<!-- ============================================================
+     TOP NAVIGATION BAR
+     ============================================================ -->
+<nav class="topbar">
+  <div class="topbar-brand" onclick="window.location.href='index.html'">
+    <div class="topbar-logo">DS</div>
+    <span>DSA Visualizer</span>
+    <span class="topbar-sep">/</span>
+    <span class="topbar-topic">Array</span>
+  </div>
+  <div class="topbar-actions">
+    <button class="back-btn" onclick="window.location.href='index.html'">← Dashboard</button>
+    <div class="theme-toggle" id="themeToggle" onclick="Theme.toggle()" role="button" tabindex="0" aria-label="Toggle theme">
+      <div class="toggle-knob"><span id="themeIcon">🌙</span></div>
+    </div>
+  </div>
+</nav>
+
+<!-- ============================================================
+     HERO SECTION
+     ============================================================ -->
+<section class="hero">
+  <!-- Animated background layers -->
+  <div class="hero-gradient"></div>
+  <div class="hero-orb hero-orb--1"></div>
+  <div class="hero-orb hero-orb--2"></div>
+  <div class="hero-orb hero-orb--3"></div>
+
+  <div class="hero-content">
+    <!-- Left: Text -->
+    <div class="hero-text">
+      <div class="hero-breadcrumb">
+        <span>DSA</span>
+        <span class="sep">›</span>
+        <span>Data Structures</span>
+        <span class="sep">›</span>
+        <span class="current">Array</span>
+      </div>
+
+      <h1 class="hero-title">
+        Array<br><span class="thin">Fundamentals</span>
+      </h1>
+
+      <p class="hero-desc">
+        The most primitive and essential data structure — a fixed-size, contiguous block of memory providing O(1) random access. Arrays are the backbone of nearly every algorithm and the foundation upon which all other structures are built.
+      </p>
+
+      <a href="array-visualizer.html" class="hero-cta">
+        Open Visualizer
+        <span class="arrow">→</span>
+      </a>
+    </div>
+
+    <!-- Right: Animated memory diagram -->
+    <div class="hero-visual">
+      <div class="memory-label">Contiguous Memory Block</div>
+
+      <div class="memory-row" id="memoryRow">
+        <div class="memory-cell" data-idx="0">
+          <span class="addr">0x04</span>
+          <span class="val">12</span>
+          <span class="idx">[0]</span>
+        </div>
+        <div class="memory-cell" data-idx="1">
+          <span class="addr">0x08</span>
+          <span class="val">5</span>
+          <span class="idx">[1]</span>
+        </div>
+        <div class="memory-cell" data-idx="2">
+          <span class="addr">0x0C</span>
+          <span class="val">23</span>
+          <span class="idx">[2]</span>
+        </div>
+        <div class="memory-cell" data-idx="3">
+          <span class="addr">0x10</span>
+          <span class="val">8</span>
+          <span class="idx">[3]</span>
+        </div>
+        <div class="memory-cell" data-idx="4">
+          <span class="addr">0x14</span>
+          <span class="val">41</span>
+          <span class="idx">[4]</span>
+        </div>
+        <div class="memory-cell" data-idx="5">
+          <span class="addr">0x18</span>
+          <span class="val">17</span>
+          <span class="idx">[5]</span>
+        </div>
+        <div class="memory-cell" data-idx="6">
+          <span class="addr">0x1C</span>
+          <span class="val">33</span>
+          <span class="idx">[6]</span>
+        </div>
+      </div>
+
+      <!-- Sliding pointer -->
+      <div class="pointer-track" id="pointerTrack">
+        <div class="pointer" id="accessPointer" style="left: 0px;">
+          <div class="pointer-arrow"></div>
+          <div class="pointer-label">ptr</div>
+        </div>
+      </div>
+
+      <!-- Complexity chips -->
+      <div class="complexity-strip">
+        <div class="complexity-chip">
+          <span class="op">Access</span>
+          <span class="big-o good">O(1)</span>
+        </div>
+        <div class="complexity-chip">
+          <span class="op">Search</span>
+          <span class="big-o mid">O(n)</span>
+        </div>
+        <div class="complexity-chip">
+          <span class="op">Insert</span>
+          <span class="big-o bad">O(n)</span>
+        </div>
+        <div class="complexity-chip">
+          <span class="op">Delete</span>
+          <span class="big-o bad">O(n)</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================
+     INFO CARDS STRIP
+     ============================================================ -->
+<div class="info-strip">
+  <div class="info-strip-inner">
+    <div class="info-card">
+      <div class="info-card-icon">📦</div>
+      <div class="info-card-title">What is an Array?</div>
+      <div class="info-card-text">A collection of elements stored in contiguous memory locations, each identified by an index starting at zero.</div>
+    </div>
+    <div class="info-card">
+      <div class="info-card-icon">🧠</div>
+      <div class="info-card-title">Memory Model</div>
+      <div class="info-card-text">Elements occupy consecutive memory addresses. Address = base + (index × element_size), enabling instant access.</div>
+    </div>
+    <div class="info-card">
+      <div class="info-card-icon">⚡</div>
+      <div class="info-card-title">When to Use</div>
+      <div class="info-card-text">When you need O(1) random access by index, know the size upfront, or require cache-friendly iteration.</div>
+    </div>
+    <div class="info-card">
+      <div class="info-card-icon">⚠️</div>
+      <div class="info-card-title">Trade-offs</div>
+      <div class="info-card-text">Fixed size (static arrays), costly inserts/deletes in the middle — every shift is O(n). Consider linked lists if frequent mutations are needed.</div>
+    </div>
+  </div>
+</div>
+
+<!-- ============================================================
+     TECHNIQUES & PATTERNS SECTION
+     ============================================================ -->
+<section class="section">
+  <div class="section-inner">
+    <div class="section-header">
+      <div class="section-eyebrow">Explore</div>
+      <h2 class="section-title">Array Techniques & Patterns</h2>
+      <p class="section-subtitle">Master these core patterns to solve the majority of array-based interview and competitive programming problems.</p>
+    </div>
+
+    <div class="techniques-list" id="techniquesList"></div>
+  </div>
+</section>
+
+<!-- ============================================================
+     FOOTER
+     ============================================================ -->
+<footer class="footer">
+  DSA Visualizer Platform — Built for learners. <a href="index.html">Back to Dashboard</a>
+</footer>
+
+
+<script>
+/* ===========================================================
+   THEME MODULE
+   =========================================================== */
+const Theme = {
+  /** Initialise theme from localStorage or default to dark */
+  init() {
+    const saved = localStorage.getItem('dsa-viz-theme');
+    if (saved) document.documentElement.setAttribute('data-theme', saved);
+    this._updateIcon();
+  },
+
+  /** Toggle between dark and light themes */
+  toggle() {
+    const current = document.documentElement.getAttribute('data-theme');
+    const next = current === 'dark' ? 'light' : 'dark';
+    document.documentElement.setAttribute('data-theme', next);
+    localStorage.setItem('dsa-viz-theme', next);
+    this._updateIcon();
+  },
+
+  /** Swap the knob emoji */
+  _updateIcon() {
+    const theme = document.documentElement.getAttribute('data-theme');
+    document.getElementById('themeIcon').textContent = theme === 'dark' ? '🌙' : '☀️';
+  }
+};
+
+/* ===========================================================
+   TECHNIQUES DATA MODEL
+   =========================================================== */
+const TECHNIQUES = [
+  {
+    id: 'two-pointers',
+    icon: '👆👆',
+    iconClass: 'technique-icon--pointers',
+    title: 'Two Pointers',
+    desc: 'Use two indices to scan from opposite ends or at different speeds — eliminates nested loops for O(n) solutions.',
+    link: "/Arrays/two-pointers/index.html",
+    problems: [
+      { name: 'Two Sum', slug: './two-pointers/Two-Sum' },
+      { name: 'Three Sum', slug: './two-pointers/Three-Sum' },
+      { name: '3 Sum Closest', slug: '3-sum-closest' },
+      { name: 'Remove Duplicates from Sorted Array', slug: 'remove-duplicates-from-sorted-array' },
+    ]
+  },
+  {
+    id: 'merge-intervals',
+    icon: '📐',
+    iconClass: 'technique-icon--intervals',
+    title: 'Merge Intervals',
+    desc: 'Sort intervals by start time, then merge overlapping ranges — a classic sweep-line approach for range problems.',
+    problems: [
+      { name: 'Merge Intervals', slug: 'merge-intervals' },
+      { name: 'Insert Interval', slug: 'insert-interval' },
+      { name: 'Non-overlapping Intervals', slug: 'non-overlapping-intervals' },
+      { name: 'Interval List Intersections', slug: 'interval-list-intersections' },
+    ]
+  },
+  {
+    id: 'sorting',
+    icon: '🔀',
+    iconClass: 'technique-icon--sorting',
+    title: 'Sorting',
+    desc: 'Leverage sorting as a preprocessing step to unlock efficient greedy, binary search, and partitioning strategies.',
+    problems: [
+      { name: 'Sort Colors', slug: 'sort-colors' },
+      { name: 'Kth Largest Element', slug: 'kth-largest-element' },
+      { name: 'Top K Frequent Elements', slug: 'top-k-frequent-elements' },
+      { name: 'Relative Sort Array', slug: 'relative-sort-array' },
+    ]
+  }
+];
+
+/* ===========================================================
+   RENDER TECHNIQUES
+   =========================================================== */
+function renderTechniques() {
+  const container = document.getElementById('techniquesList');
+
+  container.innerHTML = TECHNIQUES.map(tech => {
+    /* Build problem links */
+    const problemsHtml = tech.problems.map((p, i) => `
+      <a href="${p.slug}/index.html" class="problem-link">
+        <span class="problem-number">${String(i + 1).padStart(2, '0')}</span>
+        <span class="problem-name">${p.name}</span>
+        <span class="problem-arrow">→</span>
+      </a>
+    `).join('');
+
+    /* Chevron SVG */
+    const chevronSvg = `<svg class="technique-chevron" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="5 7.5 10 12.5 15 7.5"/></svg>`;
+
+    return `
+      <div class="technique-card" data-tech="${tech.id}">
+        <div class="technique-header" onclick="Accordion.toggle('${tech.id}')">
+          <div class="technique-icon ${tech.iconClass}">${tech.icon}</div>
+          <div class="technique-info">
+            <div class="technique-name" onClick="window.location.href='${tech.link}'">${tech.title}</div>
+            <div class="technique-desc">${tech.desc}</div>
+          </div>
+          <div class="technique-count">${tech.problems.length} problems</div>
+          ${chevronSvg}
+        </div>
+        <div class="technique-body">
+          <div class="technique-body-inner">
+            <div class="problems-divider"></div>
+            <div class="problems-list">
+              ${problemsHtml}
+            </div>
+          </div>
+        </div>
+      </div>
+    `;
+  }).join('');
+}
+
+/* ===========================================================
+   ACCORDION MODULE
+   =========================================================== */
+const Accordion = {
+  /** Toggle a technique card open/closed */
+  toggle(techId) {
+    const card = document.querySelector(`.technique-card[data-tech="${techId}"]`);
+    if (!card) return;
+
+    const isOpen = card.classList.contains('open');
+
+    /* Close all first (single-open behavior) */
+    document.querySelectorAll('.technique-card.open').forEach(c => {
+      c.classList.remove('open');
+    });
+
+    /* Open the clicked one (unless it was already open) */
+    if (!isOpen) {
+      card.classList.add('open');
+    }
+  }
+};
+
+/* ===========================================================
+   MEMORY CELL POINTER ANIMATION
+   Animates the sliding pointer across the memory cells in
+   the hero, highlighting each cell in sequence.
+   =========================================================== */
+const MemoryAnim = {
+  _idx: 0,
+  _interval: null,
+  _cells: null,
+  _pointer: null,
+  _cellWidth: 64,
+
+  init() {
+    this._cells = document.querySelectorAll('.memory-cell');
+    this._pointer = document.getElementById('accessPointer');
+    /* Adapt cell width on small screens */
+    if (this._cells.length > 0) {
+      this._cellWidth = this._cells[0].offsetWidth || 64;
+    }
+    this.start();
+  },
+
+  start() {
+    this._interval = setInterval(() => this._step(), 1200);
+  },
+
+  _step() {
+    /* Remove previous highlight */
+    this._cells.forEach(c => c.classList.remove('active'));
+
+    /* Highlight current */
+    this._cells[this._idx].classList.add('active');
+
+    /* Move pointer */
+    const offset = this._idx * this._cellWidth + (this._cellWidth / 2) - 6;
+    this._pointer.style.left = offset + 'px';
+
+    /* Advance index */
+    this._idx = (this._idx + 1) % this._cells.length;
+  },
+
+  stop() {
+    if (this._interval) clearInterval(this._interval);
+  }
+};
+
+/* ===========================================================
+   SCROLL-TRIGGERED FADE-IN
+   Uses IntersectionObserver for performant scroll reveals.
+   =========================================================== */
+function initScrollReveal() {
+  const targets = document.querySelectorAll('.technique-card, .info-card, .section-header');
+
+  /* If IntersectionObserver isn't supported, just show everything */
+  if (!('IntersectionObserver' in window)) return;
+
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        entry.target.style.animationPlayState = 'running';
+        observer.unobserve(entry.target);
+      }
+    });
+  }, { threshold: 0.15 });
+
+  targets.forEach(el => {
+    el.style.animationPlayState = 'paused';
+    observer.observe(el);
+  });
+}
+
+/* ===========================================================
+   BOOTSTRAP
+   =========================================================== */
+document.addEventListener('DOMContentLoaded', () => {
+  Theme.init();
+  renderTechniques();
+  MemoryAnim.init();
+  initScrollReveal();
+});
+
+/* Keyboard support for theme toggle */
+document.getElementById('themeToggle').addEventListener('keydown', (e) => {
+  if (e.key === 'Enter' || e.key === ' ') {
+    e.preventDefault();
+    Theme.toggle();
+  }
+});
+</script>
+</body>
+</html>

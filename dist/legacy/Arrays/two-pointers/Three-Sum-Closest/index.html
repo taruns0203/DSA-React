@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Three Sum Closest - Solutions | DSA Learning Hub</title>
+    <link rel="stylesheet" href="../quesStyle.css">
+   
+  </head>
+  <body>
+    <a href="../../../../index.html" class="back-btn">
+      ⬅️ Back to DSA Hub
+    </a>
+
+    <div class="header">
+      <h1>➕ Three Sum Closest</h1>
+      <p class="subtitle">Find the closest sum of three numbers to a target</p>
+      <div class="tags">
+        <span class="tag easy">Easy</span>
+        <span class="tag category">Arrays</span>
+        <span class="tag category">Two Pointers</span>
+      </div>
+    </div>
+
+    <div class="solutions-container">
+      <!-- Brute Force Solution -->
+      <div class="solution-card brute">
+        <div class="card-header">
+          <span class="icon">🐢</span>
+          <div class="title-section">
+            <h2>Brute Force</h2>
+            <span class="approach">Three Nested Loops</span>
+          </div>
+        </div>
+
+        <div class="complexity-box">
+          <div class="complexity">
+            <div class="label">⏱️ Time</div>
+            <div class="value">O(N^2)</div>
+          </div>
+          <div class="complexity">
+            <div class="label">💾 Space</div>
+            <div class="value">O(1)</div>
+          </div>
+        </div>
+
+        <a href="./1-bruteforce-visualization.html" class="view-btn">
+          📖 View Full Explanation
+        </a>
+      </div>
+
+      <!-- Better Solution -->
+      <div class="solution-card better">
+        <div class="card-header">
+          <span class="icon">🐇</span>
+          <div class="title-section">
+            <h2>Improved</h2>
+            <span class="approach">Sort + Two Pointers</span>
+          </div>
+        </div>
+
+        <div class="complexity-box">
+          <div class="complexity">
+            <div class="label">⏱️ Time</div>
+            <div class="value">O(n log n)</div>
+          </div>
+          <div class="complexity">
+            <div class="label">💾 Space</div>
+            <div class="value">O(n)</div>
+          </div>
+        </div>
+
+        <a href="./1-twopointers-visualization.html" class="view-btn">
+          📖 View Full Explanation
+        </a>
+      </div>
+
+      <!-- Optimal Solution -->
+      <div class="solution-card optimal">
+        <div class="card-header">
+          <span class="icon">🚀</span>
+          <div class="title-section">
+            <h2>Optimal Approach</h2>
+            <span class="approach">Hash Map</span>
+          </div>
+        </div>
+
+        <div class="complexity-box">
+          <div class="complexity">
+            <div class="label">⏱️ Time</div>
+            <div class="value">O(n)</div>
+          </div>
+          <div class="complexity">
+            <div class="label">💾 Space</div>
+            <div class="value">O(n)</div>
+          </div>
+        </div>
+
+        <a href="./1-hashmap-visualization.html" class="view-btn"> 📖 View Full Explanation </a>
+      </div>
+      
+    </div>
+
+    <!-- Progress Section -->
+    <div class="progress-section">
+      <h3>🎯 Solution Progression</h3>
+      <div class="progress-bar">
+        <div class="progress-step">
+          <div class="step-circle brute">🐢</div>
+          <span class="step-label">Brute</span>
+        </div>
+        <div class="progress-line"></div>
+        <div class="progress-step">
+          <div class="step-circle better">🐇</div>
+          <span class="step-label">Better</span>
+        </div>
+        <div class="progress-line second"></div>
+        <div class="progress-step">
+          <div class="step-circle optimal">🚀</div>
+          <span class="step-label">Optimal</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="footer">
+      💡 Pro Tip: Always start with brute force, then optimize! 💪
+    </div>
+
+    <script>
+      // Copy button functionality
+      document.querySelectorAll(".copy-btn").forEach((btn) => {
+        btn.addEventListener("click", () => {
+          const code = btn
+            .closest(".code-section")
+            .querySelector("pre").textContent;
+          navigator.clipboard.writeText(code);
+          btn.textContent = "✅ Copied!";
+          setTimeout(() => (btn.textContent = "📋 Copy"), 2000);
+        });
+      });
+    </script>
+  </body>
+</html>

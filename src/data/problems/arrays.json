@@ -1,0 +1,3015 @@
+{
+  "slug": "arrays",
+  "title": "Arrays",
+  "techniques": {
+    "two-pointers": {
+      "title": "Two Pointers",
+      "description": "",
+      "problems": {
+        "two-sum": {
+          "breadcrumb": ["Arrays", "Two Pointers", "Two Sum"],
+          "title": "Two Sum",
+          "difficulty": "Easy",
+          "problemSlug": "two-sum",
+          "categoryPath": "arrays/two-pointers",
+          "tags": ["Array", "Hash Map", "Two Pointers", "Sorting"],
+          "description": "Given an array of integers nums and an integer target, return indices of the two numbers such that they add up to target. You may assume that each input would have exactly one solution, and you may not use the same element twice. You can return the answer in any order.",
+          "examples": [
+            {
+              "input": "nums = [2,7,11,15], target = 9",
+              "output": "[0,1]",
+              "explanation": "Because nums[0] + nums[1] == 9, we return [0, 1]."
+            },
+            {
+              "input": "nums = [3,2,4], target = 6",
+              "output": "[1,2]",
+              "explanation": "Because nums[1] + nums[2] == 6, we return [1, 2]."
+            },
+            {
+              "input": "nums = [3,3], target = 6",
+              "output": "[0,1]",
+              "explanation": null
+            }
+          ],
+          "constraints": [
+            "2 ≤ nums.length ≤ 10⁴",
+            "-10⁹ ≤ nums[i] ≤ 10⁹",
+            "-10⁹ ≤ target ≤ 10⁹",
+            "Only one valid answer exists."
+          ],
+          "approaches": [
+            {
+              "title": "Brute Force — Nested Loops",
+              "badge": "Brute Force",
+              "intuition": "The simplest approach: for every element, scan every other element to see if they add up to the target. This checks all possible pairs exhaustively — easy to understand, easy to code, but slow on large inputs because it does redundant work.",
+              "steps": [
+                "Iterate through the array with index i from 0 to n-2.",
+                "For each i, iterate with index j from i+1 to n-1.",
+                "If nums[i] + nums[j] equals target, return [i, j].",
+                "If no pair found after all iterations, return an empty array."
+              ],
+              "code": "function twoSum(nums, target) {\n  const n = nums.length;\n\n  for (let i = 0; i < n - 1; i++) {\n    for (let j = i + 1; j < n; j++) {\n      if (nums[i] + nums[j] === target) {\n        return [i, j];\n      }\n    }\n  }\n\n  return []; // no pair found\n}",
+              "language": "javascript",
+              "timeComplexity": "O(n²)",
+              "timeType": "bad",
+              "spaceComplexity": "O(1)",
+              "spaceType": "good",
+              "pros": [
+                "Extremely simple to implement and explain",
+                "No extra memory needed — O(1) space",
+                "Works on unsorted arrays without preprocessing"
+              ],
+              "cons": [
+                "Quadratic time makes it impractical for large n",
+                "Redundant comparisons — every pair checked twice conceptually",
+                "Interviewers expect you to improve beyond this"
+              ],
+              "talkingPoints": [
+                "\"My first instinct is brute force — check every pair. That's O(n²) time but O(1) space. Let me optimize.\"",
+                "\"The nested loop checks n*(n-1)/2 pairs. We can do better by trading space for time.\"",
+                "\"This establishes correctness. Now I'll look for a way to eliminate the inner loop.\""
+              ],
+              "visualLink": "/legacy/Arrays/two-pointers/Two-Sum/1-bruteforce-visualization.html",
+              "notesLink": ""
+            },
+            {
+              "title": "Sort + Two Pointers",
+              "badge": "Improved",
+              "intuition": "If the array were sorted, we could use two pointers converging from both ends: if the sum is too small, advance the left pointer; if too big, retreat the right. Sorting costs O(n log n) but the scan is O(n). The catch: sorting destroys original indices, so we must store them beforehand.",
+              "steps": [
+                "Create an array of [value, originalIndex] pairs.",
+                "Sort this array by value in ascending order.",
+                "Place left pointer at index 0, right pointer at the last index.",
+                "While left < right: compute sum of values at both pointers.",
+                "If sum === target → return original indices.",
+                "If sum < target → move left pointer right (need larger value).",
+                "If sum > target → move right pointer left (need smaller value)."
+              ],
+              "code": "function twoSum(nums, target) {\n  // Preserve original indices before sorting\n  const indexed = nums.map((val, idx) => [val, idx]);\n  indexed.sort((a, b) => a[0] - b[0]);\n\n  let left = 0;\n  let right = indexed.length - 1;\n\n  while (left < right) {\n    const sum = indexed[left][0] + indexed[right][0];\n\n    if (sum === target) {\n      return [indexed[left][1], indexed[right][1]];\n    } else if (sum < target) {\n      left++;   // need a larger sum\n    } else {\n      right--;  // need a smaller sum\n    }\n  }\n\n  return [];\n}",
+              "language": "javascript",
+              "timeComplexity": "O(n log n)",
+              "timeType": "warning",
+              "spaceComplexity": "O(n)",
+              "spaceType": "warning",
+              "pros": [
+                "Demonstrates the Two Pointers pattern explicitly",
+                "Efficient scan after sorting — linear pass",
+                "Great for follow-up: 'what if you need all pairs?'"
+              ],
+              "cons": [
+                "Sorting adds O(n log n) overhead",
+                "Requires O(n) extra space to preserve indices",
+                "Not optimal for this specific problem — HashMap is faster"
+              ],
+              "talkingPoints": [
+                "\"Sorting enables the Two Pointers technique — I can shrink the search space from both ends in O(n).\"",
+                "\"The total is O(n log n) for sort + O(n) for scan. Better than brute force but not optimal.\"",
+                "\"I need to preserve original indices since sorting rearranges the array — I'll use index pairs.\""
+              ],
+              "visualLink": "/legacy/Arrays/two-pointers/Two-Sum/1-hashmap-visualization.html",
+              "notesLink": ""
+            },
+            {
+              "title": "Hash Map — One Pass",
+              "badge": "Optimal",
+              "intuition": "For each element, we know exactly what complement we need: target - nums[i]. Instead of scanning the entire array to find it, we ask a Hash Map in O(1). As we iterate, we build the map simultaneously — checking if the complement exists, then storing the current value. One pass, one lookup per element.",
+              "steps": [
+                "Create an empty Hash Map: value → index.",
+                "Iterate through the array with index i.",
+                "Compute complement = target - nums[i].",
+                "Check if complement exists in the map.",
+                "If yes → return [map.get(complement), i] — pair found!",
+                "If no → store nums[i] → i in the map for future lookups.",
+                "Continue until pair is found."
+              ],
+              "code": "function twoSum(nums, target) {\n  const map = new Map(); // value -> index\n\n  for (let i = 0; i < nums.length; i++) {\n    const complement = target - nums[i];\n\n    if (map.has(complement)) {\n      return [map.get(complement), i];\n    }\n\n    map.set(nums[i], i);\n  }\n\n  return []; // guaranteed to find, per constraints\n}",
+              "language": "javascript",
+              "timeComplexity": "O(n)",
+              "timeType": "good",
+              "spaceComplexity": "O(n)",
+              "spaceType": "warning",
+              "pros": [
+                "Optimal time complexity — single linear pass",
+                "Clean, elegant, and easy to explain",
+                "No sorting needed — preserves original indices naturally",
+                "Works with unsorted, negative, and duplicate values"
+              ],
+              "cons": [
+                "Uses O(n) extra space for the Hash Map",
+                "Hash collisions could degrade to O(n) lookup in theory (rare)",
+                "Doesn't directly demonstrate Two Pointers (but shows trade-off awareness)"
+              ],
+              "talkingPoints": [
+                "\"I can trade O(n) space for O(n) time by using a Hash Map to store seen values.\"",
+                "\"For each element, I check if its complement already exists in the map — that's an O(1) lookup.\"",
+                "\"Building the map as I go means I only need one pass — each element is processed exactly once.\"",
+                "\"This is the standard optimal solution interviewers expect for Two Sum.\""
+              ],
+              "visualLink": "/legacy/Arrays/two-pointers/Two-Sum/1-twopointers-visualization.html",
+              "notesLink": ""
+            }
+          ]
+        },
+        "three-sum": {
+          "breadcrumb": ["Arrays", "Two Pointers", "Three Sum"],
+          "title": "Three Sum",
+          "difficulty": "Medium",
+          "problemSlug": "three-sum",
+          "categoryPath": "arrays/two-pointers",
+          "tags": ["Array", "Hash Set", "Two Pointers", "Sorting"],
+          "description": "Given an integer array nums, return all unique triplets [nums[i], nums[j], nums[k]] such that i != j, i != k, and j != k, and nums[i] + nums[j] + nums[k] == 0. The solution set must not contain duplicate triplets.",
+          "examples": [
+            {
+              "input": "nums = [-1,0,1,2,-1,-4]",
+              "output": "[[-1,-1,2],[-1,0,1]]",
+              "explanation": "After removing duplicates, the valid triplets that sum to zero are [-1,-1,2] and [-1,0,1]."
+            },
+            {
+              "input": "nums = [0,1,1]",
+              "output": "[]",
+              "explanation": "No three numbers sum to 0."
+            },
+            {
+              "input": "nums = [0,0,0]",
+              "output": "[[0,0,0]]",
+              "explanation": "Only one valid triplet exists."
+            }
+          ],
+          "constraints": ["3 ≤ nums.length ≤ 3000", "-10⁵ ≤ nums[i] ≤ 10⁵"],
+          "approaches": [
+            {
+              "title": "Brute Force — Three Nested Loops + Set",
+              "badge": "Brute Force",
+              "intuition": "Check every possible combination of three elements. If their sum is zero, store the sorted triplet in a Set to automatically avoid duplicates.",
+              "steps": [
+                "Iterate i from 0 to n-3.",
+                "Iterate j from i+1 to n-2.",
+                "Iterate k from j+1 to n-1.",
+                "If nums[i] + nums[j] + nums[k] === 0, sort the triplet.",
+                "Store the sorted triplet in a Set to avoid duplicates.",
+                "Convert Set back to array at the end."
+              ],
+              "code": "function threeSum(nums) {\n    const n = nums.length;\n    const set = new Set();\n\n    for (let i = 0; i < n - 2; i++) {\n        for (let j = i + 1; j < n - 1; j++) {\n            for (let k = j + 1; k < n; k++) {\n                if (nums[i] + nums[j] + nums[k] === 0) {\n                    const triplet = [nums[i], nums[j], nums[k]].sort((a, b) => a - b);\n                    set.add(triplet.join(','));\n                }\n            }\n        }\n    }\n\n    return Array.from(set).map(s => s.split(',').map(Number));\n}",
+              "language": "javascript",
+              "timeComplexity": "O(n³)",
+              "timeType": "bad",
+              "spaceComplexity": "O(n)",
+              "spaceType": "warning",
+              "pros": [
+                "Very straightforward logic",
+                "Easy to reason about correctness"
+              ],
+              "cons": [
+                "Cubic time complexity",
+                "Sorting each triplet adds extra overhead"
+              ],
+              "talkingPoints": [
+                "\"This guarantees correctness but is too slow for n up to 3000.\"",
+                "\"We need to eliminate one loop to improve performance.\""
+              ],
+              "visualLink": "/legacy/Arrays/two-pointers/Three-Sum/1-bruteforce-visualization.html",
+              "notesLink": ""
+            },
+            {
+              "title": "Improved — Fix Two + Hash Set",
+              "badge": "Improved",
+              "intuition": "Fix the first element i. For each second element j, compute the required third value as -(nums[i] + nums[j]). Use a Hash Set to check in O(1) time whether it exists in the remaining part of the array.",
+              "steps": [
+                "Iterate i from 0 to n-2.",
+                "For each i, create an empty Hash Set.",
+                "Iterate j from i+1 to n-1.",
+                "Compute third = -(nums[i] + nums[j]).",
+                "If third exists in the set, store the sorted triplet.",
+                "Add nums[j] to the set.",
+                "Use a global Set to avoid duplicate triplets."
+              ],
+              "code": "function threeSum(nums) {\n    const n = nums.length;\n    const result = new Set();\n\n    for (let i = 0; i < n - 1; i++) {\n        const seen = new Set();\n\n        for (let j = i + 1; j < n; j++) {\n            const complement = -(nums[i] + nums[j]);\n\n            if (seen.has(complement)) {\n                const triplet = [nums[i], nums[j], complement].sort((a, b) => a - b);\n                result.add(triplet.join(','));\n            }\n\n            seen.add(nums[j]);\n        }\n    }\n\n    return Array.from(result).map(s => s.split(',').map(Number));\n}",
+              "language": "javascript",
+              "timeComplexity": "O(n²)",
+              "timeType": "warning",
+              "spaceComplexity": "O(n)",
+              "spaceType": "warning",
+              "pros": [
+                "Reduces time from O(n³) to O(n²)",
+                "Cleaner than brute force",
+                "Uses Hash Set for faster lookup"
+              ],
+              "cons": [
+                "Still needs a Set to remove duplicate triplets",
+                "Extra space usage"
+              ],
+              "talkingPoints": [
+                "\"We eliminated one loop by using a Hash Set for the third element.\"",
+                "\"Time complexity drops to O(n²), which is acceptable.\"",
+                "\"Duplicate handling still needs attention.\""
+              ],
+              "visualLink": "/legacy/Arrays/two-pointers/Three-Sum/2-hashset-visualization.html",
+              "notesLink": ""
+            },
+            {
+              "title": "Optimal — Sort + Two Pointers",
+              "badge": "Optimal",
+              "intuition": "Sort the array first. Fix the first element, then reduce the problem to Two Sum using two pointers on the remaining portion. Skipping duplicates at each level ensures unique triplets.",
+              "steps": [
+                "Sort the array in ascending order.",
+                "Iterate i from 0 to n-3.",
+                "Skip duplicate values for i.",
+                "Set left = i+1 and right = n-1.",
+                "While left < right:",
+                "If sum === 0 → add triplet and skip duplicates.",
+                "If sum < 0 → move left pointer right.",
+                "If sum > 0 → move right pointer left."
+              ],
+              "code": "function threeSum(nums) {\n    nums.sort((a, b) => a - b);\n    const result = [];\n    const n = nums.length;\n\n    for (let i = 0; i < n - 2; i++) {\n        // Skip duplicate first elements\n        if (i > 0 && nums[i] === nums[i - 1]) continue;\n\n        // Early termination: smallest positive means no more solutions\n        if (nums[i] > 0) break;\n\n        let left = i + 1;\n        let right = n - 1;\n        const target = -nums[i];\n\n        while (left < right) {\n            const sum = nums[left] + nums[right];\n\n            if (sum === target) {\n                result.push([nums[i], nums[left], nums[right]]);\n\n                // Skip duplicates for left and right\n                while (left < right && nums[left] === nums[left + 1]) left++;\n                while (left < right && nums[right] === nums[right - 1]) right--;\n\n                left++;\n                right--;\n            } else if (sum < target) {\n                left++;\n            } else {\n                right--;\n            }\n        }\n    }\n\n    return result;\n}",
+              "language": "javascript",
+              "timeComplexity": "O(n²)",
+              "timeType": "good",
+              "spaceComplexity": "O(1) (excluding output)",
+              "spaceType": "good",
+              "pros": [
+                "Clean duplicate handling",
+                "No extra hash structures required",
+                "Interview-standard optimal solution"
+              ],
+              "cons": ["Requires sorting first"],
+              "talkingPoints": [
+                "\"Sorting helps because duplicates become adjacent and easy to skip.\"",
+                "\"For each fixed number, I reduce the problem to Two Sum II.\"",
+                "\"This gives O(n²) time with constant extra space.\""
+              ],
+              "visualLink": "/legacy/Arrays/two-pointers/Three-Sum/3-twopointers-visualization.html",
+              "notesLink": ""
+            }
+          ]
+        },
+        "three-sum-closest": {
+          "breadcrumb": ["Arrays", "Two Pointers", "Three Sum Closest"],
+          "title": "Three Sum Closest",
+          "difficulty": "Medium",
+          "problemSlug": "three-sum-closest",
+          "categoryPath": "arrays/two-pointers",
+          "tags": ["Array", "Sorting", "Binary Search", "Two Pointers"],
+          "description": "Given an integer array nums of length n and an integer target, find three integers in nums such that the sum is closest to target. Return the sum of the three integers. You may assume that each input would have exactly one solution.",
+          "examples": [
+            {
+              "input": "nums = [-1,2,1,-4], target = 1",
+              "output": "2",
+              "explanation": "The sum that is closest to the target is 2 (-1 + 2 + 1 = 2)."
+            },
+            {
+              "input": "nums = [0,0,0], target = 1",
+              "output": "0",
+              "explanation": "The only possible sum is 0, which is closest to 1."
+            }
+          ],
+          "constraints": [
+            "3 ≤ nums.length ≤ 1000",
+            "-1000 ≤ nums[i] ≤ 1000",
+            "-10⁴ ≤ target ≤ 10⁴"
+          ],
+          "approaches": [
+            {
+              "title": "Brute Force — Three Nested Loops",
+              "badge": "Brute Force",
+              "intuition": "Check every possible triplet. For each triplet, compute the sum and track the one whose difference from target is minimum.",
+              "steps": [
+                "Initialize closestSum as the first three elements sum.",
+                "Iterate i from 0 to n-3.",
+                "Iterate j from i+1 to n-2.",
+                "Iterate k from j+1 to n-1.",
+                "Compute sum and update closestSum if needed."
+              ],
+              "code": "function threeSumClosest(nums, target) {\n    const n = nums.length;\n    let closestSum = nums[0] + nums[1] + nums[2];\n\n    for (let i = 0; i < n - 2; i++) {\n        for (let j = i + 1; j < n - 1; j++) {\n            for (let k = j + 1; k < n; k++) {\n                const sum = nums[i] + nums[j] + nums[k];\n                if (Math.abs(sum - target) < Math.abs(closestSum - target)) {\n                    closestSum = sum;\n                }\n            }\n        }\n    }\n\n    return closestSum;\n}",
+              "language": "javascript",
+              "timeComplexity": "O(n³)",
+              "timeType": "bad",
+              "spaceComplexity": "O(1)",
+              "spaceType": "good",
+              "pros": [
+                "Very straightforward",
+                "Easy to reason about correctness"
+              ],
+              "talkingPoints": [
+                "\"This brute force approach checks all triplets but is too slow for large n.\"",
+                "\"We need to find a way to reduce the number of combinations we check.\""
+              ],
+              "cons": ["Cubic time complexity", "Not scalable"],
+              "visualLink": "/legacy/Arrays/two-pointers/Three-Sum-Closest/1-bruteforce-visualization.html",
+              "notesLink": ""
+            },
+            {
+              "title": "Improved — Sort + Binary Search",
+              "badge": "Improved",
+              "intuition": "Sort the array. Fix two elements, then binary search for the third value closest to (target - nums[i] - nums[j]).",
+              "steps": [
+                "Sort the array.",
+                "Fix i and j.",
+                "Binary search in remaining range.",
+                "Check closest candidates and update closestSum."
+              ],
+              "code": "function threeSumClosest(nums, target) {\n    nums.sort((a, b) => a - b);\n    const n = nums.length;\n    let closestSum = nums[0] + nums[1] + nums[2];\n\n    for (let i = 0; i < n - 2; i++) {\n        for (let j = i + 1; j < n - 1; j++) {\n            const need = target - nums[i] - nums[j];\n\n            let lo = j + 1, hi = n - 1;\n            while (lo < hi) {\n                const mid = Math.floor((lo + hi) / 2);\n                if (nums[mid] < need) lo = mid + 1;\n                else hi = mid;\n            }\n\n            for (let k of [lo, lo - 1]) {\n                if (k > j && k < n) {\n                    const sum = nums[i] + nums[j] + nums[k];\n                    if (Math.abs(sum - target) < Math.abs(closestSum - target)) {\n                        closestSum = sum;\n                    }\n                }\n            }\n        }\n    }\n\n    return closestSum;\n}",
+              "language": "javascript",
+              "timeComplexity": "O(n² log n)",
+              "timeType": "warning",
+              "spaceComplexity": "O(1) or O(n) for sort",
+              "spaceType": "warning",
+              "pros": [
+                "Better than brute force",
+                "Eliminates one loop using binary search"
+              ],
+              "talkingPoints": [
+                "\"Sorting allows us to use binary search for the third element.\"",
+                "\"This reduces time complexity to O(n² log n), which is an improvement but still not optimal.\""
+              ],
+              "cons": ["More complex than needed", "Still not optimal"],
+              "visualLink": "/legacy/Arrays/two-pointers/Three-Sum-Closest/2-binarysearch-visualization.html",
+              "notesLink": ""
+            },
+            {
+              "title": "Optimal — Sort + Two Pointers",
+              "badge": "Optimal",
+              "intuition": "Sort the array. Fix one element and use two pointers to scan the remaining part while tracking the closest sum. Early return on exact match.",
+              "steps": [
+                "Sort the array.",
+                "Fix i.",
+                "Use left and right pointers.",
+                "Update closestSum.",
+                "Move pointers based on comparison."
+              ],
+              "code": "function threeSumClosest(nums, target) {\n    nums.sort((a, b) => a - b);\n    const n = nums.length;\n    let closestSum = nums[0] + nums[1] + nums[2];\n\n    for (let i = 0; i < n - 2; i++) {\n        let left = i + 1;\n        let right = n - 1;\n\n        while (left < right) {\n            const sum = nums[i] + nums[left] + nums[right];\n\n            if (Math.abs(sum - target) < Math.abs(closestSum - target)) {\n                closestSum = sum;\n            }\n\n            if (sum === target) {\n                return sum;\n            }\n\n            if (sum < target) {\n                left++;\n            } else {\n                right--;\n            }\n        }\n    }\n\n    return closestSum;\n}",
+              "language": "javascript",
+              "timeComplexity": "O(n²)",
+              "timeType": "good",
+              "spaceComplexity": "O(1) or O(n) for sort",
+              "spaceType": "good",
+              "pros": [
+                "Optimal time complexity",
+                "Early termination on exact match",
+                "Interview standard solution"
+              ],
+              "cons": ["Requires sorting"],
+              "talkingPoints": [
+                "\"This is the optimal solution using the Two Pointers technique.\"",
+                "\"Sorting allows us to efficiently find the closest sum with two pointers.\"",
+                "\"Early return if we find an exact match is a nice optimization.\""
+              ],
+              "visualLink": "/legacy/Arrays/two-pointers/Three-Sum-Closest/3-twopointers-visualization.html",
+              "notesLink": ""
+            }
+          ]
+        },
+        "remove-duplicates-from-sorted-array": {
+          "breadcrumb": [
+            "Arrays",
+            "Two Pointers",
+            "Remove Duplicates from Sorted Array"
+          ],
+          "title": "Remove Duplicates from Sorted Array",
+          "difficulty": "Easy",
+          "problemSlug": "remove-duplicates-from-sorted-array",
+          "categoryPath": "arrays/two-pointers",
+          "tags": ["Array", "Two Pointers", "In-Place"],
+          "description": "Given an integer array nums sorted in non-decreasing order, remove the duplicates in-place such that each unique element appears only once. Return the number of unique elements k. The first k elements of nums should contain the unique elements in the same order.",
+          "examples": [
+            {
+              "input": "nums = [1,1,2]",
+              "output": "2",
+              "explanation": "After removing duplicates, nums = [1,2,_]. Return k = 2."
+            },
+            {
+              "input": "nums = [0,0,1,1,1,2,2,3,3,4]",
+              "output": "5",
+              "explanation": "After removing duplicates, nums = [0,1,2,3,4,_,_,_,_,_]. Return k = 5."
+            }
+          ],
+          "constraints": [
+            "1 ≤ nums.length ≤ 3 * 10⁴",
+            "-100 ≤ nums[i] ≤ 100",
+            "nums is sorted in non-decreasing order"
+          ],
+          "approaches": [
+            {
+              "title": "Brute Force — Use Extra Array",
+              "badge": "Brute Force",
+              "intuition": "Create a new array to store unique elements. Iterate through nums and only add elements that differ from the previous one. Copy back to original array. This helps understand the logic but violates the in-place requirement.",
+              "steps": [
+                "If array is empty, return 0.",
+                "Create a new array with first element.",
+                "Iterate from index 1 onward.",
+                "Add element if it differs from previous.",
+                "Copy unique elements back to nums.",
+                "Return unique length."
+              ],
+              "code": "function removeDuplicates(nums) {\n    if (nums.length === 0) return 0;\n\n    const unique = [nums[0]];\n\n    for (let i = 1; i < nums.length; i++) {\n        if (nums[i] !== nums[i - 1]) {\n            unique.push(nums[i]);\n        }\n    }\n\n    for (let i = 0; i < unique.length; i++) {\n        nums[i] = unique[i];\n    }\n\n    return unique.length;\n}",
+              "language": "javascript",
+              "timeComplexity": "O(n)",
+              "timeType": "good",
+              "spaceComplexity": "O(n)",
+              "spaceType": "warning",
+              "pros": [
+                "Very easy to understand",
+                "Clear duplicate filtering logic"
+              ],
+              "cons": ["Uses extra space", "Violates in-place constraint"],
+              "visualLink": "/legacy/Arrays/two-pointers/Remove-Duplicates/1-extra-array-visualization.html",
+              "notesLink": ""
+            },
+            {
+              "title": "Improved — Shift Elements (Slow Two Pointers)",
+              "badge": "Improved",
+              "intuition": "When a duplicate is found, shift all remaining elements left to overwrite it. This works in-place but is inefficient because each shift costs O(n).",
+              "steps": [
+                "Maintain k as current effective length.",
+                "Start from index 1.",
+                "If duplicate found, shift remaining elements left.",
+                "Reduce k.",
+                "Otherwise move forward."
+              ],
+              "code": "function removeDuplicates(nums) {\n    let k = nums.length;\n    let i = 1;\n\n    while (i < k) {\n        if (nums[i] === nums[i - 1]) {\n            for (let j = i; j < k - 1; j++) {\n                nums[j] = nums[j + 1];\n            }\n            k--;\n        } else {\n            i++;\n        }\n    }\n\n    return k;\n}",
+              "language": "javascript",
+              "timeComplexity": "O(n²)",
+              "timeType": "bad",
+              "spaceComplexity": "O(1)",
+              "spaceType": "good",
+              "pros": [
+                "Maintains in-place requirement",
+                "No extra array needed"
+              ],
+              "cons": [
+                "Very slow for many duplicates",
+                "Repeated shifting is inefficient"
+              ],
+              "visualLink": "/legacy/Arrays/two-pointers/Remove-Duplicates/2-shift-visualization.html",
+              "notesLink": ""
+            },
+            {
+              "title": "Optimal — Fast & Slow Pointers",
+              "badge": "Optimal",
+              "intuition": "Since the array is sorted, duplicates are adjacent. Use a slow pointer to track the last unique element and a fast pointer to scan ahead. When fast finds a new value, write it at slow+1.",
+              "steps": [
+                "If array is empty, return 0.",
+                "Initialize slow = 0.",
+                "Iterate fast from 1 to end.",
+                "If nums[fast] !== nums[slow], increment slow and copy value.",
+                "Return slow + 1."
+              ],
+              "code": "function removeDuplicates(nums) {\n    if (nums.length === 0) return 0;\n\n    let slow = 0;\n\n    for (let fast = 1; fast < nums.length; fast++) {\n        if (nums[fast] !== nums[slow]) {\n            slow++;\n            nums[slow] = nums[fast];\n        }\n    }\n\n    return slow + 1;\n}",
+              "language": "javascript",
+              "timeComplexity": "O(n)",
+              "timeType": "good",
+              "spaceComplexity": "O(1)",
+              "spaceType": "good",
+              "pros": [
+                "Single pass",
+                "In-place",
+                "No shifting required",
+                "Interview-standard solution"
+              ],
+              "cons": ["Requires understanding of pointer invariant"],
+              "visualLink": "/legacy/Arrays/two-pointers/Remove-Duplicates/3-fast-slow-visualization.html",
+              "notesLink": ""
+            }
+          ]
+        },
+        "squares-of-a-sorted-array": {
+          "breadcrumb": ["Arrays", "Two Pointers", "Squares of a Sorted Array"],
+          "title": "Squares of a Sorted Array",
+          "difficulty": "Easy",
+          "problemSlug": "squares-of-a-sorted-array",
+          "categoryPath": "arrays/two-pointers",
+          "tags": ["Array", "Two Pointers", "Sorting"],
+          "description": "Given an integer array nums sorted in non-decreasing order, return an array of the squares of each number sorted in non-decreasing order.",
+          "examples": [
+            {
+              "input": "nums = [-4,-1,0,3,10]",
+              "output": "[0,1,9,16,100]",
+              "explanation": "After squaring, values become [16,1,0,9,100]. Sorting gives [0,1,9,16,100]."
+            },
+            {
+              "input": "nums = [-7,-3,2,3,11]",
+              "output": "[4,9,9,49,121]",
+              "explanation": "Squares are [49,9,4,9,121], sorted result is [4,9,9,49,121]."
+            }
+          ],
+          "constraints": [
+            "1 ≤ nums.length ≤ 10⁴",
+            "-10⁴ ≤ nums[i] ≤ 10⁴",
+            "nums is sorted in non-decreasing order"
+          ],
+          "approaches": [
+            {
+              "title": "Brute Force — Square and Sort",
+              "badge": "Brute Force",
+              "intuition": "Square each element and then sort the result. This is simple and correct but does not utilize the sorted property of the input.",
+              "steps": [
+                "Map each element to its square.",
+                "Sort the resulting array.",
+                "Return sorted array."
+              ],
+              "code": "function sortedSquares(nums) {\n    const result = nums.map(num => num * num);\n    result.sort((a, b) => a - b);\n    return result;\n}",
+              "language": "javascript",
+              "timeComplexity": "O(n log n)",
+              "timeType": "warning",
+              "spaceComplexity": "O(n)",
+              "spaceType": "warning",
+              "pros": ["Very easy to implement", "Clean and readable"],
+              "cons": [
+                "Does not leverage sorted input",
+                "Sorting adds unnecessary log n factor"
+              ],
+              "visualLink": "/legacy/Arrays/two-pointers/Squares-of-Sorted-Array/1-square-sort-visualization.html",
+              "notesLink": ""
+            },
+
+            {
+              "title": "Improved — Find Pivot, Merge Two Halves",
+              "badge": "Improved",
+              "intuition": "Negative numbers squared become large and are in decreasing order. Positive numbers squared are already increasing. Find pivot (first non-negative) and merge like merge sort.",
+              "steps": [
+                "Find pivot: first non-negative element.",
+                "Set left pointer at pivot - 1.",
+                "Set right pointer at pivot.",
+                "Merge two sorted halves into result array."
+              ],
+              "code": "function sortedSquares(nums) {\n    const n = nums.length;\n\n    let pivot = 0;\n    while (pivot < n && nums[pivot] < 0) {\n        pivot++;\n    }\n\n    let left = pivot - 1;\n    let right = pivot;\n    const result = [];\n\n    while (left >= 0 && right < n) {\n        const leftSq = nums[left] * nums[left];\n        const rightSq = nums[right] * nums[right];\n\n        if (leftSq < rightSq) {\n            result.push(leftSq);\n            left--;\n        } else {\n            result.push(rightSq);\n            right++;\n        }\n    }\n\n    while (left >= 0) {\n        result.push(nums[left] * nums[left]);\n        left--;\n    }\n\n    while (right < n) {\n        result.push(nums[right] * nums[right]);\n        right++;\n    }\n\n    return result;\n}",
+              "language": "javascript",
+              "timeComplexity": "O(n)",
+              "timeType": "good",
+              "spaceComplexity": "O(n)",
+              "spaceType": "warning",
+              "pros": ["Uses sorted property", "Linear time complexity"],
+              "cons": [
+                "More complex logic",
+                "Requires pivot detection and merging"
+              ],
+              "visualLink": "/legacy/Arrays/two-pointers/Squares-of-Sorted-Array/2-merge-visualization.html",
+              "notesLink": ""
+            },
+            {
+              "title": "Optimal — Two Pointers from Ends",
+              "badge": "Optimal",
+              "intuition": "Largest squares come from either the most negative or most positive values. Use two pointers at both ends and fill the result array from right to left.",
+              "steps": [
+                "Initialize left = 0, right = n-1.",
+                "Create result array of size n.",
+                "Compare squares of nums[left] and nums[right].",
+                "Place larger square at current position (from end).",
+                "Move respective pointer inward."
+              ],
+              "code": "function sortedSquares(nums) {\n    const n = nums.length;\n    const result = new Array(n);\n\n    let left = 0;\n    let right = n - 1;\n    let pos = n - 1;\n\n    while (left <= right) {\n        const leftSq = nums[left] * nums[left];\n        const rightSq = nums[right] * nums[right];\n\n        if (leftSq > rightSq) {\n            result[pos] = leftSq;\n            left++;\n        } else {\n            result[pos] = rightSq;\n            right--;\n        }\n        pos--;\n    }\n\n    return result;\n}",
+              "language": "javascript",
+              "timeComplexity": "O(n)",
+              "timeType": "good",
+              "spaceComplexity": "O(n)",
+              "spaceType": "warning",
+              "pros": [
+                "Single clean loop",
+                "No pivot detection needed",
+                "Elegant and interview-preferred solution"
+              ],
+              "cons": ["Requires understanding of absolute values logic"],
+              "visualLink": "/legacy/Arrays/two-pointers/Squares-of-Sorted-Array/3-two-pointer-visualization.html",
+              "notesLink": ""
+            }
+          ]
+        },
+        "sort-colors": {
+          "breadcrumb": ["Arrays", "Two Pointers", "Sort Colors"],
+          "title": "Sort Colors",
+          "difficulty": "Medium",
+          "problemSlug": "sort-colors",
+          "categoryPath": "arrays/two-pointers",
+          "tags": ["Array", "Two Pointers", "Sorting", "Dutch National Flag"],
+          "description": "Given an array nums with n objects colored red (0), white (1), or blue (2), sort them in-place so that objects of the same color are adjacent, with the colors in the order 0, 1, and 2. You must solve the problem without using the library's sort function.",
+          "examples": [
+            {
+              "input": "nums = [2,0,2,1,1,0]",
+              "output": "[0,0,1,1,2,2]",
+              "explanation": "After sorting in-place, the array becomes [0,0,1,1,2,2]."
+            },
+            {
+              "input": "nums = [2,0,1]",
+              "output": "[0,1,2]",
+              "explanation": "Single pass rearrangement gives sorted colors."
+            }
+          ],
+          "constraints": [
+            "1 ≤ nums.length ≤ 300",
+            "nums[i] is either 0, 1, or 2"
+          ],
+          "approaches": [
+            {
+              "title": "Brute Force — Two-Pass Counting Sort",
+              "badge": "Brute Force",
+              "intuition": "Since there are only three possible values (0, 1, 2), count their frequencies in one pass and overwrite the array in a second pass.",
+              "steps": [
+                "Initialize count0, count1, count2 to 0.",
+                "First pass: count occurrences.",
+                "Second pass: overwrite array with 0s, then 1s, then 2s."
+              ],
+              "code": "function sortColors(nums) {\n    let count0 = 0;\n    let count1 = 0;\n    let count2 = 0;\n\n    for (let num of nums) {\n        if (num === 0) count0++;\n        else if (num === 1) count1++;\n        else count2++;\n    }\n\n    let index = 0;\n\n    for (let i = 0; i < count0; i++) nums[index++] = 0;\n    for (let i = 0; i < count1; i++) nums[index++] = 1;\n    for (let i = 0; i < count2; i++) nums[index++] = 2;\n}",
+              "language": "javascript",
+              "timeComplexity": "O(n)",
+              "timeType": "good",
+              "spaceComplexity": "O(1)",
+              "spaceType": "good",
+              "pros": ["Simple and easy to implement", "Constant extra space"],
+              "cons": [
+                "Requires two passes",
+                "Does not demonstrate in-place partition logic"
+              ],
+              "visualLink": "/legacy/Arrays/two-pointers/Sort-Colors/1-counting-visualization.html",
+              "notesLink": ""
+            },
+
+            {
+              "title": "Optimal — One-Pass Dutch National Flag",
+              "badge": "Optimal",
+              "intuition": "Use three pointers: low (boundary for 0s), high (boundary for 2s), and i (current index). Partition the array into three regions in a single pass.",
+              "steps": [
+                "Initialize low = 0, high = n-1, i = 0.",
+                "If nums[i] === 0 → swap with nums[low], increment both low and i.",
+                "If nums[i] === 1 → just increment i.",
+                "If nums[i] === 2 → swap with nums[high], decrement high (do NOT increment i).",
+                "Continue until i > high."
+              ],
+              "code": "function sortColors(nums) {\n    let low = 0;\n    let high = nums.length - 1;\n    let i = 0;\n\n    while (i <= high) {\n        if (nums[i] === 0) {\n            [nums[i], nums[low]] = [nums[low], nums[i]];\n            low++;\n            i++;\n        } else if (nums[i] === 2) {\n            [nums[i], nums[high]] = [nums[high], nums[i]];\n            high--;\n        } else {\n            i++;\n        }\n    }\n}",
+              "language": "javascript",
+              "timeComplexity": "O(n)",
+              "timeType": "good",
+              "spaceComplexity": "O(1)",
+              "spaceType": "good",
+              "pros": [
+                "Single pass",
+                "True in-place solution",
+                "Elegant partitioning logic",
+                "Interview-standard optimal solution"
+              ],
+              "cons": [
+                "Requires careful pointer management",
+                "Easy to make off-by-one mistakes"
+              ],
+              "visualLink": "/legacy/Arrays/two-pointers/Sort-Colors/2-dnf-visualization.html",
+              "notesLink": ""
+            }
+          ]
+        },
+        "merge-sorted-array": {
+          "breadcrumb": ["Arrays", "Two Pointers", "Merge Sorted Array"],
+          "title": "Merge Sorted Array",
+          "difficulty": "Easy",
+          "problemSlug": "merge-sorted-array",
+          "categoryPath": "arrays/two-pointers",
+          "tags": ["Array", "Two Pointers", "Merge", "In-Place"],
+          "description": "You are given two integer arrays nums1 and nums2, sorted in non-decreasing order, and two integers m and n representing the number of elements in nums1 and nums2 respectively. Merge nums2 into nums1 as one sorted array in-place.",
+          "examples": [
+            {
+              "input": "nums1 = [1,2,3,0,0,0], m = 3, nums2 = [2,5,6], n = 3",
+              "output": "[1,2,2,3,5,6]",
+              "explanation": "After merging nums2 into nums1, the final sorted array is [1,2,2,3,5,6]."
+            },
+            {
+              "input": "nums1 = [1], m = 1, nums2 = [], n = 0",
+              "output": "[1]",
+              "explanation": "No elements to merge from nums2."
+            }
+          ],
+          "constraints": [
+            "0 ≤ m, n ≤ 200",
+            "1 ≤ m + n ≤ 200",
+            "-10⁹ ≤ nums1[i], nums2[j] ≤ 10⁹",
+            "nums1 has length m + n"
+          ],
+          "approaches": [
+            {
+              "title": "Brute Force — Merge and Sort",
+              "badge": "Brute Force",
+              "intuition": "Copy all elements of nums2 into nums1's extra space, then sort nums1. This works but ignores the fact that both arrays are already sorted.",
+              "steps": [
+                "Copy nums2 elements into nums1 starting at index m.",
+                "Sort the entire nums1 array."
+              ],
+              "code": "function merge(nums1, m, nums2, n) {\n    for (let i = 0; i < n; i++) {\n        nums1[m + i] = nums2[i];\n    }\n\n    nums1.sort((a, b) => a - b);\n}",
+              "language": "javascript",
+              "timeComplexity": "O((m+n) log(m+n))",
+              "timeType": "warning",
+              "spaceComplexity": "O(1) or O(log(m+n))",
+              "spaceType": "warning",
+              "pros": ["Very simple implementation", "Easy to understand"],
+              "cons": [
+                "Does not leverage sorted property",
+                "Sorting step makes it suboptimal"
+              ],
+              "visualLink": "/legacy/Arrays/two-pointers/Merge-Sorted-Array/1-merge-sort-visualization.html",
+              "notesLink": ""
+            },
+            {
+              "title": "Intermediate — Two Pointers (With Extra Space)",
+              "badge": "Improved",
+              "intuition": "Use merge-sort logic with two pointers. Copy the valid part of nums1 to avoid overwriting unread elements, then merge into nums1.",
+              "steps": [
+                "Copy first m elements of nums1.",
+                "Use two pointers for nums1Copy and nums2.",
+                "Write smallest element into nums1.",
+                "Copy remaining elements at the end."
+              ],
+              "code": "function merge(nums1, m, nums2, n) {\n    const nums1Copy = nums1.slice(0, m);\n\n    let p1 = 0;\n    let p2 = 0;\n    let p = 0;\n\n    while (p1 < m && p2 < n) {\n        if (nums1Copy[p1] <= nums2[p2]) {\n            nums1[p++] = nums1Copy[p1++];\n        } else {\n            nums1[p++] = nums2[p2++];\n        }\n    }\n\n    while (p1 < m) {\n        nums1[p++] = nums1Copy[p1++];\n    }\n\n    while (p2 < n) {\n        nums1[p++] = nums2[p2++];\n    }\n}",
+              "language": "javascript",
+              "timeComplexity": "O(m + n)",
+              "timeType": "good",
+              "spaceComplexity": "O(m)",
+              "spaceType": "warning",
+              "pros": ["Linear time complexity", "Clear merge logic"],
+              "cons": ["Uses extra memory", "Not fully in-place"],
+              "visualLink": "/legacy/Arrays/two-pointers/Merge-Sorted-Array/2-extra-space-visualization.html",
+              "notesLink": ""
+            },
+            {
+              "title": "Optimal — Two Pointers (From End)",
+              "badge": "Optimal",
+              "intuition": "Since nums1 has empty space at the end, fill it from the back. Compare the largest elements from nums1 and nums2 and place the larger at the end.",
+              "steps": [
+                "Initialize p1 = m-1, p2 = n-1, p = m+n-1.",
+                "Compare nums1[p1] and nums2[p2].",
+                "Place larger value at nums1[p].",
+                "Move pointers accordingly.",
+                "Continue until nums2 is fully merged."
+              ],
+              "code": "function merge(nums1, m, nums2, n) {\n    let p1 = m - 1;\n    let p2 = n - 1;\n    let p = m + n - 1;\n\n    while (p2 >= 0) {\n        if (p1 >= 0 && nums1[p1] > nums2[p2]) {\n            nums1[p] = nums1[p1];\n            p1--;\n        } else {\n            nums1[p] = nums2[p2];\n            p2--;\n        }\n        p--;\n    }\n}",
+              "language": "javascript",
+              "timeComplexity": "O(m + n)",
+              "timeType": "good",
+              "spaceComplexity": "O(1)",
+              "spaceType": "good",
+              "pros": [
+                "True in-place solution",
+                "Linear time",
+                "Elegant backward merge logic",
+                "Interview-standard optimal approach"
+              ],
+              "cons": ["Requires understanding of reverse traversal"],
+              "visualLink": "/legacy/Arrays/two-pointers/Merge-Sorted-Array/3-backward-merge-visualization.html",
+              "notesLink": ""
+            }
+          ]
+        },
+        "longest-mountain-in-array": {
+          "breadcrumb": ["Arrays", "Two Pointers", "Longest Mountain in Array"],
+          "title": "Longest Mountain in Array",
+          "difficulty": "Medium",
+          "problemSlug": "longest-mountain-in-array",
+          "categoryPath": "arrays/two-pointers",
+          "tags": [
+            "Array",
+            "Two Pointers",
+            "Dynamic Programming",
+            "State Machine"
+          ],
+          "description": "Given an integer array arr, return the length of the longest subarray that forms a mountain. A mountain is defined as a sequence that strictly increases to a peak and then strictly decreases, with length ≥ 3.",
+          "examples": [
+            {
+              "input": "arr = [2,1,4,7,3,2,5]",
+              "output": "5",
+              "explanation": "The longest mountain is [1,4,7,3,2] with length 5."
+            },
+            {
+              "input": "arr = [2,2,2]",
+              "output": "0",
+              "explanation": "No valid mountain exists because the sequence never strictly increases then decreases."
+            }
+          ],
+          "constraints": ["1 ≤ arr.length ≤ 10⁴", "0 ≤ arr[i] ≤ 10⁴"],
+          "approaches": [
+            {
+              "title": "Brute Force — Try Every Peak",
+              "badge": "Brute Force",
+              "intuition": "Treat each index as a potential peak. If it is strictly greater than its neighbors, expand outward to measure the mountain length.",
+              "steps": [
+                "Iterate i from 1 to n-2.",
+                "Check if arr[i] is a peak.",
+                "Expand left while strictly increasing.",
+                "Expand right while strictly decreasing.",
+                "Track maximum length."
+              ],
+              "code": "function longestMountain(arr) {\n    const n = arr.length;\n    let maxLen = 0;\n\n    for (let i = 1; i < n - 1; i++) {\n        if (arr[i - 1] < arr[i] && arr[i] > arr[i + 1]) {\n            let left = i - 1;\n            let right = i + 1;\n\n            while (left > 0 && arr[left - 1] < arr[left]) {\n                left--;\n            }\n\n            while (right < n - 1 && arr[right] > arr[right + 1]) {\n                right++;\n            }\n\n            maxLen = Math.max(maxLen, right - left + 1);\n        }\n    }\n\n    return maxLen;\n}",
+              "language": "javascript",
+              "timeComplexity": "O(n²) (conceptually)",
+              "timeType": "warning",
+              "spaceComplexity": "O(1)",
+              "spaceType": "good",
+              "pros": [
+                "Simple to understand",
+                "Direct mountain expansion logic"
+              ],
+              "cons": [
+                "Re-scans increasing/decreasing segments",
+                "Not optimal for repeated patterns"
+              ],
+              "visualLink": "/legacy/Arrays/two-pointers/Longest-Mountain/1-peak-expansion-visualization.html",
+              "notesLink": ""
+            },
+
+            {
+              "title": "Improved — Two Pass Precomputation",
+              "badge": "Improved",
+              "intuition": "Precompute increasing lengths (up array) and decreasing lengths (down array). A peak exists at i if both up[i] and down[i] are greater than zero.",
+              "steps": [
+                "Create up and down arrays initialized to 0.",
+                "Pass 1: Fill up[] from left to right.",
+                "Pass 2: Fill down[] from right to left.",
+                "For each index, if up[i] > 0 and down[i] > 0, update max length."
+              ],
+              "code": "function longestMountain(arr) {\n    const n = arr.length;\n    const up = new Array(n).fill(0);\n    const down = new Array(n).fill(0);\n\n    for (let i = 1; i < n; i++) {\n        if (arr[i] > arr[i - 1]) {\n            up[i] = up[i - 1] + 1;\n        }\n    }\n\n    for (let i = n - 2; i >= 0; i--) {\n        if (arr[i] > arr[i + 1]) {\n            down[i] = down[i + 1] + 1;\n        }\n    }\n\n    let maxLen = 0;\n    for (let i = 0; i < n; i++) {\n        if (up[i] > 0 && down[i] > 0) {\n            maxLen = Math.max(maxLen, up[i] + down[i] + 1);\n        }\n    }\n\n    return maxLen;\n}",
+              "language": "javascript",
+              "timeComplexity": "O(n)",
+              "timeType": "good",
+              "spaceComplexity": "O(n)",
+              "spaceType": "warning",
+              "pros": ["Linear time", "Easy to reason about peaks"],
+              "cons": ["Uses extra arrays", "Consumes O(n) space"],
+              "visualLink": "/legacy/Arrays/two-pointers/Longest-Mountain/2-precompute-visualization.html",
+              "notesLink": ""
+            },
+            {
+              "title": "Optimal — One Pass State Machine",
+              "badge": "Optimal",
+              "intuition": "Traverse once while counting increasing (up) and decreasing (down) lengths. Reset when pattern breaks. Track valid mountains when both up and down exist.",
+              "steps": [
+                "Initialize up = 0, down = 0.",
+                "Traverse from index 1.",
+                "Reset counters if pattern breaks.",
+                "Increment up if increasing.",
+                "Increment down if decreasing.",
+                "If up > 0 and down > 0, update max length."
+              ],
+              "code": "function longestMountain(arr) {\n    let maxLen = 0;\n    let up = 0;\n    let down = 0;\n\n    for (let i = 1; i < arr.length; i++) {\n        if ((down > 0 && arr[i] > arr[i - 1]) || arr[i] === arr[i - 1]) {\n            up = 0;\n            down = 0;\n        }\n\n        if (arr[i] > arr[i - 1]) {\n            up++;\n        } else if (arr[i] < arr[i - 1]) {\n            down++;\n        }\n\n        if (up > 0 && down > 0) {\n            maxLen = Math.max(maxLen, up + down + 1);\n        }\n    }\n\n    return maxLen;\n}",
+              "language": "javascript",
+              "timeComplexity": "O(n)",
+              "timeType": "good",
+              "spaceComplexity": "O(1)",
+              "spaceType": "good",
+              "pros": [
+                "Single pass",
+                "Constant space",
+                "Elegant state transition logic",
+                "Interview-preferred solution"
+              ],
+              "cons": ["Requires careful handling of transitions"],
+              "visualLink": "/legacy/Arrays/two-pointers/Longest-Mountain/3-state-machine-visualization.html",
+              "notesLink": ""
+            }
+          ]
+        },
+        "shortest-unsorted-continuous-subarray": {
+          "breadcrumb": [
+            "Arrays",
+            "Monotonic Stack",
+            "Shortest Unsorted Subarray"
+          ],
+          "title": "Shortest Unsorted Continuous Subarray",
+          "difficulty": "Medium",
+          "problemSlug": "shortest-unsorted-continuous-subarray",
+          "categoryPath": "arrays/two-pointers",
+          "tags": ["Array", "Monotonic Stack", "Two Pass", "Greedy"],
+          "description": "Given an integer array nums, return the length of the shortest continuous subarray such that if you only sort this subarray in ascending order, the whole array becomes sorted.",
+          "examples": [
+            {
+              "input": "nums = [2,6,4,8,10,9,15]",
+              "output": "5",
+              "explanation": "Sorting the subarray [6,4,8,10,9] makes the whole array sorted."
+            },
+            {
+              "input": "nums = [1,2,3,4]",
+              "output": "0",
+              "explanation": "The array is already sorted."
+            }
+          ],
+          "constraints": ["1 ≤ nums.length ≤ 10⁴", "-10⁵ ≤ nums[i] ≤ 10⁵"],
+          "approaches": [
+            {
+              "title": "Brute Force — Sort & Compare",
+              "badge": "Brute Force",
+              "intuition": "Sort a copy of the array and compare it with the original. The first and last mismatching indices define the boundaries of the unsorted subarray.",
+              "steps": [
+                "Create a sorted copy of nums.",
+                "Scan to find first mismatch → left boundary.",
+                "Continue scanning to find last mismatch → right boundary.",
+                "Return length or 0 if already sorted."
+              ],
+              "code": "function findUnsortedSubarray(nums) {\n  const sorted = [...nums].sort((a, b) => a - b);\n  let left = -1, right = -1;\n\n  for (let i = 0; i < nums.length; i++) {\n    if (nums[i] !== sorted[i]) {\n      if (left === -1) left = i;\n      right = i;\n    }\n  }\n\n  return left === -1 ? 0 : right - left + 1;\n}",
+              "language": "javascript",
+              "timeComplexity": "O(n log n)",
+              "timeType": "warning",
+              "spaceComplexity": "O(n)",
+              "spaceType": "warning",
+              "pros": ["Very simple logic", "Easy to reason about correctness"],
+              "cons": ["Uses sorting unnecessarily", "Consumes extra space"],
+              "visualLink": "/legacy/Arrays/Shortest-Unsorted-Subarray/1-sort-compare-visualization.html",
+              "notesLink": ""
+            },
+
+            {
+              "title": "Improved — Monotonic Stack",
+              "badge": "Improved",
+              "intuition": "Use a monotonic stack to detect where the sorted order is violated. An increasing stack finds the left boundary; a decreasing stack finds the right boundary.",
+              "steps": [
+                "Scan left-to-right with increasing stack to find left boundary.",
+                "Scan right-to-left with decreasing stack to find right boundary.",
+                "Return right - left + 1 if valid."
+              ],
+              "code": "function findUnsortedSubarray(nums) {\n  const n = nums.length;\n  let left = n, right = 0;\n  const stack = [];\n\n  for (let i = 0; i < n; i++) {\n    while (stack.length && nums[stack[stack.length - 1]] > nums[i]) {\n      left = Math.min(left, stack.pop());\n    }\n    stack.push(i);\n  }\n\n  stack.length = 0;\n\n  for (let i = n - 1; i >= 0; i--) {\n    while (stack.length && nums[stack[stack.length - 1]] < nums[i]) {\n      right = Math.max(right, stack.pop());\n    }\n    stack.push(i);\n  }\n\n  return right > left ? right - left + 1 : 0;\n}",
+              "language": "javascript",
+              "timeComplexity": "O(n)",
+              "timeType": "good",
+              "spaceComplexity": "O(n)",
+              "spaceType": "warning",
+              "pros": [
+                "Avoids sorting",
+                "Linear time complexity",
+                "Intuitive violation detection"
+              ],
+              "cons": ["Uses extra stack space", "Slightly more complex logic"],
+              "visualLink": "/legacy/Arrays/Shortest-Unsorted-Subarray/2-stack-visualization.html",
+              "notesLink": ""
+            },
+
+            {
+              "title": "Optimal — Two-Pass Min/Max Scan",
+              "badge": "Optimal",
+              "intuition": "Track running maximum from left and running minimum from right. Elements smaller than maxSeen are misplaced (right boundary). Elements larger than minSeen are misplaced (left boundary).",
+              "steps": [
+                "Scan left-to-right tracking maxSeen.",
+                "If nums[i] < maxSeen → update right boundary.",
+                "Scan right-to-left tracking minSeen.",
+                "If nums[i] > minSeen → update left boundary.",
+                "Return length or 0 if already sorted."
+              ],
+              "code": "function findUnsortedSubarray(nums) {\n  const n = nums.length;\n  let maxSeen = -Infinity, minSeen = Infinity;\n  let left = -1, right = -1;\n\n  for (let i = 0; i < n; i++) {\n    if (nums[i] < maxSeen) {\n      right = i;\n    } else {\n      maxSeen = nums[i];\n    }\n  }\n\n  for (let i = n - 1; i >= 0; i--) {\n    if (nums[i] > minSeen) {\n      left = i;\n    } else {\n      minSeen = nums[i];\n    }\n  }\n\n  return right === -1 ? 0 : right - left + 1;\n}",
+              "language": "javascript",
+              "timeComplexity": "O(n)",
+              "timeType": "good",
+              "spaceComplexity": "O(1)",
+              "spaceType": "good",
+              "pros": [
+                "Single logical scan in each direction",
+                "Constant extra space",
+                "Very elegant boundary detection",
+                "Interview-preferred optimal solution"
+              ],
+              "cons": ["Requires deeper understanding of displacement logic"],
+              "visualLink": "/legacy/Arrays/Shortest-Unsorted-Subarray/3-minmax-scan-visualization.html",
+              "notesLink": ""
+            }
+          ]
+        }
+      }
+    },
+    "merge-intervals": {
+      "title": "Merge Intervals",
+      "description": "",
+      "problems": {
+        "merge-intervals": {
+          "breadcrumb": ["Arrays", "Intervals", "Merge Intervals"],
+          "title": "Merge Intervals",
+          "difficulty": "Medium",
+          "problemSlug": "merge-intervals",
+          "categoryPath": "arrays/intervals",
+          "tags": ["Array", "Sorting", "Intervals", "Union Find"],
+          "description": "Given an array of intervals where intervals[i] = [start_i, end_i], merge all overlapping intervals and return an array of the non-overlapping intervals that cover all intervals in the input.",
+          "examples": [
+            {
+              "input": "intervals = [[1,3],[2,6],[8,10],[15,18]]",
+              "output": "[[1,6],[8,10],[15,18]]",
+              "explanation": "Intervals [1,3] and [2,6] overlap, so they are merged into [1,6]."
+            },
+            {
+              "input": "intervals = [[1,4],[4,5]]",
+              "output": "[[1,5]]",
+              "explanation": "Intervals [1,4] and [4,5] overlap since they share a boundary."
+            }
+          ],
+          "constraints": [
+            "1 ≤ intervals.length ≤ 10⁴",
+            "intervals[i].length == 2",
+            "0 ≤ start_i ≤ end_i ≤ 10⁴"
+          ],
+          "approaches": [
+            {
+              "title": "Brute Force — Compare Every Pair",
+              "badge": "Brute Force",
+              "intuition": "Repeatedly check all interval pairs. If any two overlap, merge them and restart until no changes occur.",
+              "steps": [
+                "Copy intervals into result.",
+                "Repeat until no merges happen.",
+                "Compare every pair for overlap.",
+                "Merge and restart when overlap found."
+              ],
+              "code": "function merge(intervals) {\n    if (intervals.length <= 1) return intervals;\n\n    let result = intervals.map(i => [...i]);\n    let changed = true;\n\n    while (changed) {\n        changed = false;\n        outer:\n        for (let i = 0; i < result.length; i++) {\n            for (let j = i + 1; j < result.length; j++) {\n                if (result[i][0] <= result[j][1] && result[j][0] <= result[i][1]) {\n                    const merged = [\n                        Math.min(result[i][0], result[j][0]),\n                        Math.max(result[i][1], result[j][1])\n                    ];\n                    result.splice(j, 1);\n                    result.splice(i, 1);\n                    result.push(merged);\n                    changed = true;\n                    break outer;\n                }\n            }\n        }\n    }\n\n    return result;\n}",
+              "language": "javascript",
+              "timeComplexity": "O(n³)",
+              "timeType": "bad",
+              "spaceComplexity": "O(n)",
+              "spaceType": "warning",
+              "pros": [
+                "Very direct logic",
+                "Easy to understand overlap condition"
+              ],
+              "cons": ["Extremely inefficient", "Repeated scanning"],
+              "visualLink": "/legacy/Arrays/Intervals/Merge-Intervals/1-bruteforce-visualization.html",
+              "notesLink": ""
+            },
+
+            {
+              "title": "Improved — Union-Find (Disjoint Set)",
+              "badge": "Improved",
+              "intuition": "Treat each interval as a node. If two intervals overlap, union them. After grouping, merge intervals within each connected component.",
+              "steps": [
+                "Initialize Union-Find structure.",
+                "Union overlapping interval pairs.",
+                "Group intervals by root parent.",
+                "Merge each group into one interval."
+              ],
+              "code": "function merge(intervals) {\n    const n = intervals.length;\n    if (n <= 1) return intervals;\n\n    const parent = Array.from({ length: n }, (_, i) => i);\n\n    function find(x) {\n        if (parent[x] !== x) parent[x] = find(parent[x]);\n        return parent[x];\n    }\n\n    function union(x, y) {\n        parent[find(x)] = find(y);\n    }\n\n    function overlaps(a, b) {\n        return a[0] <= b[1] && b[0] <= a[1];\n    }\n\n    for (let i = 0; i < n; i++) {\n        for (let j = i + 1; j < n; j++) {\n            if (overlaps(intervals[i], intervals[j])) {\n                union(i, j);\n            }\n        }\n    }\n\n    const groups = new Map();\n    for (let i = 0; i < n; i++) {\n        const root = find(i);\n        if (!groups.has(root)) groups.set(root, []);\n        groups.get(root).push(intervals[i]);\n    }\n\n    const result = [];\n    for (const group of groups.values()) {\n        let start = Infinity, end = -Infinity;\n        for (const [s, e] of group) {\n            start = Math.min(start, s);\n            end = Math.max(end, e);\n        }\n        result.push([start, end]);\n    }\n\n    return result;\n}",
+              "language": "javascript",
+              "timeComplexity": "O(n²)",
+              "timeType": "warning",
+              "spaceComplexity": "O(n)",
+              "spaceType": "warning",
+              "pros": ["Clean grouping abstraction", "Interesting use of DSU"],
+              "cons": [
+                "Still quadratic comparisons",
+                "Overkill for this problem"
+              ],
+              "visualLink": "/legacy/Arrays/Intervals/Merge-Intervals/2-union-find-visualization.html",
+              "notesLink": ""
+            },
+            {
+              "title": "Optimal — Sort + Linear Merge",
+              "badge": "Optimal",
+              "intuition": "After sorting by start time, overlapping intervals must be consecutive. Merge them in a single linear scan.",
+              "steps": [
+                "Sort intervals by start time.",
+                "Initialize merged with first interval.",
+                "Iterate through intervals.",
+                "If overlapping, extend last merged interval.",
+                "Otherwise, push new interval."
+              ],
+              "code": "function merge(intervals) {\n    if (intervals.length <= 1) return intervals;\n\n    intervals.sort((a, b) => a[0] - b[0]);\n\n    const merged = [intervals[0]];\n\n    for (let i = 1; i < intervals.length; i++) {\n        const current = intervals[i];\n        const last = merged[merged.length - 1];\n\n        if (current[0] <= last[1]) {\n            last[1] = Math.max(last[1], current[1]);\n        } else {\n            merged.push(current);\n        }\n    }\n\n    return merged;\n}",
+              "language": "javascript",
+              "timeComplexity": "O(n log n)",
+              "timeType": "good",
+              "spaceComplexity": "O(n)",
+              "spaceType": "warning",
+              "pros": [
+                "Clean and elegant",
+                "Linear merge after sorting",
+                "Interview-standard solution"
+              ],
+              "cons": ["Requires sorting"],
+              "visualLink": "/legacy/Arrays/Intervals/Merge-Intervals/3-sort-merge-visualization.html",
+              "notesLink": ""
+            }
+          ]
+        },
+        "insert-intervals": {
+          "breadcrumb": ["Arrays", "Intervals", "Insert Interval"],
+          "title": "Insert Interval",
+          "difficulty": "Medium",
+          "problemSlug": "insert-interval",
+          "categoryPath": "arrays/intervals",
+          "tags": ["Array", "Sorting", "Intervals", "Greedy"],
+          "description": "You are given an array of non-overlapping intervals sorted by their start time and a new interval. Insert the new interval into the intervals such that the resulting intervals remain sorted and non-overlapping.",
+          "examples": [
+            {
+              "input": "intervals = [[1,3],[6,9]], newInterval = [2,5]",
+              "output": "[[1,5],[6,9]]",
+              "explanation": "The interval [2,5] overlaps with [1,3], so they are merged into [1,5]."
+            },
+            {
+              "input": "intervals = [[1,2],[3,5],[6,7],[8,10],[12,16]], newInterval = [4,8]",
+              "output": "[[1,2],[3,10],[12,16]]",
+              "explanation": "The interval [4,8] overlaps with [3,5],[6,7],[8,10], merging into [3,10]."
+            }
+          ],
+          "constraints": [
+            "0 ≤ intervals.length ≤ 10⁴",
+            "intervals[i].length == 2",
+            "0 ≤ start_i ≤ end_i ≤ 10⁵",
+            "intervals is sorted and non-overlapping"
+          ],
+          "approaches": [
+            {
+              "title": "Brute Force — Add Then Merge All",
+              "badge": "Brute Force",
+              "intuition": "Simply add the new interval to the array, then run the full Merge Intervals algorithm (sort + linear merge).",
+              "steps": [
+                "Push newInterval into intervals.",
+                "Sort intervals by start time.",
+                "Run standard merge logic."
+              ],
+              "code": "function insert(intervals, newInterval) {\n    intervals.push(newInterval);\n    intervals.sort((a, b) => a[0] - b[0]);\n\n    const merged = [intervals[0]];\n\n    for (let i = 1; i < intervals.length; i++) {\n        const current = intervals[i];\n        const last = merged[merged.length - 1];\n\n        if (current[0] <= last[1]) {\n            last[1] = Math.max(last[1], current[1]);\n        } else {\n            merged.push(current);\n        }\n    }\n\n    return merged;\n}",
+              "language": "javascript",
+              "timeComplexity": "O(n log n)",
+              "timeType": "warning",
+              "spaceComplexity": "O(n)",
+              "spaceType": "warning",
+              "pros": ["Very straightforward", "Reuses existing merge logic"],
+              "cons": ["Unnecessary sorting", "Does not leverage sorted input"],
+              "visualLink": "/legacy/Arrays/Intervals/Insert-Interval/1-add-sort-visualization.html",
+              "notesLink": ""
+            },
+            {
+              "title": "Improved — Binary Search Insert + Merge",
+              "badge": "Improved",
+              "intuition": "Since intervals is already sorted, use binary search to find correct insertion position, then merge linearly.",
+              "steps": [
+                "Binary search insertion index.",
+                "Insert newInterval at correct position.",
+                "Run linear merge pass."
+              ],
+              "code": "function insert(intervals, newInterval) {\n    let left = 0, right = intervals.length;\n\n    while (left < right) {\n        const mid = Math.floor((left + right) / 2);\n        if (intervals[mid][0] < newInterval[0]) {\n            left = mid + 1;\n        } else {\n            right = mid;\n        }\n    }\n\n    intervals.splice(left, 0, newInterval);\n\n    const merged = [intervals[0]];\n    for (let i = 1; i < intervals.length; i++) {\n        const current = intervals[i];\n        const last = merged[merged.length - 1];\n\n        if (current[0] <= last[1]) {\n            last[1] = Math.max(last[1], current[1]);\n        } else {\n            merged.push(current);\n        }\n    }\n\n    return merged;\n}",
+              "language": "javascript",
+              "timeComplexity": "O(n)",
+              "timeType": "good",
+              "spaceComplexity": "O(n)",
+              "spaceType": "warning",
+              "pros": ["Avoids full sort", "Uses sorted property efficiently"],
+              "cons": [
+                "Still performs full merge pass",
+                "Splice operation costs O(n)"
+              ],
+              "visualLink": "/legacy/Arrays/Intervals/Insert-Interval/2-binary-insert-visualization.html",
+              "notesLink": ""
+            },
+            {
+              "title": "Optimal — Three-Phase Single Pass",
+              "badge": "Optimal",
+              "intuition": "Process intervals in three phases: before overlap, overlapping, and after overlap. No sorting needed.",
+              "steps": [
+                "Add all intervals ending before newInterval starts.",
+                "Merge all overlapping intervals into newInterval.",
+                "Add remaining intervals."
+              ],
+              "code": "function insert(intervals, newInterval) {\n    const result = [];\n    let i = 0;\n    const n = intervals.length;\n\n    while (i < n && intervals[i][1] < newInterval[0]) {\n        result.push(intervals[i]);\n        i++;\n    }\n\n    while (i < n && intervals[i][0] <= newInterval[1]) {\n        newInterval[0] = Math.min(newInterval[0], intervals[i][0]);\n        newInterval[1] = Math.max(newInterval[1], intervals[i][1]);\n        i++;\n    }\n    result.push(newInterval);\n\n    while (i < n) {\n        result.push(intervals[i]);\n        i++;\n    }\n\n    return result;\n}",
+              "language": "javascript",
+              "timeComplexity": "O(n)",
+              "timeType": "good",
+              "spaceComplexity": "O(n)",
+              "spaceType": "warning",
+              "pros": [
+                "Single pass",
+                "No sorting required",
+                "Clean boundary-based logic",
+                "Interview-preferred optimal solution"
+              ],
+              "cons": ["Requires careful boundary reasoning"],
+              "visualLink": "/legacy/Arrays/Intervals/Insert-Interval/3-three-phase-visualization.html",
+              "notesLink": ""
+            }
+          ]
+        },
+        "interval-list-intersection": {
+          "breadcrumb": ["Arrays", "Intervals", "Interval List Intersections"],
+          "title": "Interval List Intersections",
+          "difficulty": "Medium",
+          "problemSlug": "interval-list-intersections",
+          "categoryPath": "arrays/intervals",
+          "tags": ["Array", "Two Pointers", "Intervals", "Merge"],
+          "description": "Given two lists of closed intervals, firstList and secondList, where each list is pairwise disjoint and sorted in ascending order, return the intersection of these two interval lists.",
+          "examples": [
+            {
+              "input": "firstList = [[0,2],[5,10],[13,23],[24,25]], secondList = [[1,5],[8,12],[15,24],[25,26]]",
+              "output": "[[1,2],[5,5],[8,10],[15,23],[24,24],[25,25]]",
+              "explanation": "Each intersection is formed by overlapping parts of intervals from both lists."
+            },
+            {
+              "input": "firstList = [[1,3],[5,9]], secondList = []",
+              "output": "[]",
+              "explanation": "If one list is empty, there can be no intersections."
+            }
+          ],
+          "constraints": [
+            "0 ≤ firstList.length, secondList.length ≤ 1000",
+            "firstList[i].length == 2",
+            "secondList[j].length == 2",
+            "0 ≤ start ≤ end ≤ 10⁹",
+            "Both lists are sorted and non-overlapping internally"
+          ],
+          "approaches": [
+            {
+              "title": "Brute Force — Compare Every Pair",
+              "badge": "Brute Force",
+              "intuition": "Compare every interval in firstList with every interval in secondList. If they overlap, compute their intersection.",
+              "steps": [
+                "For each interval A in firstList:",
+                "For each interval B in secondList:",
+                "Compute lo = max(A.start, B.start).",
+                "Compute hi = min(A.end, B.end).",
+                "If lo ≤ hi, push [lo, hi] to result."
+              ],
+              "code": "function intervalIntersection(firstList, secondList) {\n    const result = [];\n\n    for (let i = 0; i < firstList.length; i++) {\n        for (let j = 0; j < secondList.length; j++) {\n            const lo = Math.max(firstList[i][0], secondList[j][0]);\n            const hi = Math.min(firstList[i][1], secondList[j][1]);\n\n            if (lo <= hi) {\n                result.push([lo, hi]);\n            }\n        }\n    }\n\n    return result;\n}",
+              "language": "javascript",
+              "timeComplexity": "O(n × m)",
+              "timeType": "warning",
+              "spaceComplexity": "O(1) (excluding result)",
+              "spaceType": "good",
+              "pros": [
+                "Very straightforward",
+                "Easy to reason about overlap logic"
+              ],
+              "cons": [
+                "Inefficient for large lists",
+                "Does not leverage sorted property"
+              ],
+              "visualLink": "/legacy/Arrays/Intervals/Interval-Intersections/1-bruteforce-visualization.html",
+              "notesLink": ""
+            },
+            {
+              "title": "Optimal — Two Pointers (Merge Process)",
+              "badge": "Optimal",
+              "intuition": "Since both lists are sorted and internally non-overlapping, use two pointers like merge sort. Always advance the pointer whose interval ends first.",
+              "steps": [
+                "Initialize i = 0, j = 0.",
+                "While both lists have intervals:",
+                "Compute intersection using max(start), min(end).",
+                "If valid, push to result.",
+                "Move pointer of interval that ends first."
+              ],
+              "code": "function intervalIntersection(firstList, secondList) {\n    let i = 0, j = 0;\n    const result = [];\n\n    while (i < firstList.length && j < secondList.length) {\n        const lo = Math.max(firstList[i][0], secondList[j][0]);\n        const hi = Math.min(firstList[i][1], secondList[j][1]);\n\n        if (lo <= hi) {\n            result.push([lo, hi]);\n        }\n\n        if (firstList[i][1] < secondList[j][1]) {\n            i++;\n        } else {\n            j++;\n        }\n    }\n\n    return result;\n}",
+              "language": "javascript",
+              "timeComplexity": "O(n + m)",
+              "timeType": "good",
+              "spaceComplexity": "O(1) (excluding result)",
+              "spaceType": "good",
+              "pros": [
+                "Linear time complexity",
+                "Elegant and clean logic",
+                "Leverages sorted property fully",
+                "Interview-preferred solution"
+              ],
+              "cons": ["Requires understanding of pointer advancement logic"],
+              "visualLink": "/legacy/Arrays/Intervals/Interval-Intersections/2-two-pointer-visualization.html",
+              "notesLink": ""
+            }
+          ]
+        },
+        "non-overlapping-intervals": {
+          "breadcrumb": ["Arrays", "Intervals", "Non-overlapping Intervals"],
+          "title": "Non-overlapping Intervals",
+          "difficulty": "Medium",
+          "problemSlug": "non-overlapping-intervals",
+          "categoryPath": "arrays/intervals",
+          "tags": ["Array", "Greedy", "Dynamic Programming", "Intervals"],
+          "description": "Given an array of intervals, return the minimum number of intervals you need to remove to make the rest of the intervals non-overlapping.",
+          "examples": [
+            {
+              "input": "intervals = [[1,2],[2,3],[3,4],[1,3]]",
+              "output": "1",
+              "explanation": "Removing [1,3] makes the remaining intervals non-overlapping."
+            },
+            {
+              "input": "intervals = [[1,2],[1,2],[1,2]]",
+              "output": "2",
+              "explanation": "We can keep only one interval since all overlap."
+            }
+          ],
+          "constraints": [
+            "1 ≤ intervals.length ≤ 10⁴",
+            "-5 * 10⁴ ≤ start < end ≤ 5 * 10⁴"
+          ],
+          "approaches": [
+            {
+              "title": "Brute Force — Try All Subsets",
+              "badge": "Brute Force",
+              "intuition": "Generate all subsets and check which ones are non-overlapping. Track the maximum number we can keep.",
+              "steps": [
+                "Generate all subsets (2ⁿ possibilities).",
+                "Check if subset is non-overlapping.",
+                "Track largest valid subset.",
+                "Return n - maxKeep."
+              ],
+              "code": "function minRemovals(intervals) {\n    const n = intervals.length;\n    let maxKeep = 0;\n\n    function isNonOverlapping(subset) {\n        subset.sort((a, b) => a[0] - b[0]);\n        for (let i = 1; i < subset.length; i++) {\n            if (subset[i][0] < subset[i - 1][1]) return false;\n        }\n        return true;\n    }\n\n    const total = 1 << n;\n    for (let mask = 0; mask < total; mask++) {\n        const subset = [];\n        for (let i = 0; i < n; i++) {\n            if (mask & (1 << i)) subset.push(intervals[i]);\n        }\n        if (isNonOverlapping(subset)) {\n            maxKeep = Math.max(maxKeep, subset.length);\n        }\n    }\n\n    return n - maxKeep;\n}",
+              "language": "javascript",
+              "timeComplexity": "O(2ⁿ × n log n)",
+              "timeType": "bad",
+              "spaceComplexity": "O(n)",
+              "spaceType": "warning",
+              "pros": [
+                "Conceptually straightforward",
+                "Explores all possibilities"
+              ],
+              "cons": [
+                "Completely impractical for large n",
+                "Exponential time complexity"
+              ],
+              "visualLink": "/legacy/Arrays/Intervals/Non-Overlapping/1-bruteforce-visualization.html",
+              "notesLink": ""
+            },
+            {
+              "title": "Improved — Dynamic Programming",
+              "badge": "Improved",
+              "intuition": "After sorting by start, compute the maximum number of non-overlapping intervals ending at each index.",
+              "steps": [
+                "Sort intervals by start.",
+                "Initialize dp[i] = 1.",
+                "For each i, check all j < i.",
+                "If intervals[j].end ≤ intervals[i].start, update dp[i].",
+                "Return n - max(dp)."
+              ],
+              "code": "function minRemovals(intervals) {\n    intervals.sort((a, b) => a[0] - b[0]);\n    const n = intervals.length;\n    const dp = new Array(n).fill(1);\n\n    for (let i = 1; i < n; i++) {\n        for (let j = 0; j < i; j++) {\n            if (intervals[j][1] <= intervals[i][0]) {\n                dp[i] = Math.max(dp[i], dp[j] + 1);\n            }\n        }\n    }\n\n    const maxKeep = Math.max(...dp);\n    return n - maxKeep;\n}",
+              "language": "javascript",
+              "timeComplexity": "O(n²)",
+              "timeType": "warning",
+              "spaceComplexity": "O(n)",
+              "spaceType": "warning",
+              "pros": [
+                "Much better than brute force",
+                "Clear recurrence relation"
+              ],
+              "cons": ["Still quadratic time", "Not optimal for large n"],
+              "visualLink": "/legacy/Arrays/Intervals/Non-Overlapping/2-dp-visualization.html",
+              "notesLink": ""
+            },
+            {
+              "title": "Optimal — Greedy (Sort by End Time)",
+              "badge": "Optimal",
+              "intuition": "This is the classic Activity Selection problem. Always pick the interval that ends earliest to maximize space for future intervals.",
+              "steps": [
+                "Sort intervals by end time.",
+                "Initialize prevEnd = -Infinity.",
+                "Iterate intervals.",
+                "If start ≥ prevEnd, keep interval.",
+                "Otherwise, skip (remove) interval.",
+                "Return total - kept count."
+              ],
+              "code": "function eraseOverlapIntervals(intervals) {\n    if (intervals.length <= 1) return 0;\n\n    intervals.sort((a, b) => a[1] - b[1]);\n\n    let count = 0;\n    let prevEnd = -Infinity;\n\n    for (let i = 0; i < intervals.length; i++) {\n        if (intervals[i][0] >= prevEnd) {\n            count++;\n            prevEnd = intervals[i][1];\n        }\n    }\n\n    return intervals.length - count;\n}",
+              "language": "javascript",
+              "timeComplexity": "O(n log n)",
+              "timeType": "good",
+              "spaceComplexity": "O(1)",
+              "spaceType": "good",
+              "pros": [
+                "Elegant and optimal",
+                "Greedy proof guarantees correctness",
+                "Interview-standard solution"
+              ],
+              "cons": ["Requires understanding why end-time sorting works"],
+              "visualLink": "/legacy/Arrays/Intervals/Non-Overlapping/3-greedy-visualization.html",
+              "notesLink": ""
+            }
+          ]
+        },
+        "minimum-burst-ballons": {
+          "breadcrumb": [
+            "Arrays",
+            "Intervals",
+            "Minimum Arrows to Burst Balloons"
+          ],
+          "title": "Minimum Number of Arrows to Burst Balloons",
+          "difficulty": "Medium",
+          "problemSlug": "minimum-number-of-arrows-to-burst-balloons",
+          "categoryPath": "arrays/intervals",
+          "tags": ["Array", "Greedy", "Intervals", "Sorting"],
+          "description": "You are given an array of balloon intervals where points[i] = [xstart, xend]. An arrow shot at position x bursts all balloons with xstart ≤ x ≤ xend. Return the minimum number of arrows required to burst all balloons.",
+          "examples": [
+            {
+              "input": "points = [[10,16],[2,8],[1,6],[7,12]]",
+              "output": "2",
+              "explanation": "One arrow at 6 bursts [2,8] and [1,6]. Another arrow at 12 bursts [7,12] and [10,16]."
+            },
+            {
+              "input": "points = [[1,2],[3,4],[5,6],[7,8]]",
+              "output": "4",
+              "explanation": "No intervals overlap, so one arrow per balloon is needed."
+            }
+          ],
+          "constraints": [
+            "1 ≤ points.length ≤ 10⁴",
+            "-2³¹ ≤ xstart < xend ≤ 2³¹ - 1"
+          ],
+          "approaches": [
+            {
+              "title": "Brute Force — Check Every Subset of Points",
+              "badge": "Brute Force",
+              "intuition": "Try all possible subsets of candidate arrow positions (interval endpoints). Check if every balloon is covered. This reduces to a Set Cover problem.",
+              "steps": [
+                "Collect all distinct start and end points.",
+                "Generate subsets of candidate arrow positions.",
+                "For each subset, check if all balloons are burst.",
+                "Return smallest valid subset size."
+              ],
+              "code": "function minArrowsBruteForce(points) {\n    const candidates = new Set();\n    for (const [s, e] of points) {\n        candidates.add(s);\n        candidates.add(e);\n    }\n\n    const arr = Array.from(candidates);\n    const n = arr.length;\n\n    function allBurst(arrowSet) {\n        for (const [s, e] of points) {\n            let hit = false;\n            for (const arrow of arrowSet) {\n                if (s <= arrow && arrow <= e) {\n                    hit = true;\n                    break;\n                }\n            }\n            if (!hit) return false;\n        }\n        return true;\n    }\n\n    const total = 1 << n;\n    for (let mask = 1; mask < total; mask++) {\n        const subset = [];\n        for (let i = 0; i < n; i++) {\n            if (mask & (1 << i)) subset.push(arr[i]);\n        }\n        if (allBurst(subset)) return subset.length;\n    }\n\n    return points.length;\n}",
+              "language": "javascript",
+              "timeComplexity": "O(2ⁿ × n × m)",
+              "timeType": "bad",
+              "spaceComplexity": "O(n)",
+              "spaceType": "warning",
+              "pros": ["Conceptually correct", "Shows relation to Set Cover"],
+              "cons": [
+                "Exponential time",
+                "Completely impractical for large inputs"
+              ],
+              "visualLink": "/legacy/Arrays/Intervals/Min-Arrows/1-bruteforce-visualization.html",
+              "notesLink": ""
+            },
+
+            {
+              "title": "Improved — Greedy (Sort by Start)",
+              "badge": "Improved",
+              "intuition": "Sort by start time and maintain the current overlapping region. Shrink the overlap when possible. Each disjoint group requires one arrow.",
+              "steps": [
+                "Sort balloons by start.",
+                "Initialize overlap region with first balloon.",
+                "If next balloon overlaps, shrink region.",
+                "If not, increment arrows and start new region."
+              ],
+              "code": "function findMinArrowShots(points) {\n    if (!points.length) return 0;\n\n    points.sort((a, b) => a[0] - b[0]);\n\n    let arrows = 1;\n    let overlapStart = points[0][0];\n    let overlapEnd = points[0][1];\n\n    for (let i = 1; i < points.length; i++) {\n        const [curStart, curEnd] = points[i];\n\n        if (curStart <= overlapEnd) {\n            overlapStart = Math.max(overlapStart, curStart);\n            overlapEnd = Math.min(overlapEnd, curEnd);\n        } else {\n            arrows++;\n            overlapStart = curStart;\n            overlapEnd = curEnd;\n        }\n    }\n\n    return arrows;\n}",
+              "language": "javascript",
+              "timeComplexity": "O(n log n)",
+              "timeType": "good",
+              "spaceComplexity": "O(1)",
+              "spaceType": "good",
+              "pros": [
+                "Clear overlapping-group logic",
+                "Greedy grouping approach"
+              ],
+              "cons": ["Slightly less intuitive than end-time greedy"],
+              "visualLink": "/legacy/Arrays/Intervals/Min-Arrows/2-sort-start-visualization.html",
+              "notesLink": ""
+            },
+
+            {
+              "title": "Optimal — Greedy (Sort by End)",
+              "badge": "Optimal",
+              "intuition": "Always shoot the arrow at the end of the earliest finishing balloon. This maximizes how many future balloons can be burst.",
+              "steps": [
+                "Sort balloons by end time.",
+                "Shoot first arrow at end of first balloon.",
+                "For each balloon:",
+                "If start > arrow position → need new arrow.",
+                "Otherwise, it is already burst."
+              ],
+              "code": "function findMinArrowShots(points) {\n    if (!points.length) return 0;\n\n    points.sort((a, b) => a[1] - b[1]);\n\n    let arrows = 1;\n    let arrowPos = points[0][1];\n\n    for (let i = 1; i < points.length; i++) {\n        if (points[i][0] > arrowPos) {\n            arrows++;\n            arrowPos = points[i][1];\n        }\n    }\n\n    return arrows;\n}",
+              "language": "javascript",
+              "timeComplexity": "O(n log n)",
+              "timeType": "good",
+              "spaceComplexity": "O(1)",
+              "spaceType": "good",
+              "pros": [
+                "Classic greedy solution",
+                "Elegant and minimal logic",
+                "Interview-standard optimal approach"
+              ],
+              "cons": ["Requires understanding why end-time works"],
+              "visualLink": "/legacy/Arrays/Intervals/Min-Arrows/3-sort-end-visualization.html",
+              "notesLink": ""
+            }
+          ]
+        }
+      }
+    },
+    "sorting": {
+      "title": "Sorting",
+      "description": "",
+      "problems": {
+        "minimum-absolute-difference": {
+          "breadcrumb": ["Arrays", "Sorting", "Minimum Absolute Difference"],
+          "title": "Minimum Absolute Difference",
+          "difficulty": "Medium",
+          "problemSlug": "minimum-absolute-difference",
+          "categoryPath": "arrays/sorting",
+          "tags": ["Array", "Sorting", "Greedy"],
+          "description": "Given an array of distinct integers arr, find all pairs of elements with the minimum absolute difference of any two elements. Return the pairs in ascending order.",
+          "examples": [
+            {
+              "input": "arr = [4,2,1,3]",
+              "output": "[[1,2],[2,3],[3,4]]",
+              "explanation": "Minimum absolute difference is 1. Pairs with difference 1 are returned."
+            },
+            {
+              "input": "arr = [1,3,6,10,15]",
+              "output": "[[1,3]]",
+              "explanation": "Minimum absolute difference is 2 between 1 and 3."
+            }
+          ],
+          "constraints": [
+            "2 ≤ arr.length ≤ 10⁴",
+            "-10⁶ ≤ arr[i] ≤ 10⁶",
+            "All elements in arr are distinct"
+          ],
+          "approaches": [
+            {
+              "title": "Brute Force — Compare Every Pair",
+              "badge": "Brute Force",
+              "intuition": "Compare every pair of elements and track the smallest absolute difference. Then collect all pairs matching that minimum difference.",
+              "steps": [
+                "Initialize minDiff = Infinity.",
+                "Compare every pair (i, j).",
+                "Update minDiff.",
+                "Second pass: collect pairs with minDiff."
+              ],
+              "code": "function minimumAbsDifference(arr) {\n    const n = arr.length;\n    let minDiff = Infinity;\n\n    for (let i = 0; i < n; i++) {\n        for (let j = i + 1; j < n; j++) {\n            minDiff = Math.min(minDiff, Math.abs(arr[i] - arr[j]));\n        }\n    }\n\n    const result = [];\n    for (let i = 0; i < n; i++) {\n        for (let j = i + 1; j < n; j++) {\n            if (Math.abs(arr[i] - arr[j]) === minDiff) {\n                result.push([Math.min(arr[i], arr[j]), Math.max(arr[i], arr[j])]);\n            }\n        }\n    }\n\n    return result.sort((a, b) => a[0] - b[0]);\n}",
+              "language": "javascript",
+              "timeComplexity": "O(n²)",
+              "timeType": "warning",
+              "spaceComplexity": "O(1) (excluding result)",
+              "spaceType": "good",
+              "pros": [
+                "Very straightforward",
+                "Does not rely on sorting insight"
+              ],
+              "cons": ["Quadratic time", "Inefficient for large n"],
+              "visualLink": "/legacy/Arrays/Minimum-Absolute-Difference/1-bruteforce-visualization.html",
+              "notesLink": ""
+            },
+            {
+              "title": "Improved — Sort + Two Passes",
+              "badge": "Improved",
+              "intuition": "After sorting, the minimum absolute difference must occur between adjacent elements. First pass finds minDiff, second pass collects pairs.",
+              "steps": [
+                "Sort the array.",
+                "First pass: compute minimum adjacent difference.",
+                "Second pass: collect adjacent pairs with minDiff."
+              ],
+              "code": "function minimumAbsDifference(arr) {\n    arr.sort((a, b) => a - b);\n\n    let minDiff = Infinity;\n    for (let i = 1; i < arr.length; i++) {\n        minDiff = Math.min(minDiff, arr[i] - arr[i - 1]);\n    }\n\n    const result = [];\n    for (let i = 1; i < arr.length; i++) {\n        if (arr[i] - arr[i - 1] === minDiff) {\n            result.push([arr[i - 1], arr[i]]);\n        }\n    }\n\n    return result;\n}",
+              "language": "javascript",
+              "timeComplexity": "O(n log n)",
+              "timeType": "good",
+              "spaceComplexity": "O(1) (excluding result)",
+              "spaceType": "good",
+              "pros": ["Uses sorting insight", "Much faster than brute force"],
+              "cons": ["Requires two passes after sorting"],
+              "visualLink": "/legacy/Arrays/Minimum-Absolute-Difference/2-two-pass-visualization.html",
+              "notesLink": ""
+            },
+            {
+              "title": "Optimal — Sort + Single Pass",
+              "badge": "Optimal",
+              "intuition": "Combine finding minDiff and collecting pairs into a single pass after sorting.",
+              "steps": [
+                "Sort the array.",
+                "Initialize minDiff.",
+                "Single pass: update minDiff and reset result when smaller found.",
+                "Add pairs when difference equals minDiff."
+              ],
+              "code": "function minimumAbsDifference(arr) {\n    arr.sort((a, b) => a - b);\n\n    let minDiff = Infinity;\n    const result = [];\n\n    for (let i = 1; i < arr.length; i++) {\n        const diff = arr[i] - arr[i - 1];\n\n        if (diff < minDiff) {\n            minDiff = diff;\n            result.length = 0;\n            result.push([arr[i - 1], arr[i]]);\n        } else if (diff === minDiff) {\n            result.push([arr[i - 1], arr[i]]);\n        }\n    }\n\n    return result;\n}",
+              "language": "javascript",
+              "timeComplexity": "O(n log n)",
+              "timeType": "good",
+              "spaceComplexity": "O(1) (excluding result)",
+              "spaceType": "good",
+              "pros": [
+                "Clean and efficient",
+                "Single scan after sorting",
+                "Interview-preferred solution"
+              ],
+              "cons": ["Sorting is still required"],
+              "visualLink": "/legacy/Arrays/Minimum-Absolute-Difference/3-single-pass-visualization.html",
+              "notesLink": ""
+            }
+          ]
+        },
+        "merge-sorted-array": {
+          "breadcrumb": ["Arrays", "Sorting", "Merge Sorted Array"],
+          "title": "Merge Sorted Array",
+          "difficulty": "Medium",
+          "problemSlug": "merge-sorted-array",
+          "categoryPath": "arrays/sorting",
+          "tags": ["Array", "Two Pointers", "Sorting", "In-Place"],
+          "description": "You are given two integer arrays nums1 and nums2, sorted in non-decreasing order, and two integers m and n representing the number of elements in nums1 and nums2 respectively. Merge nums2 into nums1 as one sorted array in-place.",
+          "examples": [
+            {
+              "input": "nums1 = [1,2,3,0,0,0], m = 3, nums2 = [2,5,6], n = 3",
+              "output": "[1,2,2,3,5,6]",
+              "explanation": "After merging nums2 into nums1, the final sorted array is [1,2,2,3,5,6]."
+            },
+            {
+              "input": "nums1 = [1], m = 1, nums2 = [], n = 0",
+              "output": "[1]",
+              "explanation": "There are no elements to merge from nums2."
+            }
+          ],
+          "constraints": [
+            "0 ≤ m, n ≤ 200",
+            "1 ≤ m + n ≤ 200",
+            "-10⁹ ≤ nums1[i], nums2[j] ≤ 10⁹",
+            "nums1 has length m + n"
+          ],
+          "approaches": [
+            {
+              "title": "Brute Force — Merge and Sort",
+              "badge": "Brute Force",
+              "intuition": "Copy all elements from nums2 into nums1’s empty slots, then sort the entire array. This works but ignores that both arrays are already sorted.",
+              "steps": [
+                "Copy nums2 elements into nums1 starting at index m.",
+                "Sort nums1."
+              ],
+              "code": "function merge(nums1, m, nums2, n) {\n    for (let i = 0; i < n; i++) {\n        nums1[m + i] = nums2[i];\n    }\n\n    nums1.sort((a, b) => a - b);\n}",
+              "language": "javascript",
+              "timeComplexity": "O((m+n) log(m+n))",
+              "timeType": "warning",
+              "spaceComplexity": "O(1) or O(log(m+n))",
+              "spaceType": "warning",
+              "pros": ["Very simple implementation", "Easy to understand"],
+              "cons": [
+                "Sorting makes it suboptimal",
+                "Does not leverage sorted property"
+              ],
+              "visualLink": "/legacy/Arrays/Sorting/Merge-Sorted-Array/1-merge-sort-visualization.html",
+              "notesLink": ""
+            },
+
+            {
+              "title": "Intermediate — Two Pointers (With Extra Space)",
+              "badge": "Improved",
+              "intuition": "Use merge-sort logic with two pointers. Copy the first m elements of nums1 so we don’t overwrite unread values while merging.",
+              "steps": [
+                "Copy first m elements of nums1.",
+                "Use two pointers for nums1Copy and nums2.",
+                "Write smaller element into nums1.",
+                "Copy remaining elements."
+              ],
+              "code": "function merge(nums1, m, nums2, n) {\n    const nums1Copy = nums1.slice(0, m);\n\n    let p1 = 0;\n    let p2 = 0;\n    let p = 0;\n\n    while (p1 < m && p2 < n) {\n        if (nums1Copy[p1] <= nums2[p2]) {\n            nums1[p++] = nums1Copy[p1++];\n        } else {\n            nums1[p++] = nums2[p2++];\n        }\n    }\n\n    while (p1 < m) {\n        nums1[p++] = nums1Copy[p1++];\n    }\n\n    while (p2 < n) {\n        nums1[p++] = nums2[p2++];\n    }\n}",
+              "language": "javascript",
+              "timeComplexity": "O(m + n)",
+              "timeType": "good",
+              "spaceComplexity": "O(m)",
+              "spaceType": "warning",
+              "pros": ["Linear time", "Clear merge logic"],
+              "cons": ["Uses extra space", "Not fully in-place"],
+              "visualLink": "/legacy/Arrays/Sorting/Merge-Sorted-Array/2-extra-space-visualization.html",
+              "notesLink": ""
+            },
+            {
+              "title": "Optimal — Two Pointers (From End)",
+              "badge": "Optimal",
+              "intuition": "Since nums1 has empty space at the end, fill it backwards. Compare the largest remaining elements and place the larger at the end to avoid overwriting.",
+              "steps": [
+                "Initialize p1 = m - 1, p2 = n - 1, p = m + n - 1.",
+                "Compare nums1[p1] and nums2[p2].",
+                "Place larger at nums1[p] and move pointer.",
+                "Continue until nums2 is exhausted."
+              ],
+              "code": "function merge(nums1, m, nums2, n) {\n    let p1 = m - 1;\n    let p2 = n - 1;\n    let p = m + n - 1;\n\n    while (p2 >= 0) {\n        if (p1 >= 0 && nums1[p1] > nums2[p2]) {\n            nums1[p--] = nums1[p1--];\n        } else {\n            nums1[p--] = nums2[p2--];\n        }\n    }\n}",
+              "language": "javascript",
+              "timeComplexity": "O(m + n)",
+              "timeType": "good",
+              "spaceComplexity": "O(1)",
+              "spaceType": "good",
+              "pros": [
+                "True in-place solution",
+                "Linear time",
+                "Interview-standard optimal approach"
+              ],
+              "cons": ["Requires careful reverse traversal thinking"],
+              "visualLink": "/legacy/Arrays/Sorting/Merge-Sorted-Array/3-backward-merge-visualization.html",
+              "notesLink": ""
+            }
+          ]
+        },
+        "largest-number": {
+          "breadcrumb": ["Arrays", "Sorting", "Largest Number"],
+          "title": "Largest Number",
+          "difficulty": "Medium",
+          "problemSlug": "largest-number",
+          "categoryPath": "arrays/sorting",
+          "tags": ["Array", "Sorting", "Greedy", "Custom Comparator"],
+          "description": "Given a list of non-negative integers nums, arrange them such that they form the largest number and return it as a string.",
+          "examples": [
+            {
+              "input": "nums = [10,2]",
+              "output": "\"210\"",
+              "explanation": "210 is larger than 102, so the correct arrangement is [2,10]."
+            },
+            {
+              "input": "nums = [3,30,34,5,9]",
+              "output": "\"9534330\"",
+              "explanation": "Sorting by custom comparison gives the maximum concatenated result."
+            }
+          ],
+          "constraints": ["1 ≤ nums.length ≤ 100", "0 ≤ nums[i] ≤ 10⁹"],
+          "approaches": [
+            {
+              "title": "Brute Force — Generate All Permutations",
+              "badge": "Brute Force",
+              "intuition": "Generate all permutations of the array, concatenate each into a number, and track the maximum.",
+              "steps": [
+                "Generate all permutations of nums.",
+                "Convert each permutation to string and concatenate.",
+                "Track lexicographically largest string."
+              ],
+              "code": "function largestNumber(nums) {\n    const result = [];\n\n    function permute(path, remaining) {\n        if (remaining.length === 0) {\n            result.push(path.join(''));\n            return;\n        }\n        for (let i = 0; i < remaining.length; i++) {\n            permute([...path, remaining[i]], [...remaining.slice(0, i), ...remaining.slice(i + 1)]);\n        }\n    }\n\n    permute([], nums);\n    return result.sort().pop();\n}",
+              "language": "javascript",
+              "timeComplexity": "O(n!)",
+              "timeType": "bad",
+              "spaceComplexity": "O(n!)",
+              "spaceType": "bad",
+              "pros": [
+                "Conceptually simple",
+                "Explores all possible arrangements"
+              ],
+              "cons": [
+                "Completely impractical for n > 10",
+                "Exponential time complexity"
+              ],
+              "visualLink": "/legacy/Arrays/Sorting/Largest-Number/1-bruteforce-visualization.html",
+              "notesLink": ""
+            },
+
+            {
+              "title": "Improved — Greedy with Pairwise Comparison",
+              "badge": "Improved",
+              "intuition": "Instead of full permutations, compare two numbers at a time. For numbers a and b, whichever produces a larger concatenation (ab or ba) should come first.",
+              "steps": [
+                "Convert numbers to strings.",
+                "Define comparator: sort by (b+a) vs (a+b).",
+                "Join sorted array."
+              ],
+              "code": "function largestNumber(nums) {\n    const strs = nums.map(String);\n\n    strs.sort((a, b) => {\n        if (a + b > b + a) return -1;\n        if (a + b < b + a) return 1;\n        return 0;\n    });\n\n    return strs.join('');\n}",
+              "language": "javascript",
+              "timeComplexity": "O(n log n)",
+              "timeType": "good",
+              "spaceComplexity": "O(n)",
+              "spaceType": "warning",
+              "pros": [
+                "Much more efficient than permutations",
+                "Uses greedy comparison insight"
+              ],
+              "cons": ["Does not handle all-zero case properly yet"],
+              "visualLink": "/legacy/Arrays/Sorting/Largest-Number/2-greedy-comparator-visualization.html",
+              "notesLink": ""
+            },
+            {
+              "title": "Optimal — Custom Sort + Zero Handling",
+              "badge": "Optimal",
+              "intuition": "The greedy comparator (b+a > a+b) guarantees optimal ordering. After sorting, handle the special case where the largest number is '0' (all elements are zero).",
+              "steps": [
+                "Convert numbers to strings.",
+                "Sort using comparator (b+a) - (a+b).",
+                "If first element is '0', return '0'.",
+                "Otherwise, join and return."
+              ],
+              "code": "function largestNumber(nums) {\n    const strs = nums.map(String);\n\n    strs.sort((a, b) => (b + a).localeCompare(a + b));\n\n    if (strs[0] === '0') return '0';\n\n    return strs.join('');\n}",
+              "language": "javascript",
+              "timeComplexity": "O(n log n)",
+              "timeType": "good",
+              "spaceComplexity": "O(n)",
+              "spaceType": "warning",
+              "pros": [
+                "Elegant greedy solution",
+                "Handles edge cases properly",
+                "Interview-standard optimal approach"
+              ],
+              "cons": ["Requires understanding why comparator works"],
+              "visualLink": "/legacy/Arrays/Sorting/Largest-Number/3-optimal-visualization.html",
+              "notesLink": ""
+            }
+          ]
+        },
+        "wiggle-sort-two": {
+          "breadcrumb": ["Arrays", "Sorting", "Wiggle Sort II"],
+          "title": "Wiggle Sort II",
+          "difficulty": "Medium",
+          "problemSlug": "wiggle-sort-ii",
+          "categoryPath": "arrays/sorting",
+          "tags": [
+            "Array",
+            "Sorting",
+            "Two Pointers",
+            "Dutch National Flag",
+            "Index Mapping"
+          ],
+          "description": "Given an integer array nums, reorder it such that nums[0] < nums[1] > nums[2] < nums[3]... You may assume the input array always has a valid answer.",
+          "examples": [
+            {
+              "input": "nums = [1,5,1,1,6,4]",
+              "output": "[1,6,1,5,1,4]",
+              "explanation": "After rearrangement, the sequence follows the pattern nums[0] < nums[1] > nums[2] < nums[3]..."
+            },
+            {
+              "input": "nums = [1,3,2,2,3,1]",
+              "output": "[2,3,1,3,1,2]",
+              "explanation": "Any valid wiggle arrangement is acceptable."
+            }
+          ],
+          "constraints": [
+            "1 ≤ nums.length ≤ 5 * 10⁴",
+            "0 ≤ nums[i] ≤ 5000",
+            "It is guaranteed that there will be an answer."
+          ],
+          "approaches": [
+            {
+              "title": "Brute Force — Sort and Interleave",
+              "badge": "Brute Force",
+              "intuition": "Sort the array. Split into two halves. Place smaller half in even indices and larger half in odd indices (reverse both halves to avoid duplicates clustering).",
+              "steps": [
+                "Sort nums.",
+                "Split into two halves.",
+                "Reverse both halves.",
+                "Fill even indices with first half.",
+                "Fill odd indices with second half."
+              ],
+              "code": "function wiggleSort(nums) {\n    const sorted = [...nums].sort((a, b) => a - b);\n    const n = nums.length;\n    const half = Math.floor((n + 1) / 2);\n\n    const small = sorted.slice(0, half).reverse();\n    const large = sorted.slice(half).reverse();\n\n    let i = 0, j = 0;\n\n    for (let k = 0; k < n; k++) {\n        if (k % 2 === 0) {\n            nums[k] = small[i++];\n        } else {\n            nums[k] = large[j++];\n        }\n    }\n}",
+              "language": "javascript",
+              "timeComplexity": "O(n log n)",
+              "timeType": "good",
+              "spaceComplexity": "O(n)",
+              "spaceType": "warning",
+              "pros": ["Easy to understand", "Works reliably"],
+              "cons": ["Uses extra space", "Sorting dominates runtime"],
+              "visualLink": "/legacy/Arrays/Sorting/Wiggle-Sort-II/1-sort-interleave-visualization.html",
+              "notesLink": ""
+            },
+
+            {
+              "title": "Optimal — Virtual Indexing + 3-Way Partition",
+              "badge": "Optimal",
+              "intuition": "Find the median, then use Dutch National Flag partitioning around the median. Use virtual indexing to place larger elements at odd indices and smaller at even indices.",
+              "steps": [
+                "Find median (can use sort or quickselect).",
+                "Define virtual index mapping: (1 + 2*i) % (n | 1).",
+                "Apply 3-way partition around median.",
+                "Place elements > median in front, < median at back."
+              ],
+              "code": "function wiggleSort(nums) {\n    const n = nums.length;\n    const sorted = [...nums].sort((a, b) => a - b);\n    const median = sorted[Math.floor(n / 2)];\n\n    const mapIndex = (i) => (1 + 2 * i) % (n | 1);\n\n    let left = 0, i = 0, right = n - 1;\n\n    while (i <= right) {\n        if (nums[mapIndex(i)] > median) {\n            [nums[mapIndex(left)], nums[mapIndex(i)]] = \n            [nums[mapIndex(i)], nums[mapIndex(left)]];\n            left++;\n            i++;\n        } else if (nums[mapIndex(i)] < median) {\n            [nums[mapIndex(right)], nums[mapIndex(i)]] = \n            [nums[mapIndex(i)], nums[mapIndex(right)]];\n            right--;\n        } else {\n            i++;\n        }\n    }\n}",
+              "language": "javascript",
+              "timeComplexity": "O(n log n) (with sort) / O(n) with quickselect",
+              "timeType": "good",
+              "spaceComplexity": "O(1)",
+              "spaceType": "good",
+              "pros": [
+                "In-place rearrangement",
+                "Handles duplicates correctly",
+                "Interview-level advanced solution"
+              ],
+              "cons": [
+                "Virtual indexing is non-trivial",
+                "Harder to reason about initially"
+              ],
+              "visualLink": "/legacy/Arrays/Sorting/Wiggle-Sort-II/2-virtual-indexing-visualization.html",
+              "notesLink": ""
+            }
+          ]
+        }
+      }
+    },
+    "sliding-window": {
+      "title": "Sliding Window",
+      "description": "",
+      "problems": {
+        "longest-mountain-in-array": {
+          "breadcrumb": [
+            "Arrays",
+            "Sliding Window",
+            "Longest Mountain in Array"
+          ],
+          "title": "Longest Mountain in Array",
+          "difficulty": "Medium",
+          "problemSlug": "longest-mountain-in-array",
+          "categoryPath": "arrays/sliding-window",
+          "tags": ["Array", "Sliding Window", "Two Pointers", "State Machine"],
+          "description": "Given an integer array arr, return the length of the longest subarray that forms a mountain. A mountain is defined as a sequence that strictly increases to a peak and then strictly decreases, with length ≥ 3.",
+          "examples": [
+            {
+              "input": "arr = [2,1,4,7,3,2,5]",
+              "output": "5",
+              "explanation": "The longest mountain is [1,4,7,3,2] with length 5."
+            },
+            {
+              "input": "arr = [2,2,2]",
+              "output": "0",
+              "explanation": "There is no strictly increasing then decreasing sequence."
+            }
+          ],
+          "constraints": ["1 ≤ arr.length ≤ 10⁴", "0 ≤ arr[i] ≤ 10⁴"],
+          "approaches": [
+            {
+              "title": "Brute Force — Try Every Peak",
+              "badge": "Brute Force",
+              "intuition": "Treat every index as a possible peak. If it is greater than its neighbors, expand left and right to measure the full mountain.",
+              "steps": [
+                "Iterate i from 1 to n-2.",
+                "Check if arr[i] is a peak.",
+                "Expand left while strictly increasing.",
+                "Expand right while strictly decreasing.",
+                "Track maximum length."
+              ],
+              "code": "function longestMountain(arr) {\n    const n = arr.length;\n    let maxLen = 0;\n\n    for (let i = 1; i < n - 1; i++) {\n        if (arr[i - 1] < arr[i] && arr[i] > arr[i + 1]) {\n            let left = i - 1;\n            let right = i + 1;\n\n            while (left > 0 && arr[left - 1] < arr[left]) {\n                left--;\n            }\n\n            while (right < n - 1 && arr[right] > arr[right + 1]) {\n                right++;\n            }\n\n            maxLen = Math.max(maxLen, right - left + 1);\n        }\n    }\n\n    return maxLen;\n}",
+              "language": "javascript",
+              "timeComplexity": "O(n²)",
+              "timeType": "warning",
+              "spaceComplexity": "O(1)",
+              "spaceType": "good",
+              "pros": ["Very intuitive peak expansion", "Easy to visualize"],
+              "cons": [
+                "Re-scans segments multiple times",
+                "Inefficient for large inputs"
+              ],
+              "visualLink": "/legacy/Arrays/Sliding-Window/Longest-Mountain/1-peak-expansion-visualization.html",
+              "notesLink": ""
+            },
+
+            {
+              "title": "Improved — Two Pass Precomputation",
+              "badge": "Improved",
+              "intuition": "Precompute increasing lengths (up array) and decreasing lengths (down array). A peak exists where both are positive.",
+              "steps": [
+                "Create up[] and down[] arrays.",
+                "Left-to-right pass to fill up[].",
+                "Right-to-left pass to fill down[].",
+                "For each index, if up[i] > 0 and down[i] > 0, compute mountain length."
+              ],
+              "code": "function longestMountain(arr) {\n    const n = arr.length;\n    const up = new Array(n).fill(0);\n    const down = new Array(n).fill(0);\n\n    for (let i = 1; i < n; i++) {\n        if (arr[i] > arr[i - 1]) {\n            up[i] = up[i - 1] + 1;\n        }\n    }\n\n    for (let i = n - 2; i >= 0; i--) {\n        if (arr[i] > arr[i + 1]) {\n            down[i] = down[i + 1] + 1;\n        }\n    }\n\n    let maxLen = 0;\n    for (let i = 0; i < n; i++) {\n        if (up[i] > 0 && down[i] > 0) {\n            maxLen = Math.max(maxLen, up[i] + down[i] + 1);\n        }\n    }\n\n    return maxLen;\n}",
+              "language": "javascript",
+              "timeComplexity": "O(n)",
+              "timeType": "good",
+              "spaceComplexity": "O(n)",
+              "spaceType": "warning",
+              "pros": [
+                "Linear time",
+                "Clear separation of increasing/decreasing phases"
+              ],
+              "cons": ["Uses extra arrays"],
+              "visualLink": "/legacy/Arrays/Sliding-Window/Longest-Mountain/2-precompute-visualization.html",
+              "notesLink": ""
+            },
+
+            {
+              "title": "Optimal — One Pass State Machine",
+              "badge": "Optimal",
+              "intuition": "Track increasing (up) and decreasing (down) slopes in a single pass. Reset when pattern breaks. When both slopes are positive, we found a mountain.",
+              "steps": [
+                "Initialize up = 0, down = 0.",
+                "Traverse from index 1.",
+                "Reset if flat or valley-to-rise transition.",
+                "Increment up if increasing.",
+                "Increment down if decreasing.",
+                "Update max length if valid mountain."
+              ],
+              "code": "function longestMountain(arr) {\n    let maxLen = 0;\n    let up = 0;\n    let down = 0;\n\n    for (let i = 1; i < arr.length; i++) {\n        if ((down > 0 && arr[i] > arr[i - 1]) || arr[i] === arr[i - 1]) {\n            up = 0;\n            down = 0;\n        }\n\n        if (arr[i] > arr[i - 1]) {\n            up++;\n        } else if (arr[i] < arr[i - 1]) {\n            down++;\n        }\n\n        if (up > 0 && down > 0) {\n            maxLen = Math.max(maxLen, up + down + 1);\n        }\n    }\n\n    return maxLen;\n}",
+              "language": "javascript",
+              "timeComplexity": "O(n)",
+              "timeType": "good",
+              "spaceComplexity": "O(1)",
+              "spaceType": "good",
+              "pros": [
+                "Single pass solution",
+                "Constant space",
+                "Interview-preferred optimal approach"
+              ],
+              "cons": ["Requires careful transition handling"],
+              "visualLink": "/legacy/Arrays/Sliding-Window/Longest-Mountain/3-state-machine-visualization.html",
+              "notesLink": ""
+            }
+          ]
+        },
+        "longest-continuous-increasing-subsequence": {
+          "breadcrumb": [
+            "Arrays",
+            "Sliding Window",
+            "Longest Continuous Increasing Subsequence"
+          ],
+          "title": "Longest Continuous Increasing Subsequence",
+          "difficulty": "Medium",
+          "problemSlug": "longest-continuous-increasing-subsequence",
+          "categoryPath": "arrays/sliding-window",
+          "tags": ["Array", "Sliding Window", "Greedy"],
+          "description": "Given an unsorted array of integers nums, return the length of the longest strictly increasing contiguous subarray.",
+          "examples": [
+            {
+              "input": "nums = [1,3,5,4,7]",
+              "output": "3",
+              "explanation": "The longest continuous increasing subsequence is [1,3,5] with length 3."
+            },
+            {
+              "input": "nums = [2,2,2,2,2]",
+              "output": "1",
+              "explanation": "Since all elements are equal, the longest strictly increasing subarray has length 1."
+            }
+          ],
+          "constraints": ["1 ≤ nums.length ≤ 10⁴", "-10⁹ ≤ nums[i] ≤ 10⁹"],
+          "approaches": [
+            {
+              "title": "Brute Force — Try Every Start",
+              "badge": "Brute Force",
+              "intuition": "Start from every index and extend forward while the sequence remains strictly increasing. Track the maximum length found.",
+              "steps": [
+                "For each index i, treat it as start.",
+                "Extend j forward while nums[j] > nums[j-1].",
+                "Track maximum length."
+              ],
+              "code": "function findLengthOfLCIS(nums) {\n    const n = nums.length;\n    let maxLen = 0;\n\n    for (let i = 0; i < n; i++) {\n        let length = 1;\n        for (let j = i + 1; j < n; j++) {\n            if (nums[j] > nums[j - 1]) {\n                length++;\n            } else {\n                break;\n            }\n        }\n        maxLen = Math.max(maxLen, length);\n    }\n\n    return maxLen;\n}",
+              "language": "javascript",
+              "timeComplexity": "O(n²)",
+              "timeType": "warning",
+              "spaceComplexity": "O(1)",
+              "spaceType": "good",
+              "pros": ["Very intuitive approach", "Easy to implement"],
+              "cons": [
+                "Re-scans elements repeatedly",
+                "Inefficient for large arrays"
+              ],
+              "visualLink": "/legacy/Arrays/Sliding-Window/LCIS/1-bruteforce-visualization.html",
+              "notesLink": ""
+            },
+
+            {
+              "title": "Optimal — Sliding Window / Greedy",
+              "badge": "Optimal",
+              "intuition": "Traverse once while maintaining the current increasing streak. Reset when the sequence breaks. Track the maximum length.",
+              "steps": [
+                "Initialize current length = 1.",
+                "Traverse from index 1.",
+                "If nums[i] > nums[i-1], increment length.",
+                "Else, reset length to 1.",
+                "Update max length at each step."
+              ],
+              "code": "function findLengthOfLCIS(nums) {\n    if (nums.length === 0) return 0;\n\n    let maxLen = 1;\n    let currLen = 1;\n\n    for (let i = 1; i < nums.length; i++) {\n        if (nums[i] > nums[i - 1]) {\n            currLen++;\n        } else {\n            currLen = 1;\n        }\n        maxLen = Math.max(maxLen, currLen);\n    }\n\n    return maxLen;\n}",
+              "language": "javascript",
+              "timeComplexity": "O(n)",
+              "timeType": "good",
+              "spaceComplexity": "O(1)",
+              "spaceType": "good",
+              "pros": [
+                "Single pass solution",
+                "Constant space",
+                "Very clean sliding window logic"
+              ],
+              "cons": [
+                "Only works for contiguous increasing subarrays (not subsequence)"
+              ],
+              "visualLink": "/legacy/Arrays/Sliding-Window/LCIS/2-sliding-window-visualization.html",
+              "notesLink": ""
+            }
+          ]
+        },
+        "maximum-points-from-cards": {
+          "breadcrumb": [
+            "Arrays",
+            "Sliding Window",
+            "Maximum Points You Can Obtain from Cards"
+          ],
+          "title": "Maximum Points You Can Obtain from Cards",
+          "difficulty": "Medium",
+          "problemSlug": "maximum-points-you-can-obtain-from-cards",
+          "categoryPath": "arrays/sliding-window",
+          "tags": ["Array", "Sliding Window", "Prefix Sum", "Greedy"],
+          "description": "There are several cards arranged in a row, and each card has an associated number of points. You can take exactly k cards from the beginning or the end of the row. Return the maximum score you can obtain.",
+          "examples": [
+            {
+              "input": "cardPoints = [1,2,3,4,5,6,1], k = 3",
+              "output": "12",
+              "explanation": "Take the three cards on the right: 4 + 5 + 6 = 15 is not allowed (only ends). Best choice is 1 + 6 + 5 = 12."
+            },
+            {
+              "input": "cardPoints = [2,2,2], k = 2",
+              "output": "4",
+              "explanation": "Take any two cards, total is 4."
+            },
+            {
+              "input": "cardPoints = [9,7,7,9,7,7,9], k = 7",
+              "output": "55",
+              "explanation": "You must take all cards."
+            }
+          ],
+          "constraints": [
+            "1 ≤ cardPoints.length ≤ 10⁵",
+            "1 ≤ cardPoints[i] ≤ 10⁴",
+            "1 ≤ k ≤ cardPoints.length"
+          ],
+          "approaches": [
+            {
+              "title": "Brute Force — Recursion / Try All Combinations",
+              "badge": "Brute Force",
+              "intuition": "At each step, choose either the leftmost or rightmost card. Recursively try all possibilities and track the maximum sum.",
+              "steps": [
+                "Use recursion with parameters (left, right, remainingK).",
+                "If remainingK == 0, return 0.",
+                "Return max of taking left or right card."
+              ],
+              "code": "function maxScore(cardPoints, k) {\n    function helper(left, right, remaining) {\n        if (remaining === 0) return 0;\n\n        return Math.max(\n            cardPoints[left] + helper(left + 1, right, remaining - 1),\n            cardPoints[right] + helper(left, right - 1, remaining - 1)\n        );\n    }\n\n    return helper(0, cardPoints.length - 1, k);\n}",
+              "language": "javascript",
+              "timeComplexity": "O(2^k)",
+              "timeType": "bad",
+              "spaceComplexity": "O(k)",
+              "spaceType": "warning",
+              "pros": [
+                "Direct problem modeling",
+                "Easy to reason about choices"
+              ],
+              "cons": ["Exponential time", "Impractical for large inputs"],
+              "visualLink": "/legacy/Arrays/Sliding-Window/Max-Points-Cards/1-bruteforce-visualization.html",
+              "notesLink": ""
+            },
+            {
+              "title": "Improved — Prefix Sums (Enumerate All Splits)",
+              "badge": "Improved",
+              "intuition": "Instead of recursion, try all possible splits: take i cards from left and k-i from right. Use prefix sums for fast computation.",
+              "steps": [
+                "Compute prefix sums from left and right.",
+                "For i from 0 to k:",
+                "Compute sum of i left + (k-i) right.",
+                "Track maximum."
+              ],
+              "code": "function maxScore(cardPoints, k) {\n    const n = cardPoints.length;\n    const leftPrefix = new Array(k + 1).fill(0);\n    const rightPrefix = new Array(k + 1).fill(0);\n\n    for (let i = 1; i <= k; i++) {\n        leftPrefix[i] = leftPrefix[i - 1] + cardPoints[i - 1];\n        rightPrefix[i] = rightPrefix[i - 1] + cardPoints[n - i];\n    }\n\n    let maxSum = 0;\n    for (let i = 0; i <= k; i++) {\n        maxSum = Math.max(maxSum, leftPrefix[i] + rightPrefix[k - i]);\n    }\n\n    return maxSum;\n}",
+              "language": "javascript",
+              "timeComplexity": "O(k)",
+              "timeType": "good",
+              "spaceComplexity": "O(k)",
+              "spaceType": "warning",
+              "pros": [
+                "Eliminates recursion",
+                "Much more efficient",
+                "Clear split logic"
+              ],
+              "cons": ["Uses extra space for prefix arrays"],
+              "visualLink": "/legacy/Arrays/Sliding-Window/Max-Points-Cards/2-prefix-visualization.html",
+              "notesLink": ""
+            },
+            {
+              "title": "Optimal — Sliding Window (Minimum Window Sum)",
+              "badge": "Optimal",
+              "intuition": "Instead of picking k cards from ends, think of removing a contiguous subarray of length n - k. Minimize that subarray’s sum. The answer is totalSum - minWindowSum.",
+              "steps": [
+                "Compute total sum of array.",
+                "Let window size = n - k.",
+                "Find minimum subarray sum of size window using sliding window.",
+                "Return totalSum - minWindowSum."
+              ],
+              "code": "function maxScore(cardPoints, k) {\n    const n = cardPoints.length;\n    const totalSum = cardPoints.reduce((a, b) => a + b, 0);\n\n    if (k === n) return totalSum;\n\n    const windowSize = n - k;\n    let windowSum = 0;\n\n    for (let i = 0; i < windowSize; i++) {\n        windowSum += cardPoints[i];\n    }\n\n    let minSum = windowSum;\n\n    for (let i = windowSize; i < n; i++) {\n        windowSum += cardPoints[i] - cardPoints[i - windowSize];\n        minSum = Math.min(minSum, windowSum);\n    }\n\n    return totalSum - minSum;\n}",
+              "language": "javascript",
+              "timeComplexity": "O(n)",
+              "timeType": "good",
+              "spaceComplexity": "O(1)",
+              "spaceType": "good",
+              "pros": [
+                "Single pass sliding window",
+                "Constant extra space",
+                "Elegant problem inversion trick",
+                "Interview-preferred optimal solution"
+              ],
+              "cons": ["Requires recognizing complement window idea"],
+              "visualLink": "/legacy/Arrays/Sliding-Window/Max-Points-Cards/3-sliding-window-visualization.html",
+              "notesLink": ""
+            }
+          ]
+        },
+        "maximum-product-subarray": {
+          "breadcrumb": [
+            "Arrays",
+            "Sliding Window",
+            "Maximum Product Subarray"
+          ],
+          "title": "Maximum Product Subarray",
+          "difficulty": "Medium",
+          "problemSlug": "maximum-product-subarray",
+          "categoryPath": "arrays/sliding-window",
+          "tags": ["Array", "Dynamic Programming", "Greedy"],
+          "description": "Given an integer array nums, find a contiguous non-empty subarray within the array that has the largest product, and return the product.",
+          "examples": [
+            {
+              "input": "nums = [2,3,-2,4]",
+              "output": "6",
+              "explanation": "The subarray [2,3] has the largest product 6."
+            },
+            {
+              "input": "nums = [-2,0,-1]",
+              "output": "0",
+              "explanation": "The result cannot be 2 because the subarray [-2,-1] is not contiguous."
+            }
+          ],
+          "constraints": [
+            "1 ≤ nums.length ≤ 2 * 10⁴",
+            "-10 ≤ nums[i] ≤ 10",
+            "The product of any prefix or suffix fits in a 32-bit integer"
+          ],
+          "approaches": [
+            {
+              "title": "Brute Force — Try Every Subarray",
+              "badge": "Brute Force",
+              "intuition": "Generate all possible contiguous subarrays and compute their products. Track the maximum product.",
+              "steps": [
+                "For each start index i:",
+                "Compute product for every subarray ending at j ≥ i.",
+                "Track maximum product."
+              ],
+              "code": "function maxProduct(nums) {\n    const n = nums.length;\n    let maxProd = -Infinity;\n\n    for (let i = 0; i < n; i++) {\n        let product = 1;\n        for (let j = i; j < n; j++) {\n            product *= nums[j];\n            maxProd = Math.max(maxProd, product);\n        }\n    }\n\n    return maxProd;\n}",
+              "language": "javascript",
+              "timeComplexity": "O(n²)",
+              "timeType": "warning",
+              "spaceComplexity": "O(1)",
+              "spaceType": "good",
+              "pros": ["Simple and direct", "Easy to implement"],
+              "cons": [
+                "Quadratic time complexity",
+                "Too slow for large arrays"
+              ],
+              "visualLink": "/legacy/Arrays/Sliding-Window/Max-Product/1-bruteforce-visualization.html",
+              "notesLink": ""
+            },
+            {
+              "title": "Improved — Prefix & Suffix Products",
+              "badge": "Improved",
+              "intuition": "Scan from left and right. Reset product when encountering zero. This handles negative flips implicitly.",
+              "steps": [
+                "Initialize prefix = 1 and suffix = 1.",
+                "Traverse from left and right simultaneously.",
+                "Reset product to 1 when zero encountered.",
+                "Track maximum product seen."
+              ],
+              "code": "function maxProduct(nums) {\n    let maxProd = -Infinity;\n    let prefix = 1;\n    let suffix = 1;\n    const n = nums.length;\n\n    for (let i = 0; i < n; i++) {\n        prefix = (prefix === 0 ? 1 : prefix) * nums[i];\n        suffix = (suffix === 0 ? 1 : suffix) * nums[n - 1 - i];\n\n        maxProd = Math.max(maxProd, prefix, suffix);\n    }\n\n    return maxProd;\n}",
+              "language": "javascript",
+              "timeComplexity": "O(n)",
+              "timeType": "good",
+              "spaceComplexity": "O(1)",
+              "spaceType": "good",
+              "pros": [
+                "Linear time",
+                "Handles negative numbers implicitly",
+                "Simple two-direction trick"
+              ],
+              "cons": [
+                "Less intuitive than DP method",
+                "Requires understanding prefix/suffix logic"
+              ],
+              "visualLink": "/legacy/Arrays/Sliding-Window/Max-Product/2-prefix-suffix-visualization.html",
+              "notesLink": ""
+            },
+            {
+              "title": "Optimal — DP (Track Min and Max Products)",
+              "badge": "Optimal",
+              "intuition": "At each index, track both maxProd and minProd. If the current number is negative, swap them. This captures sign flips.",
+              "steps": [
+                "Initialize maxProd, minProd, result with nums[0].",
+                "Iterate from index 1.",
+                "If nums[i] < 0, swap maxProd and minProd.",
+                "Update maxProd = max(nums[i], maxProd * nums[i]).",
+                "Update minProd = min(nums[i], minProd * nums[i]).",
+                "Update result."
+              ],
+              "code": "function maxProduct(nums) {\n    let maxProd = nums[0];\n    let minProd = nums[0];\n    let result = nums[0];\n\n    for (let i = 1; i < nums.length; i++) {\n        if (nums[i] < 0) {\n            [maxProd, minProd] = [minProd, maxProd];\n        }\n\n        maxProd = Math.max(nums[i], maxProd * nums[i]);\n        minProd = Math.min(nums[i], minProd * nums[i]);\n\n        result = Math.max(result, maxProd);\n    }\n\n    return result;\n}",
+              "language": "javascript",
+              "timeComplexity": "O(n)",
+              "timeType": "good",
+              "spaceComplexity": "O(1)",
+              "spaceType": "good",
+              "pros": [
+                "Elegant dynamic programming solution",
+                "Handles negative flips correctly",
+                "Interview-standard optimal approach"
+              ],
+              "cons": ["Requires understanding why minProd matters"],
+              "visualLink": "/legacy/Arrays/Sliding-Window/Max-Product/3-dp-visualization.html",
+              "notesLink": ""
+            }
+          ]
+        },
+        "minimum-size-subarray-sum": {
+          "breadcrumb": [
+            "Arrays",
+            "Sliding Window",
+            "Minimum Size Subarray Sum"
+          ],
+          "title": "Minimum Size Subarray Sum",
+          "difficulty": "Medium",
+          "problemSlug": "minimum-size-subarray-sum",
+          "categoryPath": "arrays/sliding-window",
+          "tags": [
+            "Array",
+            "Sliding Window",
+            "Two Pointers",
+            "Prefix Sum",
+            "Binary Search"
+          ],
+          "description": "Given an array of positive integers nums and a positive integer target, return the minimal length of a contiguous subarray of which the sum is greater than or equal to target. If there is no such subarray, return 0 instead.",
+          "examples": [
+            {
+              "input": "target = 7, nums = [2,3,1,2,4,3]",
+              "output": "2",
+              "explanation": "The subarray [4,3] has the minimal length under the constraint."
+            },
+            {
+              "input": "target = 4, nums = [1,4,4]",
+              "output": "1",
+              "explanation": "The subarray [4] satisfies the condition."
+            },
+            {
+              "input": "target = 11, nums = [1,1,1,1,1,1,1,1]",
+              "output": "0",
+              "explanation": "No subarray meets the target sum."
+            }
+          ],
+          "constraints": [
+            "1 ≤ target ≤ 10⁹",
+            "1 ≤ nums.length ≤ 10⁵",
+            "1 ≤ nums[i] ≤ 10⁴"
+          ],
+          "approaches": [
+            {
+              "title": "Brute Force — Try All Subarrays",
+              "badge": "Brute Force",
+              "intuition": "Check every possible subarray. For each starting index, expand forward until the sum reaches target. Track minimum length.",
+              "steps": [
+                "For each index i, initialize sum = 0.",
+                "Extend j forward while adding nums[j].",
+                "If sum ≥ target, update minimum length."
+              ],
+              "code": "function minSubArrayLen(target, nums) {\n    const n = nums.length;\n    let minLen = Infinity;\n\n    for (let i = 0; i < n; i++) {\n        let sum = 0;\n        for (let j = i; j < n; j++) {\n            sum += nums[j];\n            if (sum >= target) {\n                minLen = Math.min(minLen, j - i + 1);\n                break;\n            }\n        }\n    }\n\n    return minLen === Infinity ? 0 : minLen;\n}",
+              "language": "javascript",
+              "timeComplexity": "O(n²)",
+              "timeType": "warning",
+              "spaceComplexity": "O(1)",
+              "spaceType": "good",
+              "pros": ["Simple logic", "Easy to reason about"],
+              "cons": ["Too slow for large inputs"],
+              "visualLink": "/legacy/Arrays/Sliding-Window/Min-Subarray-Sum/1-bruteforce-visualization.html",
+              "notesLink": ""
+            },
+            {
+              "title": "Improved — Prefix Sum + Binary Search",
+              "badge": "Improved",
+              "intuition": "Use prefix sums so we can compute subarray sums in O(1). For each start index, binary search for the smallest end index where sum ≥ target.",
+              "steps": [
+                "Build prefix sum array.",
+                "For each i, binary search for smallest j such that prefix[j] - prefix[i] ≥ target.",
+                "Track minimum length."
+              ],
+              "code": "function minSubArrayLen(target, nums) {\n    const n = nums.length;\n    const prefix = new Array(n + 1).fill(0);\n\n    for (let i = 0; i < n; i++) {\n        prefix[i + 1] = prefix[i] + nums[i];\n    }\n\n    let minLen = Infinity;\n\n    for (let i = 0; i < n; i++) {\n        let left = i + 1, right = n;\n        while (left <= right) {\n            const mid = Math.floor((left + right) / 2);\n            if (prefix[mid] - prefix[i] >= target) {\n                minLen = Math.min(minLen, mid - i);\n                right = mid - 1;\n            } else {\n                left = mid + 1;\n            }\n        }\n    }\n\n    return minLen === Infinity ? 0 : minLen;\n}",
+              "language": "javascript",
+              "timeComplexity": "O(n log n)",
+              "timeType": "good",
+              "spaceComplexity": "O(n)",
+              "spaceType": "warning",
+              "pros": [
+                "Faster than brute force",
+                "Uses binary search effectively"
+              ],
+              "cons": ["Extra space required", "More complex than needed"],
+              "visualLink": "/legacy/Arrays/Sliding-Window/Min-Subarray-Sum/2-prefix-binary-visualization.html",
+              "notesLink": ""
+            },
+            {
+              "title": "Optimal — Sliding Window (Two Pointers)",
+              "badge": "Optimal",
+              "intuition": "Since all numbers are positive, expanding the window increases sum and shrinking decreases it. Use two pointers to maintain minimal valid window.",
+              "steps": [
+                "Initialize left = 0, sum = 0.",
+                "Expand right pointer adding nums[right].",
+                "While sum ≥ target, update min length and shrink from left."
+              ],
+              "code": "function minSubArrayLen(target, nums) {\n    let left = 0;\n    let sum = 0;\n    let minLen = Infinity;\n\n    for (let right = 0; right < nums.length; right++) {\n        sum += nums[right];\n\n        while (sum >= target) {\n            minLen = Math.min(minLen, right - left + 1);\n            sum -= nums[left];\n            left++;\n        }\n    }\n\n    return minLen === Infinity ? 0 : minLen;\n}",
+              "language": "javascript",
+              "timeComplexity": "O(n)",
+              "timeType": "good",
+              "spaceComplexity": "O(1)",
+              "spaceType": "good",
+              "pros": [
+                "Single pass solution",
+                "Constant extra space",
+                "Classic sliding window pattern"
+              ],
+              "cons": ["Only works because all numbers are positive"],
+              "visualLink": "/legacy/Arrays/Sliding-Window/Min-Subarray-Sum/3-sliding-window-visualization.html",
+              "notesLink": ""
+            }
+          ]
+        }
+      }
+    },
+    "prefix-sum": {
+      "title": "Prefix Sum",
+      "description": "",
+      "problems": {
+        "count-range-sum": {
+          "breadcrumb": ["Arrays", "Sliding Window", "Count of Range Sum"],
+          "title": "Count of Range Sum",
+          "difficulty": "Medium",
+          "problemSlug": "count-of-range-sum",
+          "categoryPath": "arrays/sliding-window",
+          "tags": [
+            "Array",
+            "Prefix Sum",
+            "Divide and Conquer",
+            "Merge Sort",
+            "Binary Indexed Tree"
+          ],
+          "description": "Given an integer array nums and two integers lower and upper, return the number of range sums that lie in [lower, upper] inclusive. A range sum S(i, j) is defined as the sum of elements nums[i] through nums[j] inclusive.",
+          "examples": [
+            {
+              "input": "nums = [-2,5,-1], lower = -2, upper = 2",
+              "output": "3",
+              "explanation": "The valid ranges are [0,0], [2,2], and [0,2]."
+            },
+            {
+              "input": "nums = [0], lower = 0, upper = 0",
+              "output": "1",
+              "explanation": "The only subarray sum is 0."
+            }
+          ],
+          "constraints": [
+            "1 ≤ nums.length ≤ 10⁵",
+            "-10⁹ ≤ nums[i] ≤ 10⁹",
+            "-10⁵ ≤ lower ≤ upper ≤ 10⁵"
+          ],
+          "approaches": [
+            {
+              "title": "Brute Force — Check Every Subarray",
+              "badge": "Brute Force",
+              "intuition": "Generate every subarray sum and count how many fall within [lower, upper].",
+              "steps": [
+                "For each start index i:",
+                "Accumulate sum for every j ≥ i.",
+                "If sum ∈ [lower, upper], increment count."
+              ],
+              "code": "function countRangeSum(nums, lower, upper) {\n    const n = nums.length;\n    let count = 0;\n\n    for (let i = 0; i < n; i++) {\n        let sum = 0;\n        for (let j = i; j < n; j++) {\n            sum += nums[j];\n            if (sum >= lower && sum <= upper) {\n                count++;\n            }\n        }\n    }\n\n    return count;\n}",
+              "language": "javascript",
+              "timeComplexity": "O(n²)",
+              "timeType": "bad",
+              "spaceComplexity": "O(1)",
+              "spaceType": "good",
+              "pros": ["Very straightforward", "Easy to verify correctness"],
+              "cons": ["Too slow for n up to 10⁵"],
+              "visualLink": "/legacy/Arrays/Sliding-Window/Range-Sum/1-bruteforce-visualization.html",
+              "notesLink": ""
+            },
+            {
+              "title": "Improved — Prefix Sum Reframing",
+              "badge": "Improved",
+              "intuition": "Use prefix sums so rangeSum(i, j) = prefix[j+1] - prefix[i]. Problem becomes: count pairs (i, j) where prefix[j] - prefix[i] ∈ [lower, upper].",
+              "steps": [
+                "Build prefix sum array.",
+                "For every pair (i, j), check prefix[j] - prefix[i].",
+                "Count valid differences."
+              ],
+              "code": "function countRangeSum(nums, lower, upper) {\n    const n = nums.length;\n    const prefix = new Array(n + 1).fill(0);\n\n    for (let i = 0; i < n; i++) {\n        prefix[i + 1] = prefix[i] + nums[i];\n    }\n\n    let count = 0;\n    for (let i = 0; i <= n; i++) {\n        for (let j = i + 1; j <= n; j++) {\n            const diff = prefix[j] - prefix[i];\n            if (diff >= lower && diff <= upper) {\n                count++;\n            }\n        }\n    }\n\n    return count;\n}",
+              "language": "javascript",
+              "timeComplexity": "O(n²)",
+              "timeType": "bad",
+              "spaceComplexity": "O(n)",
+              "spaceType": "warning",
+              "pros": [
+                "Cleaner mathematical formulation",
+                "Prepares for optimal solution"
+              ],
+              "cons": ["Still quadratic time"],
+              "visualLink": "/legacy/Arrays/Sliding-Window/Range-Sum/2-prefix-reframing-visualization.html",
+              "notesLink": ""
+            },
+            {
+              "title": "Optimal — Merge Sort on Prefix Sums",
+              "badge": "Optimal",
+              "intuition": "During merge sort on prefix sums, count valid range pairs across halves using two pointers. This reduces complexity to O(n log n).",
+              "steps": [
+                "Build prefix sum array.",
+                "Apply modified merge sort.",
+                "During merge step, count valid pairs."
+              ],
+              "code": "function countRangeSum(nums, lower, upper) {\n    const prefix = [0];\n    for (let num of nums) {\n        prefix.push(prefix[prefix.length - 1] + num);\n    }\n\n    function mergeSort(start, end) {\n        if (end - start <= 1) return 0;\n\n        const mid = Math.floor((start + end) / 2);\n        let count = mergeSort(start, mid) + mergeSort(mid, end);\n\n        let j = mid, k = mid;\n        for (let i = start; i < mid; i++) {\n            while (k < end && prefix[k] - prefix[i] < lower) k++;\n            while (j < end && prefix[j] - prefix[i] <= upper) j++;\n            count += j - k;\n        }\n\n        prefix.slice(start, end).sort((a, b) => a - b)\n            .forEach((val, idx) => prefix[start + idx] = val);\n\n        return count;\n    }\n\n    return mergeSort(0, prefix.length);\n}",
+              "language": "javascript",
+              "timeComplexity": "O(n log n)",
+              "timeType": "good",
+              "spaceComplexity": "O(n)",
+              "spaceType": "warning",
+              "pros": [
+                "Efficient for large inputs",
+                "Elegant divide-and-conquer approach",
+                "Interview-standard optimal solution"
+              ],
+              "cons": ["Hard to derive in interview"],
+              "visualLink": "/legacy/Arrays/Sliding-Window/Range-Sum/3-merge-sort-visualization.html",
+              "notesLink": ""
+            },
+            {
+              "title": "Alternative Optimal — BIT / Segment Tree",
+              "badge": "Advanced",
+              "intuition": "Discretize prefix sums and use a Binary Indexed Tree to count how many previous prefix sums fall within [current-upper, current-lower].",
+              "steps": [
+                "Compute prefix sums.",
+                "Coordinate compress values.",
+                "Use BIT to query frequency range.",
+                "Update BIT as you iterate."
+              ],
+              "code": "/* Sketch only */\n// 1. Compute prefix sums\n// 2. Coordinate compress prefix sums and bounds\n// 3. Use Fenwick Tree to count range frequencies\n// 4. For each prefix, query count of values in valid range",
+              "language": "javascript",
+              "timeComplexity": "O(n log n)",
+              "timeType": "good",
+              "spaceComplexity": "O(n)",
+              "spaceType": "warning",
+              "pros": [
+                "Another optimal solution",
+                "Shows mastery of data structures"
+              ],
+              "cons": [
+                "Implementation heavy",
+                "Requires coordinate compression"
+              ],
+              "visualLink": "/legacy/Arrays/Sliding-Window/Range-Sum/4-bit-visualization.html",
+              "notesLink": ""
+            }
+          ]
+        },
+        "count-of-smaller-numbers-after-self": {
+          "breadcrumb": [
+            "Arrays",
+            "Prefix Sum",
+            "Count of Smaller Numbers After Self"
+          ],
+          "title": "Count of Smaller Numbers After Self",
+          "difficulty": "Medium",
+          "problemSlug": "count-of-smaller-numbers-after-self",
+          "categoryPath": "arrays/prefix-sum",
+          "tags": [
+            "Array",
+            "Divide and Conquer",
+            "Merge Sort",
+            "Binary Indexed Tree"
+          ],
+          "description": "Given an integer array nums, return an array counts where counts[i] is the number of smaller elements to the right of nums[i].",
+          "examples": [
+            {
+              "input": "nums = [5,2,6,1]",
+              "output": "[2,1,1,0]",
+              "explanation": "For 5 → two smaller elements (2,1). For 2 → one smaller (1). For 6 → one smaller (1). For 1 → none."
+            },
+            {
+              "input": "nums = [-1]",
+              "output": "[0]",
+              "explanation": "No elements to the right."
+            }
+          ],
+          "constraints": ["1 ≤ nums.length ≤ 10⁵", "-10⁴ ≤ nums[i] ≤ 10⁴"],
+          "approaches": [
+            {
+              "title": "Brute Force — Check Every Pair",
+              "badge": "Brute Force",
+              "intuition": "For each index i, count how many elements to the right are smaller.",
+              "steps": [
+                "For each i, iterate j from i+1 to n-1.",
+                "Increment count if nums[j] < nums[i]."
+              ],
+              "code": "function countSmaller(nums) {\n    const n = nums.length;\n    const result = new Array(n).fill(0);\n\n    for (let i = 0; i < n; i++) {\n        for (let j = i + 1; j < n; j++) {\n            if (nums[j] < nums[i]) {\n                result[i]++;\n            }\n        }\n    }\n\n    return result;\n}",
+              "language": "javascript",
+              "timeComplexity": "O(n²)",
+              "timeType": "bad",
+              "spaceComplexity": "O(1)",
+              "spaceType": "good",
+              "pros": ["Very straightforward", "Easy to understand"],
+              "cons": ["Too slow for large inputs"],
+              "visualLink": "/legacy/Arrays/Prefix-Sum/Count-Smaller/1-bruteforce-visualization.html",
+              "notesLink": ""
+            },
+
+            {
+              "title": "Improved — Binary Indexed Tree (Fenwick Tree)",
+              "badge": "Improved",
+              "intuition": "Process elements from right to left. Use a Fenwick Tree to count how many smaller elements have already been seen.",
+              "steps": [
+                "Coordinate compress nums.",
+                "Initialize Fenwick Tree.",
+                "Traverse nums from right to left.",
+                "Query tree for count of values smaller than current.",
+                "Update tree with current value."
+              ],
+              "code": "class Fenwick {\n    constructor(n) {\n        this.tree = new Array(n + 1).fill(0);\n    }\n\n    update(i, delta) {\n        while (i < this.tree.length) {\n            this.tree[i] += delta;\n            i += i & -i;\n        }\n    }\n\n    query(i) {\n        let sum = 0;\n        while (i > 0) {\n            sum += this.tree[i];\n            i -= i & -i;\n        }\n        return sum;\n    }\n}\n\nfunction countSmaller(nums) {\n    const sorted = [...new Set(nums)].sort((a, b) => a - b);\n    const ranks = new Map();\n    sorted.forEach((num, i) => ranks.set(num, i + 1));\n\n    const fenwick = new Fenwick(sorted.length);\n    const result = new Array(nums.length);\n\n    for (let i = nums.length - 1; i >= 0; i--) {\n        const rank = ranks.get(nums[i]);\n        result[i] = fenwick.query(rank - 1);\n        fenwick.update(rank, 1);\n    }\n\n    return result;\n}",
+              "language": "javascript",
+              "timeComplexity": "O(n log n)",
+              "timeType": "good",
+              "spaceComplexity": "O(n)",
+              "spaceType": "warning",
+              "pros": [
+                "Efficient for large inputs",
+                "Shows data structure mastery"
+              ],
+              "cons": [
+                "Requires coordinate compression",
+                "Implementation-heavy"
+              ],
+              "visualLink": "/legacy/Arrays/Prefix-Sum/Count-Smaller/2-bit-visualization.html",
+              "notesLink": ""
+            },
+            {
+              "title": "Optimal — Merge Sort with Index Tracking",
+              "badge": "Optimal",
+              "intuition": "Use merge sort. While merging, if right element is smaller, it contributes to the count of remaining left elements.",
+              "steps": [
+                "Maintain index array.",
+                "Perform merge sort.",
+                "During merge, track how many right elements moved before left.",
+                "Update counts for original indices."
+              ],
+              "code": "function countSmaller(nums) {\n    const n = nums.length;\n    const result = new Array(n).fill(0);\n    const indices = Array.from({ length: n }, (_, i) => i);\n\n    function mergeSort(start, end) {\n        if (end - start <= 1) return;\n\n        const mid = Math.floor((start + end) / 2);\n        mergeSort(start, mid);\n        mergeSort(mid, end);\n\n        let temp = [];\n        let i = start, j = mid;\n        let rightCount = 0;\n\n        while (i < mid && j < end) {\n            if (nums[indices[j]] < nums[indices[i]]) {\n                temp.push(indices[j++]);\n                rightCount++;\n            } else {\n                result[indices[i]] += rightCount;\n                temp.push(indices[i++]);\n            }\n        }\n\n        while (i < mid) {\n            result[indices[i]] += rightCount;\n            temp.push(indices[i++]);\n        }\n\n        while (j < end) {\n            temp.push(indices[j++]);\n        }\n\n        for (let k = 0; k < temp.length; k++) {\n            indices[start + k] = temp[k];\n        }\n    }\n\n    mergeSort(0, n);\n    return result;\n}",
+              "language": "javascript",
+              "timeComplexity": "O(n log n)",
+              "timeType": "good",
+              "spaceComplexity": "O(n)",
+              "spaceType": "warning",
+              "pros": [
+                "Elegant divide-and-conquer solution",
+                "Counts during merge step",
+                "No extra data structure required"
+              ],
+              "cons": ["Harder to derive in interviews"],
+              "visualLink": "/legacy/Arrays/Prefix-Sum/Count-Smaller/3-merge-sort-visualization.html",
+              "notesLink": ""
+            }
+          ]
+        },
+        "find-all-duplicates-in-an-array": {
+          "breadcrumb": [
+            "Arrays",
+            "Prefix Sum",
+            "Find All Duplicates in an Array"
+          ],
+          "title": "Find All Duplicates in an Array",
+          "difficulty": "Medium",
+          "problemSlug": "find-all-duplicates-in-an-array",
+          "categoryPath": "arrays/prefix-sum",
+          "tags": ["Array", "Hashing", "Sorting", "In-Place", "Index Mapping"],
+          "description": "Given an integer array nums of length n where all integers are in the range [1, n] and each integer appears once or twice, return an array of all the integers that appear twice.",
+          "examples": [
+            {
+              "input": "nums = [4,3,2,7,8,2,3,1]",
+              "output": "[2,3]",
+              "explanation": "Both 2 and 3 appear twice."
+            },
+            {
+              "input": "nums = [1,1,2]",
+              "output": "[1]",
+              "explanation": "1 appears twice."
+            },
+            {
+              "input": "nums = [1]",
+              "output": "[]",
+              "explanation": "No duplicates present."
+            }
+          ],
+          "constraints": [
+            "n == nums.length",
+            "1 ≤ n ≤ 10⁵",
+            "1 ≤ nums[i] ≤ n",
+            "Each element appears once or twice."
+          ],
+          "approaches": [
+            {
+              "title": "Brute Force — Check Every Pair",
+              "badge": "Brute Force",
+              "intuition": "For each element, compare it with every element to its right. If equal, record it.",
+              "steps": [
+                "For each index i, compare with j > i.",
+                "If nums[i] == nums[j], add to result (avoid duplicates)."
+              ],
+              "code": "function findDuplicates(nums) {\n    const result = [];\n    const seen = new Set();\n\n    for (let i = 0; i < nums.length; i++) {\n        for (let j = i + 1; j < nums.length; j++) {\n            if (nums[i] === nums[j] && !seen.has(nums[i])) {\n                result.push(nums[i]);\n                seen.add(nums[i]);\n            }\n        }\n    }\n\n    return result;\n}",
+              "language": "javascript",
+              "timeComplexity": "O(n²)",
+              "timeType": "bad",
+              "spaceComplexity": "O(n)",
+              "spaceType": "warning",
+              "pros": ["Very straightforward", "Easy to reason about"],
+              "cons": ["Too slow for large inputs"],
+              "visualLink": "/legacy/Arrays/Prefix-Sum/Find-Duplicates/1-bruteforce-visualization.html",
+              "notesLink": ""
+            },
+
+            {
+              "title": "Improved — Hash Set",
+              "badge": "Improved",
+              "intuition": "Use a hash set to track seen numbers. If a number appears again, it is a duplicate.",
+              "steps": [
+                "Initialize empty set.",
+                "Iterate through nums.",
+                "If number already in set → add to result.",
+                "Else add to set."
+              ],
+              "code": "function findDuplicates(nums) {\n    const seen = new Set();\n    const result = [];\n\n    for (let num of nums) {\n        if (seen.has(num)) {\n            result.push(num);\n        } else {\n            seen.add(num);\n        }\n    }\n\n    return result;\n}",
+              "language": "javascript",
+              "timeComplexity": "O(n)",
+              "timeType": "good",
+              "spaceComplexity": "O(n)",
+              "spaceType": "warning",
+              "pros": ["Linear time", "Very simple implementation"],
+              "cons": ["Uses extra memory"],
+              "visualLink": "/legacy/Arrays/Prefix-Sum/Find-Duplicates/2-hashset-visualization.html",
+              "notesLink": ""
+            },
+            {
+              "title": "Improved — Sorting",
+              "badge": "Improved",
+              "intuition": "Sort the array so duplicates become adjacent. Then scan once to find equal neighbors.",
+              "steps": [
+                "Sort nums.",
+                "Iterate from 1 to n-1.",
+                "If nums[i] == nums[i-1], add to result."
+              ],
+              "code": "function findDuplicates(nums) {\n    nums.sort((a, b) => a - b);\n    const result = [];\n\n    for (let i = 1; i < nums.length; i++) {\n        if (nums[i] === nums[i - 1]) {\n            result.push(nums[i]);\n        }\n    }\n\n    return result;\n}",
+              "language": "javascript",
+              "timeComplexity": "O(n log n)",
+              "timeType": "warning",
+              "spaceComplexity": "O(1)",
+              "spaceType": "good",
+              "pros": ["No extra data structure", "Simple logic"],
+              "cons": ["Sorting adds overhead", "Modifies original array"],
+              "visualLink": "/legacy/Arrays/Prefix-Sum/Find-Duplicates/3-sorting-visualization.html",
+              "notesLink": ""
+            },
+            {
+              "title": "Optimal — Index-as-Hash (Negation Trick)",
+              "badge": "Optimal",
+              "intuition": "Since values are in range [1, n], treat each value as an index. Mark visited indices by negating the value at that index. If already negative, it's a duplicate.",
+              "steps": [
+                "Iterate through nums.",
+                "For each num, compute index = abs(num) - 1.",
+                "If nums[index] is negative → duplicate found.",
+                "Else negate nums[index]."
+              ],
+              "code": "function findDuplicates(nums) {\n    const result = [];\n\n    for (let i = 0; i < nums.length; i++) {\n        const index = Math.abs(nums[i]) - 1;\n\n        if (nums[index] < 0) {\n            result.push(index + 1);\n        } else {\n            nums[index] = -nums[index];\n        }\n    }\n\n    return result;\n}",
+              "language": "javascript",
+              "timeComplexity": "O(n)",
+              "timeType": "good",
+              "spaceComplexity": "O(1)",
+              "spaceType": "good",
+              "pros": [
+                "Optimal time and space",
+                "Very elegant trick",
+                "No extra memory required"
+              ],
+              "cons": [
+                "Modifies input array",
+                "Requires careful reasoning about indices"
+              ],
+              "visualLink": "/legacy/Arrays/Prefix-Sum/Find-Duplicates/4-negation-trick-visualization.html",
+              "notesLink": ""
+            }
+          ]
+        },
+        "range-sum-query": {
+          "breadcrumb": ["Arrays", "Prefix Sum", "Range Sum Query – Mutable"],
+          "title": "Range Sum Query – Mutable",
+          "difficulty": "Medium",
+          "problemSlug": "range-sum-query-mutable",
+          "categoryPath": "arrays/prefix-sum",
+          "tags": [
+            "Array",
+            "Prefix Sum",
+            "Fenwick Tree",
+            "Segment Tree",
+            "Design"
+          ],
+          "description": "Given an integer array nums, handle multiple queries of the following types: update the value of an element and calculate the sum of elements between two indices inclusive.",
+          "examples": [
+            {
+              "input": "Input\n[\"NumArray\", \"sumRange\", \"update\", \"sumRange\"]\n[[[1,3,5]], [0,2], [1,2], [0,2]]",
+              "output": "[null, 9, null, 8]",
+              "explanation": "Initial array: [1,3,5]\nsumRange(0,2) → 9\nupdate(1,2) → array becomes [1,2,5]\nsumRange(0,2) → 8"
+            }
+          ],
+          "constraints": [
+            "1 ≤ nums.length ≤ 3 * 10⁴",
+            "-100 ≤ nums[i] ≤ 100",
+            "0 ≤ index < nums.length",
+            "0 ≤ left ≤ right < nums.length",
+            "At most 3 * 10⁴ calls will be made to update and sumRange"
+          ],
+          "approaches": [
+            {
+              "title": "Brute Force — Raw Array",
+              "badge": "Brute Force",
+              "intuition": "Store the array directly. For sumRange, iterate from left to right and compute the sum each time.",
+              "steps": [
+                "Store nums.",
+                "update: assign new value.",
+                "sumRange: loop from left to right and sum values."
+              ],
+              "code": "class NumArray {\n    constructor(nums) {\n        this.nums = nums;\n    }\n\n    update(index, val) {\n        this.nums[index] = val;\n    }\n\n    sumRange(left, right) {\n        let sum = 0;\n        for (let i = left; i <= right; i++) {\n            sum += this.nums[i];\n        }\n        return sum;\n    }\n}",
+              "language": "javascript",
+              "timeComplexity": "update: O(1), sumRange: O(n)",
+              "timeType": "bad",
+              "spaceComplexity": "O(1)",
+              "spaceType": "good",
+              "pros": ["Very simple", "No extra memory"],
+              "cons": ["Slow for many queries"],
+              "visualLink": "/legacy/Arrays/Prefix-Sum/Range-Sum-Mutable/1-bruteforce-visualization.html",
+              "notesLink": ""
+            },
+            {
+              "title": "Improved — Prefix Sum Array",
+              "badge": "Improved",
+              "intuition": "Use prefix sums to answer sumRange in O(1). But update becomes O(n) because prefix must be recomputed.",
+              "steps": [
+                "Maintain prefix array.",
+                "sumRange: return prefix[r+1] - prefix[l].",
+                "update: recompute prefix from index onward."
+              ],
+              "code": "class NumArray {\n    constructor(nums) {\n        this.nums = nums;\n        this.prefix = new Array(nums.length + 1).fill(0);\n        for (let i = 0; i < nums.length; i++) {\n            this.prefix[i + 1] = this.prefix[i] + nums[i];\n        }\n    }\n\n    update(index, val) {\n        const diff = val - this.nums[index];\n        this.nums[index] = val;\n        for (let i = index + 1; i < this.prefix.length; i++) {\n            this.prefix[i] += diff;\n        }\n    }\n\n    sumRange(left, right) {\n        return this.prefix[right + 1] - this.prefix[left];\n    }\n}",
+              "language": "javascript",
+              "timeComplexity": "update: O(n), sumRange: O(1)",
+              "timeType": "warning",
+              "spaceComplexity": "O(n)",
+              "spaceType": "warning",
+              "pros": ["Fast queries", "Simple concept"],
+              "cons": ["Update is expensive"],
+              "visualLink": "/legacy/Arrays/Prefix-Sum/Range-Sum-Mutable/2-prefix-visualization.html",
+              "notesLink": ""
+            },
+            {
+              "title": "Better — Binary Indexed Tree (Fenwick Tree)",
+              "badge": "Better",
+              "intuition": "Fenwick Tree supports both update and prefix sum query in O(log n). Range sum can be computed using two prefix queries.",
+              "steps": [
+                "Build Fenwick Tree.",
+                "update: adjust tree with difference.",
+                "sumRange: query(right) - query(left-1)."
+              ],
+              "code": "class NumArray {\n    constructor(nums) {\n        this.n = nums.length;\n        this.tree = new Array(this.n + 1).fill(0);\n        this.nums = nums.slice();\n        for (let i = 0; i < this.n; i++) {\n            this.add(i + 1, nums[i]);\n        }\n    }\n\n    add(i, delta) {\n        while (i <= this.n) {\n            this.tree[i] += delta;\n            i += i & -i;\n        }\n    }\n\n    query(i) {\n        let sum = 0;\n        while (i > 0) {\n            sum += this.tree[i];\n            i -= i & -i;\n        }\n        return sum;\n    }\n\n    update(index, val) {\n        const diff = val - this.nums[index];\n        this.nums[index] = val;\n        this.add(index + 1, diff);\n    }\n\n    sumRange(left, right) {\n        return this.query(right + 1) - this.query(left);\n    }\n}",
+              "language": "javascript",
+              "timeComplexity": "update: O(log n), sumRange: O(log n)",
+              "timeType": "good",
+              "spaceComplexity": "O(n)",
+              "spaceType": "warning",
+              "pros": [
+                "Efficient for frequent updates",
+                "Compact implementation"
+              ],
+              "cons": ["Less intuitive than prefix sum"],
+              "visualLink": "/legacy/Arrays/Prefix-Sum/Range-Sum-Mutable/3-bit-visualization.html",
+              "notesLink": ""
+            },
+            {
+              "title": "Optimal — Segment Tree",
+              "badge": "Optimal",
+              "intuition": "Segment Tree stores sums for intervals. Both update and range sum are O(log n). More flexible than BIT.",
+              "steps": [
+                "Build tree recursively.",
+                "update: update leaf and propagate upward.",
+                "sumRange: query overlapping segments."
+              ],
+              "code": "class NumArray {\n    constructor(nums) {\n        this.n = nums.length;\n        this.tree = new Array(4 * this.n).fill(0);\n        this.build(nums, 0, 0, this.n - 1);\n    }\n\n    build(nums, node, start, end) {\n        if (start === end) {\n            this.tree[node] = nums[start];\n        } else {\n            const mid = Math.floor((start + end) / 2);\n            this.build(nums, 2 * node + 1, start, mid);\n            this.build(nums, 2 * node + 2, mid + 1, end);\n            this.tree[node] = this.tree[2 * node + 1] + this.tree[2 * node + 2];\n        }\n    }\n\n    update(index, val, node = 0, start = 0, end = this.n - 1) {\n        if (start === end) {\n            this.tree[node] = val;\n        } else {\n            const mid = Math.floor((start + end) / 2);\n            if (index <= mid) {\n                this.update(index, val, 2 * node + 1, start, mid);\n            } else {\n                this.update(index, val, 2 * node + 2, mid + 1, end);\n            }\n            this.tree[node] = this.tree[2 * node + 1] + this.tree[2 * node + 2];\n        }\n    }\n\n    sumRange(left, right, node = 0, start = 0, end = this.n - 1) {\n        if (right < start || left > end) return 0;\n        if (left <= start && end <= right) return this.tree[node];\n        const mid = Math.floor((start + end) / 2);\n        return this.sumRange(left, right, 2 * node + 1, start, mid) +\n               this.sumRange(left, right, 2 * node + 2, mid + 1, end);\n    }\n}",
+              "language": "javascript",
+              "timeComplexity": "update: O(log n), sumRange: O(log n)",
+              "timeType": "good",
+              "spaceComplexity": "O(n)",
+              "spaceType": "warning",
+              "pros": [
+                "Most flexible structure",
+                "Handles range updates and queries easily",
+                "Interview-level strong solution"
+              ],
+              "cons": ["More code", "Higher implementation complexity"],
+              "visualLink": "/legacy/Arrays/Prefix-Sum/Range-Sum-Mutable/4-segment-tree-visualization.html",
+              "notesLink": ""
+            }
+          ]
+        },
+        "subarray-products-less-than-k": {
+          "breadcrumb": [
+            "Arrays",
+            "Prefix Sum",
+            "Subarray Product Less Than K"
+          ],
+          "title": "Subarray Product Less Than K",
+          "difficulty": "Medium",
+          "problemSlug": "subarray-product-less-than-k",
+          "categoryPath": "arrays/prefix-sum",
+          "tags": [
+            "Array",
+            "Sliding Window",
+            "Prefix Sum",
+            "Binary Search",
+            "Logarithms"
+          ],
+          "description": "Given an array of positive integers nums and an integer k, return the number of contiguous subarrays where the product of all the elements in the subarray is strictly less than k.",
+          "examples": [
+            {
+              "input": "nums = [10,5,2,6], k = 100",
+              "output": "8",
+              "explanation": "The valid subarrays are: [10], [5], [2], [6], [10,5], [5,2], [2,6], [5,2,6]."
+            },
+            {
+              "input": "nums = [1,2,3], k = 0",
+              "output": "0",
+              "explanation": "No positive product can be less than 0."
+            }
+          ],
+          "constraints": [
+            "1 ≤ nums.length ≤ 3 * 10⁴",
+            "1 ≤ nums[i] ≤ 1000",
+            "0 ≤ k ≤ 10⁶"
+          ],
+          "approaches": [
+            {
+              "title": "Brute Force — Check Every Subarray",
+              "badge": "Brute Force",
+              "intuition": "Generate every possible contiguous subarray and compute its product. Count if product < k.",
+              "steps": [
+                "For each start index i:",
+                "Multiply elements until j.",
+                "If product < k, increment count."
+              ],
+              "code": "function numSubarrayProductLessThanK(nums, k) {\n    const n = nums.length;\n    let count = 0;\n\n    for (let i = 0; i < n; i++) {\n        let product = 1;\n        for (let j = i; j < n; j++) {\n            product *= nums[j];\n            if (product < k) {\n                count++;\n            } else {\n                break;\n            }\n        }\n    }\n\n    return count;\n}",
+              "language": "javascript",
+              "timeComplexity": "O(n²)",
+              "timeType": "bad",
+              "spaceComplexity": "O(1)",
+              "spaceType": "good",
+              "pros": ["Simple to implement", "Easy to understand"],
+              "cons": ["Too slow for large inputs"],
+              "visualLink": "/legacy/Arrays/Prefix-Sum/Subarray-Product/1-bruteforce-visualization.html",
+              "notesLink": ""
+            },
+            {
+              "title": "Improved — Logarithms + Prefix Sum + Binary Search",
+              "badge": "Improved",
+              "intuition": "Since log(a × b) = log(a) + log(b), convert products to sums using logarithms. Then count subarrays with sum < log(k) using prefix sums and binary search.",
+              "steps": [
+                "Take logarithm of each element.",
+                "Build prefix sum of logs.",
+                "For each start index, binary search farthest valid end index."
+              ],
+              "code": "function numSubarrayProductLessThanK(nums, k) {\n    if (k <= 1) return 0;\n\n    const n = nums.length;\n    const logPrefix = new Array(n + 1).fill(0);\n\n    for (let i = 0; i < n; i++) {\n        logPrefix[i + 1] = logPrefix[i] + Math.log(nums[i]);\n    }\n\n    let count = 0;\n    const logK = Math.log(k);\n\n    for (let i = 0; i < n; i++) {\n        let left = i + 1;\n        let right = n;\n        while (left <= right) {\n            const mid = Math.floor((left + right) / 2);\n            if (logPrefix[mid] - logPrefix[i] < logK - 1e-9) {\n                left = mid + 1;\n            } else {\n                right = mid - 1;\n            }\n        }\n        count += right - i;\n    }\n\n    return count;\n}",
+              "language": "javascript",
+              "timeComplexity": "O(n log n)",
+              "timeType": "warning",
+              "spaceComplexity": "O(n)",
+              "spaceType": "warning",
+              "pros": [
+                "Mathematically elegant",
+                "Transforms multiplication into addition"
+              ],
+              "cons": [
+                "Floating point precision issues",
+                "More complex than needed"
+              ],
+              "visualLink": "/legacy/Arrays/Prefix-Sum/Subarray-Product/2-log-binary-visualization.html",
+              "notesLink": ""
+            },
+            {
+              "title": "Optimal — Sliding Window",
+              "badge": "Optimal",
+              "intuition": "Because all numbers are positive, expanding the window increases product and shrinking decreases it. Maintain a window where product < k.",
+              "steps": [
+                "Initialize left = 0 and product = 1.",
+                "Expand right pointer multiplying nums[right].",
+                "While product ≥ k, shrink from left.",
+                "At each step, add (right - left + 1) to count."
+              ],
+              "code": "function numSubarrayProductLessThanK(nums, k) {\n    if (k <= 1) return 0;\n\n    let product = 1;\n    let left = 0;\n    let count = 0;\n\n    for (let right = 0; right < nums.length; right++) {\n        product *= nums[right];\n\n        while (product >= k) {\n            product /= nums[left];\n            left++;\n        }\n\n        count += right - left + 1;\n    }\n\n    return count;\n}",
+              "language": "javascript",
+              "timeComplexity": "O(n)",
+              "timeType": "good",
+              "spaceComplexity": "O(1)",
+              "spaceType": "good",
+              "pros": [
+                "Single pass solution",
+                "Constant extra space",
+                "Very clean sliding window logic",
+                "Interview-preferred solution"
+              ],
+              "cons": ["Works only because all numbers are positive"],
+              "visualLink": "/legacy/Arrays/Prefix-Sum/Subarray-Product/3-sliding-window-visualization.html",
+              "notesLink": ""
+            }
+          ]
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,15 @@
+.footer {
+  position: relative;
+  z-index: 1;
+  padding: 2.5rem clamp(1.5rem, 5vw, 4rem);
+  text-align: center;
+  border-top: 1px solid var(--border);
+  font-family: var(--font-heading);
+  font-size: 0.75rem;
+  color: var(--text-3);
+  transition: border-color var(--transition);
+}
+
+.footer a {
+  color: var(--accent);
+}

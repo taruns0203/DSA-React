@@ -1,3 +1,11 @@
 {
-  "outputDirectory": "."
+  "outputDirectory": "dist",
+  "rewrites": [
+    { "source": "/legacy/(.*)", "destination": "/legacy/$1" },
+    { "source": "/Arrays/(.*)", "destination": "/legacy/Arrays/$1" },
+    { "source": "/Linked-List/(.*)", "destination": "/legacy/Linked-List/$1" },
+    { "source": "/Recursion/(.*)", "destination": "/legacy/Recursion/$1" },
+    { "source": "/LeetCode/(.*)", "destination": "/legacy/LeetCode/$1" },
+    { "source": "/(.*)", "destination": "/" }
+  ]
 }

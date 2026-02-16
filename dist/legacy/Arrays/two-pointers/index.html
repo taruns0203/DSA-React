@@ -1,0 +1,1125 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Two Pointers — Interactive DSA Visualizer</title>
+<style>
+  /* ============================================================
+     CSS VARIABLES & RESET
+     ============================================================ */
+  :root {
+    --bg:          #F8F6F2;
+    --surface:     #FFFFFF;
+    --surface-alt: #F0EDE6;
+    --text:        #1A1A2E;
+    --text-muted:  #6B7280;
+    --border:      #E5E2DB;
+
+    /* Accent palette — warm coral to cool teal */
+    --left:        #FF6B6B;
+    --left-glow:   rgba(255, 107, 107, .25);
+    --right:       #4ECDC4;
+    --right-glow:  rgba(78, 205, 196, .25);
+    --match:       #FFD93D;
+    --match-glow:  rgba(255, 217, 61, .3);
+    --visited:     #C8B6FF;
+    --inactive:    #E5E2DB;
+
+    /* Gradients */
+    --grad-hero:     linear-gradient(135deg, #FF6B6B 0%, #FFD93D 50%, #4ECDC4 100%);
+    --grad-left:     linear-gradient(135deg, #FF6B6B, #FF8E8E);
+    --grad-right:    linear-gradient(135deg, #4ECDC4, #7EDDD6);
+    --grad-match:    linear-gradient(135deg, #FFD93D, #FFE57A);
+    --grad-btn:      linear-gradient(135deg, #FF6B6B 0%, #4ECDC4 100%);
+    --grad-btn-hover:linear-gradient(135deg, #e85d5d 0%, #3dbdb5 100%);
+
+    --radius:      14px;
+    --radius-sm:   8px;
+    --shadow:      0 2px 16px rgba(0,0,0,.06);
+    --shadow-lg:   0 8px 40px rgba(0,0,0,.10);
+
+    --font-display: 'Segoe UI', 'SF Pro Display', system-ui, sans-serif;
+    --font-mono:    'SF Mono', 'Cascadia Code', 'Consolas', monospace;
+
+    --transition:  .35s cubic-bezier(.4,0,.2,1);
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    font-family: var(--font-display);
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    line-height: 1.6;
+    overflow-x: hidden;
+  }
+
+  /* ============================================================
+     DECORATIVE BACKGROUND SHAPES
+     ============================================================ */
+  body::before,
+  body::after {
+    content: '';
+    position: fixed;
+    border-radius: 50%;
+    filter: blur(100px);
+    opacity: .35;
+    z-index: -1;
+    pointer-events: none;
+  }
+  body::before {
+    width: 500px; height: 500px;
+    top: -120px; left: -100px;
+    background: var(--left);
+  }
+  body::after {
+    width: 600px; height: 600px;
+    bottom: -200px; right: -150px;
+    background: var(--right);
+  }
+
+  /* ============================================================
+     LAYOUT WRAPPER
+     ============================================================ */
+  .app {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 28px 20px 60px;
+  }
+
+  /* ============================================================
+     HERO HEADER
+     ============================================================ */
+  .hero {
+    text-align: center;
+    margin-bottom: 36px;
+    animation: fadeSlideDown .7s ease-out both;
+  }
+
+  .hero__badge {
+    display: inline-block;
+    font-size: .7rem;
+    font-weight: 700;
+    letter-spacing: 1.6px;
+    text-transform: uppercase;
+    background: var(--grad-hero);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    margin-bottom: 8px;
+  }
+
+  .hero h1 {
+    font-size: clamp(1.9rem, 5vw, 2.7rem);
+    font-weight: 800;
+    letter-spacing: -.02em;
+    line-height: 1.15;
+    margin-bottom: 8px;
+  }
+
+  .hero h1 span {
+    background: var(--grad-hero);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .hero p {
+    color: var(--text-muted);
+    font-size: .95rem;
+    max-width: 560px;
+    margin: 0 auto;
+  }
+
+  /* ============================================================
+     CARDS — shared card style
+     ============================================================ */
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    padding: 24px;
+    margin-bottom: 20px;
+    animation: fadeSlideUp .6s ease-out both;
+  }
+  .card:nth-child(2) { animation-delay: .08s; }
+  .card:nth-child(3) { animation-delay: .16s; }
+  .card:nth-child(4) { animation-delay: .24s; }
+
+  .card__title {
+    font-size: .72rem;
+    font-weight: 700;
+    letter-spacing: 1.4px;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    margin-bottom: 14px;
+  }
+
+  /* ============================================================
+     ALGORITHM SELECTOR
+     ============================================================ */
+  .algo-tabs {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 18px;
+    flex-wrap: wrap;
+  }
+
+  .algo-tab {
+    padding: 8px 16px;
+    border: 2px solid var(--border);
+    border-radius: 40px;
+    background: transparent;
+    font-family: var(--font-display);
+    font-size: .82rem;
+    font-weight: 600;
+    color: var(--text-muted);
+    cursor: pointer;
+    transition: var(--transition);
+  }
+  .algo-tab:hover {
+    border-color: var(--left);
+    color: var(--text);
+  }
+  .algo-tab.active {
+    background: var(--grad-btn);
+    border-color: transparent;
+    color: #fff;
+  }
+
+  /* ============================================================
+     INPUT ROW
+     ============================================================ */
+  .input-row {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    align-items: flex-end;
+  }
+
+  .field {
+    flex: 1;
+    min-width: 140px;
+  }
+
+  .field label {
+    display: block;
+    font-size: .75rem;
+    font-weight: 600;
+    color: var(--text-muted);
+    margin-bottom: 5px;
+    letter-spacing: .4px;
+  }
+
+  .field input {
+    width: 100%;
+    padding: 10px 14px;
+    border: 2px solid var(--border);
+    border-radius: var(--radius-sm);
+    font-family: var(--font-mono);
+    font-size: .88rem;
+    color: var(--text);
+    background: var(--surface-alt);
+    outline: none;
+    transition: var(--transition);
+  }
+  .field input:focus {
+    border-color: var(--left);
+    box-shadow: 0 0 0 4px var(--left-glow);
+  }
+
+  /* ============================================================
+     BUTTONS
+     ============================================================ */
+  .btn-group {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    align-items: flex-end;
+  }
+
+  .btn {
+    padding: 10px 22px;
+    border: none;
+    border-radius: var(--radius-sm);
+    font-family: var(--font-display);
+    font-size: .85rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: var(--transition);
+    position: relative;
+    overflow: hidden;
+  }
+
+  .btn--primary {
+    background: var(--grad-btn);
+    color: #fff;
+    box-shadow: 0 4px 16px rgba(255,107,107,.25);
+  }
+  .btn--primary:hover {
+    background: var(--grad-btn-hover);
+    transform: translateY(-1px);
+    box-shadow: 0 6px 24px rgba(255,107,107,.3);
+  }
+  .btn--primary:active { transform: translateY(0); }
+
+  .btn--secondary {
+    background: var(--surface-alt);
+    color: var(--text);
+    border: 2px solid var(--border);
+  }
+  .btn--secondary:hover {
+    border-color: var(--text-muted);
+    background: #fff;
+  }
+
+  .btn--step {
+    background: var(--grad-right);
+    color: #fff;
+    box-shadow: 0 4px 16px rgba(78,205,196,.25);
+  }
+  .btn--step:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 6px 24px rgba(78,205,196,.35);
+  }
+
+  .btn:disabled {
+    opacity: .45;
+    cursor: not-allowed;
+    transform: none !important;
+    box-shadow: none !important;
+  }
+
+  /* ============================================================
+     ARRAY VISUALIZATION
+     ============================================================ */
+  .array-stage {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    min-height: 180px;
+    padding: 20px 0 10px;
+  }
+
+  /* Index labels above */
+  .index-row, .array-row {
+    display: flex;
+    gap: 6px;
+    justify-content: center;
+    flex-wrap: wrap;
+  }
+
+  .index-cell {
+    width: 56px;
+    text-align: center;
+    font-size: .68rem;
+    font-weight: 600;
+    color: var(--text-muted);
+    font-family: var(--font-mono);
+  }
+
+  /* Array cells */
+  .cell {
+    width: 56px;
+    height: 56px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 12px;
+    font-family: var(--font-mono);
+    font-size: 1.05rem;
+    font-weight: 700;
+    border: 2.5px solid var(--border);
+    background: var(--surface);
+    color: var(--text);
+    transition: all .4s cubic-bezier(.4,0,.2,1);
+    position: relative;
+  }
+
+  .cell.left-ptr {
+    border-color: var(--left);
+    background: linear-gradient(135deg, rgba(255,107,107,.12), rgba(255,107,107,.04));
+    box-shadow: 0 0 0 4px var(--left-glow), 0 4px 20px var(--left-glow);
+    transform: scale(1.08);
+  }
+
+  .cell.right-ptr {
+    border-color: var(--right);
+    background: linear-gradient(135deg, rgba(78,205,196,.12), rgba(78,205,196,.04));
+    box-shadow: 0 0 0 4px var(--right-glow), 0 4px 20px var(--right-glow);
+    transform: scale(1.08);
+  }
+
+  .cell.both-ptr {
+    border-color: var(--match);
+    background: linear-gradient(135deg, rgba(255,217,61,.18), rgba(255,217,61,.06));
+    box-shadow: 0 0 0 4px var(--match-glow), 0 4px 24px var(--match-glow);
+    transform: scale(1.12);
+  }
+
+  .cell.matched {
+    border-color: var(--match);
+    background: var(--grad-match);
+    color: #1A1A2E;
+    box-shadow: 0 4px 20px var(--match-glow);
+    transform: scale(1.1);
+    animation: popIn .4s ease-out;
+  }
+
+  .cell.visited {
+    border-color: var(--visited);
+    background: rgba(200,182,255,.12);
+    color: var(--text-muted);
+  }
+
+  .cell.inactive {
+    opacity: .35;
+  }
+
+  /* Pointer labels below array */
+  .pointer-row {
+    display: flex;
+    gap: 6px;
+    justify-content: center;
+    margin-top: 6px;
+    flex-wrap: wrap;
+  }
+
+  .ptr-label {
+    width: 56px;
+    text-align: center;
+    font-size: .72rem;
+    font-weight: 800;
+    letter-spacing: .5px;
+    min-height: 22px;
+    transition: var(--transition);
+  }
+  .ptr-label.L { color: var(--left); }
+  .ptr-label.R { color: var(--right); }
+
+  /* ============================================================
+     EXPLANATION PANEL
+     ============================================================ */
+  .explain {
+    display: flex;
+    gap: 12px;
+    align-items: flex-start;
+    padding: 16px 18px;
+    border-radius: var(--radius-sm);
+    background: var(--surface-alt);
+    border-left: 4px solid var(--right);
+    min-height: 60px;
+    transition: var(--transition);
+    animation: fadeIn .35s ease-out;
+  }
+
+  .explain__icon {
+    flex-shrink: 0;
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    background: var(--grad-right);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: .85rem;
+    color: #fff;
+    margin-top: 1px;
+  }
+
+  .explain__text {
+    font-size: .88rem;
+    color: var(--text);
+    line-height: 1.55;
+  }
+
+  .explain__text strong { color: var(--left); }
+  .explain__text em { color: var(--right); font-style: normal; font-weight: 600; }
+
+  /* ============================================================
+     COMPLEXITY BADGES
+     ============================================================ */
+  .complexity-row {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+  }
+
+  .complexity-badge {
+    flex: 1;
+    min-width: 140px;
+    padding: 14px 18px;
+    border-radius: var(--radius-sm);
+    text-align: center;
+    border: 1.5px solid var(--border);
+    background: var(--surface);
+  }
+
+  .complexity-badge__label {
+    font-size: .65rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1.2px;
+    color: var(--text-muted);
+    margin-bottom: 4px;
+  }
+
+  .complexity-badge__value {
+    font-family: var(--font-mono);
+    font-size: 1.15rem;
+    font-weight: 800;
+    background: var(--grad-hero);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  /* ============================================================
+     LEGEND
+     ============================================================ */
+  .legend {
+    display: flex;
+    gap: 16px;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+
+  .legend-item {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    font-size: .78rem;
+    font-weight: 600;
+    color: var(--text-muted);
+  }
+
+  .legend-swatch {
+    width: 16px;
+    height: 16px;
+    border-radius: 5px;
+    border: 2px solid transparent;
+    flex-shrink: 0;
+  }
+
+  .legend-swatch.sw-left   { border-color: var(--left); background: rgba(255,107,107,.15); }
+  .legend-swatch.sw-right  { border-color: var(--right); background: rgba(78,205,196,.15); }
+  .legend-swatch.sw-match  { background: var(--grad-match); }
+  .legend-swatch.sw-visited { border-color: var(--visited); background: rgba(200,182,255,.15); }
+  .legend-swatch.sw-default { border-color: var(--border); background: var(--surface); }
+
+  /* ============================================================
+     STEP COUNTER
+     ============================================================ */
+  .step-counter {
+    text-align: center;
+    font-family: var(--font-mono);
+    font-size: .8rem;
+    font-weight: 600;
+    color: var(--text-muted);
+    margin-bottom: 10px;
+  }
+
+  .step-counter span {
+    background: var(--grad-hero);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    font-weight: 800;
+  }
+
+  /* ============================================================
+     SUM DISPLAY
+     ============================================================ */
+  .sum-display {
+    text-align: center;
+    margin: 10px 0 4px;
+    font-family: var(--font-mono);
+    font-size: .95rem;
+    font-weight: 700;
+    color: var(--text);
+    min-height: 28px;
+    transition: var(--transition);
+  }
+
+  .sum-display .val { color: var(--left); }
+  .sum-display .op  { color: var(--text-muted); }
+  .sum-display .res { color: var(--right); }
+  .sum-display .eq  { color: var(--match); font-weight: 800; }
+
+  /* ============================================================
+     ANIMATIONS
+     ============================================================ */
+  @keyframes fadeSlideDown {
+    from { opacity: 0; transform: translateY(-18px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+  @keyframes fadeSlideUp {
+    from { opacity: 0; transform: translateY(20px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+  @keyframes fadeIn {
+    from { opacity: 0; }
+    to   { opacity: 1; }
+  }
+  @keyframes popIn {
+    0%   { transform: scale(.85); opacity: .5; }
+    60%  { transform: scale(1.15); }
+    100% { transform: scale(1.1); opacity: 1; }
+  }
+  @keyframes pulse {
+    0%, 100% { box-shadow: 0 0 0 4px var(--left-glow); }
+    50%      { box-shadow: 0 0 0 8px var(--left-glow); }
+  }
+
+  /* ============================================================
+     RESPONSIVE
+     ============================================================ */
+  @media (max-width: 600px) {
+    .app { padding: 18px 12px 40px; }
+    .card { padding: 16px; }
+    .input-row { flex-direction: column; }
+    .field { min-width: auto; }
+    .cell, .index-cell, .ptr-label { width: 44px; }
+    .cell { height: 44px; font-size: .9rem; }
+    .algo-tab { padding: 6px 12px; font-size: .75rem; }
+    .btn { padding: 9px 16px; font-size: .8rem; }
+  }
+
+  /* ============================================================
+     FOOTER
+     ============================================================ */
+  .footer {
+    text-align: center;
+    padding: 24px 0 0;
+    font-size: .72rem;
+    color: var(--text-muted);
+    letter-spacing: .3px;
+  }
+</style>
+</head>
+<body>
+<div class="app">
+  <!-- ======= HERO ======= -->
+  <header class="hero">
+    <div class="hero__badge">DSA Pattern Visualizer</div>
+    <h1><span>Two Pointers</span> Technique</h1>
+    <p>Watch how two coordinated pointers traverse an array to solve problems in O(n) instead of O(n²). Fully interactive, step-by-step.</p>
+  </header>
+
+  <!-- ======= ALGORITHM SELECTOR ======= -->
+  <div class="card" style="animation-delay:.04s">
+    <div class="card__title">Choose Algorithm</div>
+    <div class="algo-tabs" id="algoTabs">
+      <button class="algo-tab active" data-algo="twosum">Two Sum (Sorted)</button>
+      <button class="algo-tab" data-algo="palindrome">Valid Palindrome</button>
+      <button class="algo-tab" data-algo="removeDups">Remove Duplicates</button>
+    </div>
+
+    <!-- Dynamic input area -->
+    <div class="input-row" id="inputArea">
+      <!-- Populated by JS -->
+    </div>
+
+    <div class="btn-group" style="margin-top: 14px;">
+      <button class="btn btn--primary" id="btnStart">▶  Start</button>
+      <button class="btn btn--step" id="btnStep" disabled>Next Step →</button>
+      <button class="btn btn--secondary" id="btnReset">↺  Reset</button>
+      <button class="btn btn--secondary" id="btnAutoPlay" disabled>⏩ Auto-Play</button>
+    </div>
+  </div>
+
+  <!-- ======= VISUALIZATION ======= -->
+  <div class="card" id="vizCard" style="animation-delay:.12s">
+    <div class="card__title">Visualization</div>
+
+    <div class="step-counter" id="stepCounter">Press <span>Start</span> to begin</div>
+
+    <div class="array-stage" id="arrayStage">
+      <div class="index-row" id="indexRow"></div>
+      <div class="array-row" id="arrayRow"></div>
+      <div class="pointer-row" id="pointerRow"></div>
+    </div>
+
+    <div class="sum-display" id="sumDisplay"></div>
+
+    <div class="explain" id="explainPanel">
+      <div class="explain__icon">💡</div>
+      <div class="explain__text" id="explainText">
+        Select an algorithm, enter your input, and click <b>Start</b> to begin the visualization.
+      </div>
+    </div>
+  </div>
+
+  <!-- ======= COMPLEXITY ======= -->
+  <div class="card" style="animation-delay:.2s">
+    <div class="card__title">Complexity Analysis</div>
+    <div class="complexity-row" id="complexityRow">
+      <div class="complexity-badge">
+        <div class="complexity-badge__label">Time</div>
+        <div class="complexity-badge__value" id="timeBadge">O(n)</div>
+      </div>
+      <div class="complexity-badge">
+        <div class="complexity-badge__label">Space</div>
+        <div class="complexity-badge__value" id="spaceBadge">O(1)</div>
+      </div>
+      <div class="complexity-badge">
+        <div class="complexity-badge__label">Approach</div>
+        <div class="complexity-badge__value" id="approachBadge" style="font-size:.85rem">Converging</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ======= LEGEND ======= -->
+  <div class="card" style="animation-delay:.28s">
+    <div class="card__title">Legend</div>
+    <div class="legend">
+      <div class="legend-item"><div class="legend-swatch sw-left"></div>Left Pointer (L)</div>
+      <div class="legend-item"><div class="legend-swatch sw-right"></div>Right Pointer (R)</div>
+      <div class="legend-item"><div class="legend-swatch sw-match"></div>Match Found</div>
+      <div class="legend-item"><div class="legend-swatch sw-visited"></div>Visited / Processed</div>
+      <div class="legend-item"><div class="legend-swatch sw-default"></div>Unvisited</div>
+    </div>
+  </div>
+
+  <div class="footer">Two Pointers Visualizer — FAANG Interview Prep</div>
+</div>
+
+<script>
+/* ==============================================================
+   STATE
+   ============================================================== */
+const state = {
+  algo: 'twosum',       // current algorithm
+  arr: [],              // working array
+  target: 0,            // target for twosum
+  steps: [],            // pre-computed step snapshots
+  currentStep: -1,      // which step we're displaying
+  autoTimer: null,      // interval id for auto-play
+  isRunning: false
+};
+
+/* ==============================================================
+   DOM REFERENCES
+   ============================================================== */
+const $ = id => document.getElementById(id);
+const dom = {
+  algoTabs:     $('algoTabs'),
+  inputArea:    $('inputArea'),
+  btnStart:     $('btnStart'),
+  btnStep:      $('btnStep'),
+  btnReset:     $('btnReset'),
+  btnAutoPlay:  $('btnAutoPlay'),
+  indexRow:      $('indexRow'),
+  arrayRow:      $('arrayRow'),
+  pointerRow:    $('pointerRow'),
+  stepCounter:   $('stepCounter'),
+  sumDisplay:    $('sumDisplay'),
+  explainText:   $('explainText'),
+  timeBadge:     $('timeBadge'),
+  spaceBadge:    $('spaceBadge'),
+  approachBadge: $('approachBadge')
+};
+
+/* ==============================================================
+   ALGORITHM TAB SWITCHING
+   ============================================================== */
+dom.algoTabs.addEventListener('click', e => {
+  const tab = e.target.closest('.algo-tab');
+  if (!tab) return;
+  dom.algoTabs.querySelectorAll('.algo-tab').forEach(t => t.classList.remove('active'));
+  tab.classList.add('active');
+  state.algo = tab.dataset.algo;
+  resetAll();
+  buildInputUI();
+  updateComplexity();
+});
+
+/* ==============================================================
+   DYNAMIC INPUT UI
+   ============================================================== */
+function buildInputUI() {
+  let html = '';
+  switch (state.algo) {
+    case 'twosum':
+      html = `
+        <div class="field"><label>Sorted Array (comma-separated)</label>
+          <input id="inArr" value="1, 3, 5, 7, 11, 15" placeholder="e.g. 1,3,5,7,11,15"></div>
+        <div class="field"><label>Target Sum</label>
+          <input id="inTarget" value="16" placeholder="e.g. 16"></div>`;
+      break;
+    case 'palindrome':
+      html = `
+        <div class="field"><label>String to Check</label>
+          <input id="inStr" value="racecar" placeholder="e.g. racecar"></div>`;
+      break;
+    case 'removeDups':
+      html = `
+        <div class="field"><label>Sorted Array (comma-separated)</label>
+          <input id="inArr" value="1, 1, 2, 2, 3, 4, 4, 5" placeholder="e.g. 1,1,2,2,3,4,4,5"></div>`;
+      break;
+  }
+  dom.inputArea.innerHTML = html;
+}
+
+function updateComplexity() {
+  switch (state.algo) {
+    case 'twosum':
+      dom.timeBadge.textContent = 'O(n)';
+      dom.spaceBadge.textContent = 'O(1)';
+      dom.approachBadge.textContent = 'Converging';
+      break;
+    case 'palindrome':
+      dom.timeBadge.textContent = 'O(n)';
+      dom.spaceBadge.textContent = 'O(1)';
+      dom.approachBadge.textContent = 'Converging';
+      break;
+    case 'removeDups':
+      dom.timeBadge.textContent = 'O(n)';
+      dom.spaceBadge.textContent = 'O(1)';
+      dom.approachBadge.textContent = 'Fast & Slow';
+      break;
+  }
+}
+
+/* ==============================================================
+   STEP GENERATORS — each returns an array of step objects
+   ============================================================== */
+
+/**
+ * Step object shape:
+ * {
+ *   arr:      [...],          // current array state
+ *   left:     number|null,    // left pointer index
+ *   right:    number|null,    // right pointer index
+ *   matched:  Set|[],         // indices currently matched
+ *   visited:  Set|[],         // indices already passed
+ *   text:     string,         // explanation HTML
+ *   sum:      string|null,    // sum display HTML
+ *   done:     boolean
+ * }
+ */
+
+function generateTwoSumSteps(arr, target) {
+  const steps = [];
+  let left = 0, right = arr.length - 1;
+  const visited = new Set();
+
+  // Initial step
+  steps.push({
+    arr: [...arr], left, right, matched: new Set(), visited: new Set(),
+    text: `Array is sorted. Place <strong>L</strong> at index 0 (value ${arr[0]}) and <em>R</em> at index ${right} (value ${arr[right]}). Target = ${target}.`,
+    sum: null, done: false
+  });
+
+  while (left < right) {
+    const sum = arr[left] + arr[right];
+    const vis = new Set(visited);
+
+    if (sum === target) {
+      steps.push({
+        arr: [...arr], left, right, matched: new Set([left, right]), visited: vis,
+        text: `🎉 <strong>${arr[left]}</strong> + <em>${arr[right]}</em> = ${sum} which equals target ${target}. <b>Match found!</b>`,
+        sum: `<span class="val">${arr[left]}</span> <span class="op">+</span> <span class="res">${arr[right]}</span> <span class="op">=</span> <span class="eq">${sum} ✓</span>`,
+        done: true
+      });
+      return steps;
+    } else if (sum < target) {
+      steps.push({
+        arr: [...arr], left, right, matched: new Set(), visited: vis,
+        text: `<strong>${arr[left]}</strong> + <em>${arr[right]}</em> = ${sum}, which is <b>less than</b> ${target}. Move <strong>L →</strong> right to increase the sum.`,
+        sum: `<span class="val">${arr[left]}</span> <span class="op">+</span> <span class="res">${arr[right]}</span> <span class="op">=</span> ${sum} <span class="op">&lt; ${target}</span>`,
+        done: false
+      });
+      visited.add(left);
+      left++;
+    } else {
+      steps.push({
+        arr: [...arr], left, right, matched: new Set(), visited: vis,
+        text: `<strong>${arr[left]}</strong> + <em>${arr[right]}</em> = ${sum}, which is <b>greater than</b> ${target}. Move <em>← R</em> left to decrease the sum.`,
+        sum: `<span class="val">${arr[left]}</span> <span class="op">+</span> <span class="res">${arr[right]}</span> <span class="op">=</span> ${sum} <span class="op">&gt; ${target}</span>`,
+        done: false
+      });
+      visited.add(right);
+      right--;
+    }
+  }
+
+  // No match
+  steps.push({
+    arr: [...arr], left: null, right: null, matched: new Set(), visited: new Set(visited),
+    text: `Pointers have crossed. <b>No pair found</b> that sums to ${target}.`,
+    sum: `No valid pair`, done: true
+  });
+  return steps;
+}
+
+function generatePalindromeSteps(str) {
+  const arr = str.split('');
+  const steps = [];
+  let left = 0, right = arr.length - 1;
+  const visited = new Set();
+  const matched = new Set();
+
+  steps.push({
+    arr: [...arr], left, right, matched: new Set(), visited: new Set(),
+    text: `Check if "<b>${str}</b>" is a palindrome. Place <strong>L</strong> at index 0 and <em>R</em> at index ${right}.`,
+    sum: null, done: false
+  });
+
+  while (left < right) {
+    if (arr[left] === arr[right]) {
+      matched.add(left); matched.add(right);
+      steps.push({
+        arr: [...arr], left, right, matched: new Set(matched), visited: new Set(visited),
+        text: `<strong>'${arr[left]}'</strong> === <em>'${arr[right]}'</em> — characters match! ✓ Move both pointers inward.`,
+        sum: `<span class="val">${arr[left]}</span> <span class="eq">===</span> <span class="res">${arr[right]}</span> <span class="eq">✓</span>`,
+        done: false
+      });
+      visited.add(left); visited.add(right);
+      left++; right--;
+    } else {
+      steps.push({
+        arr: [...arr], left, right, matched: new Set(), visited: new Set(visited),
+        text: `<strong>'${arr[left]}'</strong> ≠ <em>'${arr[right]}'</em> — mismatch! ✗ <b>Not a palindrome.</b>`,
+        sum: `<span class="val">${arr[left]}</span> <span class="op">≠</span> <span class="res">${arr[right]}</span> <span class="op">✗</span>`,
+        done: true
+      });
+      return steps;
+    }
+  }
+
+  // If single middle char left
+  if (left === right) matched.add(left);
+
+  steps.push({
+    arr: [...arr], left: null, right: null, matched: new Set(matched), visited: new Set(visited),
+    text: `All characters matched. 🎉 <b>"${str}" is a palindrome!</b>`,
+    sum: `<span class="eq">✓ Palindrome</span>`, done: true
+  });
+  return steps;
+}
+
+function generateRemoveDupsSteps(arr) {
+  const steps = [];
+  if (arr.length === 0) {
+    steps.push({ arr: [], left: null, right: null, matched: new Set(), visited: new Set(), text: 'Empty array — nothing to process.', sum: null, done: true });
+    return steps;
+  }
+
+  let slow = 0, fast = 1;
+  const result = [...arr];
+  const kept = new Set([0]); // indices in result that are "kept"
+
+  steps.push({
+    arr: [...result], left: slow, right: fast < result.length ? fast : null, matched: new Set(kept), visited: new Set(),
+    text: `<strong>Slow</strong> pointer at index 0. <em>Fast</em> pointer starts scanning from index 1. Slow marks the write position for unique elements.`,
+    sum: null, done: false
+  });
+
+  while (fast < result.length) {
+    if (result[fast] !== result[slow]) {
+      slow++;
+      result[slow] = arr[fast];
+      kept.add(slow);
+      steps.push({
+        arr: [...result], left: slow, right: fast, matched: new Set(kept), visited: new Set(),
+        text: `arr[<em>${fast}</em>] = ${arr[fast]} ≠ arr[<strong>${slow - 1}</strong>] = ${result[slow - 1] !== undefined ? arr[slow - 1] : arr[slow]}. New unique value! Write ${arr[fast]} at position <strong>${slow}</strong>. Move both pointers.`,
+        sum: `<span class="val">${arr[fast]}</span> <span class="op">→ written at index</span> <span class="eq">${slow}</span>`,
+        done: false
+      });
+    } else {
+      steps.push({
+        arr: [...result], left: slow, right: fast, matched: new Set(kept), visited: new Set(),
+        text: `arr[<em>${fast}</em>] = ${arr[fast]} === arr[<strong>${slow}</strong>] = ${result[slow]}. Duplicate — skip. Move <em>Fast →</em> only.`,
+        sum: `<span class="val">${arr[fast]}</span> <span class="op">=== duplicate, skip</span>`,
+        done: false
+      });
+    }
+    fast++;
+  }
+
+  steps.push({
+    arr: [...result], left: slow, right: null, matched: new Set(kept), visited: new Set(),
+    text: `🎉 Done! <b>${slow + 1} unique elements</b> in first ${slow + 1} positions: [${[...kept].map(i => result[i]).join(', ')}].`,
+    sum: `<span class="eq">Unique count: ${slow + 1}</span>`, done: true
+  });
+  return steps;
+}
+
+/* ==============================================================
+   RENDERING
+   ============================================================== */
+function renderStep(step) {
+  const { arr, left, right, matched, visited, text, sum, done } = step;
+  const n = arr.length;
+  const isRemoveDups = state.algo === 'removeDups';
+  const leftLabel = isRemoveDups ? 'S' : 'L';
+  const rightLabel = isRemoveDups ? 'F' : 'R';
+
+  // Index row
+  dom.indexRow.innerHTML = arr.map((_, i) => `<div class="index-cell">${i}</div>`).join('');
+
+  // Array cells
+  dom.arrayRow.innerHTML = arr.map((v, i) => {
+    let cls = 'cell';
+    if (matched.has(i))                cls += ' matched';
+    else if (i === left && i === right) cls += ' both-ptr';
+    else if (i === left)               cls += ' left-ptr';
+    else if (i === right)              cls += ' right-ptr';
+    else if (visited.has(i))           cls += ' visited';
+    return `<div class="${cls}">${v}</div>`;
+  }).join('');
+
+  // Pointer labels
+  dom.pointerRow.innerHTML = arr.map((_, i) => {
+    let label = '';
+    if (i === left && i === right) label = `<span class="ptr-label L">${leftLabel}/${rightLabel}</span>`;
+    else if (i === left) label = `<span class="ptr-label L">▲ ${leftLabel}</span>`;
+    else if (i === right) label = `<span class="ptr-label R">▲ ${rightLabel}</span>`;
+    else label = `<span class="ptr-label"></span>`;
+    return label;
+  }).join('');
+
+  // Sum display
+  dom.sumDisplay.innerHTML = sum || '';
+
+  // Explanation
+  dom.explainText.innerHTML = text;
+
+  // Step counter
+  const total = state.steps.length;
+  const cur = state.currentStep + 1;
+  if (done) {
+    dom.stepCounter.innerHTML = `Step <span>${cur} / ${total}</span> — Complete`;
+  } else {
+    dom.stepCounter.innerHTML = `Step <span>${cur} / ${total}</span>`;
+  }
+}
+
+/* ==============================================================
+   CONTROLS
+   ============================================================== */
+function parseInput() {
+  switch (state.algo) {
+    case 'twosum': {
+      const arrStr = document.getElementById('inArr').value;
+      const arr = arrStr.split(',').map(s => parseInt(s.trim(), 10)).filter(n => !isNaN(n));
+      const target = parseInt(document.getElementById('inTarget').value.trim(), 10) || 0;
+      return { arr, target };
+    }
+    case 'palindrome': {
+      const str = (document.getElementById('inStr').value || '').toLowerCase().replace(/[^a-z0-9]/g, '');
+      return { arr: str.split(''), str };
+    }
+    case 'removeDups': {
+      const arrStr = document.getElementById('inArr').value;
+      const arr = arrStr.split(',').map(s => parseInt(s.trim(), 10)).filter(n => !isNaN(n));
+      return { arr };
+    }
+  }
+}
+
+function startVisualization() {
+  const input = parseInput();
+  if (!input.arr || input.arr.length === 0) return;
+
+  // Generate all steps up front
+  switch (state.algo) {
+    case 'twosum':
+      state.steps = generateTwoSumSteps(input.arr, input.target);
+      break;
+    case 'palindrome':
+      state.steps = generatePalindromeSteps(input.str);
+      break;
+    case 'removeDups':
+      state.steps = generateRemoveDupsSteps(input.arr);
+      break;
+  }
+
+  state.currentStep = 0;
+  state.isRunning = true;
+  dom.btnStep.disabled = false;
+  dom.btnAutoPlay.disabled = false;
+  dom.btnStart.disabled = true;
+  renderStep(state.steps[0]);
+}
+
+function nextStep() {
+  if (state.currentStep >= state.steps.length - 1) {
+    stopAutoPlay();
+    return;
+  }
+  state.currentStep++;
+  renderStep(state.steps[state.currentStep]);
+
+  if (state.steps[state.currentStep].done) {
+    dom.btnStep.disabled = true;
+    stopAutoPlay();
+  }
+}
+
+function resetAll() {
+  stopAutoPlay();
+  state.steps = [];
+  state.currentStep = -1;
+  state.isRunning = false;
+  dom.btnStep.disabled = true;
+  dom.btnAutoPlay.disabled = true;
+  dom.btnStart.disabled = false;
+  dom.indexRow.innerHTML = '';
+  dom.arrayRow.innerHTML = '';
+  dom.pointerRow.innerHTML = '';
+  dom.sumDisplay.innerHTML = '';
+  dom.stepCounter.innerHTML = 'Press <span>Start</span> to begin';
+  dom.explainText.innerHTML = 'Select an algorithm, enter your input, and click <b>Start</b> to begin the visualization.';
+}
+
+let autoPlaying = false;
+function toggleAutoPlay() {
+  if (autoPlaying) {
+    stopAutoPlay();
+  } else {
+    autoPlaying = true;
+    dom.btnAutoPlay.textContent = '⏸ Pause';
+    state.autoTimer = setInterval(() => {
+      if (state.currentStep >= state.steps.length - 1) {
+        stopAutoPlay();
+        return;
+      }
+      nextStep();
+    }, 900);
+  }
+}
+
+function stopAutoPlay() {
+  autoPlaying = false;
+  dom.btnAutoPlay.textContent = '⏩ Auto-Play';
+  if (state.autoTimer) { clearInterval(state.autoTimer); state.autoTimer = null; }
+}
+
+/* ==============================================================
+   EVENT LISTENERS
+   ============================================================== */
+dom.btnStart.addEventListener('click', startVisualization);
+dom.btnStep.addEventListener('click', nextStep);
+dom.btnReset.addEventListener('click', resetAll);
+dom.btnAutoPlay.addEventListener('click', toggleAutoPlay);
+
+/* Allow Enter key in inputs to start */
+dom.inputArea.addEventListener('keydown', e => {
+  if (e.key === 'Enter' && !dom.btnStart.disabled) startVisualization();
+});
+
+/* ==============================================================
+   INIT
+   ============================================================== */
+buildInputUI();
+updateComplexity();
+</script>
+</body>
+</html>

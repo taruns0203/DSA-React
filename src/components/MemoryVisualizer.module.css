@@ -1,0 +1,188 @@
+.visual {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1.2rem;
+  animation: fadeUp 0.8s ease 0.25s both;
+}
+
+.label {
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+  color: var(--text-3);
+  text-transform: uppercase;
+  letter-spacing: 0.14em;
+  align-self: flex-start;
+}
+
+.row {
+  display: flex;
+  gap: 0;
+}
+
+.cell {
+  width: 64px;
+  height: 64px;
+  border: 1.5px solid var(--cell-border);
+  background: var(--cell-bg);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  transition: background 0.4s ease, border-color 0.4s ease, box-shadow 0.4s ease;
+  animation: cellReveal 0.5s ease both;
+}
+
+.cell:first-child {
+  border-radius: var(--radius-s) 0 0 var(--radius-s);
+}
+
+.cell:last-child {
+  border-radius: 0 var(--radius-s) var(--radius-s) 0;
+}
+
+.cell:not(:first-child) {
+  border-left: none;
+}
+
+@keyframes cellReveal {
+  from {
+    opacity: 0;
+    transform: scaleX(0.3);
+  }
+  to {
+    opacity: 1;
+    transform: scaleX(1);
+  }
+}
+
+.val {
+  font-family: var(--font-mono);
+  font-weight: 700;
+  font-size: 1.05rem;
+  color: var(--cell-text);
+}
+
+.idx {
+  position: absolute;
+  bottom: -22px;
+  font-family: var(--font-mono);
+  font-size: 0.6rem;
+  color: var(--text-3);
+  font-weight: 600;
+}
+
+.addr {
+  position: absolute;
+  top: -22px;
+  font-family: var(--font-mono);
+  font-size: 0.55rem;
+  color: var(--text-3);
+  opacity: 0.6;
+}
+
+.active {
+  background: var(--cell-active);
+  border-color: var(--accent);
+  box-shadow: 0 0 18px var(--glow-strong);
+}
+
+.pointerTrack {
+  height: 20px;
+  position: relative;
+  margin-top: 1.2rem;
+}
+
+.pointer {
+  position: absolute;
+  top: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  transition: left 0.6s var(--bounce);
+}
+
+.pointerArrow {
+  width: 0;
+  height: 0;
+  border-left: 6px solid transparent;
+  border-right: 6px solid transparent;
+  border-bottom: 8px solid var(--accent);
+}
+
+.pointerLabel {
+  font-family: var(--font-mono);
+  font-size: 0.6rem;
+  font-weight: 700;
+  color: var(--accent);
+  margin-top: 2px;
+  letter-spacing: 0.04em;
+}
+
+.complexityStrip {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+  margin-top: 0.6rem;
+  animation: fadeUp 0.7s ease 0.9s both;
+}
+
+.complexityChip {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  padding: 4px 12px;
+  border-radius: 20px;
+  background: var(--bg-glass);
+  border: 1px solid var(--border-card);
+  font-family: var(--font-mono);
+  font-size: 0.65rem;
+  font-weight: 600;
+  backdrop-filter: blur(8px);
+  transition: background var(--transition), border-color var(--transition);
+}
+
+.op {
+  color: var(--text-3);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.bigO {
+  font-weight: 700;
+}
+
+.good {
+  color: var(--complexity-good);
+}
+
+.mid {
+  color: var(--complexity-mid);
+}
+
+.bad {
+  color: var(--complexity-bad);
+}
+
+@keyframes fadeUp {
+  from {
+    opacity: 0;
+    transform: translateY(22px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@media (max-width: 600px) {
+  .cell {
+    width: 46px;
+    height: 46px;
+  }
+
+  .val {
+    font-size: 0.85rem;
+  }
+}

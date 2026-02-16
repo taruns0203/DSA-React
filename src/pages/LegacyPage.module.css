@@ -1,0 +1,35 @@
+.legacyRoot {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background: #0b0b12;
+  color: #e6e6f0;
+}
+
+.noticeBar {
+  padding: 14px 18px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(20, 20, 30, 0.9);
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  align-items: center;
+  font-family: 'Segoe UI', system-ui, sans-serif;
+}
+
+.noticeTitle {
+  font-weight: 700;
+  font-size: 0.9rem;
+}
+
+.noticeText {
+  font-size: 0.8rem;
+  color: rgba(230, 230, 240, 0.7);
+}
+
+.legacyFrame {
+  flex: 1;
+  border: none;
+  width: 100%;
+  background: #fff;
+}

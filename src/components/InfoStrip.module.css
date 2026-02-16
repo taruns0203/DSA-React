@@ -1,0 +1,60 @@
+.strip {
+  position: relative;
+  z-index: 1;
+  padding: 0 clamp(1.5rem, 5vw, 4rem);
+}
+
+.inner {
+  max-width: 920px;
+  margin: -2rem auto 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1rem;
+}
+
+.card {
+  background: var(--bg-card);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid var(--border-card);
+  border-radius: var(--radius-m);
+  padding: 1.3rem 1.4rem;
+  transition: all 0.35s ease;
+  animation: fadeUp 0.6s ease both;
+}
+
+.card:hover {
+  border-color: var(--border-hover);
+  box-shadow: var(--shadow-hover);
+  transform: translateY(-2px);
+}
+
+.icon {
+  font-size: 1.3rem;
+  margin-bottom: 0.6rem;
+}
+
+.title {
+  font-family: var(--font-heading);
+  font-size: 0.8rem;
+  font-weight: 700;
+  margin-bottom: 0.3rem;
+  letter-spacing: -0.01em;
+}
+
+.text {
+  font-size: 0.78rem;
+  color: var(--text-2);
+  line-height: 1.55;
+}
+
+@keyframes fadeUp {
+  from {
+    opacity: 0;
+    transform: translateY(22px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}

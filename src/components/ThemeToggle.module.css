@@ -1,0 +1,32 @@
+.toggle {
+  width: 54px;
+  height: 30px;
+  border-radius: 999px;
+  border: 1px solid var(--border-color, rgba(255, 255, 255, 0.2));
+  background: var(--bg-input, rgba(255, 255, 255, 0.08));
+  display: inline-flex;
+  align-items: center;
+  padding: 2px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.knob {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  background: var(--bg-surface, rgba(255, 255, 255, 0.15));
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+  transform: translateX(0);
+  transition: transform 0.3s ease;
+}
+
+.icon {
+  font-size: 0.9rem;
+}
+
+:global([data-theme='light']) .toggle .knob {
+  transform: translateX(22px);
+}

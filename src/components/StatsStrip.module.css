@@ -1,0 +1,31 @@
+.stats {
+  display: flex;
+  justify-content: center;
+  gap: 40px;
+  margin-top: 40px;
+  margin-bottom: 40px;
+  flex-wrap: wrap;
+}
+
+.card {
+  background: rgba(255, 255, 255, 0.05);
+  padding: 20px 35px;
+  border-radius: 16px;
+  text-align: center;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.number {
+  font-size: 2.5rem;
+  font-weight: 700;
+  background: linear-gradient(90deg, #00d9ff, #ff6b6b, #ffd93d);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.label {
+  color: #a0a0a0;
+  font-size: 0.9rem;
+  margin-top: 5px;
+}

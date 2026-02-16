@@ -1,0 +1,180 @@
+{
+  "slug": "linked-list",
+  "title": "Linked List",
+  "techniques": {
+    "fast-slow-pointers": {
+      "title": "Fast & Slow Pointers",
+      "description": "Deploy two pointers moving at different speeds to detect cycles, find midpoints, and identify structural properties in O(n) time with O(1) space.",
+      "icon": "🐇🐢",
+      "color": "var(--accent)",
+      "problems": {
+        "linked-list-cycle": {
+          "title": "Linked List Cycle",
+          "problemSlug": "linked-list-cycle",
+          "visualLink": "/legacy/Linked-List/Medium/Detect-a-cycle/index.html"
+        },
+        "linked-list-cycle-ii": {
+          "title": "Linked List Cycle II",
+          "problemSlug": "linked-list-cycle-ii",
+          "visualLink": "/linked-list/visualizer"
+        },
+        "middle-of-the-linked-list": {
+          "breadcrumb": [
+            "Linked List",
+            "Fast & Slow Pointers",
+            "Middle of the Linked List"
+          ],
+          "title": "Middle of the Linked List",
+          "difficulty": "Easy",
+          "problemSlug": "middle-of-the-linked-list",
+          "categoryPath": "linked-list/fast-and-slow",
+          "tags": ["Linked List", "Two Pointers", "Fast and Slow Pointer"],
+          "description": "Given the head of a singly linked list, return the middle node of the linked list. If there are two middle nodes, return the second middle node.",
+          "examples": [
+            {
+              "input": "head = [1,2,3,4,5]",
+              "output": "[3,4,5]",
+              "explanation": "The middle node is node 3."
+            },
+            {
+              "input": "head = [1,2,3,4,5,6]",
+              "output": "[4,5,6]",
+              "explanation": "There are two middle nodes (3 and 4), return the second one."
+            }
+          ],
+          "constraints": [
+            "The number of nodes in the list is in the range [1, 100].",
+            "1 ≤ Node.val ≤ 100"
+          ],
+          "approaches": [
+            {
+              "title": "Brute Force — Count Length First",
+              "badge": "Brute Force",
+              "intuition": "First compute the total length of the linked list. Then traverse again to reach the middle index.",
+              "steps": [
+                "Traverse list to compute length.",
+                "Compute middle index = floor(length / 2).",
+                "Traverse again to that position."
+              ],
+              "code": "var middleNode = function(head) {\n    let length = 0;\n    let current = head;\n\n    while (current) {\n        length++;\n        current = current.next;\n    }\n\n    const mid = Math.floor(length / 2);\n    current = head;\n\n    for (let i = 0; i < mid; i++) {\n        current = current.next;\n    }\n\n    return current;\n};",
+              "language": "javascript",
+              "timeComplexity": "O(n)",
+              "timeType": "good",
+              "spaceComplexity": "O(1)",
+              "spaceType": "good",
+              "pros": ["Very intuitive", "Easy to implement"],
+              "cons": ["Requires two passes"],
+              "visualLink": "/legacy/Linked-List/Fast-Slow/Middle/1-count-length-visualization.html",
+              "notesLink": ""
+            },
+            {
+              "title": "Improved — Store Nodes in Array",
+              "badge": "Improved",
+              "intuition": "Store all nodes in an array. Then return the element at index floor(n/2).",
+              "steps": [
+                "Traverse list and push nodes into array.",
+                "Return array[Math.floor(array.length / 2)]."
+              ],
+              "code": "var middleNode = function(head) {\n    const nodes = [];\n    let current = head;\n\n    while (current) {\n        nodes.push(current);\n        current = current.next;\n    }\n\n    return nodes[Math.floor(nodes.length / 2)];\n};",
+              "language": "javascript",
+              "timeComplexity": "O(n)",
+              "timeType": "good",
+              "spaceComplexity": "O(n)",
+              "spaceType": "warning",
+              "pros": ["Single pass traversal", "Simple indexing logic"],
+              "cons": ["Uses extra memory"],
+              "visualLink": "/legacy/Linked-List/Fast-Slow/Middle/2-array-storage-visualization.html",
+              "notesLink": ""
+            },
+            {
+              "title": "Optimal — Two Pointers (Slow & Fast)",
+              "badge": "Optimal",
+              "intuition": "Use two pointers. Move slow by one step and fast by two steps. When fast reaches the end, slow will be at the middle.",
+              "steps": [
+                "Initialize slow and fast to head.",
+                "Move slow by 1 step and fast by 2 steps.",
+                "When fast reaches null, slow is at middle."
+              ],
+              "code": "var middleNode = function(head) {\n    let slow = head;\n    let fast = head;\n\n    while (fast !== null && fast.next !== null) {\n        slow = slow.next;\n        fast = fast.next.next;\n    }\n\n    return slow;\n};",
+              "language": "javascript",
+              "timeComplexity": "O(n)",
+              "timeType": "good",
+              "spaceComplexity": "O(1)",
+              "spaceType": "good",
+              "pros": [
+                "Single pass solution",
+                "Constant extra space",
+                "Elegant pointer technique",
+                "Interview-standard optimal solution"
+              ],
+              "cons": ["Requires understanding pointer movement logic"],
+              "visualLink": "/legacy/Linked-List/Fast-Slow/Middle/3-fast-slow-visualization.html",
+              "notesLink": ""
+            }
+          ]
+        },
+        "palindrome-linked-list": {
+          "title": "Palindrome Linked List",
+          "problemSlug": "palindrome-linked-list",
+          "visualLink": "/legacy/Linked-List/Medium/Palindrom-In-Linked-List/index.html"
+        }
+      }
+    },
+    "reversal": {
+      "title": "Reversal Techniques",
+      "description": "Reverse all or part of a linked list by rewiring node pointers — the fundamental operation behind dozens of classic problems.",
+      "icon": "🔄",
+      "color": "var(--accent-2)",
+      "problems": {
+        "reverse-linked-list": {
+          "title": "Reverse Linked List",
+          "problemSlug": "reverse-linked-list",
+          "visualLink": "/legacy/Linked-List/Medium/Reverse-A-Linked-List/index.html"
+        },
+        "reverse-linked-list-ii": {
+          "title": "Reverse Linked List II",
+          "problemSlug": "reverse-linked-list-ii",
+          "visualLink": "/linked-list/visualizer"
+        },
+        "swap-nodes-in-pairs": {
+          "title": "Swap Nodes in Pairs",
+          "problemSlug": "swap-nodes-in-pairs",
+          "visualLink": "/legacy/Linked-List/Medium/Swap-Nodes-In-Pairs/index.html"
+        },
+        "reverse-nodes-in-k-group": {
+          "title": "Reverse Nodes in k-Group",
+          "problemSlug": "reverse-nodes-in-k-group",
+          "visualLink": "/legacy/Linked-List/Hard/Reverse-Nodes-In-K-groups/index.html"
+        }
+      }
+    },
+    "merge-sort": {
+      "title": "Merge & Sort",
+      "description": "Combine sorted lists or sort in-place using merge sort — exploiting the linked list's O(1) insert to achieve O(n log n) without extra space.",
+      "icon": "🔗",
+      "color": "var(--accent-4)",
+      "problems": {
+        "merge-two-sorted-lists": {
+          "title": "Merge Two Sorted Lists",
+          "problemSlug": "merge-two-sorted-lists",
+          "visualLink": "/legacy/Linked-List/Medium/Merge-Two-Sorted-Linked-List/index.html"
+        },
+        "merge-k-sorted-lists": {
+          "title": "Merge K Sorted Lists",
+          "problemSlug": "merge-k-sorted-lists",
+          "visualLink": "/legacy/Linked-List/Hard/Merge-K-Sorted-Lists/index.html"
+        },
+        "sort-list": {
+          "title": "Sort List",
+          "problemSlug": "sort-list",
+          "visualLink": "/linked-list/visualizer"
+        },
+        "insertion-sort-list": {
+          "title": "Insertion Sort List",
+          "problemSlug": "insertion-sort-list",
+          "visualLink": "/linked-list/visualizer"
+        }
+      }
+    }
+  }
+}

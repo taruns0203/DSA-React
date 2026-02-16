@@ -1,0 +1,1017 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Binary Search - Brute Force (Linear Search) Visualization</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+      min-height: 100vh;
+      color: #e0e0e0;
+      padding: 20px;
+    }
+
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    .back-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      color: #a0a0a0;
+      text-decoration: none;
+      margin-bottom: 20px;
+      font-size: 0.9rem;
+      transition: color 0.3s;
+    }
+
+    .back-btn:hover {
+      color: #6366f1;
+    }
+
+    h1 {
+      text-align: center;
+      font-size: 2rem;
+      color: #6366f1;
+      margin-bottom: 8px;
+      text-shadow: 0 0 20px rgba(99, 102, 241, 0.5);
+    }
+
+    .subtitle {
+      text-align: center;
+      color: #a0a0a0;
+      margin-bottom: 25px;
+    }
+
+    .badge {
+      display: inline-block;
+      background: rgba(255, 107, 107, 0.2);
+      color: #ff6b6b;
+      padding: 4px 12px;
+      border-radius: 20px;
+      font-size: 0.8rem;
+      font-weight: 600;
+    }
+
+    .panel {
+      background: rgba(255, 255, 255, 0.05);
+      border-radius: 12px;
+      padding: 20px;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      margin-bottom: 20px;
+    }
+
+    .panel-title {
+      font-size: 0.95rem;
+      color: #6366f1;
+      margin-bottom: 15px;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    /* Controls */
+    .controls {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      align-items: center;
+      margin-bottom: 15px;
+    }
+
+    .btn {
+      padding: 10px 20px;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      font-weight: 600;
+      font-size: 0.9rem;
+      transition: all 0.3s ease;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, #6366f1, #4f46e5);
+      color: #fff;
+    }
+
+    .btn-primary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 15px rgba(99, 102, 241, 0.4);
+    }
+
+    .btn-secondary {
+      background: rgba(255, 255, 255, 0.1);
+      color: #e0e0e0;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+    }
+
+    .btn-secondary:hover {
+      background: rgba(255, 255, 255, 0.2);
+    }
+
+    .btn-success {
+      background: linear-gradient(135deg, #00ff88, #00cc6a);
+      color: #1a1a2e;
+    }
+
+    .btn-warning {
+      background: linear-gradient(135deg, #ffd93d, #ffb800);
+      color: #1a1a2e;
+    }
+
+    .btn:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+      transform: none !important;
+    }
+
+    .speed-control {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-left: auto;
+    }
+
+    .speed-control label {
+      font-size: 0.85rem;
+      color: #a0a0a0;
+    }
+
+    .speed-slider {
+      width: 100px;
+      height: 6px;
+      -webkit-appearance: none;
+      background: rgba(255, 255, 255, 0.2);
+      border-radius: 3px;
+      outline: none;
+    }
+
+    .speed-slider::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      width: 16px;
+      height: 16px;
+      background: #6366f1;
+      border-radius: 50%;
+      cursor: pointer;
+    }
+
+    /* Input Section */
+    .input-section {
+      display: flex;
+      gap: 15px;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+
+    .input-group {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .input-group label {
+      font-size: 0.85rem;
+      color: #a0a0a0;
+    }
+
+    .input-group input {
+      padding: 8px 12px;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      border-radius: 6px;
+      background: rgba(255, 255, 255, 0.05);
+      color: #fff;
+      font-size: 0.9rem;
+    }
+
+    .input-group input:focus {
+      outline: none;
+      border-color: #6366f1;
+    }
+
+    #arrayInput {
+      width: 250px;
+    }
+
+    #targetInput {
+      width: 80px;
+    }
+
+    /* Main Layout */
+    .main-layout {
+      display: grid;
+      grid-template-columns: 1fr 320px;
+      gap: 20px;
+    }
+
+    @media (max-width: 900px) {
+      .main-layout {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    /* Array Visualization */
+    .array-container {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      justify-content: center;
+      padding: 30px 20px;
+      min-height: 120px;
+      align-items: center;
+    }
+
+    .array-cell {
+      width: 60px;
+      height: 60px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      background: rgba(255, 255, 255, 0.08);
+      border: 2px solid rgba(255, 255, 255, 0.2);
+      border-radius: 10px;
+      transition: all 0.3s ease;
+      position: relative;
+    }
+
+    .array-cell .index {
+      position: absolute;
+      top: -22px;
+      font-size: 0.7rem;
+      color: #a0a0a0;
+    }
+
+    .array-cell .value {
+      font-size: 1.2rem;
+      font-weight: 700;
+    }
+
+    .array-cell.current {
+      background: rgba(99, 102, 241, 0.3);
+      border-color: #6366f1;
+      box-shadow: 0 0 20px rgba(99, 102, 241, 0.5);
+      transform: scale(1.1);
+    }
+
+    .array-cell.found {
+      background: rgba(0, 255, 136, 0.3);
+      border-color: #00ff88;
+      box-shadow: 0 0 20px rgba(0, 255, 136, 0.5);
+    }
+
+    .array-cell.checked {
+      background: rgba(255, 107, 107, 0.15);
+      border-color: rgba(255, 107, 107, 0.4);
+    }
+
+    .array-cell.not-found {
+      background: rgba(255, 107, 107, 0.2);
+      border-color: #ff6b6b;
+    }
+
+    /* Pointer */
+    .pointer {
+      position: absolute;
+      bottom: -30px;
+      left: 50%;
+      transform: translateX(-50%);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      font-size: 0.75rem;
+      font-weight: 600;
+      color: #6366f1;
+    }
+
+    .pointer::before {
+      content: '▲';
+      font-size: 1rem;
+    }
+
+    /* Target Display */
+    .target-display {
+      text-align: center;
+      margin-top: 20px;
+      padding: 15px;
+      background: rgba(99, 102, 241, 0.1);
+      border-radius: 10px;
+      border: 1px solid rgba(99, 102, 241, 0.3);
+    }
+
+    .target-label {
+      font-size: 0.85rem;
+      color: #a0a0a0;
+      margin-bottom: 5px;
+    }
+
+    .target-value {
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: #6366f1;
+    }
+
+    /* State Panel */
+    .state-item {
+      display: flex;
+      justify-content: space-between;
+      padding: 10px 0;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .state-item:last-child {
+      border-bottom: none;
+    }
+
+    .state-label {
+      color: #a0a0a0;
+      font-size: 0.85rem;
+    }
+
+    .state-value {
+      font-weight: 600;
+      color: #6366f1;
+      font-family: 'Consolas', monospace;
+    }
+
+    .state-value.success {
+      color: #00ff88;
+    }
+
+    .state-value.error {
+      color: #ff6b6b;
+    }
+
+    /* Comparison Panel */
+    .comparison-box {
+      background: rgba(255, 255, 255, 0.03);
+      border-radius: 10px;
+      padding: 15px;
+      text-align: center;
+      margin-top: 10px;
+    }
+
+    .comparison-text {
+      font-size: 1.1rem;
+      font-family: 'Consolas', monospace;
+    }
+
+    .comparison-result {
+      margin-top: 8px;
+      font-weight: 600;
+    }
+
+    .comparison-result.match {
+      color: #00ff88;
+    }
+
+    .comparison-result.no-match {
+      color: #ff6b6b;
+    }
+
+    /* Execution Log */
+    .log-container {
+      max-height: 180px;
+      overflow-y: auto;
+      font-family: 'Consolas', monospace;
+      font-size: 0.8rem;
+    }
+
+    .log-entry {
+      padding: 6px 0;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+      display: flex;
+      gap: 10px;
+    }
+
+    .log-step {
+      color: #6366f1;
+      min-width: 25px;
+    }
+
+    .log-message {
+      color: #e0e0e0;
+    }
+
+    .log-message.check {
+      color: #ffd93d;
+    }
+
+    .log-message.found {
+      color: #00ff88;
+    }
+
+    .log-message.not-found {
+      color: #ff6b6b;
+    }
+
+    /* Code Panel */
+    .code-panel {
+      background: #0d1117;
+      border-radius: 8px;
+      padding: 15px;
+      font-family: 'Consolas', monospace;
+      font-size: 0.8rem;
+      overflow-x: auto;
+      margin-top: 15px;
+    }
+
+    .code-line {
+      padding: 3px 0;
+      white-space: pre;
+    }
+
+    .code-line.highlight {
+      background: rgba(99, 102, 241, 0.2);
+      margin: 0 -15px;
+      padding-left: 15px;
+      padding-right: 15px;
+    }
+
+    .code-keyword {
+      color: #ff7b72;
+    }
+
+    .code-function {
+      color: #d2a8ff;
+    }
+
+    .code-number {
+      color: #79c0ff;
+    }
+
+    .code-comment {
+      color: #8b949e;
+    }
+
+    /* Result Banner */
+    .result-banner {
+      padding: 15px 20px;
+      border-radius: 10px;
+      text-align: center;
+      font-weight: 600;
+      font-size: 1.1rem;
+      margin-top: 15px;
+      display: none;
+    }
+
+    .result-banner.success {
+      background: rgba(0, 255, 136, 0.15);
+      border: 1px solid rgba(0, 255, 136, 0.4);
+      color: #00ff88;
+      display: block;
+    }
+
+    .result-banner.failure {
+      background: rgba(255, 107, 107, 0.15);
+      border: 1px solid rgba(255, 107, 107, 0.4);
+      color: #ff6b6b;
+      display: block;
+    }
+
+    /* Legend */
+    .legend {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 15px;
+      margin-top: 15px;
+      padding-top: 15px;
+      border-top: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .legend-item {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 0.8rem;
+      color: #a0a0a0;
+    }
+
+    .legend-color {
+      width: 16px;
+      height: 16px;
+      border-radius: 4px;
+    }
+
+    .legend-color.current {
+      background: rgba(99, 102, 241, 0.5);
+      border: 2px solid #6366f1;
+    }
+
+    .legend-color.checked {
+      background: rgba(255, 107, 107, 0.3);
+      border: 2px solid rgba(255, 107, 107, 0.6);
+    }
+
+    .legend-color.found {
+      background: rgba(0, 255, 136, 0.5);
+      border: 2px solid #00ff88;
+    }
+
+    /* Scrollbar */
+    ::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+
+    ::-webkit-scrollbar-track {
+      background: rgba(255, 255, 255, 0.05);
+      border-radius: 3px;
+    }
+
+    ::-webkit-scrollbar-thumb {
+      background: rgba(255, 255, 255, 0.2);
+      border-radius: 3px;
+    }
+
+    ::-webkit-scrollbar-thumb:hover {
+      background: rgba(255, 255, 255, 0.3);
+    }
+
+    .complexity-badge {
+      display: inline-block;
+      background: rgba(255, 107, 107, 0.15);
+      color: #ff6b6b;
+      padding: 4px 10px;
+      border-radius: 6px;
+      font-size: 0.8rem;
+      font-family: 'Consolas', monospace;
+      margin-left: 10px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <a href="./704-binary-search-explanation.md" class="back-btn">← Back to Explanation</a>
+    
+    <h1>🔍 Linear Search (Brute Force)</h1>
+    <p class="subtitle">
+      Binary Search Problem - Brute Force Approach
+      <span class="complexity-badge">O(n) Time</span>
+    </p>
+
+    <div class="panel">
+      <div class="controls">
+        <button id="playBtn" class="btn btn-primary" onclick="togglePlay()">
+          <span id="playIcon">▶</span> <span id="playText">Play</span>
+        </button>
+        <button id="stepBtn" class="btn btn-secondary" onclick="step()">
+          ⏭ Step
+        </button>
+        <button id="resetBtn" class="btn btn-warning" onclick="reset()">
+          🔄 Reset
+        </button>
+        
+        <div class="speed-control">
+          <label>Speed:</label>
+          <input type="range" id="speedSlider" class="speed-slider" min="1" max="10" value="5" onchange="updateSpeed()">
+          <span id="speedValue">1x</span>
+        </div>
+      </div>
+
+      <div class="input-section">
+        <div class="input-group">
+          <label>Array:</label>
+          <input type="text" id="arrayInput" value="-1, 0, 3, 5, 9, 12" placeholder="e.g., 1, 2, 3, 4">
+        </div>
+        <div class="input-group">
+          <label>Target:</label>
+          <input type="number" id="targetInput" value="9">
+        </div>
+        <button class="btn btn-success" onclick="startVisualization()">
+          ▶ Start
+        </button>
+      </div>
+    </div>
+
+    <div class="main-layout">
+      <div class="visualization-area">
+        <div class="panel">
+          <div class="panel-title">📊 Array Visualization</div>
+          <div class="array-container" id="arrayContainer">
+            <div style="color: #a0a0a0;">Click "Start" to begin</div>
+          </div>
+          
+          <div class="target-display">
+            <div class="target-label">Looking for target:</div>
+            <div class="target-value" id="targetDisplay">-</div>
+          </div>
+
+          <div id="resultBanner" class="result-banner"></div>
+
+          <div class="legend">
+            <div class="legend-item">
+              <div class="legend-color current"></div>
+              <span>Current Index</span>
+            </div>
+            <div class="legend-item">
+              <div class="legend-color checked"></div>
+              <span>Already Checked</span>
+            </div>
+            <div class="legend-item">
+              <div class="legend-color found"></div>
+              <span>Found Target</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="panel">
+          <div class="panel-title">💻 Algorithm Code</div>
+          <div class="code-panel" id="codePanel">
+            <div class="code-line" data-line="1"><span class="code-keyword">function</span> <span class="code-function">linearSearch</span>(nums, target) {</div>
+            <div class="code-line" data-line="2">  <span class="code-keyword">for</span> (<span class="code-keyword">let</span> i = <span class="code-number">0</span>; i < nums.length; i++) {</div>
+            <div class="code-line" data-line="3">    <span class="code-keyword">if</span> (nums[i] === target) {</div>
+            <div class="code-line" data-line="4">      <span class="code-keyword">return</span> i;  <span class="code-comment">// Found!</span></div>
+            <div class="code-line" data-line="5">    }</div>
+            <div class="code-line" data-line="6">  }</div>
+            <div class="code-line" data-line="7">  <span class="code-keyword">return</span> -<span class="code-number">1</span>;  <span class="code-comment">// Not found</span></div>
+            <div class="code-line" data-line="8">}</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="sidebar">
+        <div class="panel">
+          <div class="panel-title">📋 Current State</div>
+          <div class="state-item">
+            <span class="state-label">Array Length:</span>
+            <span class="state-value" id="arrayLength">-</span>
+          </div>
+          <div class="state-item">
+            <span class="state-label">Current Index (i):</span>
+            <span class="state-value" id="currentIndex">-</span>
+          </div>
+          <div class="state-item">
+            <span class="state-label">nums[i]:</span>
+            <span class="state-value" id="currentValue">-</span>
+          </div>
+          <div class="state-item">
+            <span class="state-label">Target:</span>
+            <span class="state-value" id="targetValue">-</span>
+          </div>
+          <div class="state-item">
+            <span class="state-label">Comparisons:</span>
+            <span class="state-value" id="comparisons">0</span>
+          </div>
+          <div class="state-item">
+            <span class="state-label">Result:</span>
+            <span class="state-value" id="result">-</span>
+          </div>
+
+          <div class="comparison-box" id="comparisonBox">
+            <div class="comparison-text" id="comparisonText">-</div>
+            <div class="comparison-result" id="comparisonResult"></div>
+          </div>
+        </div>
+
+        <div class="panel">
+          <div class="panel-title">📝 Execution Log</div>
+          <div class="log-container" id="logContainer"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // State
+    let nums = [];
+    let target = 0;
+    let steps = [];
+    let currentStep = 0;
+    let isPlaying = false;
+    let playInterval = null;
+    let speed = 800;
+
+    function parseArray(str) {
+      return str.split(',').map(s => parseInt(s.trim())).filter(n => !isNaN(n));
+    }
+
+    function generateSteps() {
+      steps = [];
+      
+      steps.push({
+        type: 'init',
+        line: 1,
+        message: `Starting linear search for target = ${target}`,
+        i: null
+      });
+
+      for (let i = 0; i < nums.length; i++) {
+        steps.push({
+          type: 'check',
+          line: 2,
+          message: `Checking index ${i}: nums[${i}] = ${nums[i]}`,
+          i: i
+        });
+
+        steps.push({
+          type: 'compare',
+          line: 3,
+          message: `Comparing: ${nums[i]} === ${target}?`,
+          i: i,
+          comparison: `${nums[i]} === ${target}`,
+          isMatch: nums[i] === target
+        });
+
+        if (nums[i] === target) {
+          steps.push({
+            type: 'found',
+            line: 4,
+            message: `✅ Found! Target ${target} is at index ${i}`,
+            i: i,
+            result: i
+          });
+          return;
+        } else {
+          steps.push({
+            type: 'not-match',
+            line: 3,
+            message: `${nums[i]} ≠ ${target}, continue to next index`,
+            i: i
+          });
+        }
+      }
+
+      steps.push({
+        type: 'not-found',
+        line: 7,
+        message: `❌ Target ${target} not found in array`,
+        i: null,
+        result: -1
+      });
+    }
+
+    function startVisualization() {
+      const arrayStr = document.getElementById('arrayInput').value;
+      nums = parseArray(arrayStr);
+      target = parseInt(document.getElementById('targetInput').value);
+
+      if (nums.length === 0) {
+        alert('Please enter a valid array');
+        return;
+      }
+
+      generateSteps();
+      currentStep = 0;
+      
+      renderArray();
+      updateDisplay();
+      clearLog();
+      
+      document.getElementById('targetDisplay').textContent = target;
+      document.getElementById('targetValue').textContent = target;
+      document.getElementById('arrayLength').textContent = nums.length;
+      document.getElementById('resultBanner').className = 'result-banner';
+      document.getElementById('resultBanner').textContent = '';
+      
+      document.getElementById('playBtn').disabled = false;
+      document.getElementById('stepBtn').disabled = false;
+    }
+
+    function renderArray() {
+      const container = document.getElementById('arrayContainer');
+      container.innerHTML = '';
+
+      nums.forEach((num, i) => {
+        const cell = document.createElement('div');
+        cell.className = 'array-cell';
+        cell.id = `cell-${i}`;
+        cell.innerHTML = `
+          <span class="index">${i}</span>
+          <span class="value">${num}</span>
+        `;
+        container.appendChild(cell);
+      });
+    }
+
+    function updateDisplay() {
+      if (currentStep >= steps.length) {
+        stopPlay();
+        return;
+      }
+
+      const step = steps[currentStep];
+
+      // Update current index display
+      document.getElementById('currentIndex').textContent = step.i !== null ? step.i : '-';
+      document.getElementById('currentValue').textContent = step.i !== null ? nums[step.i] : '-';
+      document.getElementById('comparisons').textContent = 
+        steps.slice(0, currentStep + 1).filter(s => s.type === 'compare').length;
+
+      // Update array highlighting
+      document.querySelectorAll('.array-cell').forEach((cell, idx) => {
+        cell.className = 'array-cell';
+        cell.innerHTML = `
+          <span class="index">${idx}</span>
+          <span class="value">${nums[idx]}</span>
+        `;
+      });
+
+      // Mark checked cells
+      for (let i = 0; i < currentStep; i++) {
+        if (steps[i].i !== null && steps[i].i !== step.i) {
+          const cell = document.getElementById(`cell-${steps[i].i}`);
+          if (cell && !cell.classList.contains('found')) {
+            cell.classList.add('checked');
+          }
+        }
+      }
+
+      // Highlight current cell
+      if (step.i !== null) {
+        const currentCell = document.getElementById(`cell-${step.i}`);
+        if (currentCell) {
+          if (step.type === 'found') {
+            currentCell.classList.add('found');
+            currentCell.innerHTML = `
+              <span class="index">${step.i}</span>
+              <span class="value">${nums[step.i]}</span>
+              <div class="pointer">i</div>
+            `;
+          } else {
+            currentCell.classList.add('current');
+            currentCell.innerHTML = `
+              <span class="index">${step.i}</span>
+              <span class="value">${nums[step.i]}</span>
+              <div class="pointer">i</div>
+            `;
+          }
+        }
+      }
+
+      // Update comparison box
+      const compBox = document.getElementById('comparisonBox');
+      const compText = document.getElementById('comparisonText');
+      const compResult = document.getElementById('comparisonResult');
+
+      if (step.type === 'compare') {
+        compText.textContent = step.comparison;
+        if (step.isMatch) {
+          compResult.textContent = '✅ Match!';
+          compResult.className = 'comparison-result match';
+        } else {
+          compResult.textContent = '❌ No match';
+          compResult.className = 'comparison-result no-match';
+        }
+      } else if (step.type === 'init') {
+        compText.textContent = '-';
+        compResult.textContent = '';
+      }
+
+      // Update result
+      if (step.result !== undefined) {
+        const resultEl = document.getElementById('result');
+        const banner = document.getElementById('resultBanner');
+        
+        if (step.result >= 0) {
+          resultEl.textContent = step.result;
+          resultEl.className = 'state-value success';
+          banner.textContent = `🎉 Found target ${target} at index ${step.result}!`;
+          banner.className = 'result-banner success';
+        } else {
+          resultEl.textContent = '-1';
+          resultEl.className = 'state-value error';
+          banner.textContent = `Target ${target} not found in array`;
+          banner.className = 'result-banner failure';
+          
+          // Mark all as not found
+          document.querySelectorAll('.array-cell').forEach(cell => {
+            cell.classList.add('not-found');
+          });
+        }
+      }
+
+      // Highlight code line
+      document.querySelectorAll('.code-line').forEach(line => {
+        line.classList.remove('highlight');
+        if (parseInt(line.dataset.line) === step.line) {
+          line.classList.add('highlight');
+        }
+      });
+
+      // Add log entry
+      addLogEntry(currentStep + 1, step.message, step.type);
+    }
+
+    function addLogEntry(stepNum, message, type) {
+      const container = document.getElementById('logContainer');
+      const entry = document.createElement('div');
+      entry.className = 'log-entry';
+      
+      let msgClass = '';
+      if (type === 'check' || type === 'compare') msgClass = 'check';
+      else if (type === 'found') msgClass = 'found';
+      else if (type === 'not-found' || type === 'not-match') msgClass = 'not-found';
+      
+      entry.innerHTML = `
+        <span class="log-step">${stepNum}.</span>
+        <span class="log-message ${msgClass}">${message}</span>
+      `;
+      container.appendChild(entry);
+      container.scrollTop = container.scrollHeight;
+    }
+
+    function clearLog() {
+      document.getElementById('logContainer').innerHTML = '';
+    }
+
+    function step() {
+      if (currentStep < steps.length) {
+        updateDisplay();
+        currentStep++;
+      }
+    }
+
+    function togglePlay() {
+      if (isPlaying) {
+        stopPlay();
+      } else {
+        startPlay();
+      }
+    }
+
+    function startPlay() {
+      if (currentStep >= steps.length) {
+        reset();
+        startVisualization();
+      }
+      
+      isPlaying = true;
+      document.getElementById('playIcon').textContent = '⏸';
+      document.getElementById('playText').textContent = 'Pause';
+      document.getElementById('stepBtn').disabled = true;
+      
+      playInterval = setInterval(() => {
+        if (currentStep < steps.length) {
+          step();
+        } else {
+          stopPlay();
+        }
+      }, speed);
+    }
+
+    function stopPlay() {
+      isPlaying = false;
+      document.getElementById('playIcon').textContent = '▶';
+      document.getElementById('playText').textContent = 'Play';
+      document.getElementById('stepBtn').disabled = false;
+      
+      if (playInterval) {
+        clearInterval(playInterval);
+        playInterval = null;
+      }
+    }
+
+    function reset() {
+      stopPlay();
+      currentStep = 0;
+      
+      renderArray();
+      clearLog();
+      
+      document.getElementById('currentIndex').textContent = '-';
+      document.getElementById('currentValue').textContent = '-';
+      document.getElementById('comparisons').textContent = '0';
+      document.getElementById('result').textContent = '-';
+      document.getElementById('result').className = 'state-value';
+      document.getElementById('comparisonText').textContent = '-';
+      document.getElementById('comparisonResult').textContent = '';
+      document.getElementById('resultBanner').className = 'result-banner';
+      
+      document.querySelectorAll('.code-line').forEach(line => {
+        line.classList.remove('highlight');
+      });
+    }
+
+    function updateSpeed() {
+      const slider = document.getElementById('speedSlider');
+      const value = slider.value;
+      speed = 1500 - (value * 130);
+      document.getElementById('speedValue').textContent = (value / 5).toFixed(1) + 'x';
+      
+      if (isPlaying) {
+        stopPlay();
+        startPlay();
+      }
+    }
+
+    // Initialize
+    document.addEventListener('DOMContentLoaded', () => {
+      updateSpeed();
+    });
+  </script>
+</body>
+</html>
