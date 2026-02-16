@@ -6,6 +6,7 @@ import LinkedList from "./pages/LinkedList.jsx";
 import LegacyPage from "./pages/LegacyPage.jsx";
 import NotFound from "./pages/NotFound.jsx";
 import LegacyRoute from "./components/LegacyRoute.jsx";
+import ScrollToTop from "./components/ScrollToTop.jsx";
 import ArrayVisualizer from "./pages/arrays/ArrayVisualizer.jsx";
 import TwoPointers from "./pages/arrays/TwoPointers.jsx";
 import ProblemPage from "./pages/arrays/Problems/ProblemPage.jsx";
@@ -68,6 +69,7 @@ export default function App() {
   }, []);
   return (
     <ThemeProvider>
+      <ScrollToTop />
       <Routes>
         <Route path="/" element={<Home />} />
         <Route path="/arrays" element={<Arrays />} />
