@@ -1,0 +1,1181 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>561. Array Partition - Brute Force Visualization</title>
+    <style>
+        :root {
+            --bg-primary: #1a1a2e;
+            --bg-secondary: #16213e;
+            --bg-tertiary: #0f3460;
+            --accent: #e94560;
+            --accent-secondary: #f59e0b;
+            --accent-tertiary: #10b981;
+            --text-primary: #eaeaea;
+            --text-secondary: #a0a0a0;
+            --text-muted: #6b7280;
+            --border: #374151;
+            --success: #10b981;
+            --warning: #f59e0b;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 24px;
+        }
+
+        h1 {
+            font-size: 1.75rem;
+            font-weight: 600;
+            margin-bottom: 8px;
+            background: linear-gradient(135deg, var(--accent), var(--accent-secondary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .subtitle {
+            color: var(--text-secondary);
+            font-size: 0.95rem;
+        }
+
+        .main-grid {
+            display: grid;
+            grid-template-columns: 1fr 320px;
+            gap: 20px;
+        }
+
+        @media (max-width: 900px) {
+            .main-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .panel {
+            background: var(--bg-secondary);
+            border-radius: 12px;
+            border: 1px solid var(--border);
+            overflow: hidden;
+        }
+
+        .panel-header {
+            background: var(--bg-tertiary);
+            padding: 12px 16px;
+            font-weight: 600;
+            font-size: 0.9rem;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .panel-header .icon {
+            font-size: 1.1rem;
+        }
+
+        .panel-content {
+            padding: 16px;
+        }
+
+        /* Input Section */
+        .input-section {
+            margin-bottom: 20px;
+        }
+
+        .input-row {
+            display: flex;
+            gap: 12px;
+            align-items: flex-end;
+            flex-wrap: wrap;
+        }
+
+        .input-group {
+            flex: 1;
+            min-width: 200px;
+        }
+
+        .input-group label {
+            display: block;
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+            margin-bottom: 6px;
+        }
+
+        .input-group input {
+            width: 100%;
+            padding: 10px 14px;
+            background: var(--bg-primary);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            color: var(--text-primary);
+            font-size: 0.95rem;
+            font-family: 'Consolas', 'Monaco', monospace;
+        }
+
+        .input-group input:focus {
+            outline: none;
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px rgba(233, 69, 96, 0.15);
+        }
+
+        .preset-buttons {
+            display: flex;
+            gap: 8px;
+            margin-top: 12px;
+            flex-wrap: wrap;
+        }
+
+        .preset-btn {
+            padding: 6px 12px;
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            color: var(--text-secondary);
+            font-size: 0.8rem;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .preset-btn:hover {
+            background: var(--accent);
+            color: white;
+            border-color: var(--accent);
+        }
+
+        /* Controls */
+        .controls {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin-bottom: 16px;
+        }
+
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .btn-primary {
+            background: var(--accent);
+            color: white;
+        }
+
+        .btn-primary:hover:not(:disabled) {
+            background: #d63d56;
+            transform: translateY(-1px);
+        }
+
+        .btn-secondary {
+            background: var(--bg-tertiary);
+            color: var(--text-primary);
+            border: 1px solid var(--border);
+        }
+
+        .btn-secondary:hover:not(:disabled) {
+            background: #1a4a7a;
+        }
+
+        .btn-success {
+            background: var(--success);
+            color: white;
+        }
+
+        .btn-success:hover:not(:disabled) {
+            background: #0d9668;
+        }
+
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .speed-control {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 8px 14px;
+            background: var(--bg-tertiary);
+            border-radius: 8px;
+            margin-left: auto;
+        }
+
+        .speed-control label {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+        }
+
+        .speed-control input[type="range"] {
+            width: 100px;
+            accent-color: var(--accent);
+        }
+
+        .speed-value {
+            font-size: 0.85rem;
+            color: var(--accent);
+            min-width: 40px;
+        }
+
+        /* Visualization Area */
+        .viz-area {
+            min-height: 400px;
+        }
+
+        .array-display {
+            margin-bottom: 24px;
+        }
+
+        .array-label {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+            margin-bottom: 10px;
+        }
+
+        .array-elements {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .array-element {
+            width: 50px;
+            height: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: var(--bg-tertiary);
+            border: 2px solid var(--border);
+            border-radius: 10px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            font-family: 'Consolas', monospace;
+            transition: all 0.3s;
+        }
+
+        .array-element.highlight-a {
+            background: rgba(233, 69, 96, 0.2);
+            border-color: var(--accent);
+            color: var(--accent);
+            transform: scale(1.1);
+        }
+
+        .array-element.highlight-b {
+            background: rgba(245, 158, 11, 0.2);
+            border-color: var(--accent-secondary);
+            color: var(--accent-secondary);
+            transform: scale(1.1);
+        }
+
+        .array-element.used {
+            opacity: 0.4;
+        }
+
+        /* Pairings Display */
+        .pairings-section {
+            margin-top: 24px;
+        }
+
+        .pairings-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 12px;
+            max-height: 300px;
+            overflow-y: auto;
+            padding-right: 8px;
+        }
+
+        .pairings-grid::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .pairings-grid::-webkit-scrollbar-track {
+            background: var(--bg-primary);
+            border-radius: 3px;
+        }
+
+        .pairings-grid::-webkit-scrollbar-thumb {
+            background: var(--border);
+            border-radius: 3px;
+        }
+
+        .pairing-card {
+            background: var(--bg-primary);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 14px;
+            transition: all 0.3s;
+        }
+
+        .pairing-card.current {
+            border-color: var(--accent);
+            box-shadow: 0 0 20px rgba(233, 69, 96, 0.2);
+        }
+
+        .pairing-card.best {
+            border-color: var(--success);
+            background: rgba(16, 185, 129, 0.1);
+        }
+
+        .pairing-card.evaluated {
+            opacity: 0.7;
+        }
+
+        .pairing-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .pairing-number {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            background: var(--bg-tertiary);
+            padding: 3px 8px;
+            border-radius: 4px;
+        }
+
+        .pairing-sum {
+            font-size: 1rem;
+            font-weight: 700;
+        }
+
+        .pairing-sum.best {
+            color: var(--success);
+        }
+
+        .pairs-container {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .pair {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            background: var(--bg-tertiary);
+            padding: 6px 10px;
+            border-radius: 6px;
+            font-family: 'Consolas', monospace;
+            font-size: 0.9rem;
+        }
+
+        .pair .min-value {
+            color: var(--accent-tertiary);
+            font-weight: 600;
+        }
+
+        .pair .max-value {
+            color: var(--text-muted);
+        }
+
+        .pair-arrow {
+            color: var(--text-muted);
+            font-size: 0.8rem;
+        }
+
+        /* Current Pair Calculation */
+        .calc-display {
+            background: var(--bg-primary);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 16px;
+            margin-top: 20px;
+        }
+
+        .calc-display h4 {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+            margin-bottom: 12px;
+        }
+
+        .calc-expression {
+            font-family: 'Consolas', monospace;
+            font-size: 1.1rem;
+            color: var(--text-primary);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .calc-part {
+            padding: 4px 10px;
+            background: var(--bg-tertiary);
+            border-radius: 6px;
+        }
+
+        .calc-part.highlight {
+            background: rgba(233, 69, 96, 0.2);
+            color: var(--accent);
+        }
+
+        .calc-equals {
+            color: var(--accent-secondary);
+            font-weight: 600;
+        }
+
+        .calc-result {
+            color: var(--success);
+            font-weight: 700;
+            font-size: 1.2rem;
+        }
+
+        /* State Panel */
+        .state-panel {
+            margin-bottom: 20px;
+        }
+
+        .state-grid {
+            display: grid;
+            gap: 12px;
+        }
+
+        .state-item {
+            background: var(--bg-primary);
+            padding: 12px;
+            border-radius: 8px;
+            border-left: 3px solid var(--accent);
+        }
+
+        .state-item.success {
+            border-left-color: var(--success);
+        }
+
+        .state-item.warning {
+            border-left-color: var(--accent-secondary);
+        }
+
+        .state-label {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 4px;
+        }
+
+        .state-value {
+            font-family: 'Consolas', monospace;
+            font-size: 1rem;
+            font-weight: 600;
+        }
+
+        /* Log Panel */
+        .log-panel {
+            max-height: 250px;
+            overflow-y: auto;
+        }
+
+        .log-panel::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .log-panel::-webkit-scrollbar-track {
+            background: var(--bg-primary);
+        }
+
+        .log-panel::-webkit-scrollbar-thumb {
+            background: var(--border);
+            border-radius: 3px;
+        }
+
+        .log-entry {
+            padding: 8px 12px;
+            border-bottom: 1px solid var(--border);
+            font-size: 0.85rem;
+            font-family: 'Consolas', monospace;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .log-entry:last-child {
+            border-bottom: none;
+        }
+
+        .log-entry.info {
+            color: var(--text-secondary);
+        }
+
+        .log-entry.action {
+            color: var(--accent);
+        }
+
+        .log-entry.success {
+            color: var(--success);
+        }
+
+        .log-entry.compare {
+            color: var(--accent-secondary);
+        }
+
+        .log-step {
+            color: var(--text-muted);
+            margin-right: 8px;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(-5px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Progress */
+        .progress-bar {
+            height: 4px;
+            background: var(--bg-primary);
+            border-radius: 2px;
+            margin-top: 16px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--accent), var(--accent-secondary));
+            transition: width 0.3s;
+        }
+
+        /* Complexity Info */
+        .complexity-info {
+            margin-top: 16px;
+            padding: 12px;
+            background: var(--bg-primary);
+            border-radius: 8px;
+            font-size: 0.8rem;
+        }
+
+        .complexity-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 4px 0;
+            color: var(--text-secondary);
+        }
+
+        .complexity-value {
+            font-family: 'Consolas', monospace;
+            color: var(--accent-secondary);
+        }
+
+        /* Result Banner */
+        .result-banner {
+            background: linear-gradient(135deg, var(--success), #0d9668);
+            padding: 16px;
+            border-radius: 10px;
+            text-align: center;
+            margin-top: 20px;
+            display: none;
+        }
+
+        .result-banner.show {
+            display: block;
+            animation: slideIn 0.5s ease;
+        }
+
+        .result-banner h3 {
+            font-size: 1.1rem;
+            margin-bottom: 4px;
+        }
+
+        .result-banner .value {
+            font-size: 2rem;
+            font-weight: 700;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Algorithm Badge */
+        .algo-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 4px 12px;
+            background: rgba(233, 69, 96, 0.15);
+            border: 1px solid var(--accent);
+            border-radius: 20px;
+            font-size: 0.8rem;
+            color: var(--accent);
+            margin-top: 8px;
+        }
+
+        .warning-note {
+            background: rgba(245, 158, 11, 0.1);
+            border: 1px solid var(--accent-secondary);
+            border-radius: 8px;
+            padding: 12px;
+            margin-top: 12px;
+            font-size: 0.85rem;
+            color: var(--accent-secondary);
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <header>
+            <h1>561. Array Partition — Brute Force</h1>
+            <p class="subtitle">Visualizing all possible pairings to find maximum sum of minimums</p>
+            <div class="algo-badge">
+                <span>⚠️</span>
+                <span>O((2n)! × n) — Exponential Complexity</span>
+            </div>
+        </header>
+
+        <div class="main-grid">
+            <div class="left-column">
+                <!-- Input Panel -->
+                <div class="panel input-section">
+                    <div class="panel-header">
+                        <span class="icon">📥</span>
+                        Input Configuration
+                    </div>
+                    <div class="panel-content">
+                        <div class="input-row">
+                            <div class="input-group">
+                                <label>Array (comma-separated integers)</label>
+                                <input type="text" id="arrayInput" value="1, 4, 3, 2" placeholder="e.g., 1, 4, 3, 2">
+                            </div>
+                            <button class="btn btn-primary" onclick="loadArray()">Load</button>
+                        </div>
+                        <div class="preset-buttons">
+                            <button class="preset-btn" onclick="loadPreset([1, 4, 3, 2])">Example 1: [1,4,3,2]</button>
+                            <button class="preset-btn" onclick="loadPreset([6, 2, 6, 5, 1, 2])">Example 2:
+                                [6,2,6,5,1,2]</button>
+                            <button class="preset-btn" onclick="loadPreset([1, 2, 3, 4, 5, 6])">Sorted:
+                                [1,2,3,4,5,6]</button>
+                            <button class="preset-btn" onclick="loadPreset([-1, 2, -3, 4])">Negatives:
+                                [-1,2,-3,4]</button>
+                        </div>
+                        <div class="warning-note">
+                            ⚠️ Brute force is limited to 6 elements (3 pairs) for visualization. Larger arrays have too
+                            many combinations!
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Controls -->
+                <div class="controls">
+                    <button class="btn btn-primary" id="playBtn" onclick="togglePlay()">
+                        <span id="playIcon">▶</span>
+                        <span id="playText">Play</span>
+                    </button>
+                    <button class="btn btn-secondary" id="stepBtn" onclick="step()">
+                        Step →
+                    </button>
+                    <button class="btn btn-secondary" onclick="reset()">
+                        ↺ Reset
+                    </button>
+                    <div class="speed-control">
+                        <label>Speed:</label>
+                        <input type="range" id="speedSlider" min="1" max="10" value="5" oninput="updateSpeed()">
+                        <span class="speed-value" id="speedValue">1x</span>
+                    </div>
+                </div>
+
+                <!-- Visualization Panel -->
+                <div class="panel">
+                    <div class="panel-header">
+                        <span class="icon">🎯</span>
+                        Visualization
+                    </div>
+                    <div class="panel-content viz-area">
+                        <div class="array-display">
+                            <div class="array-label">Original Array</div>
+                            <div class="array-elements" id="arrayElements"></div>
+                        </div>
+
+                        <div class="calc-display" id="calcDisplay" style="display: none;">
+                            <h4>Current Calculation</h4>
+                            <div class="calc-expression" id="calcExpression"></div>
+                        </div>
+
+                        <div class="pairings-section">
+                            <div class="array-label">All Possible Pairings</div>
+                            <div class="pairings-grid" id="pairingsGrid"></div>
+                        </div>
+
+                        <div class="result-banner" id="resultBanner">
+                            <h3>🎉 Maximum Sum Found!</h3>
+                            <div class="value" id="finalResult">0</div>
+                        </div>
+
+                        <div class="progress-bar">
+                            <div class="progress-fill" id="progressFill" style="width: 0%"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="right-column">
+                <!-- State Panel -->
+                <div class="panel state-panel">
+                    <div class="panel-header">
+                        <span class="icon">📊</span>
+                        Current State
+                    </div>
+                    <div class="panel-content">
+                        <div class="state-grid">
+                            <div class="state-item">
+                                <div class="state-label">Current Pairing</div>
+                                <div class="state-value" id="stateCurrentPairing">—</div>
+                            </div>
+                            <div class="state-item warning">
+                                <div class="state-label">Current Sum</div>
+                                <div class="state-value" id="stateCurrentSum">0</div>
+                            </div>
+                            <div class="state-item success">
+                                <div class="state-label">Best Sum Found</div>
+                                <div class="state-value" id="stateBestSum">-∞</div>
+                            </div>
+                            <div class="state-item">
+                                <div class="state-label">Pairings Evaluated</div>
+                                <div class="state-value" id="statePairingsEvaluated">0 / 0</div>
+                            </div>
+                        </div>
+
+                        <div class="complexity-info">
+                            <div class="complexity-row">
+                                <span>Array Size (2n)</span>
+                                <span class="complexity-value" id="arraySize">0</span>
+                            </div>
+                            <div class="complexity-row">
+                                <span>Number of Pairs (n)</span>
+                                <span class="complexity-value" id="numPairs">0</span>
+                            </div>
+                            <div class="complexity-row">
+                                <span>Total Unique Pairings</span>
+                                <span class="complexity-value" id="totalPairings">0</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Log Panel -->
+                <div class="panel">
+                    <div class="panel-header">
+                        <span class="icon">📜</span>
+                        Execution Log
+                    </div>
+                    <div class="panel-content log-panel" id="logPanel"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // State variables
+        let nums = [1, 4, 3, 2];
+        let allPairings = [];
+        let currentPairingIndex = -1;
+        let currentPairInPairing = -1;
+        let phase = 'idle'; // 'idle', 'evaluating', 'comparing', 'done'
+        let bestSum = -Infinity;
+        let bestPairingIndex = -1;
+        let currentSum = 0;
+        let isPlaying = false;
+        let playInterval = null;
+        let speed = 1000;
+        let stepCount = 0;
+
+        // Generate all unique pairings
+        function generateAllPairings(arr) {
+            const result = [];
+
+            function generate(remaining, currentPairs) {
+                if (remaining.length === 0) {
+                    result.push([...currentPairs]);
+                    return;
+                }
+
+                const first = remaining[0];
+                const rest = remaining.slice(1);
+
+                for (let i = 0; i < rest.length; i++) {
+                    const partner = rest[i];
+                    const newRemaining = [...rest.slice(0, i), ...rest.slice(i + 1)];
+                    currentPairs.push([first, partner]);
+                    generate(newRemaining, currentPairs);
+                    currentPairs.pop();
+                }
+            }
+
+            generate([...arr], []);
+            return result;
+        }
+
+        // Double factorial for counting pairings: (2n-1)!!
+        function countPairings(n) {
+            if (n <= 0) return 1;
+            let result = 1;
+            for (let i = 2 * n - 1; i >= 1; i -= 2) {
+                result *= i;
+            }
+            return result;
+        }
+
+        function loadArray() {
+            const input = document.getElementById('arrayInput').value;
+            const parsed = input.split(',').map(s => parseInt(s.trim())).filter(n => !isNaN(n));
+
+            if (parsed.length < 2 || parsed.length % 2 !== 0) {
+                alert('Please enter an even number of integers (at least 2)');
+                return;
+            }
+
+            if (parsed.length > 6) {
+                alert('Maximum 6 elements for visualization (brute force is exponential!)');
+                return;
+            }
+
+            nums = parsed;
+            reset();
+        }
+
+        function loadPreset(arr) {
+            document.getElementById('arrayInput').value = arr.join(', ');
+            nums = arr;
+            reset();
+        }
+
+        function updateSpeed() {
+            const slider = document.getElementById('speedSlider');
+            const value = parseInt(slider.value);
+            speed = 2000 / value;
+            document.getElementById('speedValue').textContent = (value / 5).toFixed(1) + 'x';
+
+            if (isPlaying) {
+                clearInterval(playInterval);
+                playInterval = setInterval(step, speed);
+            }
+        }
+
+        function togglePlay() {
+            if (phase === 'done') {
+                reset();
+                return;
+            }
+
+            isPlaying = !isPlaying;
+            document.getElementById('playIcon').textContent = isPlaying ? '⏸' : '▶';
+            document.getElementById('playText').textContent = isPlaying ? 'Pause' : 'Play';
+
+            if (isPlaying) {
+                playInterval = setInterval(step, speed);
+            } else {
+                clearInterval(playInterval);
+            }
+        }
+
+        function step() {
+            if (phase === 'done') return;
+
+            stepCount++;
+
+            if (phase === 'idle') {
+                // Start with first pairing
+                currentPairingIndex = 0;
+                currentPairInPairing = 0;
+                currentSum = 0;
+                phase = 'evaluating';
+                addLog('Starting brute-force evaluation...', 'info');
+                addLog(`Generated ${allPairings.length} unique pairings`, 'info');
+            }
+
+            if (phase === 'evaluating') {
+                const pairing = allPairings[currentPairingIndex];
+                const pair = pairing[currentPairInPairing];
+                const minVal = Math.min(pair[0], pair[1]);
+
+                // Update visualization
+                highlightPair(pair);
+                currentSum += minVal;
+
+                addLog(`Pair (${pair[0]}, ${pair[1]}): min = ${minVal}`, 'action');
+
+                currentPairInPairing++;
+
+                if (currentPairInPairing >= pairing.length) {
+                    // Finished evaluating this pairing
+                    phase = 'comparing';
+                }
+
+                updateDisplay();
+                return;
+            }
+
+            if (phase === 'comparing') {
+                const pairing = allPairings[currentPairingIndex];
+
+                addLog(`Pairing #${currentPairingIndex + 1} sum = ${currentSum}`, 'compare');
+
+                if (currentSum > bestSum) {
+                    bestSum = currentSum;
+                    bestPairingIndex = currentPairingIndex;
+                    addLog(`New best! ${currentSum} > previous best`, 'success');
+                }
+
+                markPairingEvaluated(currentPairingIndex);
+
+                // Move to next pairing
+                currentPairingIndex++;
+                currentPairInPairing = 0;
+                currentSum = 0;
+
+                if (currentPairingIndex >= allPairings.length) {
+                    phase = 'done';
+                    finishVisualization();
+                } else {
+                    phase = 'evaluating';
+                }
+
+                updateDisplay();
+            }
+        }
+
+        function reset() {
+            // Stop playing
+            isPlaying = false;
+            clearInterval(playInterval);
+            document.getElementById('playIcon').textContent = '▶';
+            document.getElementById('playText').textContent = 'Play';
+
+            // Reset state
+            allPairings = generateAllPairings(nums);
+            currentPairingIndex = -1;
+            currentPairInPairing = -1;
+            phase = 'idle';
+            bestSum = -Infinity;
+            bestPairingIndex = -1;
+            currentSum = 0;
+            stepCount = 0;
+
+            // Update UI
+            document.getElementById('logPanel').innerHTML = '';
+            document.getElementById('resultBanner').classList.remove('show');
+            document.getElementById('calcDisplay').style.display = 'none';
+
+            renderArray();
+            renderPairings();
+            updateDisplay();
+            updateComplexityInfo();
+
+            addLog('Ready to start. Click Play or Step.', 'info');
+        }
+
+        function renderArray() {
+            const container = document.getElementById('arrayElements');
+            container.innerHTML = nums.map((num, i) =>
+                `<div class="array-element" id="elem-${i}">${num}</div>`
+            ).join('');
+        }
+
+        function renderPairings() {
+            const container = document.getElementById('pairingsGrid');
+            container.innerHTML = allPairings.map((pairing, idx) => {
+                const pairsHtml = pairing.map(pair => {
+                    const minVal = Math.min(pair[0], pair[1]);
+                    const maxVal = Math.max(pair[0], pair[1]);
+                    return `<div class="pair">
+                        (<span class="min-value">${minVal}</span>, 
+                        <span class="max-value">${maxVal}</span>)
+                    </div>`;
+                }).join('');
+
+                return `<div class="pairing-card" id="pairing-${idx}">
+                    <div class="pairing-header">
+                        <span class="pairing-number">Pairing #${idx + 1}</span>
+                        <span class="pairing-sum" id="sum-${idx}">—</span>
+                    </div>
+                    <div class="pairs-container">${pairsHtml}</div>
+                </div>`;
+            }).join('');
+        }
+
+        function highlightPair(pair) {
+            // Clear previous highlights
+            document.querySelectorAll('.array-element').forEach(el => {
+                el.classList.remove('highlight-a', 'highlight-b');
+            });
+
+            // Find and highlight elements
+            const indices = [];
+            const tempNums = [...nums];
+
+            for (let i = 0; i < tempNums.length; i++) {
+                if (tempNums[i] === pair[0] && indices.length === 0) {
+                    indices.push(i);
+                    tempNums[i] = null;
+                } else if (tempNums[i] === pair[1] && indices.length === 1) {
+                    indices.push(i);
+                    break;
+                }
+            }
+
+            if (indices[0] !== undefined) {
+                document.getElementById(`elem-${indices[0]}`).classList.add('highlight-a');
+            }
+            if (indices[1] !== undefined) {
+                document.getElementById(`elem-${indices[1]}`).classList.add('highlight-b');
+            }
+
+            // Highlight current pairing card
+            document.querySelectorAll('.pairing-card').forEach(el => {
+                el.classList.remove('current');
+            });
+            if (currentPairingIndex >= 0) {
+                document.getElementById(`pairing-${currentPairingIndex}`).classList.add('current');
+            }
+
+            // Update calculation display
+            const calcDisplay = document.getElementById('calcDisplay');
+            const calcExpr = document.getElementById('calcExpression');
+            calcDisplay.style.display = 'block';
+
+            const minVal = Math.min(pair[0], pair[1]);
+            calcExpr.innerHTML = `
+                <span class="calc-part">min(${pair[0]}, ${pair[1]})</span>
+                <span class="calc-equals">=</span>
+                <span class="calc-part highlight">${minVal}</span>
+            `;
+        }
+
+        function markPairingEvaluated(index) {
+            const card = document.getElementById(`pairing-${index}`);
+            card.classList.remove('current');
+            card.classList.add('evaluated');
+
+            const sumEl = document.getElementById(`sum-${index}`);
+            const sum = allPairings[index].reduce((acc, pair) => acc + Math.min(pair[0], pair[1]), 0);
+            sumEl.textContent = sum;
+
+            if (index === bestPairingIndex) {
+                card.classList.add('best');
+                sumEl.classList.add('best');
+            } else {
+                card.classList.remove('best');
+                sumEl.classList.remove('best');
+            }
+
+            // Update best pairing highlighting
+            document.querySelectorAll('.pairing-card.best').forEach(el => {
+                if (el.id !== `pairing-${bestPairingIndex}`) {
+                    el.classList.remove('best');
+                    el.querySelector('.pairing-sum').classList.remove('best');
+                }
+            });
+            if (bestPairingIndex >= 0) {
+                const bestCard = document.getElementById(`pairing-${bestPairingIndex}`);
+                bestCard.classList.add('best');
+                document.getElementById(`sum-${bestPairingIndex}`).classList.add('best');
+            }
+        }
+
+        function updateDisplay() {
+            // Update state panel
+            if (currentPairingIndex >= 0 && currentPairingIndex < allPairings.length) {
+                const pairing = allPairings[currentPairingIndex];
+                const pairingStr = pairing.map(p => `(${p[0]},${p[1]})`).join(' ');
+                document.getElementById('stateCurrentPairing').textContent = pairingStr;
+            } else {
+                document.getElementById('stateCurrentPairing').textContent = '—';
+            }
+
+            document.getElementById('stateCurrentSum').textContent = currentSum;
+            document.getElementById('stateBestSum').textContent = bestSum === -Infinity ? '-∞' : bestSum;
+
+            const evaluated = phase === 'done' ? allPairings.length : Math.max(0, currentPairingIndex);
+            document.getElementById('statePairingsEvaluated').textContent =
+                `${evaluated} / ${allPairings.length}`;
+
+            // Update progress bar
+            const progress = (evaluated / allPairings.length) * 100;
+            document.getElementById('progressFill').style.width = progress + '%';
+        }
+
+        function updateComplexityInfo() {
+            const n = nums.length / 2;
+            document.getElementById('arraySize').textContent = nums.length;
+            document.getElementById('numPairs').textContent = n;
+            document.getElementById('totalPairings').textContent = countPairings(n);
+        }
+
+        function finishVisualization() {
+            isPlaying = false;
+            clearInterval(playInterval);
+            document.getElementById('playIcon').textContent = '▶';
+            document.getElementById('playText').textContent = 'Play';
+
+            // Clear array highlights
+            document.querySelectorAll('.array-element').forEach(el => {
+                el.classList.remove('highlight-a', 'highlight-b');
+            });
+
+            // Show result
+            document.getElementById('finalResult').textContent = bestSum;
+            document.getElementById('resultBanner').classList.add('show');
+
+            addLog(`✅ Complete! Maximum sum = ${bestSum}`, 'success');
+            addLog(`Best pairing: #${bestPairingIndex + 1}`, 'success');
+        }
+
+        function addLog(message, type = 'info') {
+            const logPanel = document.getElementById('logPanel');
+            const entry = document.createElement('div');
+            entry.className = `log-entry ${type}`;
+            entry.innerHTML = `<span class="log-step">[${stepCount}]</span>${message}`;
+            logPanel.insertBefore(entry, logPanel.firstChild);
+
+            // Keep only last 50 entries
+            while (logPanel.children.length > 50) {
+                logPanel.removeChild(logPanel.lastChild);
+            }
+        }
+
+        // Initialize
+        reset();
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,981 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>2074 - Optimal: In-Place Pointer Reversal</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #0f0c29 0%, #302b63 50%, #24243e 100%);
+            min-height: 100vh;
+            padding: 18px;
+            color: #e0e0e0
+        }
+
+        .container {
+            max-width: 1360px;
+            margin: 0 auto;
+            background: rgba(25, 25, 50, .95);
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, .5), 0 0 40px rgba(46, 204, 113, .07);
+            overflow: hidden;
+            border: 1px solid rgba(255, 255, 255, .06)
+        }
+
+        header {
+            background: linear-gradient(135deg, #16a085, #1abc9c);
+            color: #fff;
+            padding: 22px;
+            text-align: center
+        }
+
+        h1 {
+            font-size: 1.15em;
+            margin-bottom: 5px
+        }
+
+        .subtitle {
+            font-size: .84em;
+            opacity: .92
+        }
+
+        .badge {
+            display: inline-block;
+            background: rgba(255, 255, 255, .2);
+            padding: 5px 14px;
+            border-radius: 15px;
+            margin-top: 7px;
+            font-size: .78em
+        }
+
+        .main-content {
+            display: grid;
+            grid-template-columns: 1fr 280px;
+            gap: 16px;
+            padding: 18px
+        }
+
+        .card {
+            background: rgba(40, 40, 75, .8);
+            border-radius: 14px;
+            padding: 15px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, .2);
+            margin-bottom: 14px;
+            border: 1px solid rgba(255, 255, 255, .05)
+        }
+
+        .card-title {
+            font-size: .88em;
+            font-weight: 600;
+            margin-bottom: 10px;
+            color: #1abc9c
+        }
+
+        button {
+            padding: 7px 14px;
+            border: none;
+            border-radius: 8px;
+            font-size: .82em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all .3s
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, .3)
+        }
+
+        button:disabled {
+            opacity: .4;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #16a085, #1abc9c);
+            color: #fff
+        }
+
+        .btn-success {
+            background: linear-gradient(135deg, #27ae60, #2ecc71);
+            color: #fff
+        }
+
+        .btn-warning {
+            background: linear-gradient(135deg, #f39c12, #e67e22);
+            color: #fff
+        }
+
+        .btn-secondary {
+            background: rgba(100, 100, 140, .7);
+            color: #fff
+        }
+
+        .btn-info {
+            background: linear-gradient(135deg, #3498db, #2980b9);
+            color: #fff
+        }
+
+        .controls {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            align-items: center
+        }
+
+        .speed-control {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            flex: 1;
+            min-width: 140px
+        }
+
+        .speed-control label {
+            font-size: .8em;
+            color: #aaa
+        }
+
+        .speed-control input[type="range"] {
+            flex: 1;
+            height: 5px;
+            accent-color: #1abc9c
+        }
+
+        .speed-control span {
+            font-size: .8em;
+            color: #1abc9c;
+            min-width: 24px
+        }
+
+        .input-section {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+            flex-wrap: wrap
+        }
+
+        .input-section input {
+            padding: 7px 10px;
+            border-radius: 8px;
+            border: 1px solid rgba(255, 255, 255, .15);
+            background: rgba(20, 20, 45, .8);
+            color: #e0e0e0;
+            font-size: .85em;
+            font-family: 'Courier New', monospace;
+            flex: 1;
+            min-width: 180px
+        }
+
+        .input-section input:focus {
+            outline: none;
+            border-color: #1abc9c
+        }
+
+        /* Linked list */
+        .ll-area {
+            padding: 10px;
+            background: rgba(20, 20, 50, .4);
+            border-radius: 10px;
+            min-height: 90px
+        }
+
+        .ptr-row {
+            display: flex;
+            gap: 0;
+            min-height: 18px;
+            align-items: center;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin-bottom: 2px
+        }
+
+        .ptr-cell {
+            width: 46px;
+            text-align: center;
+            font-size: .48em;
+            font-weight: 700;
+            margin: 0 1px
+        }
+
+        .ptr-spacer {
+            width: 16px;
+            margin: 0 1px
+        }
+
+        .p-pt {
+            color: #f39c12
+        }
+
+        .p-tail {
+            color: #e74c3c
+        }
+
+        .p-move {
+            color: #2ecc71
+        }
+
+        .ll-row {
+            display: flex;
+            gap: 0;
+            align-items: center;
+            justify-content: center;
+            flex-wrap: wrap
+        }
+
+        .ll-node {
+            display: flex;
+            align-items: center
+        }
+
+        .nd {
+            width: 46px;
+            height: 46px;
+            border-radius: 10px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 1.05em;
+            border: 2.5px solid rgba(150, 150, 200, .12);
+            background: rgba(60, 60, 100, .12);
+            font-family: 'Courier New', monospace;
+            color: #666;
+            transition: all .35s
+        }
+
+        .nd-sub {
+            font-size: .4em;
+            color: #555;
+            margin-top: 1px
+        }
+
+        .nd.dummy {
+            border-style: dashed;
+            border-color: rgba(150, 150, 200, .18);
+            color: #555;
+            font-size: .7em
+        }
+
+        .nd.pt-nd {
+            border-color: #f39c12;
+            background: rgba(243, 156, 18, .08);
+            color: #f39c12
+        }
+
+        .nd.tail-nd {
+            border-color: #e74c3c;
+            background: rgba(231, 76, 60, .08);
+            color: #e74c3c
+        }
+
+        .nd.move-nd {
+            border-color: #2ecc71;
+            background: rgba(46, 204, 113, .15);
+            color: #2ecc71;
+            box-shadow: 0 0 12px rgba(46, 204, 113, .18);
+            transform: scale(1.06)
+        }
+
+        .nd.count-nd {
+            border-color: #f1c40f;
+            background: rgba(241, 196, 15, .08);
+            color: #f1c40f
+        }
+
+        .nd.in-rev {
+            border-color: #1abc9c;
+            background: rgba(26, 188, 156, .06);
+            color: #1abc9c
+        }
+
+        .nd.skip-nd {
+            border-color: rgba(100, 100, 140, .12);
+            color: #555
+        }
+
+        .nd.done-nd {
+            border-color: #2ecc71;
+            background: rgba(46, 204, 113, .06);
+            color: #2ecc71
+        }
+
+        .nd.adv-nd {
+            border-color: #3498db;
+            background: rgba(52, 152, 219, .08);
+            color: #3498db
+        }
+
+        .arrow {
+            color: #555;
+            font-size: .8em;
+            margin: 0 1px;
+            transition: all .3s
+        }
+
+        .arrow.new-a {
+            color: #2ecc71;
+            font-weight: 700
+        }
+
+        .arrow.done-a {
+            color: #2ecc71
+        }
+
+        /* Step box */
+        .step-box {
+            padding: 10px;
+            background: rgba(20, 20, 50, .4);
+            border-radius: 10px;
+            min-height: 44px
+        }
+
+        .step-row {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+            margin: 3px 0;
+            flex-wrap: wrap
+        }
+
+        .step-num {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: .6em;
+            font-weight: 700;
+            border: 2px solid rgba(150, 150, 200, .12);
+            color: #555;
+            flex-shrink: 0
+        }
+
+        .step-num.active {
+            border-color: #2ecc71;
+            background: rgba(46, 204, 113, .12);
+            color: #2ecc71
+        }
+
+        .step-num.done {
+            border-color: #555;
+            background: rgba(100, 100, 140, .08);
+            color: #555
+        }
+
+        .step-text {
+            font-family: 'Courier New', monospace;
+            font-size: .74em;
+            color: #888;
+            transition: all .3s
+        }
+
+        .step-text.active {
+            color: #2ecc71
+        }
+
+        .step-text.done {
+            color: #555;
+            text-decoration: line-through
+        }
+
+        .grp-badge {
+            display: inline-block;
+            padding: 4px 10px;
+            border-radius: 6px;
+            font-size: .78em;
+            font-weight: 700;
+            margin-bottom: 6px
+        }
+
+        .gb-even {
+            background: rgba(26, 188, 156, .08);
+            border: 1px solid rgba(26, 188, 156, .12);
+            color: #1abc9c
+        }
+
+        .gb-odd {
+            background: rgba(100, 100, 140, .06);
+            border: 1px solid rgba(100, 100, 140, .1);
+            color: #888
+        }
+
+        .gb-count {
+            background: rgba(241, 196, 15, .08);
+            border: 1px solid rgba(241, 196, 15, .12);
+            color: #f1c40f
+        }
+
+        .gb-skip {
+            background: rgba(100, 100, 140, .06);
+            border: 1px solid rgba(100, 100, 140, .1);
+            color: #888
+        }
+
+        .gb-done {
+            background: rgba(46, 204, 113, .08);
+            border: 1px solid rgba(46, 204, 113, .12);
+            color: #2ecc71
+        }
+
+        .status-ind {
+            text-align: center;
+            padding: 11px;
+            border-radius: 10px;
+            font-weight: 700;
+            font-size: .85em;
+            transition: all .3s
+        }
+
+        .si-neutral {
+            background: rgba(100, 100, 140, .12);
+            color: #888
+        }
+
+        .si-run {
+            background: rgba(26, 188, 156, .08);
+            color: #1abc9c;
+            border: 1px solid rgba(26, 188, 156, .15)
+        }
+
+        .si-done {
+            background: rgba(46, 204, 113, .12);
+            color: #2ecc71;
+            border: 1px solid rgba(46, 204, 113, .25)
+        }
+
+        .state-display {
+            background: rgba(20, 20, 50, .5);
+            border-radius: 8px;
+            padding: 10px;
+            font-family: 'Courier New', monospace;
+            font-size: .68em
+        }
+
+        .state-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 4px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, .05)
+        }
+
+        .state-row:last-child {
+            border-bottom: none
+        }
+
+        .state-label {
+            font-weight: 600;
+            color: #1abc9c
+        }
+
+        .state-val {
+            color: #ccc;
+            text-align: right;
+            max-width: 150px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap
+        }
+
+        .log-container {
+            background: rgba(20, 20, 50, .5);
+            border-radius: 8px;
+            padding: 10px;
+            max-height: 230px;
+            overflow-y: auto;
+            font-family: 'Courier New', monospace;
+            font-size: .54em
+        }
+
+        .log-entry {
+            padding: 3px 7px;
+            margin: 2px 0;
+            border-radius: 4px;
+            border-left: 3px solid #555;
+            background: rgba(40, 40, 70, .5);
+            line-height: 1.5
+        }
+
+        .log-entry.success {
+            border-left-color: #2ecc71;
+            background: rgba(46, 204, 113, .08);
+            color: #2ecc71
+        }
+
+        .log-entry.warning {
+            border-left-color: #f39c12;
+            background: rgba(243, 156, 18, .08);
+            color: #f39c12
+        }
+
+        .log-entry.info {
+            border-left-color: #3498db;
+            background: rgba(52, 152, 219, .08);
+            color: #8ec8f0
+        }
+
+        .log-entry.error {
+            border-left-color: #e74c3c;
+            background: rgba(231, 76, 60, .08);
+            color: #e74c3c
+        }
+
+        .log-entry.purple {
+            border-left-color: #9b59b6;
+            background: rgba(155, 89, 182, .08);
+            color: #bb6bd9
+        }
+
+        .log-entry.teal {
+            border-left-color: #1abc9c;
+            background: rgba(26, 188, 156, .08);
+            color: #1abc9c
+        }
+
+        .log-container::-webkit-scrollbar {
+            width: 5px
+        }
+
+        .log-container::-webkit-scrollbar-track {
+            background: transparent
+        }
+
+        .log-container::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, .15);
+            border-radius: 3px
+        }
+
+        @media(max-width:960px) {
+            .main-content {
+                grid-template-columns: 1fr
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <header>
+            <h1>🔗 Reverse Nodes in Even Length Groups</h1>
+            <div class="subtitle">Optimal — In-Place Pointer Reversal via Head Insertion</div>
+            <div class="badge">Time: O(n) | Space: O(1) — only pointer variables, no arrays</div>
+        </header>
+        <div class="main-content">
+            <div class="left-panel">
+                <div class="card">
+                    <div class="card-title">⚙️ Controls</div>
+                    <div class="controls">
+                        <button class="btn-primary" id="playBtn">▶️ Play</button>
+                        <button class="btn-warning" id="pauseBtn" disabled>⏸️ Pause</button>
+                        <button class="btn-success" id="stepBtn">⏭️ Step</button>
+                        <button class="btn-secondary" id="resetBtn">🔄 Reset</button>
+                        <div class="speed-control">
+                            <label>Speed:</label>
+                            <input type="range" id="speedSlider" min="1" max="10" value="5">
+                            <span id="speedValue">5x</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="card">
+                    <div class="card-title">✏️ Custom Input</div>
+                    <div class="input-section">
+                        <input type="text" id="listInput" value="5,2,6,3,9,1,7,3,8,4"
+                            placeholder="values (comma-separated)">
+                        <button class="btn-info" id="applyBtn">Apply</button>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-title">🔗 Linked List (n=<span id="nDisp">10</span>)</div>
+                    <div class="ll-area">
+                        <div class="ptr-row" id="ptrRow"></div>
+                        <div class="ll-row" id="llDisplay"></div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-title">🔧 Head Insertion Steps</div>
+                    <div id="grpBadge"></div>
+                    <div class="step-box" id="stepBox">
+                        <div class="step-row">
+                            <div class="step-num" id="s1n">1</div>
+                            <div class="step-text" id="s1t">tail.next = moveNode.next</div>
+                        </div>
+                        <div class="step-row">
+                            <div class="step-num" id="s2n">2</div>
+                            <div class="step-text" id="s2t">moveNode.next = prevTail.next</div>
+                        </div>
+                        <div class="step-row">
+                            <div class="step-num" id="s3n">3</div>
+                            <div class="step-text" id="s3t">prevTail.next = moveNode</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="status-ind si-neutral" id="statusInd">Ready — press Play or Step</div>
+                </div>
+            </div>
+
+            <div class="right-panel">
+                <div class="card">
+                    <div class="card-title">📋 Current State</div>
+                    <div class="state-display">
+                        <div class="state-row"><span class="state-label">Phase:</span><span class="state-val"
+                                id="stPhase">init</span></div>
+                        <div class="state-row"><span class="state-label">groupNum g:</span><span class="state-val"
+                                id="stG">—</span></div>
+                        <div class="state-row"><span class="state-label">count:</span><span class="state-val"
+                                id="stCnt">—</span></div>
+                        <div class="state-row"><span class="state-label">even?:</span><span class="state-val"
+                                id="stEven">—</span></div>
+                        <div class="state-row"><span class="state-label">prevTail:</span><span class="state-val"
+                                id="stPT">—</span></div>
+                        <div class="state-row"><span class="state-label">tail:</span><span class="state-val"
+                                id="stTail">—</span></div>
+                        <div class="state-row"><span class="state-label">moveNode:</span><span class="state-val"
+                                id="stMove">—</span></div>
+                        <div class="state-row"><span class="state-label">iteration:</span><span class="state-val"
+                                id="stIter">—</span></div>
+                    </div>
+                </div>
+                <div class="card" style="flex:1">
+                    <div class="card-title">📝 Execution Log</div>
+                    <div class="log-container" id="logContainer">
+                        <div class="log-entry info">In-place: count group → if even, head insertion reversal.</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let initVals = [5, 2, 6, 3, 9, 1, 7, 3, 8, 4];
+
+        // Linked list as array of {val, next}
+        let nodes = [];
+        let prevTailIdx = -1, tailIdx = -1, moveIdx = -1;
+        let g = 1;
+        let groupCount = 0;
+        let countTemp = -1;    // temp pointer for counting
+        let countSoFar = 0;
+        let insertIter = 0, insertTotal = 0;
+        let subStep = 0;       // 0=new-iter, 1/2/3 = pointer steps
+        let advanceLeft = 0;   // for odd group: how many more to advance
+
+        // phases: init | counting | decide | inserting | skip-advance | advance-prevTail | done
+        let phase = 'init';
+        let stepCount = 0, isRunning = false, speed = 5, isDone = false;
+
+        const $ = id => document.getElementById(id);
+        const logC = $('logContainer');
+        function addLog(m, t = 'info') { logC.innerHTML += `<div class="log-entry ${t}">[${stepCount}] ${m}</div>`; logC.scrollTop = logC.scrollHeight }
+        function clearLog() { logC.innerHTML = '' }
+
+        function buildList() {
+            nodes = [{ val: 'D', next: initVals.length > 0 ? 1 : -1 }];
+            for (let i = 0; i < initVals.length; i++) {
+                nodes.push({ val: initVals[i], next: i + 2 <= initVals.length ? i + 2 : -1 });
+            }
+        }
+
+        function getListOrder() {
+            const o = []; let idx = 0; const v = new Set();
+            while (idx !== -1 && !v.has(idx)) { v.add(idx); o.push(idx); idx = nodes[idx].next; }
+            return o;
+        }
+
+        function nv(i) { return i >= 0 ? nodes[i].val : 'null'; }
+
+        function resetSteps() {
+            for (let i = 1; i <= 3; i++) { $('s' + i + 'n').className = 'step-num'; $('s' + i + 't').className = 'step-text'; }
+            $('s1t').textContent = 'tail.next = moveNode.next';
+            $('s2t').textContent = 'moveNode.next = prevTail.next';
+            $('s3t').textContent = 'prevTail.next = moveNode';
+        }
+
+        function render() {
+            $('nDisp').textContent = initVals.length;
+            const order = getListOrder();
+
+            // Pointer labels
+            let pH = '';
+            for (let oi = 0; oi < order.length; oi++) {
+                const idx = order[oi];
+                let labels = [];
+                if (idx === prevTailIdx) labels.push('<span class="p-pt">prevTail</span>');
+                if (idx === tailIdx && phase === 'inserting') labels.push('<span class="p-tail">tail</span>');
+                if (idx === moveIdx && phase === 'inserting') labels.push('<span class="p-move">move</span>');
+                if (idx === countTemp && phase === 'counting') labels.push('<span style="color:#f1c40f;font-size:.48em;font-weight:700">temp</span>');
+                pH += `<div class="ptr-cell">${labels.join(' ')}</div>`;
+                if (oi < order.length - 1) pH += `<div class="ptr-spacer"></div>`;
+            }
+            $('ptrRow').innerHTML = pH;
+
+            // Nodes
+            let lH = '';
+            for (let oi = 0; oi < order.length; oi++) {
+                const idx = order[oi];
+                let cls = 'nd';
+                if (idx === 0) { cls += ' dummy'; }
+                else if (idx === moveIdx && phase === 'inserting') cls += ' move-nd';
+                else if (idx === tailIdx && phase === 'inserting') cls += ' tail-nd';
+                else if (idx === prevTailIdx && phase !== 'init') cls += ' pt-nd';
+                else if (idx === countTemp && phase === 'counting') cls += ' count-nd';
+                else if (phase === 'skip-advance' && idx === prevTailIdx) cls += ' adv-nd';
+                else if (phase === 'done') cls += ' done-nd';
+                else if (phase === 'inserting') {
+                    // Nodes between prevTail and tail are in reversed segment
+                    const ptOi = order.indexOf(prevTailIdx);
+                    const tlOi = order.indexOf(tailIdx);
+                    if (oi > ptOi && oi < tlOi) cls += ' in-rev';
+                }
+
+                const label = idx === 0 ? 'D' : nodes[idx].val;
+                lH += `<div class="ll-node"><div class="${cls}">${label}<span class="nd-sub">${idx === 0 ? 'dummy' : ''}</span></div>`;
+                if (oi < order.length - 1) {
+                    let aCls = 'arrow';
+                    if (phase === 'done') aCls += ' done-a';
+                    lH += `<span class="${aCls}"> → </span>`;
+                }
+                lH += '</div>';
+            }
+            $('llDisplay').innerHTML = lH;
+
+            // Group badge
+            if (phase === 'counting') {
+                $('grpBadge').innerHTML = `<div class="grp-badge gb-count">G${g}: counting... (${countSoFar} so far)</div>`;
+            } else if (phase === 'decide' || phase === 'inserting') {
+                const isEven = groupCount % 2 === 0;
+                $('grpBadge').innerHTML = `<div class="grp-badge ${isEven ? 'gb-even' : 'gb-odd'}">G${g}: count=${groupCount} → ${isEven ? 'EVEN ✓ reverse!' : 'odd → skip'}</div>`;
+            } else if (phase === 'skip-advance') {
+                $('grpBadge').innerHTML = `<div class="grp-badge gb-skip">G${g}: odd → advancing prevTail (${advanceLeft} left)</div>`;
+            } else if (phase === 'advance-prevTail') {
+                $('grpBadge').innerHTML = `<div class="grp-badge gb-even">G${g}: reversed! prevTail = tail</div>`;
+            } else if (phase === 'done') {
+                $('grpBadge').innerHTML = `<div class="grp-badge gb-done">✅ All groups processed</div>`;
+            } else {
+                $('grpBadge').innerHTML = '';
+            }
+
+            // Step display with values
+            if (phase === 'inserting' && tailIdx >= 0 && moveIdx >= 0) {
+                $('s1t').textContent = `tail(${nv(tailIdx)}).next = move(${nv(moveIdx)}).next → ${nv(nodes[moveIdx].next)}`;
+                $('s2t').textContent = `move(${nv(moveIdx)}).next = prevTail(${nv(prevTailIdx)}).next → ${nv(nodes[prevTailIdx].next)}`;
+                $('s3t').textContent = `prevTail(${nv(prevTailIdx)}).next = move(${nv(moveIdx)})`;
+            }
+
+            // State
+            $('stPhase').textContent = phase;
+            $('stG').textContent = g;
+            $('stCnt').textContent = phase === 'counting' ? `${countSoFar}/?` : (groupCount > 0 ? groupCount : '—');
+            $('stEven').textContent = groupCount > 0 ? (groupCount % 2 === 0 ? 'YES ✓' : 'no') : '—';
+            $('stPT').textContent = prevTailIdx >= 0 ? (prevTailIdx === 0 ? 'dummy' : `node(${nv(prevTailIdx)})`) : '—';
+            $('stTail').textContent = tailIdx >= 0 ? `node(${nv(tailIdx)})` : '—';
+            $('stMove').textContent = moveIdx >= 0 ? `node(${nv(moveIdx)})` : '—';
+            $('stIter').textContent = phase === 'inserting' ? `${insertIter}/${insertTotal}` : '—';
+        }
+
+        function doStep() {
+            if (isDone) { stopExec(); return; }
+            stepCount++;
+
+            switch (phase) {
+                case 'init': {
+                    buildList();
+                    prevTailIdx = 0; tailIdx = -1; moveIdx = -1;
+                    g = 1; groupCount = 0; countSoFar = 0; countTemp = -1;
+                    insertIter = 0; insertTotal = 0; subStep = 0; advanceLeft = 0;
+                    addLog(`List: D → ${initVals.join(' → ')} (n=${initVals.length})`, 'info');
+                    if (nodes[0].next === -1) {
+                        phase = 'done'; isDone = true;
+                        addLog(`Empty list → done.`, 'success');
+                        $('statusInd').className = 'status-ind si-done';
+                        $('statusInd').textContent = '✅ Done!';
+                        render(); stopExec(); return;
+                    }
+                    phase = 'counting';
+                    countTemp = nodes[prevTailIdx].next;
+                    countSoFar = 0;
+                    $('statusInd').className = 'status-ind si-run';
+                    $('statusInd').textContent = 'Processing groups...';
+                    addLog(`── G${g}: counting nodes... ──`, 'teal');
+                    render();
+                    break;
+                }
+                case 'counting': {
+                    if (countSoFar >= g || countTemp === -1) {
+                        groupCount = countSoFar;
+                        addLog(`  G${g}: count = ${groupCount}`, 'info');
+                        phase = 'decide';
+                        countTemp = -1;
+                        render();
+                        doStep();
+                        return;
+                    }
+                    countSoFar++;
+                    addLog(`  Count: temp → node(${nv(countTemp)}), count=${countSoFar}`, 'info');
+                    render();
+                    countTemp = nodes[countTemp].next;
+                    break;
+                }
+                case 'decide': {
+                    const isEven = groupCount % 2 === 0;
+                    addLog(`  G${g}: count=${groupCount} → ${isEven ? 'EVEN → head insertion reversal' : 'odd → skip (advance prevTail)'}`, isEven ? 'teal' : 'warning');
+
+                    if (isEven) {
+                        tailIdx = nodes[prevTailIdx].next;
+                        insertIter = 0;
+                        insertTotal = groupCount - 1;
+                        subStep = 0;
+                        phase = 'inserting';
+                        addLog(`  tail = prevTail.next = node(${nv(tailIdx)})`, 'purple');
+                    } else {
+                        advanceLeft = groupCount;
+                        phase = 'skip-advance';
+                    }
+                    render();
+                    break;
+                }
+                case 'inserting': {
+                    if (insertIter >= insertTotal) {
+                        // Done reversing this group
+                        prevTailIdx = tailIdx;
+                        const order = getListOrder();
+                        const fv = order.slice(1).map(i => nodes[i].val);
+                        addLog(`  G${g} reversed! prevTail = tail = node(${nv(prevTailIdx)})`, 'success');
+                        tailIdx = -1; moveIdx = -1; subStep = 0;
+                        resetSteps();
+                        g++;
+                        if (nodes[prevTailIdx].next === -1) {
+                            phase = 'done'; isDone = true;
+                            addLog(`✅ All groups done! Result: [${fv.join(', ')}]`, 'success');
+                            $('statusInd').className = 'status-ind si-done';
+                            $('statusInd').textContent = `✅ Done! [${fv.join(', ')}]`;
+                            render(); stopExec(); return;
+                        }
+                        phase = 'counting';
+                        countTemp = nodes[prevTailIdx].next;
+                        countSoFar = 0; groupCount = 0;
+                        addLog(`── G${g}: counting nodes... ──`, 'teal');
+                        render();
+                        return;
+                    }
+
+                    if (subStep === 0) {
+                        moveIdx = nodes[tailIdx].next;
+                        addLog(`  Iter ${insertIter + 1}/${insertTotal}: moveNode = tail.next = node(${nv(moveIdx)})`, 'purple');
+                        subStep = 1;
+                        resetSteps();
+                        render();
+                        return;
+                    }
+                    if (subStep === 1) {
+                        const bypass = nodes[moveIdx].next;
+                        nodes[tailIdx].next = bypass;
+                        addLog(`    ① tail(${nv(tailIdx)}).next = ${bypass >= 0 ? nv(bypass) : 'null'}`, 'teal');
+                        $('s1n').className = 'step-num active'; $('s1t').className = 'step-text active';
+                        subStep = 2;
+                        render();
+                        return;
+                    }
+                    if (subStep === 2) {
+                        const front = nodes[prevTailIdx].next;
+                        nodes[moveIdx].next = front;
+                        addLog(`    ② move(${nv(moveIdx)}).next = node(${nv(front)})`, 'teal');
+                        $('s1n').className = 'step-num done'; $('s1t').className = 'step-text done';
+                        $('s2n').className = 'step-num active'; $('s2t').className = 'step-text active';
+                        subStep = 3;
+                        render();
+                        return;
+                    }
+                    if (subStep === 3) {
+                        nodes[prevTailIdx].next = moveIdx;
+                        addLog(`    ③ prevTail(${nv(prevTailIdx)}).next = move(${nv(moveIdx)})`, 'teal');
+                        $('s2n').className = 'step-num done'; $('s2t').className = 'step-text done';
+                        $('s3n').className = 'step-num active'; $('s3t').className = 'step-text active';
+                        insertIter++;
+                        subStep = 0;
+                        render();
+                        return;
+                    }
+                    break;
+                }
+                case 'skip-advance': {
+                    if (advanceLeft <= 0) {
+                        g++;
+                        if (nodes[prevTailIdx].next === -1) {
+                            phase = 'done'; isDone = true;
+                            const order = getListOrder();
+                            const fv = order.slice(1).map(i => nodes[i].val);
+                            addLog(`✅ All groups done! Result: [${fv.join(', ')}]`, 'success');
+                            $('statusInd').className = 'status-ind si-done';
+                            $('statusInd').textContent = `✅ Done! [${fv.join(', ')}]`;
+                            render(); stopExec(); return;
+                        }
+                        phase = 'counting';
+                        countTemp = nodes[prevTailIdx].next;
+                        countSoFar = 0; groupCount = 0;
+                        resetSteps();
+                        addLog(`── G${g}: counting nodes... ──`, 'teal');
+                        render();
+                        return;
+                    }
+                    prevTailIdx = nodes[prevTailIdx].next;
+                    advanceLeft--;
+                    addLog(`  Skip: prevTail → node(${nv(prevTailIdx)}) (${advanceLeft} left)`, 'info');
+                    render();
+                    break;
+                }
+            }
+        }
+
+        function play() { if (isRunning || isDone) return; isRunning = true; $('playBtn').disabled = true; $('pauseBtn').disabled = false; $('stepBtn').disabled = true; runLoop() }
+        function pause() { isRunning = false; $('playBtn').disabled = false; $('pauseBtn').disabled = true; $('stepBtn').disabled = false }
+        function stopExec() { isRunning = false; $('playBtn').disabled = true; $('pauseBtn').disabled = true; $('stepBtn').disabled = true }
+        function runLoop() { if (!isRunning) return; doStep(); if (isRunning && !isDone) setTimeout(runLoop, 420 / speed) }
+
+        function init() {
+            buildList();
+            prevTailIdx = 0; tailIdx = -1; moveIdx = -1;
+            g = 1; groupCount = 0; countSoFar = 0; countTemp = -1;
+            insertIter = 0; insertTotal = 0; subStep = 0; advanceLeft = 0;
+            phase = 'init'; stepCount = 0; isDone = false;
+            $('statusInd').className = 'status-ind si-neutral';
+            $('statusInd').textContent = 'Ready — press Play or Step';
+            $('playBtn').disabled = false; $('pauseBtn').disabled = true; $('stepBtn').disabled = false;
+            resetSteps(); $('grpBadge').innerHTML = '';
+            clearLog(); addLog('In-place: count group → if even, head insertion reversal.', 'info');
+            render();
+        }
+
+        $('playBtn').addEventListener('click', play);
+        $('pauseBtn').addEventListener('click', pause);
+        $('stepBtn').addEventListener('click', () => { if (!isDone) doStep() });
+        $('resetBtn').addEventListener('click', () => { isRunning = false; init() });
+        $('speedSlider').addEventListener('input', e => { speed = parseInt(e.target.value); $('speedValue').textContent = speed + 'x' });
+        $('applyBtn').addEventListener('click', () => {
+            const lv = $('listInput').value.trim();
+            if (!lv) { alert('Values required.'); return }
+            const vs = lv.split(',').map(x => parseInt(x.trim())).filter(x => !isNaN(x));
+            if (!vs.length) { alert('Need at least one value.'); return }
+            initVals = [...vs]; isRunning = false; init();
+        });
+
+        init();
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,774 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>61 - Brute-Force: Simulate k Single Rotations (Rotate List)</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #0f0c29 0%, #302b63 50%, #24243e 100%);
+            min-height: 100vh;
+            padding: 18px;
+            color: #e0e0e0
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: rgba(25, 25, 50, .95);
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, .5), 0 0 40px rgba(192, 57, 43, .07);
+            overflow: hidden;
+            border: 1px solid rgba(255, 255, 255, .06)
+        }
+
+        header {
+            background: linear-gradient(135deg, #c0392b, #e74c3c);
+            color: #fff;
+            padding: 22px;
+            text-align: center
+        }
+
+        h1 {
+            font-size: 1.15em;
+            margin-bottom: 5px
+        }
+
+        .subtitle {
+            font-size: .84em;
+            opacity: .92
+        }
+
+        .badge {
+            display: inline-block;
+            background: rgba(255, 255, 255, .2);
+            padding: 5px 14px;
+            border-radius: 15px;
+            margin-top: 7px;
+            font-size: .78em
+        }
+
+        .main-content {
+            display: grid;
+            grid-template-columns: 1fr 280px;
+            gap: 16px;
+            padding: 18px
+        }
+
+        .card {
+            background: rgba(40, 40, 75, .8);
+            border-radius: 14px;
+            padding: 15px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, .2);
+            margin-bottom: 14px;
+            border: 1px solid rgba(255, 255, 255, .05)
+        }
+
+        .card-title {
+            font-size: .88em;
+            font-weight: 600;
+            margin-bottom: 10px;
+            color: #e74c3c
+        }
+
+        button {
+            padding: 7px 14px;
+            border: none;
+            border-radius: 8px;
+            font-size: .82em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all .3s
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, .3)
+        }
+
+        button:disabled {
+            opacity: .4;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #c0392b, #e74c3c);
+            color: #fff
+        }
+
+        .btn-success {
+            background: linear-gradient(135deg, #27ae60, #2ecc71);
+            color: #fff
+        }
+
+        .btn-warning {
+            background: linear-gradient(135deg, #f39c12, #e67e22);
+            color: #fff
+        }
+
+        .btn-secondary {
+            background: rgba(100, 100, 140, .7);
+            color: #fff
+        }
+
+        .btn-info {
+            background: linear-gradient(135deg, #3498db, #2980b9);
+            color: #fff
+        }
+
+        .controls {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            align-items: center
+        }
+
+        .speed-control {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            flex: 1;
+            min-width: 140px
+        }
+
+        .speed-control label {
+            font-size: .8em;
+            color: #aaa
+        }
+
+        .speed-control input[type="range"] {
+            flex: 1;
+            height: 5px;
+            accent-color: #e74c3c
+        }
+
+        .speed-control span {
+            font-size: .8em;
+            color: #e74c3c;
+            min-width: 24px
+        }
+
+        .input-section {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+            flex-wrap: wrap
+        }
+
+        .input-section input {
+            padding: 7px 10px;
+            border-radius: 8px;
+            border: 1px solid rgba(255, 255, 255, .15);
+            background: rgba(20, 20, 45, .8);
+            color: #e0e0e0;
+            font-size: .82em;
+            font-family: 'Courier New', monospace;
+        }
+
+        .input-section input:focus {
+            outline: none;
+            border-color: #e74c3c
+        }
+
+        .input-section label {
+            font-size: .82em;
+            color: #aaa
+        }
+
+        .ll-row {
+            display: flex;
+            gap: 0;
+            padding: 12px;
+            background: rgba(20, 20, 50, .4);
+            border-radius: 10px;
+            min-height: 60px;
+            align-items: center;
+            justify-content: center;
+            flex-wrap: wrap;
+            overflow-x: auto
+        }
+
+        .nd {
+            width: 50px;
+            height: 50px;
+            border-radius: 11px;
+            display: inline-flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 1.15em;
+            border: 2.5px solid rgba(150, 150, 200, .12);
+            background: rgba(60, 60, 100, .08);
+            font-family: 'Courier New', monospace;
+            color: #888;
+            transition: all .4s;
+        }
+
+        .nd-sub {
+            font-size: .36em;
+            color: #555;
+            margin-top: 1px
+        }
+
+        .nd.scanning {
+            border-color: #3498db;
+            background: rgba(52, 152, 219, .1);
+            color: #3498db
+        }
+
+        .nd.prev-nd {
+            border-color: #e67e22;
+            background: rgba(230, 126, 34, .12);
+            color: #e67e22;
+            box-shadow: 0 0 10px rgba(230, 126, 34, .15)
+        }
+
+        .nd.last-nd {
+            border-color: #e74c3c;
+            background: rgba(231, 76, 60, .15);
+            color: #e74c3c;
+            box-shadow: 0 0 14px rgba(231, 76, 60, .25);
+            transform: scale(1.1)
+        }
+
+        .nd.detached {
+            border-color: #f1c40f;
+            background: rgba(241, 196, 15, .12);
+            color: #f1c40f;
+            box-shadow: 0 0 14px rgba(241, 196, 15, .2);
+            transform: scale(1.1)
+        }
+
+        .nd.new-head {
+            border-color: #2ecc71;
+            background: rgba(46, 204, 113, .12);
+            color: #2ecc71;
+            box-shadow: 0 0 14px rgba(46, 204, 113, .2);
+            transform: scale(1.1)
+        }
+
+        .nd.done-nd {
+            border-color: #2ecc71;
+            background: rgba(46, 204, 113, .06);
+            color: #2ecc71
+        }
+
+        .arrow {
+            color: #555;
+            font-size: .72em;
+            margin: 0 2px;
+            display: inline-block;
+            vertical-align: middle
+        }
+
+        .arrow.done-a {
+            color: #2ecc71
+        }
+
+        .rotation-badge {
+            display: inline-block;
+            padding: 5px 14px;
+            border-radius: 8px;
+            background: rgba(231, 76, 60, .15);
+            border: 1px solid rgba(231, 76, 60, .3);
+            color: #e74c3c;
+            font-weight: 700;
+            font-size: .85em;
+            font-family: 'Courier New', monospace;
+            margin-left: 8px
+        }
+
+        .move-indicator {
+            padding: 10px;
+            background: rgba(20, 20, 50, .5);
+            border-radius: 8px;
+            text-align: center;
+            min-height: 60px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .move-label {
+            font-size: .72em;
+            color: #aaa;
+            font-weight: 600
+        }
+
+        .move-arrow {
+            font-size: 1.5em;
+            color: #f39c12
+        }
+
+        .status-ind {
+            text-align: center;
+            padding: 11px;
+            border-radius: 10px;
+            font-weight: 700;
+            font-size: .85em;
+            transition: all .3s
+        }
+
+        .si-neutral {
+            background: rgba(100, 100, 140, .12);
+            color: #888
+        }
+
+        .si-run {
+            background: rgba(231, 76, 60, .06);
+            color: #e74c3c;
+            border: 1px solid rgba(231, 76, 60, .12)
+        }
+
+        .si-done {
+            background: rgba(46, 204, 113, .12);
+            color: #2ecc71;
+            border: 1px solid rgba(46, 204, 113, .25)
+        }
+
+        .state-display {
+            background: rgba(20, 20, 50, .5);
+            border-radius: 8px;
+            padding: 10px;
+            font-family: 'Courier New', monospace;
+            font-size: .68em
+        }
+
+        .state-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 4px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, .05)
+        }
+
+        .state-row:last-child {
+            border-bottom: none
+        }
+
+        .state-label {
+            font-weight: 600;
+            color: #e74c3c
+        }
+
+        .state-val {
+            color: #ccc;
+            text-align: right;
+            max-width: 155px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap
+        }
+
+        .log-container {
+            background: rgba(20, 20, 50, .5);
+            border-radius: 8px;
+            padding: 10px;
+            max-height: 280px;
+            overflow-y: auto;
+            font-family: 'Courier New', monospace;
+            font-size: .54em
+        }
+
+        .log-entry {
+            padding: 3px 7px;
+            margin: 2px 0;
+            border-radius: 4px;
+            border-left: 3px solid #555;
+            background: rgba(40, 40, 70, .5);
+            line-height: 1.5
+        }
+
+        .log-entry.success {
+            border-left-color: #2ecc71;
+            background: rgba(46, 204, 113, .08);
+            color: #2ecc71
+        }
+
+        .log-entry.warning {
+            border-left-color: #f39c12;
+            background: rgba(243, 156, 18, .08);
+            color: #f39c12
+        }
+
+        .log-entry.info {
+            border-left-color: #3498db;
+            background: rgba(52, 152, 219, .08);
+            color: #8ec8f0
+        }
+
+        .log-entry.error {
+            border-left-color: #e74c3c;
+            background: rgba(231, 76, 60, .08);
+            color: #e74c3c
+        }
+
+        .log-entry.orange {
+            border-left-color: #e67e22;
+            background: rgba(230, 126, 34, .08);
+            color: #e67e22
+        }
+
+        .log-container::-webkit-scrollbar {
+            width: 5px
+        }
+
+        .log-container::-webkit-scrollbar-track {
+            background: transparent
+        }
+
+        .log-container::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, .15);
+            border-radius: 3px
+        }
+
+        @media(max-width:960px) {
+            .main-content {
+                grid-template-columns: 1fr
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <header>
+            <h1>🔄 Rotate List</h1>
+            <div class="subtitle">Brute-Force — Simulate k Single Right Rotations</div>
+            <div class="badge">Time: O(k × n) | Space: O(1) — each rotation walks entire list</div>
+        </header>
+        <div class="main-content">
+            <div class="left-panel">
+                <div class="card">
+                    <div class="card-title">⚙️ Controls</div>
+                    <div class="controls">
+                        <button class="btn-primary" id="playBtn">▶️ Play</button>
+                        <button class="btn-warning" id="pauseBtn" disabled>⏸️ Pause</button>
+                        <button class="btn-success" id="stepBtn">⏭️ Step</button>
+                        <button class="btn-secondary" id="resetBtn">🔄 Reset</button>
+                        <div class="speed-control">
+                            <label>Speed:</label>
+                            <input type="range" id="speedSlider" min="1" max="10" value="5">
+                            <span id="speedValue">5x</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="card">
+                    <div class="card-title">✏️ Custom Input</div>
+                    <div class="input-section">
+                        <label>List:</label>
+                        <input type="text" id="listInput" value="1,2,3,4,5" placeholder="values" style="flex:1">
+                        <label>k:</label>
+                        <input type="text" id="kInput" value="2" placeholder="k" style="width:50px">
+                        <button class="btn-info" id="applyBtn">Apply</button>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-title">🔗 Current List State
+                        <span class="rotation-badge">Rotation <span id="rotNum">0</span> / <span
+                                id="rotTotal">2</span></span>
+                    </div>
+                    <div class="ll-row" id="listDisplay"></div>
+                </div>
+
+                <div class="card">
+                    <div class="card-title">🎯 Current Rotation Operation</div>
+                    <div class="move-indicator" id="moveIndicator">
+                        <span style="color:#555">— press Play or Step to begin —</span>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-title">✅ Result After All Rotations</div>
+                    <div class="ll-row" id="resultDisplay"><span style="color:#555">—</span></div>
+                </div>
+
+                <div class="card">
+                    <div class="status-ind si-neutral" id="statusInd">Ready — press Play or Step</div>
+                </div>
+            </div>
+
+            <div class="right-panel">
+                <div class="card">
+                    <div class="card-title">📋 Current State</div>
+                    <div class="state-display">
+                        <div class="state-row"><span class="state-label">Phase:</span><span class="state-val"
+                                id="stPhase">init</span></div>
+                        <div class="state-row"><span class="state-label">k (total):</span><span class="state-val"
+                                id="stK">—</span></div>
+                        <div class="state-row"><span class="state-label">Rotation #:</span><span class="state-val"
+                                id="stRotNum">0</span></div>
+                        <div class="state-row"><span class="state-label">n (length):</span><span class="state-val"
+                                id="stN">—</span></div>
+                        <div class="state-row"><span class="state-label">prev:</span><span class="state-val"
+                                id="stPrev">—</span></div>
+                        <div class="state-row"><span class="state-label">last (tail):</span><span class="state-val"
+                                id="stLast">—</span></div>
+                        <div class="state-row"><span class="state-label">head:</span><span class="state-val"
+                                id="stHead">—</span></div>
+                    </div>
+                </div>
+                <div class="card" style="flex:1">
+                    <div class="card-title">📝 Execution Log</div>
+                    <div class="log-container" id="logContainer">
+                        <div class="log-entry info">Pop last node, prepend to head — repeat k times.</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let initVals = [1, 2, 3, 4, 5];
+        let K = 2;
+
+        // The live list as an array of values (mutated during rotations)
+        let list = [];
+        let nodeStates = {};  // idx → class
+        let rotNum = 0;
+
+        let steps = [], stepIdx = 0, stepCount = 0;
+        let isRunning = false, speed = 5, isDone = false, phase = 'init';
+        let stPrev = '—', stLast = '—', stHead = '—';
+
+        const $ = id => document.getElementById(id);
+        const logC = $('logContainer');
+        function addLog(m, t = 'info') { logC.innerHTML += `<div class="log-entry ${t}">[${stepCount}] ${m}</div>`; logC.scrollTop = logC.scrollHeight }
+        function clearLog() { logC.innerHTML = '' }
+
+        /* ── Build steps ─────────────────────────── */
+        function buildSteps() {
+            steps = [];
+            const n = initVals.length;
+            if (n === 0 || K === 0) { steps.push({ type: 'done-trivial' }); return; }
+
+            steps.push({ type: 'start', n, k: K });
+
+            for (let r = 0; r < K; r++) {
+                steps.push({ type: 'rot-start', r: r + 1 });
+
+                // Scan to find second-to-last
+                for (let i = 0; i < n - 2; i++) {
+                    steps.push({ type: 'scan', r: r + 1, idx: i });
+                }
+
+                steps.push({ type: 'found-prev', r: r + 1, prevIdx: n - 2 });
+                steps.push({ type: 'detach', r: r + 1 });
+                steps.push({ type: 'prepend', r: r + 1 });
+                steps.push({ type: 'rot-done', r: r + 1 });
+            }
+
+            steps.push({ type: 'done' });
+        }
+
+        /* ── Render ───────────────────────────────── */
+        function renderList() {
+            let h = '';
+            for (let i = 0; i < list.length; i++) {
+                let cls = 'nd';
+                if (nodeStates[i]) cls += ' ' + nodeStates[i];
+                if (isDone) cls = 'nd done-nd';
+                const label = i === 0 ? 'head' : (i === list.length - 1 ? 'tail' : '');
+                h += `<div class="${cls}">${list[i]}<span class="nd-sub">${label}</span></div>`;
+                if (i < list.length - 1) h += `<span class="arrow${isDone ? ' done-a' : ''}">→</span>`;
+            }
+            if (list.length > 0) h += `<span class="arrow" style="opacity:.4">→∅</span>`;
+            $('listDisplay').innerHTML = h;
+        }
+
+        function renderResult() {
+            if (!isDone) { $('resultDisplay').innerHTML = '<span style="color:#555">—</span>'; return; }
+            let h = '';
+            for (let i = 0; i < list.length; i++) {
+                h += `<div class="nd done-nd">${list[i]}<span class="nd-sub">${i === 0 ? 'head' : ''}</span></div>`;
+                if (i < list.length - 1) h += `<span class="arrow done-a">→</span>`;
+            }
+            h += `<span class="arrow" style="opacity:.4">→∅</span>`;
+            $('resultDisplay').innerHTML = h;
+        }
+
+        function renderState() {
+            $('stPhase').textContent = phase;
+            $('stK').textContent = K;
+            $('stRotNum').textContent = rotNum + ' / ' + K;
+            $('stN').textContent = list.length;
+            $('stPrev').textContent = stPrev;
+            $('stLast').textContent = stLast;
+            $('stHead').textContent = list.length > 0 ? list[0] : '—';
+            $('rotNum').textContent = rotNum;
+            $('rotTotal').textContent = K;
+        }
+
+        function render() { renderList(); renderResult(); renderState(); }
+
+        /* ── Execute step ─────────────────────────── */
+        function doStep() {
+            if (isDone || stepIdx >= steps.length) { stopExec(); return; }
+            stepCount++;
+            const s = steps[stepIdx++];
+
+            // Clear transient highlights
+            nodeStates = {};
+
+            switch (s.type) {
+                case 'start':
+                    phase = 'rotating';
+                    list = [...initVals];
+                    addLog(`━━ Simulate ${s.k} right rotations on ${s.n} nodes ━━`, 'orange');
+                    addLog(`List: [${list.join(',')}], k = ${s.k}`, 'info');
+                    $('statusInd').className = 'status-ind si-run';
+                    $('statusInd').textContent = `Simulating ${K} rotations...`;
+                    $('moveIndicator').innerHTML = `<span class="move-label">Starting ${K} rotation(s)...</span>`;
+                    break;
+
+                case 'rot-start':
+                    rotNum = s.r;
+                    addLog(`--- Rotation ${s.r} of ${K} ---`, 'error');
+                    addLog(`  Scanning for 2nd-to-last node...`, 'info');
+                    $('moveIndicator').innerHTML = `<span class="move-label">Rotation ${s.r}: scanning for 2nd-to-last →</span>`;
+                    stPrev = '—'; stLast = '—';
+                    break;
+
+                case 'scan':
+                    nodeStates[s.idx] = 'scanning';
+                    stPrev = `node(${list[s.idx]}) [${s.idx}]`;
+                    addLog(`  prev = node(${list[s.idx]}) — prev.next.next? ${s.idx + 2 < list.length ? 'yes, continue' : 'NO'}`, 'info');
+                    break;
+
+                case 'found-prev': {
+                    const pi = s.prevIdx;
+                    nodeStates[pi] = 'prev-nd';
+                    nodeStates[pi + 1] = 'last-nd';
+                    stPrev = `node(${list[pi]})`;
+                    stLast = `node(${list[pi + 1]})`;
+                    addLog(`  ★ prev = node(${list[pi]}), last = node(${list[pi + 1]})`, 'warning');
+                    $('moveIndicator').innerHTML =
+                        `<span class="move-label">Found:</span>
+                     <div class="nd prev-nd" style="width:40px;height:40px;font-size:.9em;display:inline-flex">${list[pi]}<span class="nd-sub">prev</span></div>
+                     <span class="arrow">→</span>
+                     <div class="nd last-nd" style="width:40px;height:40px;font-size:.9em;display:inline-flex">${list[pi + 1]}<span class="nd-sub">last</span></div>`;
+                    break;
+                }
+
+                case 'detach': {
+                    const lastVal = list[list.length - 1];
+                    const prevVal = list[list.length - 2];
+                    nodeStates[list.length - 1] = 'detached';
+                    nodeStates[list.length - 2] = 'prev-nd';
+                    addLog(`  ✂️ Detach: prev(${prevVal}).next = null, last = node(${lastVal})`, 'warning');
+                    $('moveIndicator').innerHTML =
+                        `<span class="move-label">Detach tail:</span>
+                     <div class="nd prev-nd" style="width:40px;height:40px;font-size:.9em;display:inline-flex">${prevVal}<span class="nd-sub">prev</span></div>
+                     <span class="arrow" style="color:#e74c3c">✂️→</span>
+                     <div class="nd detached" style="width:40px;height:40px;font-size:.9em;display:inline-flex">${lastVal}<span class="nd-sub">detached</span></div>`;
+                    break;
+                }
+
+                case 'prepend': {
+                    const lastVal = list[list.length - 1];
+                    const oldHead = list[0];
+                    // Actually rotate
+                    const tail = list.pop();
+                    list.unshift(tail);
+                    nodeStates[0] = 'new-head';
+                    stHead = `node(${tail})`;
+                    addLog(`  ⬅️ Prepend: node(${lastVal}).next = head(${oldHead}) → new head = ${lastVal}`, 'success');
+                    addLog(`  List: [${list.join(',')}]`, 'success');
+                    $('moveIndicator').innerHTML =
+                        `<span class="move-label">Prepend to front:</span>
+                     <div class="nd new-head" style="width:40px;height:40px;font-size:.9em;display:inline-flex">${tail}<span class="nd-sub">new head</span></div>
+                     <span class="move-arrow">⟹</span>
+                     <span class="move-label">[${list.join(' → ')}]</span>`;
+                    break;
+                }
+
+                case 'rot-done':
+                    addLog(`  ✅ Rotation ${s.r} complete!`, 'success');
+                    break;
+
+                case 'done':
+                    isDone = true; phase = 'done';
+                    addLog(`🎉 All ${K} rotations done! Result: [${list.join(',')}]`, 'success');
+                    $('statusInd').className = 'status-ind si-done';
+                    $('statusInd').textContent = `✅ Done! [${list.join(' → ')}]`;
+                    $('moveIndicator').innerHTML = `<span class="move-label" style="color:#2ecc71">🎉 Final: [${list.join(' → ')}]</span>`;
+                    stopExec();
+                    break;
+
+                case 'done-trivial':
+                    list = [...initVals];
+                    isDone = true; phase = 'done';
+                    addLog(`🎉 k=0 or empty list — no rotation needed.`, 'success');
+                    $('statusInd').className = 'status-ind si-done';
+                    $('statusInd').textContent = '✅ Done! No rotation needed.';
+                    $('moveIndicator').innerHTML = '<span class="move-label" style="color:#2ecc71">No rotation needed.</span>';
+                    stopExec();
+                    break;
+            }
+
+            render();
+        }
+
+        /* ── Playback ──────────────────────────────── */
+        function play() { if (isRunning || isDone) return; isRunning = true; $('playBtn').disabled = true; $('pauseBtn').disabled = false; $('stepBtn').disabled = true; runLoop() }
+        function pause() { isRunning = false; $('playBtn').disabled = false; $('pauseBtn').disabled = true; $('stepBtn').disabled = false }
+        function stopExec() { isRunning = false; $('playBtn').disabled = true; $('pauseBtn').disabled = true; $('stepBtn').disabled = true }
+        function runLoop() { if (!isRunning) return; doStep(); if (isRunning && !isDone) setTimeout(runLoop, 400 / speed) }
+
+        /* ── Init ──────────────────────────────────── */
+        function init() {
+            list = [...initVals]; nodeStates = {}; rotNum = 0;
+            phase = 'init'; stPrev = '—'; stLast = '—'; stHead = '—';
+            stepIdx = 0; stepCount = 0; isDone = false; isRunning = false;
+            buildSteps();
+            $('statusInd').className = 'status-ind si-neutral';
+            $('statusInd').textContent = 'Ready — press Play or Step';
+            $('playBtn').disabled = false; $('pauseBtn').disabled = true; $('stepBtn').disabled = false;
+            clearLog(); addLog('Pop last node, prepend to head — repeat k times.', 'info');
+            $('moveIndicator').innerHTML = '<span style="color:#555">— press Play or Step to begin —</span>';
+            $('resultDisplay').innerHTML = '<span style="color:#555">—</span>';
+            render();
+        }
+
+        /* ── Events ────────────────────────────────── */
+        $('playBtn').addEventListener('click', play);
+        $('pauseBtn').addEventListener('click', pause);
+        $('stepBtn').addEventListener('click', () => { if (!isDone) doStep() });
+        $('resetBtn').addEventListener('click', () => { isRunning = false; init() });
+        $('speedSlider').addEventListener('input', e => { speed = parseInt(e.target.value); $('speedValue').textContent = speed + 'x' });
+        $('applyBtn').addEventListener('click', () => {
+            const lv = $('listInput').value.trim();
+            const kv = $('kInput').value.trim();
+            const vs = lv ? lv.split(',').map(s => parseInt(s.trim())).filter(v => !isNaN(v)) : [];
+            const kn = parseInt(kv);
+            if (isNaN(kn) || kn < 0) { alert('k must be a non-negative number.'); return; }
+            // Cap k for brute-force to avoid browser freeze
+            const n = vs.length;
+            let effK = kn;
+            if (n > 0) effK = kn % n;
+            if (kn > 20 && n > 0) {
+                if (!confirm(`k=${kn} is large. Reducing to k%${n} = ${effK} for brute-force simulation. Continue?`)) return;
+                effK = kn % n;
+            }
+            initVals = [...vs]; K = n > 0 ? effK : 0;
+            isRunning = false; init();
+        });
+
+        init();
+    </script>
+</body>
+
+</html>

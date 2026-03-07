@@ -69,7 +69,7 @@
                 "\"The nested loop checks n*(n-1)/2 pairs. We can do better by trading space for time.\"",
                 "\"This establishes correctness. Now I'll look for a way to eliminate the inner loop.\""
               ],
-              "visualLink": "/legacy/Arrays/two-pointers/Two-Sum/1-bruteforce-visualization.html",
+              "visualLink": "/DSA-Problems/Arrays/Two-Pointers/Two-Sum/1-bruteforce-visualization.html",
               "notesLink": ""
             },
             {
@@ -106,7 +106,7 @@
                 "\"The total is O(n log n) for sort + O(n) for scan. Better than brute force but not optimal.\"",
                 "\"I need to preserve original indices since sorting rearranges the array — I'll use index pairs.\""
               ],
-              "visualLink": "/legacy/Arrays/two-pointers/Two-Sum/1-hashmap-visualization.html",
+              "visualLink": "/DSA-Problems/Arrays/Two-Pointers/Two-Sum/1-hashmap-visualization.html",
               "notesLink": ""
             },
             {
@@ -145,7 +145,7 @@
                 "\"Building the map as I go means I only need one pass — each element is processed exactly once.\"",
                 "\"This is the standard optimal solution interviewers expect for Two Sum.\""
               ],
-              "visualLink": "/legacy/Arrays/two-pointers/Two-Sum/1-twopointers-visualization.html",
+              "visualLink": "/DSA-Problems/Arrays/Two-Pointers/Two-Sum/1-twopointers-visualization.html",
               "notesLink": ""
             }
           ]
@@ -207,7 +207,7 @@
                 "\"This guarantees correctness but is too slow for n up to 3000.\"",
                 "\"We need to eliminate one loop to improve performance.\""
               ],
-              "visualLink": "/legacy/Arrays/two-pointers/Three-Sum/1-bruteforce-visualization.html",
+              "visualLink": "/DSA-Problems/Arrays/Two-Pointers/Three-Sum/15-bruteforce-visualization.html",
               "notesLink": ""
             },
             {
@@ -243,7 +243,7 @@
                 "\"Time complexity drops to O(n²), which is acceptable.\"",
                 "\"Duplicate handling still needs attention.\""
               ],
-              "visualLink": "/legacy/Arrays/two-pointers/Three-Sum/2-hashset-visualization.html",
+              "visualLink": "/DSA-Problems/Arrays/Two-Pointers/Three-Sum/15-hashset-visualization.html",
               "notesLink": ""
             },
             {
@@ -277,7 +277,7 @@
                 "\"For each fixed number, I reduce the problem to Two Sum II.\"",
                 "\"This gives O(n²) time with constant extra space.\""
               ],
-              "visualLink": "/legacy/Arrays/two-pointers/Three-Sum/3-twopointers-visualization.html",
+              "visualLink": "/DSA-Problems/Arrays/Two-Pointers/Three-Sum/15-twopointers-visualization.html",
               "notesLink": ""
             }
           ]
@@ -334,7 +334,7 @@
                 "\"We need to find a way to reduce the number of combinations we check.\""
               ],
               "cons": ["Cubic time complexity", "Not scalable"],
-              "visualLink": "/legacy/Arrays/two-pointers/Three-Sum-Closest/1-bruteforce-visualization.html",
+              "visualLink": "/DSA-Problems/Arrays/Two-Pointers/Three-Sum-Closest/16-bruteforce-visualization.html",
               "notesLink": ""
             },
             {
@@ -362,7 +362,7 @@
                 "\"This reduces time complexity to O(n² log n), which is an improvement but still not optimal.\""
               ],
               "cons": ["More complex than needed", "Still not optimal"],
-              "visualLink": "/legacy/Arrays/two-pointers/Three-Sum-Closest/2-binarysearch-visualization.html",
+              "visualLink": "/DSA-Problems/Arrays/Two-Pointers/Three-Sum-Closest/16-binarysearch-visualization.html",
               "notesLink": ""
             },
             {
@@ -393,7 +393,7 @@
                 "\"Sorting allows us to efficiently find the closest sum with two pointers.\"",
                 "\"Early return if we find an exact match is a nice optimization.\""
               ],
-              "visualLink": "/legacy/Arrays/two-pointers/Three-Sum-Closest/3-twopointers-visualization.html",
+              "visualLink": "/DSA-Problems/Arrays/Two-Pointers/Three-Sum-Closest/16-twopointers-visualization.html",
               "notesLink": ""
             }
           ]
@@ -451,7 +451,7 @@
                 "Clear duplicate filtering logic"
               ],
               "cons": ["Uses extra space", "Violates in-place constraint"],
-              "visualLink": "/legacy/Arrays/two-pointers/Remove-Duplicates/1-extra-array-visualization.html",
+              "visualLink": "/DSA-Problems/Arrays/Two-Pointers/Remove-Duplicates/26-bruteforce-visualization.html",
               "notesLink": ""
             },
             {
@@ -479,7 +479,7 @@
                 "Very slow for many duplicates",
                 "Repeated shifting is inefficient"
               ],
-              "visualLink": "/legacy/Arrays/two-pointers/Remove-Duplicates/2-shift-visualization.html",
+              "visualLink": "/DSA-Problems/Arrays/Two-Pointers/Remove-Duplicates/26-shift-visualization.html",
               "notesLink": ""
             },
             {
@@ -506,7 +506,7 @@
                 "Interview-standard solution"
               ],
               "cons": ["Requires understanding of pointer invariant"],
-              "visualLink": "/legacy/Arrays/two-pointers/Remove-Duplicates/3-fast-slow-visualization.html",
+              "visualLink": "/DSA-Problems/Arrays/Two-Pointers/Remove-Duplicates/26-twopointers-visualization.html",
               "notesLink": ""
             }
           ]
@@ -557,7 +557,7 @@
                 "Does not leverage sorted input",
                 "Sorting adds unnecessary log n factor"
               ],
-              "visualLink": "/legacy/Arrays/two-pointers/Squares-of-Sorted-Array/1-square-sort-visualization.html",
+              "visualLink": "/DSA-Problems/Arrays/Two-Pointers/Squares-Sorted-Array/977-bruteforce-visualization.html",
               "notesLink": ""
             },
 
@@ -582,7 +582,7 @@
                 "More complex logic",
                 "Requires pivot detection and merging"
               ],
-              "visualLink": "/legacy/Arrays/two-pointers/Squares-of-Sorted-Array/2-merge-visualization.html",
+              "visualLink": "/DSA-Problems/Arrays/Two-Pointers/Squares-Sorted-Array/977-pivot-merge-visualization.html",
               "notesLink": ""
             },
             {
@@ -608,7 +608,7 @@
                 "Elegant and interview-preferred solution"
               ],
               "cons": ["Requires understanding of absolute values logic"],
-              "visualLink": "/legacy/Arrays/two-pointers/Squares-of-Sorted-Array/3-two-pointer-visualization.html",
+              "visualLink": "/DSA-Problems/Arrays/Two-Pointers/Squares-Sorted-Array/977-twopointers-visualization.html",
               "notesLink": ""
             }
           ]
@@ -658,7 +658,7 @@
                 "Requires two passes",
                 "Does not demonstrate in-place partition logic"
               ],
-              "visualLink": "/legacy/Arrays/two-pointers/Sort-Colors/1-counting-visualization.html",
+              "visualLink": "/DSA-Problems/Arrays/Two-Pointers/Sort-Colors/75-counting-sort-visualization.html",
               "notesLink": ""
             },
 
@@ -689,7 +689,7 @@
                 "Requires careful pointer management",
                 "Easy to make off-by-one mistakes"
               ],
-              "visualLink": "/legacy/Arrays/two-pointers/Sort-Colors/2-dnf-visualization.html",
+              "visualLink": "/DSA-Problems/Arrays/Two-Pointers/Sort-Colors/75-dutch-flag-visualization.html",
               "notesLink": ""
             }
           ]
@@ -740,7 +740,7 @@
                 "Does not leverage sorted property",
                 "Sorting step makes it suboptimal"
               ],
-              "visualLink": "/legacy/Arrays/two-pointers/Merge-Sorted-Array/1-merge-sort-visualization.html",
+              "visualLink": "/DSA-Problems/Arrays/Sorting/Merge-Sorted-Array/88-merge-sort-visualization.html",
               "notesLink": ""
             },
             {
@@ -761,7 +761,7 @@
               "spaceType": "warning",
               "pros": ["Linear time complexity", "Clear merge logic"],
               "cons": ["Uses extra memory", "Not fully in-place"],
-              "visualLink": "/legacy/Arrays/two-pointers/Merge-Sorted-Array/2-extra-space-visualization.html",
+              "visualLink": "/DSA-Problems/Arrays/Merge-Sorted-Array/88-optimal-merge-visualization.html",
               "notesLink": ""
             },
             {
@@ -788,7 +788,7 @@
                 "Interview-standard optimal approach"
               ],
               "cons": ["Requires understanding of reverse traversal"],
-              "visualLink": "/legacy/Arrays/two-pointers/Merge-Sorted-Array/3-backward-merge-visualization.html",
+              "visualLink": "/DSA-Problems/Arrays/Merge-Sorted-Array/88-optimal-merge-visualization.html",
               "notesLink": ""
             }
           ]
@@ -845,7 +845,7 @@
                 "Re-scans increasing/decreasing segments",
                 "Not optimal for repeated patterns"
               ],
-              "visualLink": "/legacy/Arrays/two-pointers/Longest-Mountain/1-peak-expansion-visualization.html",
+              "visualLink": "/DSA-Problems/Arrays/Sliding-Window/Longest-Mountain/845-brute-force-visualization.html",
               "notesLink": ""
             },
 
@@ -867,7 +867,7 @@
               "spaceType": "warning",
               "pros": ["Linear time", "Easy to reason about peaks"],
               "cons": ["Uses extra arrays", "Consumes O(n) space"],
-              "visualLink": "/legacy/Arrays/two-pointers/Longest-Mountain/2-precompute-visualization.html",
+              "visualLink": "/DSA-Problems/Arrays/Sliding-Window/Longest-Mountain/845-two-pass-visualization.html",
               "notesLink": ""
             },
             {
@@ -895,7 +895,7 @@
                 "Interview-preferred solution"
               ],
               "cons": ["Requires careful handling of transitions"],
-              "visualLink": "/legacy/Arrays/two-pointers/Longest-Mountain/3-state-machine-visualization.html",
+              "visualLink": "/DSA-Problems/Arrays/Two-Pointers/Longest-Mountain/845-one-pass-visualization.html",
               "notesLink": ""
             }
           ]
@@ -944,7 +944,7 @@
               "spaceType": "warning",
               "pros": ["Very simple logic", "Easy to reason about correctness"],
               "cons": ["Uses sorting unnecessarily", "Consumes extra space"],
-              "visualLink": "/legacy/Arrays/Shortest-Unsorted-Subarray/1-sort-compare-visualization.html",
+              "visualLink": "/DSA-Problems/Arrays/Two-Pointers/Shortest-Unsorted-Subarray/brute-force-visualizer.html",
               "notesLink": ""
             },
 
@@ -969,7 +969,7 @@
                 "Intuitive violation detection"
               ],
               "cons": ["Uses extra stack space", "Slightly more complex logic"],
-              "visualLink": "/legacy/Arrays/Shortest-Unsorted-Subarray/2-stack-visualization.html",
+              "visualLink": "/DSA-Problems/Arrays/Two-Pointers/Shortest-Unsorted-Subarray/stack-visualizer.html",
               "notesLink": ""
             },
 
@@ -997,7 +997,7 @@
                 "Interview-preferred optimal solution"
               ],
               "cons": ["Requires deeper understanding of displacement logic"],
-              "visualLink": "/legacy/Arrays/Shortest-Unsorted-Subarray/3-minmax-scan-visualization.html",
+              "visualLink": "/DSA-Problems/Arrays/Two-Pointers/Shortest-Unsorted-Subarray/optimal-visualizer.html",
               "notesLink": ""
             }
           ]
@@ -1055,7 +1055,7 @@
                 "Easy to understand overlap condition"
               ],
               "cons": ["Extremely inefficient", "Repeated scanning"],
-              "visualLink": "/legacy/Arrays/Intervals/Merge-Intervals/1-bruteforce-visualization.html",
+              "visualLink": "/DSA-Problems/Arrays/Merge-Intervals/Merge-Intervals/56-bruteforce-visualization.html",
               "notesLink": ""
             },
 
@@ -1080,7 +1080,7 @@
                 "Still quadratic comparisons",
                 "Overkill for this problem"
               ],
-              "visualLink": "/legacy/Arrays/Intervals/Merge-Intervals/2-union-find-visualization.html",
+              "visualLink": "/DSA-Problems/Arrays/Merge-Intervals/Merge-Intervals/56-unionfind-visualization.html",
               "notesLink": ""
             },
             {
@@ -1106,7 +1106,7 @@
                 "Interview-standard solution"
               ],
               "cons": ["Requires sorting"],
-              "visualLink": "/legacy/Arrays/Intervals/Merge-Intervals/3-sort-merge-visualization.html",
+              "visualLink": "/DSA-Problems/Arrays/Merge-Intervals/Merge-Intervals/56-sortmerge-visualization.html",
               "notesLink": ""
             }
           ]
@@ -1155,7 +1155,7 @@
               "spaceType": "warning",
               "pros": ["Very straightforward", "Reuses existing merge logic"],
               "cons": ["Unnecessary sorting", "Does not leverage sorted input"],
-              "visualLink": "/legacy/Arrays/Intervals/Insert-Interval/1-add-sort-visualization.html",
+              "visualLink": "/DSA-Problems/Arrays/Merge-Intervals/Insert-Interval/57-bruteforce-visualization.html",
               "notesLink": ""
             },
             {
@@ -1178,7 +1178,7 @@
                 "Still performs full merge pass",
                 "Splice operation costs O(n)"
               ],
-              "visualLink": "/legacy/Arrays/Intervals/Insert-Interval/2-binary-insert-visualization.html",
+              "visualLink": "/DSA-Problems/Arrays/Merge-Intervals/Insert-Interval/57-binaryinsert-visualization.html",
               "notesLink": ""
             },
             {
@@ -1203,7 +1203,7 @@
                 "Interview-preferred optimal solution"
               ],
               "cons": ["Requires careful boundary reasoning"],
-              "visualLink": "/legacy/Arrays/Intervals/Insert-Interval/3-three-phase-visualization.html",
+              "visualLink": "/DSA-Problems/Arrays/Merge-Intervals/Insert-Interval/57-threephase-visualization.html",
               "notesLink": ""
             }
           ]
@@ -1261,7 +1261,7 @@
                 "Inefficient for large lists",
                 "Does not leverage sorted property"
               ],
-              "visualLink": "/legacy/Arrays/Intervals/Interval-Intersections/1-bruteforce-visualization.html",
+              "visualLink": "/DSA-Problems/Arrays/Merge-Intervals/Interval-List-Intersections/986-bruteforce-visualization.html",
               "notesLink": ""
             },
             {
@@ -1288,7 +1288,7 @@
                 "Interview-preferred solution"
               ],
               "cons": ["Requires understanding of pointer advancement logic"],
-              "visualLink": "/legacy/Arrays/Intervals/Interval-Intersections/2-two-pointer-visualization.html",
+              "visualLink": "/DSA-Problems/Arrays/Merge-Intervals/Interval-List-Intersections/986-optimal-visualization.html",
               "notesLink": ""
             }
           ]
@@ -1342,7 +1342,7 @@
                 "Completely impractical for large n",
                 "Exponential time complexity"
               ],
-              "visualLink": "/legacy/Arrays/Intervals/Non-Overlapping/1-bruteforce-visualization.html",
+              "visualLink": "/DSA-Problems/Arrays/Merge-Intervals/Non-overlapping-Intervals/435-bruteforce-visualization.html",
               "notesLink": ""
             },
             {
@@ -1367,7 +1367,7 @@
                 "Clear recurrence relation"
               ],
               "cons": ["Still quadratic time", "Not optimal for large n"],
-              "visualLink": "/legacy/Arrays/Intervals/Non-Overlapping/2-dp-visualization.html",
+              "visualLink": "/DSA-Problems/Arrays/Merge-Intervals/Non-overlapping-Intervals/435-dp-binarysearch-visualization.html",
               "notesLink": ""
             },
             {
@@ -1394,7 +1394,7 @@
                 "Interview-standard solution"
               ],
               "cons": ["Requires understanding why end-time sorting works"],
-              "visualLink": "/legacy/Arrays/Intervals/Non-Overlapping/3-greedy-visualization.html",
+              "visualLink": "/DSA-Problems/Arrays/Merge-Intervals/Non-overlapping-Intervals/435-greedy-visualization.html",
               "notesLink": ""
             }
           ]
@@ -1449,7 +1449,7 @@
                 "Exponential time",
                 "Completely impractical for large inputs"
               ],
-              "visualLink": "/legacy/Arrays/Intervals/Min-Arrows/1-bruteforce-visualization.html",
+              "visualLink": "/DSA-Problems/Arrays/Merge-Intervals/Minimum-Arrows-to-Burst-Balloons/452-bruteforce-visualization.html",
               "notesLink": ""
             },
 
@@ -1474,7 +1474,7 @@
                 "Greedy grouping approach"
               ],
               "cons": ["Slightly less intuitive than end-time greedy"],
-              "visualLink": "/legacy/Arrays/Intervals/Min-Arrows/2-sort-start-visualization.html",
+              "visualLink": "/DSA-Problems/Arrays/Merge-Intervals/Minimum-Arrows-to-Burst-Balloons/452-sort-by-start-visualization.html",
               "notesLink": ""
             },
 
@@ -1501,7 +1501,7 @@
                 "Interview-standard optimal approach"
               ],
               "cons": ["Requires understanding why end-time works"],
-              "visualLink": "/legacy/Arrays/Intervals/Min-Arrows/3-sort-end-visualization.html",
+              "visualLink": "/DSA-Problems/Arrays/Merge-Intervals/Minimum-Arrows-to-Burst-Balloons/452-optimal-visualization.html",
               "notesLink": ""
             }
           ]
@@ -1559,7 +1559,7 @@
                 "Does not rely on sorting insight"
               ],
               "cons": ["Quadratic time", "Inefficient for large n"],
-              "visualLink": "/legacy/Arrays/Minimum-Absolute-Difference/1-bruteforce-visualization.html",
+              "visualLink": "/DSA-Problems/Arrays//Sorting/Minimum-Absolute-Difference/bruteForce.html",
               "notesLink": ""
             },
             {
@@ -1579,7 +1579,7 @@
               "spaceType": "good",
               "pros": ["Uses sorting insight", "Much faster than brute force"],
               "cons": ["Requires two passes after sorting"],
-              "visualLink": "/legacy/Arrays/Minimum-Absolute-Difference/2-two-pass-visualization.html",
+              "visualLink": "/DSA-Problems/Arrays//Sorting/Minimum-Absolute-Difference/improved.html",
               "notesLink": ""
             },
             {
@@ -1604,7 +1604,7 @@
                 "Interview-preferred solution"
               ],
               "cons": ["Sorting is still required"],
-              "visualLink": "/legacy/Arrays/Minimum-Absolute-Difference/3-single-pass-visualization.html",
+              "visualLink": "/DSA-Problems/Arrays//Sorting/Minimum-Absolute-Difference/optimal.html",
               "notesLink": ""
             }
           ]
@@ -1655,7 +1655,7 @@
                 "Sorting makes it suboptimal",
                 "Does not leverage sorted property"
               ],
-              "visualLink": "/legacy/Arrays/Sorting/Merge-Sorted-Array/1-merge-sort-visualization.html",
+              "visualLink": "/DSA-Problems/Arrays//Sorting/Merge-Sorted-Array/merge-sort-visualization.html",
               "notesLink": ""
             },
 
@@ -1677,7 +1677,7 @@
               "spaceType": "warning",
               "pros": ["Linear time", "Clear merge logic"],
               "cons": ["Uses extra space", "Not fully in-place"],
-              "visualLink": "/legacy/Arrays/Sorting/Merge-Sorted-Array/2-extra-space-visualization.html",
+              "visualLink": "/DSA-Problems/Arrays//Sorting/Merge-Sorted-Array/88-optimal-merge-visualization.html",
               "notesLink": ""
             },
             {
@@ -1702,7 +1702,7 @@
                 "Interview-standard optimal approach"
               ],
               "cons": ["Requires careful reverse traversal thinking"],
-              "visualLink": "/legacy/Arrays/Sorting/Merge-Sorted-Array/3-backward-merge-visualization.html",
+              "visualLink": "/DSA-Problems/Arrays/Sorting/Merge-Sorted-Array/88-optimal-merge-visualization.html",
               "notesLink": ""
             }
           ]
@@ -1752,7 +1752,7 @@
                 "Completely impractical for n > 10",
                 "Exponential time complexity"
               ],
-              "visualLink": "/legacy/Arrays/Sorting/Largest-Number/1-bruteforce-visualization.html",
+              "visualLink": "/DSA-Problems/Arrays/Sorting/Largest-Number/brute-force-visualization.html",
               "notesLink": ""
             },
 
@@ -1776,7 +1776,7 @@
                 "Uses greedy comparison insight"
               ],
               "cons": ["Does not handle all-zero case properly yet"],
-              "visualLink": "/legacy/Arrays/Sorting/Largest-Number/2-greedy-comparator-visualization.html",
+              "visualLink": "/DSA-Problems/Arrays/Sorting/Largest-Number/greedy-sort-visualization.html",
               "notesLink": ""
             },
             {
@@ -1801,7 +1801,7 @@
                 "Interview-standard optimal approach"
               ],
               "cons": ["Requires understanding why comparator works"],
-              "visualLink": "/legacy/Arrays/Sorting/Largest-Number/3-optimal-visualization.html",
+              "visualLink": "/DSA-Problems/Arrays/Sorting/Largest-Number/optimal-visualization.html",
               "notesLink": ""
             }
           ]
@@ -1857,7 +1857,7 @@
               "spaceType": "warning",
               "pros": ["Easy to understand", "Works reliably"],
               "cons": ["Uses extra space", "Sorting dominates runtime"],
-              "visualLink": "/legacy/Arrays/Sorting/Wiggle-Sort-II/1-sort-interleave-visualization.html",
+              "visualLink": "/DSA-Problems/Arrays/Sorting/Wiggle-Sort-II/324-sort-interleave-visualization.html",
               "notesLink": ""
             },
 
@@ -1886,7 +1886,106 @@
                 "Virtual indexing is non-trivial",
                 "Harder to reason about initially"
               ],
-              "visualLink": "/legacy/Arrays/Sorting/Wiggle-Sort-II/2-virtual-indexing-visualization.html",
+              "visualLink": "/DSA-Problems/Arrays/Sorting/Wiggle-Sort-II/324-virtual-index-visualization.html",
+              "notesLink": ""
+            }
+          ]
+        },
+        "array-partition": {
+          "breadcrumb": ["Arrays", "Sorting", "Array Partition"],
+          "title": "Array Partition",
+          "difficulty": "Easy",
+          "problemSlug": "array-partition",
+          "categoryPath": "arrays/sorting",
+          "tags": ["Array", "Greedy", "Sorting"],
+          "description": "Given an integer array nums of 2n integers, group these integers into n pairs such that the sum of min(ai, bi) for all pairs is maximized. Return the maximum possible sum.",
+          "examples": [
+            {
+              "input": "nums = [1,4,3,2]",
+              "output": "4",
+              "explanation": "Optimal pairing is (1,2) and (3,4). Sum = min(1,2) + min(3,4) = 1 + 3 = 4."
+            },
+            {
+              "input": "nums = [6,2,6,5,1,2]",
+              "output": "9",
+              "explanation": "Optimal pairing is (1,2), (2,5), (6,6). Sum = 1 + 2 + 6 = 9."
+            }
+          ],
+          "constraints": [
+            "1 ≤ n ≤ 10⁴",
+            "nums.length == 2 * n",
+            "-10⁴ ≤ nums[i] ≤ 10⁴"
+          ],
+          "approaches": [
+            {
+              "title": "Brute Force — Try All Pairings",
+              "badge": "Brute Force",
+              "intuition": "Generate all possible ways to pair elements, compute sum of minimums for each pairing, and return the maximum. This quickly becomes infeasible as n grows.",
+              "steps": [
+                "Generate all possible pair combinations.",
+                "For each combination, compute sum of minimums.",
+                "Track maximum sum."
+              ],
+              "code": "function arrayPairSum(nums) {\n    // Brute force via permutations (conceptual only)\n    let maxSum = -Infinity;\n\n    function backtrack(arr, sum) {\n        if (arr.length === 0) {\n            maxSum = Math.max(maxSum, sum);\n            return;\n        }\n\n        for (let i = 1; i < arr.length; i++) {\n            const newArr = arr.slice(1, i).concat(arr.slice(i + 1));\n            backtrack(newArr, sum + Math.min(arr[0], arr[i]));\n        }\n    }\n\n    backtrack(nums, 0);\n    return maxSum;\n}",
+              "language": "javascript",
+              "timeComplexity": "O((2n)!)",
+              "timeType": "bad",
+              "spaceComplexity": "O(n)",
+              "spaceType": "warning",
+              "pros": ["Explores all possibilities", "Conceptually correct"],
+              "cons": [
+                "Completely impractical for large n",
+                "Explodes combinatorially"
+              ],
+              "visualLink": "/DSA-Problems/Arrays/Sorting/Array-Partition/bruteForce.html",
+              "notesLink": ""
+            },
+            {
+              "title": "Improved — Sort and Take Every Second Element",
+              "badge": "Improved",
+              "intuition": "Sort the array. Pair adjacent elements. Since array is sorted, the minimum of each pair is always the first element of the pair. To maximize the total sum of minimums, we want smaller numbers paired together.",
+              "steps": [
+                "Sort nums in ascending order.",
+                "Initialize sum = 0.",
+                "Add nums[0], nums[2], nums[4], ... to sum."
+              ],
+              "code": "function arrayPairSum(nums) {\n    // Brute force via permutations (conceptual only)\n    let maxSum = -Infinity;\n\n    function backtrack(arr, sum) {\n        if (arr.length === 0) {\n            maxSum = Math.max(maxSum, sum);\n            return;\n        }\n\n        for (let i = 1; i < arr.length; i++) {\n            const newArr = arr.slice(1, i).concat(arr.slice(i + 1));\n            backtrack(newArr, sum + Math.min(arr[0], arr[i]));\n        }\n    }\n\n    backtrack(nums, 0);\n    return maxSum;\n}",
+              "language": "javascript",
+              "timeComplexity": "O((2n)!)",
+              "timeType": "bad",
+              "spaceComplexity": "O(n)",
+              "spaceType": "warning",
+              "pros": ["Explores all possibilities", "Conceptually correct"],
+              "cons": [
+                "Completely impractical for large n",
+                "Explodes combinatorially"
+              ],
+
+              "visualLink": "/DSA-Problems/Arrays/Sorting/Array-Partition/improved.html",
+              "notesLink": ""
+            },
+            {
+              "title": "Optimal — Sort and Take Every Second Element",
+              "badge": "Optimal",
+              "intuition": "Sort the array. Pair adjacent elements. Since array is sorted, the minimum of each pair is always the first element of the pair. To maximize the total sum of minimums, we want smaller numbers paired together.",
+              "steps": [
+                "Sort nums in ascending order.",
+                "Initialize sum = 0.",
+                "Add nums[0], nums[2], nums[4], ... to sum."
+              ],
+              "code": "function arrayPairSum(nums) {\n    nums.sort((a, b) => a - b);\n    let sum = 0;\n\n    for (let i = 0; i < nums.length; i += 2) {\n        sum += nums[i];\n    }\n\n    return sum;\n}",
+              "language": "javascript",
+              "timeComplexity": "O(n log n)",
+              "timeType": "warning",
+              "spaceComplexity": "O(1)",
+              "spaceType": "good",
+              "pros": [
+                "Very simple implementation",
+                "Greedy and optimal strategy",
+                "Clean and intuitive once understood"
+              ],
+              "cons": ["Sorting dominates runtime"],
+              "visualLink": "/DSA-Problems/Arrays/Sorting/Array-Partition/optimal.html",
               "notesLink": ""
             }
           ]
@@ -1945,7 +2044,7 @@
                 "Re-scans segments multiple times",
                 "Inefficient for large inputs"
               ],
-              "visualLink": "/legacy/Arrays/Sliding-Window/Longest-Mountain/1-peak-expansion-visualization.html",
+              "visualLink": "/DSA-Problems/Arrays/Sliding-Window/Longest-Mountain/845-brute-force-visualization.html",
               "notesLink": ""
             },
 
@@ -1970,7 +2069,7 @@
                 "Clear separation of increasing/decreasing phases"
               ],
               "cons": ["Uses extra arrays"],
-              "visualLink": "/legacy/Arrays/Sliding-Window/Longest-Mountain/2-precompute-visualization.html",
+              "visualLink": "/DSA-Problems/Arrays/Sliding-Window/Longest-Mountain/845-two-pass-visualization.html",
               "notesLink": ""
             },
 
@@ -1998,7 +2097,7 @@
                 "Interview-preferred optimal approach"
               ],
               "cons": ["Requires careful transition handling"],
-              "visualLink": "/legacy/Arrays/Sliding-Window/Longest-Mountain/3-state-machine-visualization.html",
+              "visualLink": "/DSA-Problems/Arrays/Sliding-Window/Longest-Mountain/845-one-pass-visualization.html",
               "notesLink": ""
             }
           ]
@@ -2049,7 +2148,7 @@
                 "Re-scans elements repeatedly",
                 "Inefficient for large arrays"
               ],
-              "visualLink": "/legacy/Arrays/Sliding-Window/LCIS/1-bruteforce-visualization.html",
+              "visualLink": "/DSA-Problems/Arrays/Sliding-Window/Longest-LCIS/674-bruteforce-visualization.html",
               "notesLink": ""
             },
 
@@ -2078,7 +2177,7 @@
               "cons": [
                 "Only works for contiguous increasing subarrays (not subsequence)"
               ],
-              "visualLink": "/legacy/Arrays/Sliding-Window/LCIS/2-sliding-window-visualization.html",
+              "visualLink": "/DSA-Problems/Arrays/Sliding-Window/Longest-LCIS/674-optimal-visualization.html",
               "notesLink": ""
             }
           ]
@@ -2138,7 +2237,7 @@
                 "Easy to reason about choices"
               ],
               "cons": ["Exponential time", "Impractical for large inputs"],
-              "visualLink": "/legacy/Arrays/Sliding-Window/Max-Points-Cards/1-bruteforce-visualization.html",
+              "visualLink": "/DSA-Problems/Arrays/Sliding-Window/Max-Points-Cards/1423-bruteforce-visualization.html",
               "notesLink": ""
             },
             {
@@ -2163,7 +2262,7 @@
                 "Clear split logic"
               ],
               "cons": ["Uses extra space for prefix arrays"],
-              "visualLink": "/legacy/Arrays/Sliding-Window/Max-Points-Cards/2-prefix-visualization.html",
+              "visualLink": "/DSA-Problems/Arrays/Sliding-Window/Max-Points-Cards/1423-prefix-sum-visualization.html",
               "notesLink": ""
             },
             {
@@ -2189,7 +2288,7 @@
                 "Interview-preferred optimal solution"
               ],
               "cons": ["Requires recognizing complement window idea"],
-              "visualLink": "/legacy/Arrays/Sliding-Window/Max-Points-Cards/3-sliding-window-visualization.html",
+              "visualLink": "/DSA-Problems/Arrays/Sliding-Window/Max-Points-Cards/1423-sliding-window-visualization.html",
               "notesLink": ""
             }
           ]
@@ -2244,7 +2343,7 @@
                 "Quadratic time complexity",
                 "Too slow for large arrays"
               ],
-              "visualLink": "/legacy/Arrays/Sliding-Window/Max-Product/1-bruteforce-visualization.html",
+              "visualLink": "/DSA-Problems/Arrays/Sliding-Window/Max-Product-Subarray/152-bruteforce-visualization.html",
               "notesLink": ""
             },
             {
@@ -2272,7 +2371,7 @@
                 "Less intuitive than DP method",
                 "Requires understanding prefix/suffix logic"
               ],
-              "visualLink": "/legacy/Arrays/Sliding-Window/Max-Product/2-prefix-suffix-visualization.html",
+              "visualLink": "/DSA-Problems/Arrays/Sliding-Window/Max-Product-Subarray/152-prefix-suffix-visualization.html",
               "notesLink": ""
             },
             {
@@ -2299,7 +2398,7 @@
                 "Interview-standard optimal approach"
               ],
               "cons": ["Requires understanding why minProd matters"],
-              "visualLink": "/legacy/Arrays/Sliding-Window/Max-Product/3-dp-visualization.html",
+              "visualLink": "/DSA-Problems/Arrays/Sliding-Window/Max-Product-Subarray/152-optimal-dp-visualization.html",
               "notesLink": ""
             }
           ]
@@ -2362,7 +2461,7 @@
               "spaceType": "good",
               "pros": ["Simple logic", "Easy to reason about"],
               "cons": ["Too slow for large inputs"],
-              "visualLink": "/legacy/Arrays/Sliding-Window/Min-Subarray-Sum/1-bruteforce-visualization.html",
+              "visualLink": "/DSA-Problems/Arrays/Sliding-Window/Minimum-Size-Subarray-Sum/209-bruteforce-visualization.html",
               "notesLink": ""
             },
             {
@@ -2385,7 +2484,7 @@
                 "Uses binary search effectively"
               ],
               "cons": ["Extra space required", "More complex than needed"],
-              "visualLink": "/legacy/Arrays/Sliding-Window/Min-Subarray-Sum/2-prefix-binary-visualization.html",
+              "visualLink": "/DSA-Problems/Arrays/Sliding-Window/Minimum-Size-Subarray-Sum/209-binary-search-visualization.html",
               "notesLink": ""
             },
             {
@@ -2409,7 +2508,7 @@
                 "Classic sliding window pattern"
               ],
               "cons": ["Only works because all numbers are positive"],
-              "visualLink": "/legacy/Arrays/Sliding-Window/Min-Subarray-Sum/3-sliding-window-visualization.html",
+              "visualLink": "/DSA-Problems/Arrays/Sliding-Window/Minimum-Size-Subarray-Sum/209-sliding-window-visualization.html",
               "notesLink": ""
             }
           ]
@@ -2469,7 +2568,7 @@
               "spaceType": "good",
               "pros": ["Very straightforward", "Easy to verify correctness"],
               "cons": ["Too slow for n up to 10⁵"],
-              "visualLink": "/legacy/Arrays/Sliding-Window/Range-Sum/1-bruteforce-visualization.html",
+              "visualLink": "/DSA-Problems/Arrays/Prefix-Sums/Count-Range-Sum/327-bruteforce-visualization.html",
               "notesLink": ""
             },
             {
@@ -2492,7 +2591,7 @@
                 "Prepares for optimal solution"
               ],
               "cons": ["Still quadratic time"],
-              "visualLink": "/legacy/Arrays/Sliding-Window/Range-Sum/2-prefix-reframing-visualization.html",
+              "visualLink": "/DSA-Problems/Arrays/Prefix-Sums/Count-Range-Sum/327-prefix-sum-visualization.html",
               "notesLink": ""
             },
             {
@@ -2516,7 +2615,7 @@
                 "Interview-standard optimal solution"
               ],
               "cons": ["Hard to derive in interview"],
-              "visualLink": "/legacy/Arrays/Sliding-Window/Range-Sum/3-merge-sort-visualization.html",
+              "visualLink": "/DSA-Problems/Arrays/Prefix-Sums/Count-Range-Sum/327-mergesort-visualization.html",
               "notesLink": ""
             },
             {
@@ -2543,7 +2642,7 @@
                 "Implementation heavy",
                 "Requires coordinate compression"
               ],
-              "visualLink": "/legacy/Arrays/Sliding-Window/Range-Sum/4-bit-visualization.html",
+              "visualLink": "/DSA-Problems/Arrays/Prefix-Sums/Count-Range-Sum/327-bit-visualization.html",
               "notesLink": ""
             }
           ]
@@ -2595,7 +2694,7 @@
               "spaceType": "good",
               "pros": ["Very straightforward", "Easy to understand"],
               "cons": ["Too slow for large inputs"],
-              "visualLink": "/legacy/Arrays/Prefix-Sum/Count-Smaller/1-bruteforce-visualization.html",
+              "visualLink": "/DSA-Problems/Arrays/Prefix-Sums/Count-Smaller-After-Self/315-bruteforce-visualization.html",
               "notesLink": ""
             },
 
@@ -2624,7 +2723,7 @@
                 "Requires coordinate compression",
                 "Implementation-heavy"
               ],
-              "visualLink": "/legacy/Arrays/Prefix-Sum/Count-Smaller/2-bit-visualization.html",
+              "visualLink": "/DSA-Problems/Arrays/Prefix-Sums/Count-Smaller-After-Self/315-bit-visualization.html",
               "notesLink": ""
             },
             {
@@ -2649,7 +2748,7 @@
                 "No extra data structure required"
               ],
               "cons": ["Harder to derive in interviews"],
-              "visualLink": "/legacy/Arrays/Prefix-Sum/Count-Smaller/3-merge-sort-visualization.html",
+              "visualLink": "/DSA-Problems/Arrays/Prefix-Sums/Count-Smaller-After-Self/315-mergesort-visualization.html",
               "notesLink": ""
             }
           ]
@@ -2706,7 +2805,7 @@
               "spaceType": "warning",
               "pros": ["Very straightforward", "Easy to reason about"],
               "cons": ["Too slow for large inputs"],
-              "visualLink": "/legacy/Arrays/Prefix-Sum/Find-Duplicates/1-bruteforce-visualization.html",
+              "visualLink": "/DSA-Problems/Arrays/Prefix-Sums/Find-All-Duplicates/442-bruteforce-visualization.html",
               "notesLink": ""
             },
 
@@ -2728,7 +2827,7 @@
               "spaceType": "warning",
               "pros": ["Linear time", "Very simple implementation"],
               "cons": ["Uses extra memory"],
-              "visualLink": "/legacy/Arrays/Prefix-Sum/Find-Duplicates/2-hashset-visualization.html",
+              "visualLink": "/DSA-Problems/Arrays/Prefix-Sums/Find-All-Duplicates/442-hashset-visualization.html",
               "notesLink": ""
             },
             {
@@ -2748,7 +2847,7 @@
               "spaceType": "good",
               "pros": ["No extra data structure", "Simple logic"],
               "cons": ["Sorting adds overhead", "Modifies original array"],
-              "visualLink": "/legacy/Arrays/Prefix-Sum/Find-Duplicates/3-sorting-visualization.html",
+              "visualLink": "/DSA-Problems/Arrays/Prefix-Sums/Find-All-Duplicates/442-sorting-visualization.html",
               "notesLink": ""
             },
             {
@@ -2776,7 +2875,7 @@
                 "Modifies input array",
                 "Requires careful reasoning about indices"
               ],
-              "visualLink": "/legacy/Arrays/Prefix-Sum/Find-Duplicates/4-negation-trick-visualization.html",
+              "visualLink": "/DSA-Problems/Arrays/Prefix-Sums/Find-All-Duplicates/442-negation-visualization.html",
               "notesLink": ""
             }
           ]
@@ -2827,7 +2926,7 @@
               "spaceType": "good",
               "pros": ["Very simple", "No extra memory"],
               "cons": ["Slow for many queries"],
-              "visualLink": "/legacy/Arrays/Prefix-Sum/Range-Sum-Mutable/1-bruteforce-visualization.html",
+              "visualLink": "/DSA-Problems/Arrays/Prefix-Sums/Range-Sum-Query-Mutable/307-bruteforce-visualization.html",
               "notesLink": ""
             },
             {
@@ -2847,7 +2946,7 @@
               "spaceType": "warning",
               "pros": ["Fast queries", "Simple concept"],
               "cons": ["Update is expensive"],
-              "visualLink": "/legacy/Arrays/Prefix-Sum/Range-Sum-Mutable/2-prefix-visualization.html",
+              "visualLink": "/DSA-Problems/Arrays/Prefix-Sums/Range-Sum-Query-Mutable/307-prefix-sum-visualization.html",
               "notesLink": ""
             },
             {
@@ -2870,7 +2969,7 @@
                 "Compact implementation"
               ],
               "cons": ["Less intuitive than prefix sum"],
-              "visualLink": "/legacy/Arrays/Prefix-Sum/Range-Sum-Mutable/3-bit-visualization.html",
+              "visualLink": "/DSA-Problems/Arrays/Prefix-Sums/Range-Sum-Query-Mutable/307-bit-visualization.html",
               "notesLink": ""
             },
             {
@@ -2894,7 +2993,7 @@
                 "Interview-level strong solution"
               ],
               "cons": ["More code", "Higher implementation complexity"],
-              "visualLink": "/legacy/Arrays/Prefix-Sum/Range-Sum-Mutable/4-segment-tree-visualization.html",
+              "visualLink": "/DSA-Problems/Arrays/Prefix-Sums/Range-Sum-Query-Mutable/307-segment-tree-visualization.html",
               "notesLink": ""
             }
           ]
@@ -2952,7 +3051,7 @@
               "spaceType": "good",
               "pros": ["Simple to implement", "Easy to understand"],
               "cons": ["Too slow for large inputs"],
-              "visualLink": "/legacy/Arrays/Prefix-Sum/Subarray-Product/1-bruteforce-visualization.html",
+              "visualLink": "/DSA-Problems/Arrays/Prefix-Sums/Subarray-Product-Less-Than-K/713-bruteforce-visualization.html",
               "notesLink": ""
             },
             {
@@ -2978,7 +3077,7 @@
                 "Floating point precision issues",
                 "More complex than needed"
               ],
-              "visualLink": "/legacy/Arrays/Prefix-Sum/Subarray-Product/2-log-binary-visualization.html",
+              "visualLink": "/DSA-Problems/Arrays/Prefix-Sums/Subarray-Product-Less-Than-K/713-log-prefix-visualization.html",
               "notesLink": ""
             },
             {
@@ -3004,7 +3103,7 @@
                 "Interview-preferred solution"
               ],
               "cons": ["Works only because all numbers are positive"],
-              "visualLink": "/legacy/Arrays/Prefix-Sum/Subarray-Product/3-sliding-window-visualization.html",
+              "visualLink": "/DSA-Problems/Arrays/Prefix-Sums/Subarray-Product-Less-Than-K/713-sliding-window-visualization.html",
               "notesLink": ""
             }
           ]

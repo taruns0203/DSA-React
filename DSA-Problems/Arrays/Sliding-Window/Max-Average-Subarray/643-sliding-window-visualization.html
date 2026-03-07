@@ -1,0 +1,909 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>643. Max Average Subarray I - Sliding Window</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #e8f5e9 0%, #c8e6c9 50%, #a5d6a7 100%);
+            min-height: 100vh;
+            padding: 20px;
+            color: #333;
+        }
+
+        .container {
+            max-width: 1150px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.25);
+            overflow: hidden;
+        }
+
+        header {
+            background: linear-gradient(135deg, #1b5e20 0%, #2e7d32 50%, #43a047 100%);
+            color: white;
+            padding: 25px;
+            text-align: center;
+        }
+
+        h1 {
+            font-size: 1.5em;
+            margin-bottom: 6px;
+        }
+
+        .subtitle {
+            font-size: 1em;
+            opacity: 0.9;
+        }
+
+        .complexity-badge {
+            display: inline-block;
+            background: rgba(255, 255, 255, 0.2);
+            padding: 6px 14px;
+            border-radius: 15px;
+            margin-top: 8px;
+            font-size: 0.85em;
+        }
+
+        .main-content {
+            display: grid;
+            grid-template-columns: 1fr 290px;
+            gap: 20px;
+            padding: 20px;
+        }
+
+        .card {
+            background: #f8f9fa;
+            border-radius: 12px;
+            padding: 16px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+            margin-bottom: 16px;
+        }
+
+        .card-title {
+            font-size: 0.95em;
+            font-weight: 600;
+            margin-bottom: 12px;
+            color: #1b5e20;
+        }
+
+        /* Controls */
+        .controls {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            align-items: center;
+        }
+
+        button {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 8px;
+            font-size: 0.85em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+        }
+
+        button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #1b5e20 0%, #43a047 100%);
+            color: white;
+        }
+
+        .btn-success {
+            background: linear-gradient(135deg, #2e7d32 0%, #66bb6a 100%);
+            color: white;
+        }
+
+        .btn-warning {
+            background: linear-gradient(135deg, #f9a825 0%, #ffca28 100%);
+            color: #333;
+        }
+
+        .btn-secondary {
+            background: #6c757d;
+            color: white;
+        }
+
+        .speed-control {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            flex: 1;
+            min-width: 140px;
+        }
+
+        .speed-control input[type="range"] {
+            flex: 1;
+            height: 5px;
+            accent-color: #43a047;
+        }
+
+        .input-row {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+            flex-wrap: wrap;
+            margin-bottom: 8px;
+        }
+
+        .input-row:last-child {
+            margin-bottom: 0;
+        }
+
+        .input-row label {
+            font-size: 0.85em;
+            font-weight: 600;
+            color: #555;
+            min-width: 25px;
+        }
+
+        .input-row input {
+            flex: 1;
+            min-width: 100px;
+            padding: 8px 12px;
+            border: 2px solid #c8e6c9;
+            border-radius: 8px;
+            font-size: 0.9em;
+            font-family: 'Courier New', monospace;
+            outline: none;
+            transition: border-color 0.3s;
+        }
+
+        .input-row input:focus {
+            border-color: #43a047;
+        }
+
+        /* Array */
+        .array-container {
+            display: flex;
+            gap: 6px;
+            min-height: 110px;
+            padding: 32px 10px 30px;
+            background: #fff;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            position: relative;
+            flex-wrap: wrap;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .array-item {
+            width: 56px;
+            height: 52px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            position: relative;
+            transition: all 0.25s ease;
+            box-shadow: 0 3px 6px rgba(0, 0, 0, 0.1);
+            font-size: 1em;
+            z-index: 1;
+            background: #455a64;
+            color: white;
+        }
+
+        .array-item .idx-label {
+            position: absolute;
+            top: -17px;
+            font-size: 0.55em;
+            color: #888;
+            width: 100%;
+            text-align: center;
+        }
+
+        /* In window */
+        .array-item.in-window {
+            background: linear-gradient(135deg, #43a047 0%, #2e7d32 100%);
+            color: white;
+            transform: scale(1.08);
+            z-index: 2;
+            box-shadow: 0 4px 12px rgba(46, 125, 50, 0.35);
+        }
+
+        /* Entering element */
+        .array-item.entering {
+            background: linear-gradient(135deg, #1e88e5 0%, #1565c0 100%);
+            color: white;
+            transform: scale(1.15);
+            z-index: 3;
+            animation: pulse-enter 0.45s ease;
+        }
+
+        /* Leaving element */
+        .array-item.leaving {
+            background: linear-gradient(135deg, #ef5350 0%, #c62828 100%);
+            color: white;
+            transform: scale(1.15);
+            z-index: 3;
+            animation: pulse-leave 0.45s ease;
+        }
+
+        /* Init build */
+        .array-item.init-adding {
+            background: linear-gradient(135deg, #7e57c2 0%, #5e35b1 100%);
+            color: white;
+            transform: scale(1.12);
+            z-index: 3;
+            animation: pulse-init 0.4s ease;
+        }
+
+        /* Best */
+        .array-item.best-window {
+            background: linear-gradient(135deg, #ffd600 0%, #ffab00 100%);
+            color: #333;
+            transform: scale(1.1);
+            z-index: 2;
+            box-shadow: 0 4px 14px rgba(255, 171, 0, 0.5);
+        }
+
+        .pointer-label {
+            position: absolute;
+            font-size: 0.48em;
+            font-weight: 700;
+            padding: 1px 5px;
+            border-radius: 4px;
+            color: white;
+            white-space: nowrap;
+        }
+
+        .ptr-enter {
+            top: -26px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #1565c0;
+        }
+
+        .ptr-leave {
+            bottom: -21px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #c62828;
+        }
+
+        .ptr-slide {
+            bottom: -21px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #1b5e20;
+        }
+
+        @keyframes pulse-enter {
+
+            0%,
+            100% {
+                box-shadow: 0 3px 6px rgba(0, 0, 0, 0.1);
+            }
+
+            50% {
+                box-shadow: 0 0 20px rgba(30, 136, 229, 0.6);
+            }
+        }
+
+        @keyframes pulse-leave {
+
+            0%,
+            100% {
+                box-shadow: 0 3px 6px rgba(0, 0, 0, 0.1);
+            }
+
+            50% {
+                box-shadow: 0 0 20px rgba(229, 57, 53, 0.6);
+            }
+        }
+
+        @keyframes pulse-init {
+
+            0%,
+            100% {
+                box-shadow: 0 3px 6px rgba(0, 0, 0, 0.1);
+            }
+
+            50% {
+                box-shadow: 0 0 18px rgba(126, 87, 194, 0.6);
+            }
+        }
+
+        /* Slide indicator */
+        .slide-indicator {
+            display: flex;
+            justify-content: center;
+            gap: 12px;
+            margin-top: 10px;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+
+        .slide-chip {
+            padding: 5px 14px;
+            border-radius: 18px;
+            font-size: 0.85em;
+            font-weight: 600;
+        }
+
+        .chip-add {
+            background: #e3f2fd;
+            color: #1565c0;
+            border: 2px solid #90caf9;
+        }
+
+        .chip-sub {
+            background: #ffebee;
+            color: #c62828;
+            border: 2px solid #ef9a9a;
+        }
+
+        .chip-sum {
+            background: linear-gradient(135deg, #43a047, #2e7d32);
+            color: white;
+        }
+
+        .chip-init {
+            background: #ede7f6;
+            color: #4527a0;
+            border: 2px solid #b39ddb;
+        }
+
+        /* Sum comparison bar */
+        .bar-section {
+            margin-top: 10px;
+        }
+
+        .bar-label {
+            font-size: 0.78em;
+            color: #666;
+            margin-bottom: 4px;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .bar-track {
+            height: 14px;
+            background: #e0e0e0;
+            border-radius: 7px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .bar-fill {
+            height: 100%;
+            border-radius: 7px;
+            transition: width 0.35s ease;
+        }
+
+        .bar-current {
+            background: linear-gradient(90deg, #43a047, #66bb6a);
+        }
+
+        .bar-best {
+            background: linear-gradient(90deg, #ffab00, #ffd600);
+            position: absolute;
+            top: 0;
+            opacity: 0.35;
+        }
+
+        /* State & Log */
+        .state-display {
+            background: white;
+            border-radius: 8px;
+            padding: 10px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.85em;
+        }
+
+        .state-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 5px 0;
+            border-bottom: 1px solid #eee;
+        }
+
+        .state-row:last-child {
+            border-bottom: none;
+        }
+
+        .highlight-val {
+            color: #1b5e20;
+            font-weight: bold;
+        }
+
+        .highlight-best {
+            color: #e65100;
+            font-weight: bold;
+        }
+
+        .log-container {
+            background: white;
+            border-radius: 8px;
+            padding: 10px;
+            max-height: 250px;
+            overflow-y: auto;
+            font-family: 'Courier New', monospace;
+            font-size: 0.63em;
+        }
+
+        .log-entry {
+            padding: 3px 6px;
+            margin: 2px 0;
+            border-radius: 4px;
+            border-left: 3px solid #ccc;
+            background: #f9f9f9;
+        }
+
+        .log-entry.init {
+            border-left-color: #7e57c2;
+            background: #ede7f6;
+        }
+
+        .log-entry.slide {
+            border-left-color: #1b5e20;
+            background: #e8f5e9;
+        }
+
+        .log-entry.info {
+            border-left-color: #78909c;
+            background: #eceff1;
+        }
+
+        .log-entry.best {
+            border-left-color: #e65100;
+            background: #fff3e0;
+        }
+
+        .log-entry.found {
+            border-left-color: #2e7d32;
+            background: #e8f5e9;
+        }
+
+        .result-display {
+            text-align: center;
+            padding: 12px;
+            background: linear-gradient(135deg, #1b5e20 0%, #43a047 100%);
+            color: white;
+            border-radius: 10px;
+            margin-top: 12px;
+            font-size: 1.15em;
+            font-weight: bold;
+        }
+
+        .strategy-text {
+            font-size: 0.86em;
+            color: #555;
+            line-height: 1.6;
+        }
+
+        .strategy-text code {
+            background: #e8f5e9;
+            padding: 1px 5px;
+            border-radius: 3px;
+            font-size: 0.9em;
+            color: #1b5e20;
+        }
+
+        @media (max-width: 800px) {
+            .main-content {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <header>
+            <h1>643. Maximum Average Subarray I</h1>
+            <div class="subtitle">Fixed-Size Sliding Window: Add Right, Subtract Left</div>
+            <div class="complexity-badge">Time: O(n) | Space: O(1)</div>
+        </header>
+
+        <div class="main-content">
+            <div class="left-panel">
+                <div class="card">
+                    <div class="card-title">⚙️ Controls</div>
+                    <div class="controls">
+                        <button class="btn-primary" id="playBtn">▶️ Play</button>
+                        <button class="btn-warning" id="pauseBtn" disabled>⏸️ Pause</button>
+                        <button class="btn-success" id="stepBtn">⏭️ Step</button>
+                        <button class="btn-secondary" id="resetBtn">🔄 Reset</button>
+                        <div class="speed-control">
+                            <label>Speed:</label>
+                            <input type="range" id="speedSlider" min="1" max="10" value="5">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-title">🎯 Custom Input</div>
+                    <div class="input-row">
+                        <label>arr:</label>
+                        <input type="text" id="customInput" placeholder="e.g. 1,12,-5,-6,50,3" value="1,12,-5,-6,50,3">
+                    </div>
+                    <div class="input-row">
+                        <label>k:</label>
+                        <input type="number" id="kInput" value="4" min="1" style="max-width:80px">
+                        <button class="btn-primary" id="loadBtn">Load</button>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-title">🔢 Sliding Window</div>
+                    <div class="array-container" id="arrayContainer"></div>
+                    <div class="slide-indicator" id="slideIndicator"></div>
+                    <div class="bar-section">
+                        <div class="bar-label">
+                            <span>Window Sum</span>
+                            <span id="barLabel">0</span>
+                        </div>
+                        <div class="bar-track">
+                            <div class="bar-fill bar-best" id="bestBar" style="width:0%"></div>
+                            <div class="bar-fill bar-current" id="curBar" style="width:0%"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-title">ℹ️ Strategy</div>
+                    <div class="strategy-text">
+                        <strong>Phase 1:</strong> Sum the first <code>k</code> elements. That's the initial window.<br>
+                        <strong>Phase 2:</strong> For each <code>i</code> from <code>k</code> to <code>n−1</code>:
+                        <code>sum += nums[i]</code> (entering) and <code>sum −= nums[i−k]</code> (leaving).<br>
+                        Track max. Divide by <code>k</code> at the end. <strong>O(1) per slide.</strong>
+                    </div>
+                </div>
+            </div>
+
+            <div class="right-panel">
+                <div class="card">
+                    <div class="card-title">📊 Current State</div>
+                    <div class="state-display">
+                        <div class="state-row"><span>Phase:</span><span id="phaseVal">—</span></div>
+                        <div class="state-row"><span>i:</span><span id="iVal">—</span></div>
+                        <div class="state-row"><span>+ nums[i]:</span><span id="addVal">—</span></div>
+                        <div class="state-row"><span>− nums[i−k]:</span><span id="subVal">—</span></div>
+                        <div class="state-row"><span>windowSum:</span><span id="sumVal" class="highlight-val">0</span>
+                        </div>
+                        <div class="state-row"><span>maxSum:</span><span id="maxVal" class="highlight-best">−∞</span>
+                        </div>
+                        <div class="state-row"><span>maxAvg:</span><span id="avgVal" class="highlight-best">−∞</span>
+                        </div>
+                    </div>
+                    <div class="result-display">
+                        Max Average: <span id="resultVal">—</span>
+                    </div>
+                </div>
+
+                <div class="card" style="flex-grow:1; display:flex; flex-direction:column;">
+                    <div class="card-title">📝 Execution Log</div>
+                    <div class="log-container" id="logContainer"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ─── State ───
+        let nums = [1, 12, -5, -6, 50, 3];
+        let k = 4;
+        let n = nums.length;
+
+        let windowSum = 0;
+        let maxSum = -Infinity;
+        let bestStart = -1;
+
+        let initIdx = 0;        // index during initial build
+        let slideIdx = -1;      // current i during slide phase
+        let enterIdx = -1;      // element entering
+        let leaveIdx = -1;      // element leaving
+
+        // phase: idle | init_build | init_record | sliding | done
+        let phase = 'idle';
+
+        let isRunning = false;
+        let timer = null;
+        let speed = 5;
+        let stepNum = 0;
+
+        // For bar normalization
+        let minPossible = 0, maxPossible = 1;
+
+        function computeRange() {
+            // rough range for bar display
+            let allSums = [];
+            for (let s = 0; s <= n - k; s++) {
+                let sm = 0;
+                for (let j = s; j < s + k; j++) sm += nums[j];
+                allSums.push(sm);
+            }
+            minPossible = Math.min(...allSums);
+            maxPossible = Math.max(...allSums);
+            if (maxPossible === minPossible) maxPossible = minPossible + 1;
+        }
+
+        // ─── Init ───
+        function init() {
+            n = nums.length;
+            windowSum = 0;
+            maxSum = -Infinity;
+            bestStart = -1;
+            initIdx = 0;
+            slideIdx = -1;
+            enterIdx = -1; leaveIdx = -1;
+            phase = 'idle';
+            stepNum = 0;
+            isRunning = false;
+            if (timer) clearTimeout(timer);
+            timer = null;
+
+            computeRange();
+            clearLog();
+            addLog(`Array: [${nums.join(', ')}], k=${k}, n=${n}`, 'info');
+            addLog(`Phase 1: Build initial sum of first ${k} elements`, 'info');
+            addLog(`Phase 2: Slide — add entering, subtract leaving`, 'info');
+            render();
+            updateControls();
+        }
+
+        // ─── Render ───
+        function render() {
+            renderArray();
+            renderState();
+            renderSlideChips();
+            renderBar();
+        }
+
+        function renderArray() {
+            const c = document.getElementById('arrayContainer');
+            c.innerHTML = '';
+
+            // Determine current window bounds
+            let winStart = -1, winEnd = -1;
+            if (phase === 'init_build') { winStart = 0; winEnd = initIdx; }
+            else if (phase === 'init_record') { winStart = 0; winEnd = k - 1; }
+            else if (phase === 'sliding') { winStart = slideIdx - k + 1; winEnd = slideIdx; }
+            else if (phase === 'done') { winStart = bestStart; winEnd = bestStart + k - 1; }
+
+            nums.forEach((val, idx) => {
+                const el = document.createElement('div');
+                let cls = 'array-item';
+
+                if (phase === 'done' && idx >= winStart && idx <= winEnd) {
+                    cls += ' best-window';
+                } else if (phase === 'init_build' && idx === initIdx) {
+                    cls += ' init-adding';
+                } else if (phase === 'sliding' && idx === enterIdx) {
+                    cls += ' entering';
+                } else if (phase === 'sliding' && idx === leaveIdx) {
+                    cls += ' leaving';
+                } else if (idx >= winStart && idx <= winEnd && winStart >= 0) {
+                    cls += ' in-window';
+                }
+
+                el.className = cls;
+                el.innerHTML = `<span class="idx-label">${idx}</span>${val}`;
+
+                // Pointers
+                if (phase === 'init_build' && idx === initIdx) {
+                    el.innerHTML += `<span class="pointer-label ptr-slide">adding</span>`;
+                }
+                if (phase === 'sliding') {
+                    if (idx === enterIdx) {
+                        el.innerHTML += `<span class="pointer-label ptr-enter">+${nums[idx]}</span>`;
+                    }
+                    if (idx === leaveIdx) {
+                        el.innerHTML += `<span class="pointer-label ptr-leave">−${nums[idx]}</span>`;
+                    }
+                }
+
+                c.appendChild(el);
+            });
+        }
+
+        function renderState() {
+            document.getElementById('phaseVal').textContent =
+                phase === 'idle' ? '—' :
+                    phase === 'init_build' || phase === 'init_record' ? '🔨 Building initial window' :
+                        phase === 'sliding' ? '↔️ Sliding' : '✅ Done';
+
+            document.getElementById('iVal').textContent =
+                phase === 'init_build' ? `init: ${initIdx}` :
+                    phase === 'sliding' ? slideIdx : '—';
+
+            document.getElementById('addVal').textContent =
+                phase === 'sliding' ? `+${nums[enterIdx]} (idx ${enterIdx})` :
+                    phase === 'init_build' ? `+${nums[initIdx]}` : '—';
+
+            document.getElementById('subVal').textContent =
+                phase === 'sliding' ? `−${nums[leaveIdx]} (idx ${leaveIdx})` : '—';
+
+            document.getElementById('sumVal').textContent = windowSum;
+            document.getElementById('maxVal').textContent = maxSum === -Infinity ? '−∞' : maxSum;
+            document.getElementById('avgVal').textContent = maxSum === -Infinity ? '−∞' : (maxSum / k).toFixed(5);
+            document.getElementById('resultVal').textContent = phase === 'done' ? (maxSum / k).toFixed(5) : '—';
+        }
+
+        function renderSlideChips() {
+            const si = document.getElementById('slideIndicator');
+            si.innerHTML = '';
+
+            if (phase === 'init_build' || phase === 'init_record') {
+                si.innerHTML = `<span class="slide-chip chip-init">🔨 Init: summing first ${k} elements</span>
+                    <span class="slide-chip chip-sum">Sum: ${windowSum}</span>`;
+            } else if (phase === 'sliding') {
+                si.innerHTML = `<span class="slide-chip chip-add">➕ +${nums[enterIdx]}</span>
+                    <span class="slide-chip chip-sub">➖ −${nums[leaveIdx]}</span>
+                    <span class="slide-chip chip-sum">Sum: ${windowSum}</span>`;
+            } else if (phase === 'done') {
+                si.innerHTML = `<span class="slide-chip chip-sum">Best Sum: ${maxSum} | Avg: ${(maxSum / k).toFixed(5)}</span>`;
+            }
+        }
+
+        function renderBar() {
+            const range = maxPossible - minPossible;
+            const normCur = range > 0 ? ((windowSum - minPossible) / range * 100) : 50;
+            const normBest = maxSum > -Infinity && range > 0 ? ((maxSum - minPossible) / range * 100) : 0;
+
+            document.getElementById('curBar').style.width = Math.max(2, normCur) + '%';
+            document.getElementById('bestBar').style.width = Math.max(2, normBest) + '%';
+            document.getElementById('barLabel').textContent = `${windowSum}` + (maxSum > -Infinity ? ` | best: ${maxSum}` : '');
+        }
+
+        // ─── Step Logic ───
+        function step() {
+            if (phase === 'done') return;
+            stepNum++;
+
+            switch (phase) {
+                case 'idle':
+                    phase = 'init_build';
+                    initIdx = 0;
+                    windowSum = nums[0];
+                    addLog(`🔨 Init: add nums[0]=${nums[0]}. sum=${windowSum}`, 'init');
+
+                    if (k === 1) {
+                        phase = 'init_record';
+                    }
+                    break;
+
+                case 'init_build':
+                    initIdx++;
+                    if (initIdx < k) {
+                        windowSum += nums[initIdx];
+                        addLog(`🔨 Init: add nums[${initIdx}]=${nums[initIdx]}. sum=${windowSum}`, 'init');
+
+                        if (initIdx === k - 1) {
+                            phase = 'init_record';
+                        }
+                    }
+                    break;
+
+                case 'init_record':
+                    maxSum = windowSum;
+                    bestStart = 0;
+                    addLog(`✓ Initial window [0..${k - 1}] sum=${windowSum}, avg=${(windowSum / k).toFixed(5)} → maxSum=${maxSum}`, 'best');
+
+                    if (k >= n) {
+                        phase = 'done';
+                        addLog(`✅ Only one window exists. Answer = ${(maxSum / k).toFixed(5)}`, 'found');
+                    } else {
+                        phase = 'sliding';
+                        slideIdx = k;
+                        enterIdx = slideIdx;
+                        leaveIdx = slideIdx - k;
+
+                        windowSum += nums[enterIdx];
+                        windowSum -= nums[leaveIdx];
+
+                        const isBest = windowSum > maxSum;
+                        if (isBest) { maxSum = windowSum; bestStart = leaveIdx + 1; }
+                        addLog(`↔️ i=${slideIdx}: +nums[${enterIdx}]=${nums[enterIdx]}, −nums[${leaveIdx}]=${nums[leaveIdx]}. sum=${windowSum}. avg=${(windowSum / k).toFixed(5)}${isBest ? ' → NEW BEST!' : ''}`, isBest ? 'best' : 'slide');
+                    }
+                    break;
+
+                case 'sliding':
+                    slideIdx++;
+                    if (slideIdx >= n) {
+                        phase = 'done';
+                        enterIdx = -1; leaveIdx = -1;
+                        addLog(`✅ All windows checked. maxSum=${maxSum}. Answer = ${maxSum}/${k} = ${(maxSum / k).toFixed(5)}`, 'found');
+                    } else {
+                        enterIdx = slideIdx;
+                        leaveIdx = slideIdx - k;
+
+                        windowSum += nums[enterIdx];
+                        windowSum -= nums[leaveIdx];
+
+                        const isBest = windowSum > maxSum;
+                        if (isBest) { maxSum = windowSum; bestStart = leaveIdx + 1; }
+                        addLog(`↔️ i=${slideIdx}: +nums[${enterIdx}]=${nums[enterIdx]}, −nums[${leaveIdx}]=${nums[leaveIdx]}. sum=${windowSum}. avg=${(windowSum / k).toFixed(5)}${isBest ? ' → NEW BEST!' : ''}`, isBest ? 'best' : 'slide');
+                    }
+                    break;
+            }
+
+            render();
+            updateControls();
+        }
+
+        // ─── Log ───
+        function addLog(msg, type = 'info') {
+            const log = document.getElementById('logContainer');
+            const entry = document.createElement('div');
+            entry.className = `log-entry ${type}`;
+            entry.textContent = `[${stepNum}] ${msg}`;
+            log.appendChild(entry);
+            log.scrollTop = log.scrollHeight;
+        }
+        function clearLog() { document.getElementById('logContainer').innerHTML = ''; }
+
+        // ─── Playback ───
+        function play() {
+            if (isRunning || phase === 'done') return;
+            isRunning = true; updateControls(); runLoop();
+        }
+        function runLoop() {
+            if (!isRunning || phase === 'done') { isRunning = false; updateControls(); return; }
+            step();
+            if (phase !== 'done') {
+                const delay = 1100 - (speed * 100);
+                timer = setTimeout(runLoop, Math.max(50, delay));
+            } else { isRunning = false; updateControls(); }
+        }
+        function pause() { isRunning = false; if (timer) clearTimeout(timer); updateControls(); }
+        function resetViz() { pause(); init(); }
+
+        function updateControls() {
+            document.getElementById('playBtn').disabled = isRunning || phase === 'done';
+            document.getElementById('pauseBtn').disabled = !isRunning;
+            document.getElementById('stepBtn').disabled = isRunning || phase === 'done';
+            document.getElementById('resetBtn').disabled = isRunning;
+            document.getElementById('loadBtn').disabled = isRunning;
+        }
+
+        // ─── Custom Input ───
+        function loadCustomInput() {
+            const raw = document.getElementById('customInput').value.trim();
+            const parsed = raw.split(',').map(s => parseInt(s.trim(), 10)).filter(v => !isNaN(v));
+            const newK = parseInt(document.getElementById('kInput').value, 10);
+            if (parsed.length === 0) { alert('Enter a valid array, e.g. 1,12,-5,-6,50,3'); return; }
+            if (isNaN(newK) || newK < 1 || newK > parsed.length) { alert(`k must be between 1 and ${parsed.length}`); return; }
+            nums = parsed; k = newK; resetViz();
+        }
+
+        // ─── Events ───
+        document.getElementById('playBtn').addEventListener('click', play);
+        document.getElementById('pauseBtn').addEventListener('click', pause);
+        document.getElementById('stepBtn').addEventListener('click', step);
+        document.getElementById('resetBtn').addEventListener('click', resetViz);
+        document.getElementById('loadBtn').addEventListener('click', loadCustomInput);
+        document.getElementById('speedSlider').addEventListener('input', e => speed = parseInt(e.target.value));
+        document.getElementById('customInput').addEventListener('keydown', e => { if (e.key === 'Enter') loadCustomInput(); });
+        document.getElementById('kInput').addEventListener('keydown', e => { if (e.key === 'Enter') loadCustomInput(); });
+
+        // ─── Start ───
+        init();
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,953 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>525 - Optimal: Prefix Sum + HashMap</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #0f0c29 0%, #302b63 50%, #24243e 100%);
+            min-height: 100vh;
+            padding: 20px;
+            color: #e0e0e0;
+        }
+
+        .container {
+            max-width: 1260px;
+            margin: 0 auto;
+            background: rgba(25, 25, 50, 0.95);
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5), 0 0 40px rgba(46, 204, 113, 0.08);
+            overflow: hidden;
+            border: 1px solid rgba(255, 255, 255, 0.06);
+        }
+
+        header {
+            background: linear-gradient(135deg, #27ae60 0%, #2ecc71 100%);
+            color: white;
+            padding: 25px;
+            text-align: center;
+        }
+
+        h1 {
+            font-size: 1.5em;
+            margin-bottom: 6px;
+        }
+
+        .subtitle {
+            font-size: 0.95em;
+            opacity: 0.9;
+        }
+
+        .complexity-badge {
+            display: inline-block;
+            background: rgba(255, 255, 255, 0.2);
+            padding: 6px 14px;
+            border-radius: 15px;
+            margin-top: 8px;
+            font-size: 0.82em;
+        }
+
+        .main-content {
+            display: grid;
+            grid-template-columns: 1fr 300px;
+            gap: 18px;
+            padding: 20px;
+        }
+
+        .card {
+            background: rgba(40, 40, 75, 0.8);
+            border-radius: 14px;
+            padding: 16px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+            margin-bottom: 16px;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .card-title {
+            font-size: 0.92em;
+            font-weight: 600;
+            margin-bottom: 12px;
+            color: #2ecc71;
+        }
+
+        button {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 8px;
+            font-size: 0.85em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+        }
+
+        button:disabled {
+            opacity: 0.4;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #27ae60, #2ecc71);
+            color: white;
+        }
+
+        .btn-success {
+            background: linear-gradient(135deg, #27ae60, #2ecc71);
+            color: white;
+        }
+
+        .btn-warning {
+            background: linear-gradient(135deg, #f39c12, #e67e22);
+            color: white;
+        }
+
+        .btn-secondary {
+            background: rgba(100, 100, 140, 0.7);
+            color: white;
+        }
+
+        .btn-info {
+            background: linear-gradient(135deg, #3498db, #2980b9);
+            color: white;
+        }
+
+        .controls {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            align-items: center;
+        }
+
+        .speed-control {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            flex: 1;
+            min-width: 140px;
+        }
+
+        .speed-control label {
+            font-size: 0.82em;
+            color: #aaa;
+        }
+
+        .speed-control input[type="range"] {
+            flex: 1;
+            height: 5px;
+            accent-color: #2ecc71;
+        }
+
+        .speed-control span {
+            font-size: 0.82em;
+            color: #2ecc71;
+            min-width: 24px;
+        }
+
+        .input-section {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .input-section input[type="text"] {
+            flex: 1;
+            min-width: 200px;
+            padding: 8px 12px;
+            border-radius: 8px;
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            background: rgba(20, 20, 45, 0.8);
+            color: #e0e0e0;
+            font-size: 0.85em;
+            font-family: 'Courier New', monospace;
+        }
+
+        .input-section input:focus {
+            outline: none;
+            border-color: #2ecc71;
+        }
+
+        /* ── Arrays ── */
+        .dual-array {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .array-label {
+            font-size: 0.72em;
+            color: #888;
+            font-weight: 600;
+            padding-left: 4px;
+        }
+
+        .array-row {
+            display: flex;
+            gap: 4px;
+            padding: 8px 12px;
+            background: rgba(20, 20, 50, 0.4);
+            border-radius: 8px;
+            justify-content: center;
+            flex-wrap: wrap;
+            min-height: 56px;
+            align-items: flex-end;
+        }
+
+        .cell-wrapper {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 2px;
+        }
+
+        .cell {
+            width: 44px;
+            height: 44px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 1.05em;
+            border: 2px solid rgba(150, 150, 200, 0.25);
+            background: rgba(100, 100, 200, 0.08);
+            transition: all 0.3s;
+        }
+
+        .cell.val-zero {
+            color: #e74c3c;
+        }
+
+        .cell.val-one {
+            color: #2ecc71;
+        }
+
+        .cell.val-neg {
+            color: #e74c3c;
+        }
+
+        .cell.val-pos {
+            color: #2ecc71;
+        }
+
+        .cell.current-scan {
+            border-color: #f1c40f;
+            background: rgba(241, 196, 15, 0.2);
+            box-shadow: 0 0 12px rgba(241, 196, 15, 0.25);
+            transform: scale(1.05);
+        }
+
+        .cell.in-match {
+            border-color: #2ecc71;
+            background: rgba(46, 204, 113, 0.22);
+            box-shadow: 0 0 10px rgba(46, 204, 113, 0.2);
+        }
+
+        .cell.best-range {
+            border-color: #9b59b6;
+            background: rgba(155, 89, 182, 0.22);
+            box-shadow: 0 0 10px rgba(155, 89, 182, 0.2);
+        }
+
+        .cell.processed {
+            opacity: 0.55;
+        }
+
+        .cell-idx {
+            font-size: 0.6em;
+            color: #555;
+        }
+
+        .pointer-label {
+            font-size: 0.65em;
+            font-weight: 700;
+            padding: 1px 5px;
+            border-radius: 3px;
+            margin-top: 2px;
+        }
+
+        .ptr-i {
+            background: rgba(46, 204, 113, 0.3);
+            color: #2ecc71;
+        }
+
+        /* ── Prefix sum track ── */
+        .prefix-track {
+            display: flex;
+            gap: 4px;
+            padding: 8px 12px;
+            background: rgba(20, 20, 50, 0.4);
+            border-radius: 8px;
+            justify-content: center;
+            flex-wrap: wrap;
+            min-height: 48px;
+            align-items: center;
+        }
+
+        .ps-cell {
+            width: 40px;
+            height: 36px;
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 0.9em;
+            color: #5dade2;
+            border: 1px solid rgba(52, 152, 219, 0.2);
+            background: rgba(52, 152, 219, 0.06);
+            transition: all 0.3s;
+        }
+
+        .ps-cell.active {
+            border-color: #f1c40f;
+            background: rgba(241, 196, 15, 0.15);
+            color: #f1c40f;
+        }
+
+        .ps-cell.match-highlight {
+            border-color: #2ecc71;
+            background: rgba(46, 204, 113, 0.2);
+            color: #2ecc71;
+        }
+
+        /* ── HashMap display ── */
+        .hashmap-container {
+            background: rgba(20, 20, 50, 0.5);
+            border-radius: 8px;
+            padding: 10px;
+            max-height: 200px;
+            overflow-y: auto;
+            font-family: 'Courier New', monospace;
+            font-size: 0.75em;
+        }
+
+        .hm-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 4px 8px;
+            border-radius: 4px;
+            margin: 2px 0;
+            transition: all 0.3s;
+            border-left: 3px solid rgba(100, 100, 160, 0.3);
+            background: rgba(40, 40, 70, 0.4);
+        }
+
+        .hm-row.just-added {
+            border-left-color: #f1c40f;
+            background: rgba(241, 196, 15, 0.08);
+        }
+
+        .hm-row.matched {
+            border-left-color: #2ecc71;
+            background: rgba(46, 204, 113, 0.1);
+        }
+
+        .hm-key {
+            color: #5dade2;
+        }
+
+        .hm-val {
+            color: #ccc;
+        }
+
+        .hashmap-container::-webkit-scrollbar {
+            width: 5px;
+        }
+
+        .hashmap-container::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        .hashmap-container::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.15);
+            border-radius: 3px;
+        }
+
+        /* ── Info / status ── */
+        .logic-bar {
+            padding: 12px;
+            background: rgba(20, 20, 50, 0.4);
+            border-radius: 8px;
+            text-align: center;
+            font-family: 'Courier New', monospace;
+            font-size: 0.88em;
+            min-height: 48px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .logic-highlight {
+            font-weight: bold;
+            color: #fff;
+            margin: 0 4px;
+        }
+
+        .v-true {
+            color: #2ecc71;
+        }
+
+        .v-false {
+            color: #e74c3c;
+        }
+
+        .validity-indicator {
+            text-align: center;
+            padding: 10px;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 0.88em;
+            transition: all 0.3s;
+        }
+
+        .vi-found {
+            background: rgba(46, 204, 113, 0.12);
+            color: #2ecc71;
+            border: 1px solid rgba(46, 204, 113, 0.2);
+        }
+
+        .vi-new {
+            background: rgba(241, 196, 15, 0.12);
+            color: #f1c40f;
+            border: 1px solid rgba(241, 196, 15, 0.2);
+        }
+
+        .vi-neutral {
+            background: rgba(100, 100, 140, 0.12);
+            color: #888;
+        }
+
+        .vi-done {
+            background: rgba(155, 89, 182, 0.15);
+            color: #bb6bd9;
+            border: 1px solid rgba(155, 89, 182, 0.25);
+        }
+
+        .result-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+        }
+
+        .result-display {
+            padding: 14px;
+            border-radius: 10px;
+            text-align: center;
+            border: 1px solid rgba(46, 204, 113, 0.2);
+            background: rgba(46, 204, 113, 0.08);
+        }
+
+        .result-label {
+            font-size: 0.82em;
+            color: #888;
+            margin-bottom: 4px;
+        }
+
+        .result-value {
+            font-size: 1.6em;
+            font-weight: 700;
+            color: #2ecc71;
+        }
+
+        /* ── Right panel ── */
+        .state-display {
+            background: rgba(20, 20, 50, 0.5);
+            border-radius: 8px;
+            padding: 10px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.78em;
+        }
+
+        .state-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 5px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .state-row:last-child {
+            border-bottom: none;
+        }
+
+        .state-label {
+            font-weight: 600;
+            color: #2ecc71;
+        }
+
+        .state-val {
+            color: #ccc;
+        }
+
+        .log-container {
+            background: rgba(20, 20, 50, 0.5);
+            border-radius: 8px;
+            padding: 10px;
+            max-height: 220px;
+            overflow-y: auto;
+            font-family: 'Courier New', monospace;
+            font-size: 0.62em;
+        }
+
+        .log-entry {
+            padding: 4px 8px;
+            margin: 2px 0;
+            border-radius: 4px;
+            border-left: 3px solid #555;
+            background: rgba(40, 40, 70, 0.5);
+            line-height: 1.5;
+        }
+
+        .log-entry.success {
+            border-left-color: #2ecc71;
+            background: rgba(46, 204, 113, 0.08);
+            color: #2ecc71;
+        }
+
+        .log-entry.warning {
+            border-left-color: #f39c12;
+            background: rgba(243, 156, 18, 0.08);
+            color: #f39c12;
+        }
+
+        .log-entry.info {
+            border-left-color: #3498db;
+            background: rgba(52, 152, 219, 0.08);
+            color: #8ec8f0;
+        }
+
+        .log-entry.error {
+            border-left-color: #e74c3c;
+            background: rgba(231, 76, 60, 0.08);
+            color: #e74c3c;
+        }
+
+        .log-entry.purple {
+            border-left-color: #9b59b6;
+            background: rgba(155, 89, 182, 0.08);
+            color: #bb6bd9;
+        }
+
+        .log-container::-webkit-scrollbar {
+            width: 5px;
+        }
+
+        .log-container::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        .log-container::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.15);
+            border-radius: 3px;
+        }
+
+        @media (max-width: 950px) {
+            .main-content {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <header>
+            <h1>🔢 Contiguous Array — Equal 0s & 1s</h1>
+            <div class="subtitle">Optimal — Prefix Sum + HashMap (First Occurrence)</div>
+            <div class="complexity-badge">Time: O(n) | Space: O(n)</div>
+        </header>
+        <div class="main-content">
+            <div class="left-panel">
+                <div class="card">
+                    <div class="card-title">⚙️ Controls</div>
+                    <div class="controls">
+                        <button class="btn-primary" id="playBtn">▶️ Play</button>
+                        <button class="btn-warning" id="pauseBtn" disabled>⏸️ Pause</button>
+                        <button class="btn-success" id="stepBtn">⏭️ Step</button>
+                        <button class="btn-secondary" id="resetBtn">🔄 Reset</button>
+                        <div class="speed-control">
+                            <label>Speed:</label>
+                            <input type="range" id="speedSlider" min="1" max="10" value="5">
+                            <span id="speedValue">5x</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="card">
+                    <div class="card-title">✏️ Custom Input</div>
+                    <div class="input-section">
+                        <input type="text" id="customInput" value="[0,1,0,0,1,1,0]" placeholder="e.g. [0,1,0,1]">
+                        <button class="btn-info" id="applyBtn">Apply</button>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-title">📋 Arrays</div>
+                    <div class="dual-array">
+                        <div class="array-label">ORIGINAL (0s / 1s)</div>
+                        <div class="array-row" id="origArray"></div>
+                        <div class="array-label" style="margin-top:4px;">TRANSFORMED (0 → −1)</div>
+                        <div class="array-row" id="transArray"></div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-title">📈 Prefix Sum Track</div>
+                    <div class="prefix-track" id="prefixTrack"></div>
+                </div>
+
+                <div class="card">
+                    <div class="card-title">⚖️ Lookup Check</div>
+                    <div class="logic-bar" id="logicBar">prefixSum in firstSeen?</div>
+                </div>
+
+                <div class="card">
+                    <div class="validity-indicator vi-neutral" id="validityIndicator">Ready — press Play or Step</div>
+                </div>
+
+                <div class="card">
+                    <div class="result-row">
+                        <div class="result-display">
+                            <div class="result-label">🏆 Max Length</div>
+                            <div class="result-value" id="maxLenValue">0</div>
+                        </div>
+                        <div class="result-display"
+                            style="background:rgba(52,152,219,0.08); border-color:rgba(52,152,219,0.15);">
+                            <div class="result-label">prefixSum</div>
+                            <div class="result-value" id="prefixSumValue" style="color:#5dade2;">0</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="right-panel">
+                <div class="card">
+                    <div class="card-title">📋 Current State</div>
+                    <div class="state-display">
+                        <div class="state-row"><span class="state-label">Phase:</span><span class="state-val"
+                                id="stPhase">init</span></div>
+                        <div class="state-row"><span class="state-label">i:</span><span class="state-val"
+                                id="stI">—</span></div>
+                        <div class="state-row"><span class="state-label">nums[i]:</span><span class="state-val"
+                                id="stNum">—</span></div>
+                        <div class="state-row"><span class="state-label">delta:</span><span class="state-val"
+                                id="stDelta">—</span></div>
+                        <div class="state-row"><span class="state-label">prefixSum:</span><span class="state-val"
+                                id="stPSum">0</span></div>
+                        <div class="state-row"><span class="state-label">target:</span><span class="state-val"
+                                id="stTarget">—</span></div>
+                        <div class="state-row"><span class="state-label">found?:</span><span class="state-val"
+                                id="stFound">—</span></div>
+                        <div class="state-row"><span class="state-label">len:</span><span class="state-val"
+                                id="stLen">—</span></div>
+                        <div class="state-row"><span class="state-label">maxLen:</span><span class="state-val"
+                                id="stMax">0</span></div>
+                        <div class="state-row"><span class="state-label">bestRange:</span><span class="state-val"
+                                id="stBest">—</span></div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-title">🗂️ firstSeen HashMap</div>
+                    <div class="hashmap-container" id="hashmapContainer">
+                        <div class="hm-row just-added"><span class="hm-key">sum=0</span><span
+                                class="hm-val">idx=-1</span></div>
+                    </div>
+                </div>
+
+                <div class="card" style="flex:1;">
+                    <div class="card-title">📝 Execution Log</div>
+                    <div class="log-container" id="logContainer">
+                        <div class="log-entry info">Optimal: prefix sum + HashMap, single O(n) pass.</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ─────── STATE ───────
+        let nums = [0, 1, 0, 0, 1, 1, 0];
+        let trans = [];
+        let n = 0;
+
+        let idx = 0;
+        let prefixSum = 0;
+        let maxLen = 0;
+        let bestStart = -1, bestEnd = -1;
+        let firstSeen = new Map(); // sum → first index
+        let prefixSums = [];       // for display: prefixSum after each index
+        let matchStart = -1;       // for highlighting matched subarray
+
+        let phase = 'init'; // init | transform | scan | done
+        let stepCount = 0;
+        let isRunning = false;
+        let speed = 5;
+        let isDone = false;
+
+        // ─────── DOM ───────
+        const playBtn = document.getElementById('playBtn');
+        const pauseBtn = document.getElementById('pauseBtn');
+        const stepBtn = document.getElementById('stepBtn');
+        const resetBtn = document.getElementById('resetBtn');
+        const speedSlider = document.getElementById('speedSlider');
+        const speedValueEl = document.getElementById('speedValue');
+        const customInput = document.getElementById('customInput');
+        const applyBtn = document.getElementById('applyBtn');
+        const origArrayEl = document.getElementById('origArray');
+        const transArrayEl = document.getElementById('transArray');
+        const prefixTrackEl = document.getElementById('prefixTrack');
+        const logicBar = document.getElementById('logicBar');
+        const validityInd = document.getElementById('validityIndicator');
+        const hashmapEl = document.getElementById('hashmapContainer');
+        const logContainer = document.getElementById('logContainer');
+
+        function addLog(msg, type = 'info') {
+            logContainer.innerHTML += `<div class="log-entry ${type}">[${stepCount}] ${msg}</div>`;
+            logContainer.scrollTop = logContainer.scrollHeight;
+        }
+        function clearLog() { logContainer.innerHTML = ''; }
+
+        // ─────── RENDER ───────
+        function render() {
+            const scanning = phase === 'scan';
+
+            // Original array
+            origArrayEl.innerHTML = nums.map((v, i) => {
+                let cls = `cell ${v === 0 ? 'val-zero' : 'val-one'}`;
+                if (scanning && i === idx) cls += ' current-scan';
+                else if (scanning && i < idx) cls += ' processed';
+                if (matchStart >= 0 && i > matchStart && i <= idx) cls += ' in-match';
+                if (phase === 'done' && bestStart >= 0 && i >= bestStart && i <= bestEnd) cls += ' best-range';
+
+                let ptr = '';
+                if (scanning && i === idx) ptr = '<span class="pointer-label ptr-i">i</span>';
+                return `<div class="cell-wrapper"><div class="${cls}">${v}</div><div class="cell-idx">${i}</div>${ptr}</div>`;
+            }).join('');
+
+            // Transformed array
+            transArrayEl.innerHTML = trans.map((v, i) => {
+                let cls = `cell ${v < 0 ? 'val-neg' : 'val-pos'}`;
+                if (scanning && i === idx) cls += ' current-scan';
+                else if (scanning && i < idx) cls += ' processed';
+                if (matchStart >= 0 && i > matchStart && i <= idx) cls += ' in-match';
+                if (phase === 'done' && bestStart >= 0 && i >= bestStart && i <= bestEnd) cls += ' best-range';
+                return `<div class="cell-wrapper"><div class="${cls}">${v > 0 ? '+' + v : v}</div><div class="cell-idx">${i}</div></div>`;
+            }).join('');
+
+            // Prefix sum track
+            prefixTrackEl.innerHTML = prefixSums.map((ps, i) => {
+                let cls = 'ps-cell';
+                if (scanning && i === idx) cls += ' active';
+                if (matchStart >= 0 && i > matchStart && i <= idx) cls += ' match-highlight';
+                return `<div class="${cls}">${ps}</div>`;
+            }).join('') || '<span style="color:#555">—</span>';
+
+            // Results
+            document.getElementById('maxLenValue').textContent = maxLen;
+            document.getElementById('prefixSumValue').textContent = prefixSum;
+
+            // State panel
+            document.getElementById('stPhase').textContent = phase;
+            document.getElementById('stI').textContent = scanning ? idx : '—';
+            document.getElementById('stNum').textContent = scanning ? nums[idx] : '—';
+            document.getElementById('stDelta').textContent = scanning ? (nums[idx] === 0 ? '−1' : '+1') : '—';
+            document.getElementById('stPSum').textContent = prefixSum;
+            document.getElementById('stMax').textContent = maxLen;
+            document.getElementById('stBest').textContent = bestStart >= 0 ? `[${bestStart},${bestEnd}]` : '—';
+
+            // HashMap
+            renderHashMap();
+        }
+
+        function renderHashMap() {
+            let html = '';
+            const entries = Array.from(firstSeen.entries()).sort((a, b) => a[0] - b[0]);
+            for (const [sum, index] of entries) {
+                let cls = 'hm-row';
+                if (phase === 'scan' && sum === prefixSum && firstSeen.has(prefixSum)) {
+                    if (index < idx) cls += ' matched';
+                    else cls += ' just-added';
+                }
+                html += `<div class="${cls}"><span class="hm-key">sum=${sum}</span><span class="hm-val">idx=${index}</span></div>`;
+            }
+            hashmapEl.innerHTML = html || '<div style="color:#555;text-align:center">empty</div>';
+        }
+
+        // ─────── STEP ───────
+        function doStep() {
+            if (isDone) { stopExec(); return; }
+            stepCount++;
+            matchStart = -1; // reset highlight
+
+            switch (phase) {
+                case 'init': {
+                    addLog(`Input: [${nums.join(',')}], n=${n}`, 'info');
+                    addLog('Step 1: Transform 0→−1. Equal 0s&1s ↔ sum=0.', 'purple');
+                    phase = 'transform';
+                    render();
+                    break;
+                }
+                case 'transform': {
+                    trans = nums.map(v => v === 0 ? -1 : 1);
+                    addLog(`Transformed: [${trans.map(v => v > 0 ? '+' + v : v).join(',')}]`, 'purple');
+                    addLog('Init HashMap: {sum=0 → idx=−1} (empty prefix).', 'info');
+                    firstSeen.set(0, -1);
+                    prefixSum = 0;
+                    idx = 0;
+                    phase = 'scan';
+                    render();
+                    break;
+                }
+                case 'scan': {
+                    if (idx >= n) {
+                        phase = 'done'; isDone = true;
+                        addLog(`✅ DONE! Max length = ${maxLen}`, 'success');
+                        if (maxLen > 0) addLog(`Best: indices [${bestStart}..${bestEnd}] = [${nums.slice(bestStart, bestEnd + 1).join(',')}]`, 'success');
+                        validityInd.className = 'validity-indicator vi-done';
+                        validityInd.textContent = `✅ Complete! Max length with equal 0s & 1s: ${maxLen}`;
+
+                        // Clear transient state displays
+                        document.getElementById('stTarget').textContent = '—';
+                        document.getElementById('stFound').textContent = '—';
+                        document.getElementById('stLen').textContent = '—';
+                        logicBar.innerHTML = '<span style="color:#bb6bd9">Algorithm complete!</span>';
+                        render(); stopExec();
+                        return;
+                    }
+
+                    // Add transformed value to prefix sum
+                    const delta = trans[idx];
+                    prefixSum += delta;
+                    prefixSums.push(prefixSum);
+
+                    // Check: has this prefix sum been seen before?
+                    if (firstSeen.has(prefixSum)) {
+                        const prevIdx = firstSeen.get(prefixSum);
+                        const len = idx - prevIdx;
+                        matchStart = prevIdx; // highlight the matched range
+
+                        logicBar.innerHTML = `prefixSum=<span class="logic-highlight">${prefixSum}</span> in map? <span class="v-true">YES</span> at idx=<span class="logic-highlight">${prevIdx}</span> → len = ${idx} − ${prevIdx === -1 ? '(−1)' : prevIdx} = <span class="logic-highlight">${len}</span>`;
+
+                        document.getElementById('stTarget').textContent = `sum=${prefixSum}`;
+                        document.getElementById('stFound').textContent = `✅ idx=${prevIdx}`;
+                        document.getElementById('stLen').textContent = len;
+
+                        if (len > maxLen) {
+                            maxLen = len;
+                            bestStart = prevIdx + 1;
+                            bestEnd = idx;
+                            addLog(`i=${idx}: δ=${delta > 0 ? '+' + delta : delta}, pSum=${prefixSum}. FOUND at idx=${prevIdx}! len=${len} → NEW BEST 🎉`, 'success');
+                            validityInd.className = 'validity-indicator vi-found';
+                            validityInd.textContent = `🎉 Same prefixSum at idx ${prevIdx}! len=${len} → NEW BEST!`;
+                        } else {
+                            addLog(`i=${idx}: δ=${delta > 0 ? '+' + delta : delta}, pSum=${prefixSum}. Found at idx=${prevIdx}, len=${len} (≤ best ${maxLen})`, 'info');
+                            validityInd.className = 'validity-indicator vi-found';
+                            validityInd.textContent = `✓ Same prefixSum at idx ${prevIdx}, len=${len} (not better)`;
+                        }
+                        // Do NOT update firstSeen — keep first occurrence
+                    } else {
+                        // First time seeing this prefix sum
+                        firstSeen.set(prefixSum, idx);
+
+                        logicBar.innerHTML = `prefixSum=<span class="logic-highlight">${prefixSum}</span> in map? <span class="v-false">NO</span> → store firstSeen[${prefixSum}] = ${idx}`;
+
+                        document.getElementById('stTarget').textContent = `sum=${prefixSum}`;
+                        document.getElementById('stFound').textContent = '❌ new';
+                        document.getElementById('stLen').textContent = '—';
+
+                        addLog(`i=${idx}: δ=${delta > 0 ? '+' + delta : delta}, pSum=${prefixSum}. NEW sum → stored firstSeen[${prefixSum}]=${idx}`, 'warning');
+                        validityInd.className = 'validity-indicator vi-new';
+                        validityInd.textContent = `New prefixSum=${prefixSum}. Stored at idx=${idx}.`;
+                    }
+
+                    idx++;
+                    render();
+                    break;
+                }
+            }
+        }
+
+        // ─────── CONTROLS ───────
+        function play() {
+            if (isRunning || isDone) return;
+            isRunning = true;
+            playBtn.disabled = true; pauseBtn.disabled = false; stepBtn.disabled = true;
+            runLoop();
+        }
+        function pause() {
+            isRunning = false;
+            playBtn.disabled = false; pauseBtn.disabled = true; stepBtn.disabled = false;
+        }
+        function stopExec() {
+            isRunning = false;
+            playBtn.disabled = true; pauseBtn.disabled = true; stepBtn.disabled = true;
+        }
+        function runLoop() {
+            if (!isRunning) return;
+            doStep();
+            if (isRunning && !isDone) setTimeout(runLoop, 600 / speed);
+        }
+
+        function init() {
+            n = nums.length;
+            trans = [];
+            idx = 0; prefixSum = 0;
+            maxLen = 0; bestStart = -1; bestEnd = -1;
+            firstSeen = new Map();
+            prefixSums = [];
+            matchStart = -1;
+            phase = 'init'; stepCount = 0; isDone = false;
+
+            validityInd.className = 'validity-indicator vi-neutral';
+            validityInd.textContent = 'Ready — press Play or Step';
+            logicBar.innerHTML = 'prefixSum in firstSeen?';
+            playBtn.disabled = false; pauseBtn.disabled = true; stepBtn.disabled = false;
+
+            document.getElementById('stTarget').textContent = '—';
+            document.getElementById('stFound').textContent = '—';
+            document.getElementById('stLen').textContent = '—';
+
+            hashmapEl.innerHTML = '';
+            clearLog();
+            addLog('Optimal: prefix sum + HashMap. Single O(n) pass.', 'info');
+            render();
+        }
+
+        playBtn.addEventListener('click', play);
+        pauseBtn.addEventListener('click', pause);
+        stepBtn.addEventListener('click', () => { if (!isDone) doStep(); });
+        resetBtn.addEventListener('click', () => { isRunning = false; init(); });
+        speedSlider.addEventListener('input', e => {
+            speed = parseInt(e.target.value);
+            speedValueEl.textContent = speed + 'x';
+        });
+        applyBtn.addEventListener('click', () => {
+            try {
+                const parsed = JSON.parse(customInput.value);
+                if (!Array.isArray(parsed) || parsed.length === 0) throw new Error('Need non-empty array');
+                for (const v of parsed) if (v !== 0 && v !== 1) throw new Error('Only 0s and 1s allowed');
+                nums = parsed;
+                isRunning = false; init();
+            } catch (e) { alert('Invalid input: ' + e.message); }
+        });
+
+        init();
+    </script>
+</body>
+
+</html>

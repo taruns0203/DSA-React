@@ -1,0 +1,508 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Min Subarray Sum - Sliding Window</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            min-height: 100vh;
+            padding: 20px;
+            color: #333;
+        }
+        .container {
+            max-width: 1100px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            overflow: hidden;
+        }
+        header {
+            background: linear-gradient(135deg, #1abc9c 0%, #16a085 100%);
+            color: white;
+            padding: 25px;
+            text-align: center;
+        }
+        h1 { font-size: 1.5em; margin-bottom: 8px; }
+        .subtitle { font-size: 1em; opacity: 0.9; }
+        .complexity-badge {
+            display: inline-block;
+            background: rgba(255,255,255,0.2);
+            padding: 6px 14px;
+            border-radius: 15px;
+            margin-top: 8px;
+            font-size: 0.85em;
+        }
+        .main-content {
+            display: grid;
+            grid-template-columns: 1fr 280px;
+            gap: 20px;
+            padding: 20px;
+        }
+        .card {
+            background: #f8f9fa;
+            border-radius: 12px;
+            padding: 16px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            margin-bottom: 16px;
+        }
+        .card-title {
+            font-size: 0.95em;
+            font-weight: 600;
+            margin-bottom: 12px;
+            color: #16a085;
+        }
+        
+        /* Controls */
+        .controls { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+        button {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 8px;
+            font-size: 0.85em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        button:hover { transform: translateY(-2px); }
+        button:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+        .btn-primary { background: linear-gradient(135deg, #1abc9c 0%, #16a085 100%); color: white; }
+        .btn-success { background: linear-gradient(135deg, #28a745 0%, #20c997 100%); color: white; }
+        .btn-warning { background: linear-gradient(135deg, #ffc107 0%, #ff9800 100%); color: white; }
+        .btn-secondary { background: #6c757d; color: white; }
+        .speed-control { display: flex; align-items: center; gap: 6px; flex: 1; min-width: 140px; }
+        .speed-control input[type="range"] { flex: 1; height: 5px; accent-color: #16a085; }
+
+        /* Array Display */
+        .array-container {
+            display: flex;
+            gap: 10px;
+            min-height: 100px; /* Taller for window visuals */
+            padding: 40px 10px 20px 10px;
+            background: #fff;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            position: relative;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+        
+        .array-item {
+            width: 50px;
+            height: 50px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            color: white;
+            position: relative;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            font-size: 1.1em;
+            background: #34495e;
+            z-index: 1;
+        }
+        
+        .array-item.in-window {
+            background: #1abc9c;
+            transform: scale(1.05);
+            z-index: 2;
+            box-shadow: 0 8px 15px rgba(26, 188, 156, 0.3);
+        }
+        
+        .array-item.shrink-target {
+            background: #e74c3c;
+            animation: shake 0.4s;
+        }
+        
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-3px); }
+            75% { transform: translateX(3px); }
+        }
+
+        .idx-label {
+            position: absolute;
+            top: -20px;
+            font-size: 0.6em;
+            color: #888;
+            width: 100%;
+            text-align: center;
+        }
+        
+        /* Pointers */
+        .ptr {
+            position: absolute;
+            bottom: -35px;
+            font-size: 0.85em;
+            font-weight: 700;
+            text-align: center;
+            width: 50px;
+            transition: left 0.3s ease;
+        }
+        .ptr-l { color: #e67e22; }
+        .ptr-l::before { content: '▲'; display: block; font-size: 0.8em; }
+        .ptr-l::after { content: 'L'; display: block; }
+        
+        .ptr-r { color: #3498db; }
+        .ptr-r::before { content: '▲'; display: block; font-size: 0.8em; }
+        .ptr-r::after { content: 'R'; display: block; }
+
+        /* Window Bracket */
+        .window-bracket {
+            position: absolute;
+            top: 15px; /* Above items */
+            height: 10px;
+            border: 2px solid #16a085;
+            border-bottom: none;
+            transition: all 0.3s ease;
+            pointer-events: none;
+        }
+
+        /* State & Log */
+        .state-display { background: white; border-radius: 8px; padding: 10px; font-family: 'Courier New', monospace; font-size: 0.85em; }
+        .state-row { display: flex; justify-content: space-between; padding: 4px 0; border-bottom: 1px solid #eee; }
+        .highlight-val { color: #16a085; font-weight: bold; }
+        
+        .log-container { 
+            background: white; border-radius: 8px; padding: 10px; 
+            max-height: 200px; overflow-y: auto; 
+            font-family: 'Courier New', monospace; font-size: 0.65em; 
+        }
+        .log-entry { padding: 3px 6px; margin: 2px 0; border-radius: 4px; border-left: 3px solid #ccc; background: #f9f9f9; }
+        .log-entry.expand { border-left-color: #3498db; background: #ebf5fb; }
+        .log-entry.shrink { border-left-color: #e74c3c; background: #fdedec; }
+        .log-entry.found { border-left-color: #27ae60; background: #eafaf1; }
+        .log-entry.info { border-left-color: #95a5a6; background: #fdfdfd; }
+        
+        .min-len-display {
+            text-align: center;
+            padding: 10px;
+            background: #2c3e50;
+            color: white;
+            border-radius: 8px;
+            margin-top: 10px;
+            font-size: 1.2em;
+            font-weight: bold;
+        }
+        
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Min Subarray Sum</h1>
+            <div class="subtitle">Optimal: Sliding Window</div>
+            <div class="complexity-badge">Time: O(N) | Space: O(1)</div>
+        </header>
+
+        <div class="main-content">
+            <div class="left-panel">
+                <div class="card">
+                    <div class="card-title">⚙️ Controls</div>
+                    <div class="controls">
+                        <button class="btn-primary" id="playBtn">▶️ Play</button>
+                        <button class="btn-warning" id="pauseBtn" disabled>⏸️ Pause</button>
+                        <button class="btn-success" id="stepBtn">⏭️ Step</button>
+                        <button class="btn-secondary" id="resetBtn">🔄 Reset</button>
+                        <div class="speed-control">
+                            <label>Speed:</label>
+                            <input type="range" id="speedSlider" min="1" max="10" value="5">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+                        <div class="card-title" style="margin:0">🔍 Sliding Window View</div>
+                        <div style="font-weight:bold; color:#16a085">Target: <span id="targetDisplay">7</span></div>
+                    </div>
+                    
+                    <div class="array-container" id="arrayContainer">
+                        <!-- Items populated by JS -->
+                    </div>
+                </div>
+                
+                <div class="card">
+                    <div class="card-title">ℹ️ Logic</div>
+                    <div style="font-size: 0.9em; color: #555;">
+                        1. <strong>Expand (R)</strong>: Add elements to reach target sum.<br>
+                        2. <strong>Shrink (L)</strong>: Once sum >= target, remove elements from left to find smallest length.
+                    </div>
+                </div>
+            </div>
+
+            <div class="right-panel">
+                <div class="card">
+                    <div class="card-title">📊 State</div>
+                    <div class="state-display">
+                        <div class="state-row"><span>Left (L):</span><span id="lVal">0</span></div>
+                        <div class="state-row"><span>Right (R):</span><span id="rVal">-</span></div>
+                        <div class="state-row"><span>Current Sum:</span><span id="sumVal" class="highlight-val">0</span></div>
+                        <div class="state-row"><span>Current Len:</span><span id="lenVal">-</span></div>
+                    </div>
+                    <div class="min-len-display">
+                        Min Length: <span id="minLenVal">∞</span>
+                    </div>
+                </div>
+
+                <div class="card" style="flex-grow: 1; display: flex; flex-direction: column;">
+                    <div class="card-title">📝 Execution Log</div>
+                    <div class="log-container" id="logContainer"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Data
+        const TARGET = 7;
+        const nums = [2, 3, 1, 2, 4, 3];
+        
+        let l = 0; // Left pointer
+        let r = 0; // Right pointer (current element being added)
+        let sum = 0;
+        let minLen = Infinity;
+        let n = nums.length;
+        
+        // State Machine
+        // phases: 'init', 'expand', 'check', 'shrink', 'done'
+        let phase = 'init';
+        
+        let isRunning = false;
+        let timer = null;
+        let speed = 5;
+        let stepCount = 0;
+
+        function init() {
+            l = 0;
+            r = 0;
+            sum = 0;
+            minLen = Infinity;
+            phase = 'init';
+            stepCount = 0;
+            
+            clearLog();
+            addLog(`Target: ${TARGET}. Array: [${nums.join(', ')}]`, "info");
+            
+            render();
+            updateControls();
+        }
+
+        function render() {
+            const container = document.getElementById('arrayContainer');
+            container.innerHTML = '';
+            
+            // Build Items
+            nums.forEach((val, idx) => {
+                const el = document.createElement('div');
+                let cls = 'array-item';
+                
+                // Visual Logic
+                // If r has processed this index, it's potentially in window
+                // Specifically: [l, r] (inclusive if phase is check/shrink/expand after add)
+                // But r moves forward. So window is [l, r] during check/shrink.
+                // During expand, r is moving to new index.
+                
+                const effectiveR = (phase === 'expand' || phase === 'init' || phase === 'done') ? r - 1 : r;
+                
+                if (idx >= l && idx <= effectiveR) {
+                    cls += ' in-window';
+                }
+                
+                if (phase === 'shrink' && idx === l) {
+                    cls += ' shrink-target';
+                }
+                
+                el.className = cls;
+                el.textContent = val;
+                
+                const lbl = document.createElement('div');
+                lbl.className = 'idx-label';
+                lbl.textContent = idx;
+                el.appendChild(lbl);
+                
+                container.appendChild(el);
+            });
+            
+            // Render Pointers
+            // We need absolute positioning based on index.
+            // Assumption: item width 50 + gap 10 = 60px step.
+            // Padding left 10px.
+            
+            if (phase !== 'done') {
+                const ptrL = document.createElement('div');
+                ptrL.className = 'ptr ptr-l';
+                ptrL.style.left = `${(60 * l) + 10}px`;
+                container.appendChild(ptrL);
+                
+                // R pointer
+                // In 'expand', r is aimed at next element. In 'check'/'shrink', it's at current last element.
+                const visualR = (phase === 'expand') ? r : r; 
+                // Wait, if phase is expand, r is pointing to index we ARE ABOUT to process (or recently did).
+                // Let's rely on variable 'r' directly usually.
+                
+                if (r < n) {
+                    const ptrR = document.createElement('div');
+                    ptrR.className = 'ptr ptr-r';
+                    ptrR.style.left = `${(60 * r) + 10}px`;
+                    container.appendChild(ptrR);
+                }
+            }
+            
+            // Window Bracket (Visualizing the sum range)
+            const effectiveR = (phase === 'expand' || phase === 'init' || phase === 'done') ? r - 1 : r;
+            if (effectiveR >= l) {
+                const bracket = document.createElement('div');
+                bracket.className = 'window-bracket';
+                const startX = (60 * l) + 10 + 25; // center of start item
+                const endX = (60 * effectiveR) + 10 + 25; // center of end item
+                const width = endX - startX;
+                
+                bracket.style.left = `${startX}px`; // Start from center of L
+                bracket.style.width = `${width}px`;
+                // Actually, bracket should span full width of items?
+                // Left: Start of L item (10 + 60*L). Width: (effectiveR - L + 1) * 60 - 10 (gap).
+                const realLeft = (60 * l) + 10;
+                const realWidth = ((effectiveR - l + 1) * 60) - 10;
+                
+                bracket.style.left = `${realLeft}px`;
+                bracket.style.width = `${realWidth}px`;
+                
+                container.appendChild(bracket);
+            }
+
+            // State Updates
+            document.getElementById('lVal').textContent = l;
+            document.getElementById('rVal').textContent = phase === 'done' ? '-' : r;
+            document.getElementById('sumVal').textContent = sum;
+            
+            const currentLen = (effectiveR >= l) ? (effectiveR - l + 1) : 0;
+            document.getElementById('lenVal').textContent = currentLen > 0 ? currentLen : '-';
+            
+            document.getElementById('minLenVal').textContent = minLen === Infinity ? '∞' : minLen;
+            document.getElementById('targetDisplay').textContent = TARGET;
+        }
+
+        function step() {
+            stepCount++;
+            
+            if (phase === 'init') {
+                phase = 'expand';
+                addLog("Starting. Expand R to find window.", "info");
+            }
+            else if (phase === 'expand') {
+                if (r < n) {
+                    const val = nums[r];
+                    sum += val;
+                    addLog(`Expand R to ${r} (add ${val}). Sum is now ${sum}.`, "expand");
+                    phase = 'check'; // Check if valid
+                } else {
+                    phase = 'done';
+                    const res = minLen === Infinity ? 0 : minLen;
+                    addLog(`End of array. Final Min Length: ${res}`, "info");
+                    stop();
+                }
+            }
+            else if (phase === 'check') {
+                if (sum >= TARGET) {
+                    addLog(`Sum ${sum} >= ${TARGET}. Valid Window!`, "found");
+                    phase = 'shrink'; // Must shrink to optimize
+                } else {
+                    // Not enough, need more elements
+                    r++;
+                    phase = 'expand';
+                }
+            }
+            else if (phase === 'shrink') {
+                // Update minLen
+                const currentLen = r - l + 1;
+                if (currentLen < minLen) {
+                    minLen = currentLen;
+                    addLog(`New Min Length Found: ${minLen}`, "found");
+                }
+                
+                // Try to shrink L
+                // logic: remove nums[l], l++
+                const val = nums[l];
+                sum -= val;
+                addLog(`Shrink L from ${l} (remove ${val}). Sum becomes ${sum}.`, "shrink");
+                l++;
+                
+                // After shrinking, check again.
+                // If sum still >= target, we continue shrinking (stay in shrink phase)
+                // If sum < target, we must expand again.
+                
+                if (sum >= TARGET) {
+                     // Stay in shrink phase for next step
+                     addLog(`Sum ${sum} still >= ${TARGET}. Continue shrinking.`, "found");
+                } else {
+                    addLog(`Sum ${sum} < ${TARGET}. Need to expand R.`, "expand");
+                    r++;
+                    phase = 'expand';
+                }
+            }
+            
+            render();
+        }
+
+        function addLog(msg, type = 'info') {
+            const log = document.getElementById('logContainer');
+            log.innerHTML += `<div class="log-entry ${type}">[${stepCount}] ${msg}</div>`;
+            log.scrollTop = log.scrollHeight;
+        }
+
+        function clearLog() { document.getElementById('logContainer').innerHTML = ''; }
+
+        function play() {
+            if (isRunning) return;
+            isRunning = true;
+            updateControls();
+            runLoop();
+        }
+
+        function runLoop() {
+            if (!isRunning) return;
+            step();
+            if (phase !== 'done') {
+                const delay = 1000 - (speed * 90);
+                timer = setTimeout(runLoop, Math.max(50, delay));
+            }
+        }
+
+        function stop() {
+            isRunning = false;
+            if (timer) clearTimeout(timer);
+            updateControls();
+        }
+
+        function reset() {
+            stop();
+            init();
+        }
+
+        function updateControls() {
+            document.getElementById('playBtn').disabled = isRunning || phase === 'done';
+            document.getElementById('pauseBtn').disabled = !isRunning;
+            document.getElementById('stepBtn').disabled = isRunning || phase === 'done';
+            document.getElementById('resetBtn').disabled = isRunning;
+        }
+
+        // Listeners
+        document.getElementById('playBtn').addEventListener('click', play);
+        document.getElementById('pauseBtn').addEventListener('click', stop);
+        document.getElementById('stepBtn').addEventListener('click', step);
+        document.getElementById('resetBtn').addEventListener('click', reset);
+        document.getElementById('speedSlider').addEventListener('input', (e) => speed = parseInt(e.target.value));
+
+        // Start
+        init();
+
+    </script>
+</body>
+</html>

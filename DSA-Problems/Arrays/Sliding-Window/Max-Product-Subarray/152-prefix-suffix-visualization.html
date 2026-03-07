@@ -1,0 +1,515 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Max Product Subarray - Prefix & Suffix Products</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #0f0c29 0%, #302b63 50%, #24243e 100%);
+            min-height: 100vh;
+            padding: 20px;
+            color: #e0e0e0;
+        }
+        .container {
+            max-width: 1150px;
+            margin: 0 auto;
+            background: #1a1a2e;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.6);
+            overflow: hidden;
+        }
+        header {
+            background: linear-gradient(135deg, #6c5ce7 0%, #a29bfe 100%);
+            color: white;
+            padding: 22px;
+            text-align: center;
+        }
+        h1 { font-size: 1.4em; margin-bottom: 6px; }
+        .subtitle { font-size: 0.95em; opacity: 0.9; }
+        .complexity-badge {
+            display: inline-block;
+            background: rgba(255,255,255,0.18);
+            padding: 5px 14px;
+            border-radius: 15px;
+            margin-top: 6px;
+            font-size: 0.82em;
+        }
+        .main-content {
+            display: grid;
+            grid-template-columns: 1fr 280px;
+            gap: 16px;
+            padding: 16px;
+        }
+        .card {
+            background: #16213e;
+            border-radius: 12px;
+            padding: 14px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.4);
+            margin-bottom: 14px;
+        }
+        .card-title {
+            font-size: 0.9em;
+            font-weight: 600;
+            margin-bottom: 10px;
+            color: #a29bfe;
+        }
+
+        /* Controls */
+        .controls { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+        button {
+            padding: 7px 14px; border: none; border-radius: 8px;
+            font-size: 0.82em; font-weight: 600; cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        button:hover { transform: translateY(-2px); filter: brightness(1.15); }
+        button:disabled { opacity: 0.4; cursor: not-allowed; transform: none; }
+        .btn-primary { background: linear-gradient(135deg, #6c5ce7, #a29bfe); color: white; }
+        .btn-success { background: linear-gradient(135deg, #00b894, #55efc4); color: white; }
+        .btn-warning { background: linear-gradient(135deg, #fdcb6e, #e17055); color: white; }
+        .btn-secondary { background: #636e72; color: white; }
+        .speed-control { display: flex; align-items: center; gap: 6px; flex: 1; min-width: 130px; font-size: 0.82em; }
+        .speed-control input[type="range"] { flex: 1; height: 4px; accent-color: #6c5ce7; }
+
+        /* Array visualization area */
+        .viz-area {
+            padding: 16px 10px;
+            background: #0f0c29;
+            border: 1px solid #302b63;
+            border-radius: 10px;
+        }
+        .sweep-label {
+            font-size: 0.75em;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 6px;
+            padding-left: 4px;
+        }
+        .sweep-prefix { color: #55efc4; }
+        .sweep-suffix { color: #fd79a8; }
+        .sweep-array { color: #74b9ff; }
+
+        .array-row {
+            display: flex;
+            justify-content: center;
+            gap: 6px;
+            margin-bottom: 14px;
+        }
+        .arr-cell {
+            width: 58px;
+            height: 50px;
+            border-radius: 8px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 1.1em;
+            position: relative;
+            transition: all 0.35s ease;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.3);
+        }
+        .arr-cell .cidx {
+            position: absolute;
+            bottom: -16px;
+            font-size: 0.5em;
+            color: #636e72;
+        }
+
+        /* Cell states */
+        .cell-default { background: linear-gradient(145deg, #2d3a56, #3d4f7c); color: #b2bec3; }
+        .cell-prefix-active { background: linear-gradient(145deg, #00b894, #55efc4); color: #2d3436; box-shadow: 0 0 14px rgba(85,239,196,0.4); }
+        .cell-suffix-active { background: linear-gradient(145deg, #e84393, #fd79a8); color: white; box-shadow: 0 0 14px rgba(253,121,168,0.4); }
+        .cell-both-active { background: linear-gradient(145deg, #fdcb6e, #f39c12); color: #2d3436; box-shadow: 0 0 14px rgba(253,203,110,0.5); }
+
+        /* Product value cells below arrays */
+        .prod-cell {
+            width: 58px;
+            height: 36px;
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 0.85em;
+            font-family: 'Courier New', monospace;
+            transition: all 0.3s ease;
+        }
+        .prod-prefix { border: 1px solid #00b89466; color: #55efc4; background: #00b89418; }
+        .prod-prefix.active { border-color: #55efc4; background: #00b89433; box-shadow: 0 0 8px rgba(85,239,196,0.3); }
+        .prod-suffix { border: 1px solid #fd79a866; color: #fd79a8; background: #fd79a818; }
+        .prod-suffix.active { border-color: #fd79a8; background: #fd79a833; box-shadow: 0 0 8px rgba(253,121,168,0.3); }
+        .prod-reset { border-color: #636e72 !important; color: #636e72 !important; background: transparent !important; }
+
+        /* Pointer arrows */
+        .ptr-row {
+            display: flex;
+            justify-content: center;
+            gap: 6px;
+            margin-bottom: 4px;
+            height: 22px;
+        }
+        .ptr-cell {
+            width: 58px;
+            text-align: center;
+            font-size: 0.75em;
+            font-weight: 700;
+        }
+        .ptr-cell.prefix-ptr { color: #55efc4; }
+        .ptr-cell.suffix-ptr { color: #fd79a8; }
+
+        /* State & Log */
+        .state-display { background: #0f0c29; border-radius: 8px; padding: 10px; font-family: 'Courier New', monospace; font-size: 0.82em; }
+        .state-row { display: flex; justify-content: space-between; padding: 4px 0; border-bottom: 1px solid #302b63; }
+        .state-val { font-weight: bold; }
+        .val-prefix { color: #55efc4; }
+        .val-suffix { color: #fd79a8; }
+        .val-best { color: #fdcb6e; }
+
+        .log-container {
+            background: #0f0c29; border-radius: 8px; padding: 8px;
+            max-height: 220px; overflow-y: auto;
+            font-family: 'Courier New', monospace; font-size: 0.6em;
+        }
+        .log-entry { padding: 3px 6px; margin: 2px 0; border-radius: 4px; border-left: 3px solid #4a5568; background: #16213e; }
+        .log-entry.prefix { border-left-color: #00b894; }
+        .log-entry.suffix { border-left-color: #fd79a8; }
+        .log-entry.best { border-left-color: #fdcb6e; }
+        .log-entry.reset { border-left-color: #636e72; color: #636e72; }
+        .log-entry.done { border-left-color: #a29bfe; }
+
+        .max-display {
+            text-align: center; padding: 12px;
+            background: linear-gradient(135deg, #16213e, #0f0c29);
+            border: 1px solid #6c5ce7;
+            color: white; border-radius: 8px;
+            margin-top: 10px; font-size: 1.1em; font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Maximum Product Subarray</h1>
+            <div class="subtitle">Improved: Prefix & Suffix Products</div>
+            <div class="complexity-badge">Time: O(N) | Space: O(1)</div>
+        </header>
+
+        <div class="main-content">
+            <div class="left-panel">
+                <div class="card">
+                    <div class="card-title">⚙️ Controls</div>
+                    <div class="controls">
+                        <button class="btn-primary" id="playBtn">▶ Play</button>
+                        <button class="btn-warning" id="pauseBtn" disabled>⏸ Pause</button>
+                        <button class="btn-success" id="stepBtn">⏭ Step</button>
+                        <button class="btn-secondary" id="resetBtn">↺ Reset</button>
+                        <div class="speed-control">
+                            <label>Speed:</label>
+                            <input type="range" id="speedSlider" min="1" max="10" value="5">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-title">📊 Dual Sweep</div>
+                    <div class="viz-area">
+                        <div class="sweep-label sweep-array">nums[]</div>
+                        <div class="ptr-row" id="ptrRow"></div>
+                        <div class="array-row" id="arrayRow"></div>
+
+                        <div class="sweep-label sweep-prefix" style="margin-top:10px">→ Prefix Product (left to right)</div>
+                        <div class="array-row" id="prefixRow"></div>
+
+                        <div class="sweep-label sweep-suffix">← Suffix Product (right to left)</div>
+                        <div class="array-row" id="suffixRow"></div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-title">💡 Insight</div>
+                    <div style="font-size: 0.78em; color: #b2bec3; line-height: 1.6;">
+                        Sweep prefix (<span style="color:#55efc4">→</span>) and suffix (<span style="color:#fd79a8">←</span>) simultaneously.<br>
+                        If a product hits <b>0</b>, reset it to 1 (start fresh after zero).<br>
+                        The max product subarray always appears as a prefix ending somewhere or a suffix starting somewhere.
+                    </div>
+                </div>
+            </div>
+
+            <div class="right-panel">
+                <div class="card">
+                    <div class="card-title">📊 State</div>
+                    <div class="state-display">
+                        <div class="state-row"><span>i:</span><span class="state-val val-prefix" id="iVal">-</span></div>
+                        <div class="state-row"><span>prefix:</span><span class="state-val val-prefix" id="prefixVal">1</span></div>
+                        <div class="state-row"><span>suffix:</span><span class="state-val val-suffix" id="suffixVal">1</span></div>
+                        <div class="state-row"><span>n-1-i:</span><span class="state-val val-suffix" id="niVal">-</span></div>
+                    </div>
+                    <div class="max-display">
+                        Max Product: <span id="maxVal">-∞</span>
+                    </div>
+                </div>
+
+                <div class="card" style="flex-grow: 1; display: flex; flex-direction: column;">
+                    <div class="card-title">📝 Execution Log</div>
+                    <div class="log-container" id="logContainer"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ── Data ───────────────────────────────────────────────
+        const nums = [2, 3, -2, 4];
+        const N = nums.length;
+
+        // ── State ─────────────────────────────────────────────
+        let prefix = 1;
+        let suffix = 1;
+        let maxProd = -Infinity;
+        let curI = -1;
+
+        // Per-cell stored values for display
+        let prefixVals = new Array(N).fill(null);
+        let suffixVals = new Array(N).fill(null);
+        let prefixReset = new Array(N).fill(false);
+        let suffixReset = new Array(N).fill(false);
+
+        // Phase: 'init', 'sweep', 'done'
+        let phase = 'init';
+
+        let isRunning = false;
+        let timer = null;
+        let speed = 5;
+        let stepCount = 0;
+
+        function init() {
+            prefix = 1;
+            suffix = 1;
+            maxProd = -Infinity;
+            curI = -1;
+            prefixVals = new Array(N).fill(null);
+            suffixVals = new Array(N).fill(null);
+            prefixReset = new Array(N).fill(false);
+            suffixReset = new Array(N).fill(false);
+            phase = 'init';
+            stepCount = 0;
+
+            clearLog();
+            addLog(`Array: [${nums.join(', ')}]`, 'info');
+            render();
+            updateControls();
+        }
+
+        function step() {
+            if (phase === 'done') return;
+            stepCount++;
+
+            if (phase === 'init') {
+                phase = 'sweep';
+                curI = -1;
+                addLog('Dual sweep: prefix → and suffix ← simultaneously.', 'info');
+            }
+
+            if (phase === 'sweep') {
+                curI++;
+                if (curI >= N) {
+                    phase = 'done';
+                    addLog(`✅ Done. Max Product = ${maxProd}`, 'done');
+                    stop();
+                    render();
+                    return;
+                }
+
+                const si = N - 1 - curI; // suffix index
+
+                // Prefix
+                prefix *= nums[curI];
+                prefixVals[curI] = prefix;
+
+                // Suffix
+                suffix *= nums[si];
+                suffixVals[si] = suffix;
+
+                // Update max
+                const oldMax = maxProd;
+                maxProd = Math.max(maxProd, prefix, suffix);
+
+                // Log
+                addLog(`i=${curI}: prefix × ${nums[curI]} = ${prefix}`, 'prefix');
+                addLog(`i=${curI}: suffix × ${nums[si]} = ${suffix} (idx ${si})`, 'suffix');
+                if (maxProd > oldMax) {
+                    addLog(`🏆 New Max = ${maxProd}`, 'best');
+                }
+
+                // Reset after zero
+                if (prefix === 0) {
+                    prefixReset[curI] = true;
+                    prefix = 1;
+                    addLog(`Prefix hit 0 → reset to 1`, 'reset');
+                }
+                if (suffix === 0) {
+                    suffixReset[si] = true;
+                    suffix = 1;
+                    addLog(`Suffix hit 0 → reset to 1`, 'reset');
+                }
+            }
+
+            render();
+        }
+
+        // ── Rendering ─────────────────────────────────────────
+        function render() {
+            renderArrayRow();
+            renderPtrRow();
+            renderPrefixRow();
+            renderSuffixRow();
+            renderState();
+        }
+
+        function renderArrayRow() {
+            const row = document.getElementById('arrayRow');
+            row.innerHTML = '';
+            for (let idx = 0; idx < N; idx++) {
+                const el = document.createElement('div');
+                let cls = 'arr-cell';
+
+                const si = curI >= 0 ? N - 1 - curI : -1;
+                const isPre = idx === curI;
+                const isSuf = idx === si;
+
+                if (isPre && isSuf) cls += ' cell-both-active';
+                else if (isPre) cls += ' cell-prefix-active';
+                else if (isSuf) cls += ' cell-suffix-active';
+                else cls += ' cell-default';
+
+                el.className = cls;
+                el.textContent = nums[idx];
+
+                const lbl = document.createElement('div');
+                lbl.className = 'cidx';
+                lbl.textContent = idx;
+                el.appendChild(lbl);
+
+                row.appendChild(el);
+            }
+        }
+
+        function renderPtrRow() {
+            const row = document.getElementById('ptrRow');
+            row.innerHTML = '';
+            for (let idx = 0; idx < N; idx++) {
+                const el = document.createElement('div');
+                el.className = 'ptr-cell';
+
+                const si = curI >= 0 ? N - 1 - curI : -1;
+                if (idx === curI && idx === si) {
+                    el.className += ' prefix-ptr';
+                    el.textContent = 'i ↓ ↓';
+                } else if (idx === curI) {
+                    el.className += ' prefix-ptr';
+                    el.textContent = 'i ↓';
+                } else if (idx === si) {
+                    el.className += ' suffix-ptr';
+                    el.textContent = '↓ n-1-i';
+                }
+
+                row.appendChild(el);
+            }
+        }
+
+        function renderPrefixRow() {
+            const row = document.getElementById('prefixRow');
+            row.innerHTML = '';
+            for (let idx = 0; idx < N; idx++) {
+                const el = document.createElement('div');
+                let cls = 'arr-cell prod-prefix';
+
+                if (prefixVals[idx] !== null) {
+                    if (idx === curI && phase !== 'done') cls += ' active';
+                    if (prefixReset[idx]) cls += ' prod-reset';
+                    el.textContent = prefixVals[idx];
+                }
+
+                el.className = cls;
+                row.appendChild(el);
+            }
+        }
+
+        function renderSuffixRow() {
+            const row = document.getElementById('suffixRow');
+            row.innerHTML = '';
+            for (let idx = 0; idx < N; idx++) {
+                const el = document.createElement('div');
+                let cls = 'arr-cell prod-suffix';
+
+                const si = curI >= 0 ? N - 1 - curI : -1;
+                if (suffixVals[idx] !== null) {
+                    if (idx === si && phase !== 'done') cls += ' active';
+                    if (suffixReset[idx]) cls += ' prod-reset';
+                    el.textContent = suffixVals[idx];
+                }
+
+                el.className = cls;
+                row.appendChild(el);
+            }
+        }
+
+        function renderState() {
+            const si = curI >= 0 ? N - 1 - curI : -1;
+            document.getElementById('iVal').textContent = curI >= 0 ? curI : '-';
+            document.getElementById('niVal').textContent = si >= 0 ? si : '-';
+            document.getElementById('prefixVal').textContent = prefix;
+            document.getElementById('suffixVal').textContent = suffix;
+            document.getElementById('maxVal').textContent = maxProd === -Infinity ? '-∞' : maxProd;
+        }
+
+        // ── Log ───────────────────────────────────────────────
+        function addLog(msg, type = 'info') {
+            const log = document.getElementById('logContainer');
+            log.innerHTML += `<div class="log-entry ${type}">[${stepCount}] ${msg}</div>`;
+            log.scrollTop = log.scrollHeight;
+        }
+        function clearLog() { document.getElementById('logContainer').innerHTML = ''; }
+
+        // ── Controls ──────────────────────────────────────────
+        function play() {
+            if (isRunning) return;
+            isRunning = true;
+            updateControls();
+            runLoop();
+        }
+        function runLoop() {
+            if (!isRunning) return;
+            if (phase === 'done') { stop(); return; }
+            step();
+            const delay = 1100 - (speed * 100);
+            timer = setTimeout(runLoop, Math.max(60, delay));
+        }
+        function stop() {
+            isRunning = false;
+            if (timer) clearTimeout(timer);
+            updateControls();
+        }
+        function reset() { stop(); init(); }
+        function updateControls() {
+            const done = phase === 'done';
+            document.getElementById('playBtn').disabled = isRunning || done;
+            document.getElementById('pauseBtn').disabled = !isRunning;
+            document.getElementById('stepBtn').disabled = isRunning || done;
+            document.getElementById('resetBtn').disabled = isRunning;
+        }
+
+        document.getElementById('playBtn').addEventListener('click', play);
+        document.getElementById('pauseBtn').addEventListener('click', stop);
+        document.getElementById('stepBtn').addEventListener('click', step);
+        document.getElementById('resetBtn').addEventListener('click', reset);
+        document.getElementById('speedSlider').addEventListener('input', e => speed = parseInt(e.target.value));
+
+        init();
+    </script>
+</body>
+</html>

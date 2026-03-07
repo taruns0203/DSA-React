@@ -1,0 +1,760 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>643. Max Average Subarray I - Brute Force</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #fff3e0 0%, #ffe0b2 50%, #ffcc80 100%);
+            min-height: 100vh;
+            padding: 20px;
+            color: #333;
+        }
+
+        .container {
+            max-width: 1150px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.25);
+            overflow: hidden;
+        }
+
+        header {
+            background: linear-gradient(135deg, #e65100 0%, #ef6c00 50%, #fb8c00 100%);
+            color: white;
+            padding: 25px;
+            text-align: center;
+        }
+
+        h1 {
+            font-size: 1.5em;
+            margin-bottom: 6px;
+        }
+
+        .subtitle {
+            font-size: 1em;
+            opacity: 0.9;
+        }
+
+        .complexity-badge {
+            display: inline-block;
+            background: rgba(255, 255, 255, 0.2);
+            padding: 6px 14px;
+            border-radius: 15px;
+            margin-top: 8px;
+            font-size: 0.85em;
+        }
+
+        .main-content {
+            display: grid;
+            grid-template-columns: 1fr 290px;
+            gap: 20px;
+            padding: 20px;
+        }
+
+        .card {
+            background: #f8f9fa;
+            border-radius: 12px;
+            padding: 16px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+            margin-bottom: 16px;
+        }
+
+        .card-title {
+            font-size: 0.95em;
+            font-weight: 600;
+            margin-bottom: 12px;
+            color: #e65100;
+        }
+
+        /* Controls */
+        .controls {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            align-items: center;
+        }
+
+        button {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 8px;
+            font-size: 0.85em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+        }
+
+        button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #e65100 0%, #fb8c00 100%);
+            color: white;
+        }
+
+        .btn-success {
+            background: linear-gradient(135deg, #2e7d32 0%, #66bb6a 100%);
+            color: white;
+        }
+
+        .btn-warning {
+            background: linear-gradient(135deg, #f9a825 0%, #ffca28 100%);
+            color: #333;
+        }
+
+        .btn-secondary {
+            background: #6c757d;
+            color: white;
+        }
+
+        .speed-control {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            flex: 1;
+            min-width: 140px;
+        }
+
+        .speed-control input[type="range"] {
+            flex: 1;
+            height: 5px;
+            accent-color: #fb8c00;
+        }
+
+        /* Custom input */
+        .input-row {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+            flex-wrap: wrap;
+            margin-bottom: 8px;
+        }
+
+        .input-row:last-child {
+            margin-bottom: 0;
+        }
+
+        .input-row label {
+            font-size: 0.85em;
+            font-weight: 600;
+            color: #555;
+            min-width: 25px;
+        }
+
+        .input-row input {
+            flex: 1;
+            min-width: 100px;
+            padding: 8px 12px;
+            border: 2px solid #ffe0b2;
+            border-radius: 8px;
+            font-size: 0.9em;
+            font-family: 'Courier New', monospace;
+            outline: none;
+            transition: border-color 0.3s;
+        }
+
+        .input-row input:focus {
+            border-color: #fb8c00;
+        }
+
+        /* Array Display */
+        .array-container {
+            display: flex;
+            gap: 6px;
+            min-height: 100px;
+            padding: 30px 10px 28px;
+            background: #fff;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            position: relative;
+            flex-wrap: wrap;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .array-item {
+            width: 56px;
+            height: 52px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            position: relative;
+            transition: all 0.25s ease;
+            box-shadow: 0 3px 6px rgba(0, 0, 0, 0.1);
+            font-size: 1em;
+            z-index: 1;
+            background: #455a64;
+            color: white;
+        }
+
+        .array-item .idx-label {
+            position: absolute;
+            top: -17px;
+            font-size: 0.55em;
+            color: #888;
+            width: 100%;
+            text-align: center;
+        }
+
+        .array-item.in-window {
+            background: linear-gradient(135deg, #fb8c00 0%, #ef6c00 100%);
+            transform: scale(1.1);
+            z-index: 2;
+            box-shadow: 0 4px 12px rgba(239, 108, 0, 0.35);
+        }
+
+        .array-item.adding {
+            background: linear-gradient(135deg, #43a047 0%, #66bb6a 100%);
+            transform: scale(1.15);
+            z-index: 3;
+            animation: pulse-add 0.4s ease;
+        }
+
+        .array-item.best-window {
+            background: linear-gradient(135deg, #ffd600 0%, #ffab00 100%);
+            color: #333;
+            transform: scale(1.1);
+            z-index: 2;
+            box-shadow: 0 4px 14px rgba(255, 171, 0, 0.5);
+        }
+
+        .pointer-label {
+            position: absolute;
+            font-size: 0.5em;
+            font-weight: 700;
+            padding: 1px 5px;
+            border-radius: 4px;
+            color: white;
+            white-space: nowrap;
+        }
+
+        .pointer-i {
+            bottom: -21px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #1565c0;
+        }
+
+        .pointer-j {
+            top: -26px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #2e7d32;
+        }
+
+        @keyframes pulse-add {
+
+            0%,
+            100% {
+                box-shadow: 0 3px 6px rgba(0, 0, 0, 0.1);
+            }
+
+            50% {
+                box-shadow: 0 0 20px rgba(67, 160, 71, 0.6);
+            }
+        }
+
+        /* Sum accumulator */
+        .sum-display {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-top: 10px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .sum-chip {
+            padding: 6px 14px;
+            border-radius: 18px;
+            font-size: 0.9em;
+            font-weight: 600;
+        }
+
+        .chip-sum {
+            background: linear-gradient(135deg, #ef6c00, #fb8c00);
+            color: white;
+        }
+
+        .chip-k {
+            background: #fff3e0;
+            color: #e65100;
+            border: 2px solid #ffe0b2;
+        }
+
+        .chip-avg {
+            background: #e8f5e9;
+            color: #2e7d32;
+            border: 2px solid #c8e6c9;
+        }
+
+        /* State & Log */
+        .state-display {
+            background: white;
+            border-radius: 8px;
+            padding: 10px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.85em;
+        }
+
+        .state-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 5px 0;
+            border-bottom: 1px solid #eee;
+        }
+
+        .state-row:last-child {
+            border-bottom: none;
+        }
+
+        .highlight-val {
+            color: #e65100;
+            font-weight: bold;
+        }
+
+        .highlight-best {
+            color: #2e7d32;
+            font-weight: bold;
+        }
+
+        .log-container {
+            background: white;
+            border-radius: 8px;
+            padding: 10px;
+            max-height: 240px;
+            overflow-y: auto;
+            font-family: 'Courier New', monospace;
+            font-size: 0.63em;
+        }
+
+        .log-entry {
+            padding: 3px 6px;
+            margin: 2px 0;
+            border-radius: 4px;
+            border-left: 3px solid #ccc;
+            background: #f9f9f9;
+        }
+
+        .log-entry.add {
+            border-left-color: #43a047;
+            background: #e8f5e9;
+        }
+
+        .log-entry.check {
+            border-left-color: #f9a825;
+            background: #fff8e1;
+        }
+
+        .log-entry.info {
+            border-left-color: #1565c0;
+            background: #e3f2fd;
+        }
+
+        .log-entry.best {
+            border-left-color: #e65100;
+            background: #fff3e0;
+        }
+
+        .log-entry.found {
+            border-left-color: #2e7d32;
+            background: #e8f5e9;
+        }
+
+        .result-display {
+            text-align: center;
+            padding: 12px;
+            background: linear-gradient(135deg, #e65100 0%, #fb8c00 100%);
+            color: white;
+            border-radius: 10px;
+            margin-top: 12px;
+            font-size: 1.15em;
+            font-weight: bold;
+        }
+
+        .strategy-text {
+            font-size: 0.88em;
+            color: #555;
+            line-height: 1.6;
+        }
+
+        .strategy-text code {
+            background: #fff3e0;
+            padding: 1px 5px;
+            border-radius: 3px;
+            font-size: 0.9em;
+            color: #e65100;
+        }
+
+        @media (max-width: 800px) {
+            .main-content {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <header>
+            <h1>643. Maximum Average Subarray I</h1>
+            <div class="subtitle">Brute Force: Recompute Each Window Sum</div>
+            <div class="complexity-badge">Time: O(n × k) | Space: O(1)</div>
+        </header>
+
+        <div class="main-content">
+            <div class="left-panel">
+                <div class="card">
+                    <div class="card-title">⚙️ Controls</div>
+                    <div class="controls">
+                        <button class="btn-primary" id="playBtn">▶️ Play</button>
+                        <button class="btn-warning" id="pauseBtn" disabled>⏸️ Pause</button>
+                        <button class="btn-success" id="stepBtn">⏭️ Step</button>
+                        <button class="btn-secondary" id="resetBtn">🔄 Reset</button>
+                        <div class="speed-control">
+                            <label>Speed:</label>
+                            <input type="range" id="speedSlider" min="1" max="10" value="5">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-title">🎯 Custom Input</div>
+                    <div class="input-row">
+                        <label>arr:</label>
+                        <input type="text" id="customInput" placeholder="e.g. 1,12,-5,-6,50,3" value="1,12,-5,-6,50,3">
+                    </div>
+                    <div class="input-row">
+                        <label>k:</label>
+                        <input type="number" id="kInput" value="4" min="1" style="max-width:80px">
+                        <button class="btn-primary" id="loadBtn">Load</button>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-title">🔢 Array</div>
+                    <div class="array-container" id="arrayContainer"></div>
+                    <div class="sum-display">
+                        <span class="sum-chip chip-k" id="kChip">k = 4</span>
+                        <span class="sum-chip chip-sum" id="sumChip">Sum: 0</span>
+                        <span class="sum-chip chip-avg" id="avgChip">Avg: —</span>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-title">ℹ️ Strategy</div>
+                    <div class="strategy-text">
+                        For each start <code>i</code> (0 to n−k), sum elements <code>nums[i..i+k−1]</code> one by one
+                        using inner loop <code>j</code>.<br>
+                        Track the maximum sum. Divide by <code>k</code> at the end.
+                    </div>
+                </div>
+            </div>
+
+            <div class="right-panel">
+                <div class="card">
+                    <div class="card-title">📊 Current State</div>
+                    <div class="state-display">
+                        <div class="state-row"><span>i (start):</span><span id="iVal">—</span></div>
+                        <div class="state-row"><span>j (adding):</span><span id="jVal">—</span></div>
+                        <div class="state-row"><span>nums[j]:</span><span id="numjVal">—</span></div>
+                        <div class="state-row"><span>currentSum:</span><span id="sumVal" class="highlight-val">0</span>
+                        </div>
+                        <div class="state-row"><span>Window avg:</span><span id="curAvgVal">—</span></div>
+                        <div class="state-row"><span>maxSum:</span><span id="maxSumVal" class="highlight-best">−∞</span>
+                        </div>
+                        <div class="state-row"><span>maxAvg:</span><span id="maxAvgVal" class="highlight-best">−∞</span>
+                        </div>
+                    </div>
+                    <div class="result-display">
+                        Max Average: <span id="resultVal">—</span>
+                    </div>
+                </div>
+
+                <div class="card" style="flex-grow:1; display:flex; flex-direction:column;">
+                    <div class="card-title">📝 Execution Log</div>
+                    <div class="log-container" id="logContainer"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ─── State ───
+        let nums = [1, 12, -5, -6, 50, 3];
+        let k = 4;
+        let n = nums.length;
+
+        let i = 0, j = 0;
+        let currentSum = 0;
+        let maxSum = -Infinity;
+        let bestStart = -1;
+
+        // phase: idle | summing | compare | next_i | done
+        let phase = 'idle';
+        let addingIdx = -1; // current j being added (for highlight)
+
+        let isRunning = false;
+        let timer = null;
+        let speed = 5;
+        let stepNum = 0;
+
+        // ─── Init ───
+        function init() {
+            n = nums.length;
+            i = 0; j = 0;
+            currentSum = 0;
+            maxSum = -Infinity;
+            bestStart = -1;
+            phase = 'idle';
+            addingIdx = -1;
+            stepNum = 0;
+            isRunning = false;
+            if (timer) clearTimeout(timer);
+            timer = null;
+
+            clearLog();
+            addLog(`Array: [${nums.join(', ')}], k=${k}, n=${n}`, 'info');
+            addLog(`Windows to check: ${n - k + 1} (indices 0..${n - k})`, 'info');
+            render();
+            updateControls();
+        }
+
+        // ─── Render ───
+        function render() {
+            renderArray();
+            renderState();
+            renderChips();
+        }
+
+        function renderArray() {
+            const c = document.getElementById('arrayContainer');
+            c.innerHTML = '';
+
+            nums.forEach((val, idx) => {
+                const el = document.createElement('div');
+                let cls = 'array-item';
+
+                if (phase === 'done' && idx >= bestStart && idx < bestStart + k) {
+                    cls += ' best-window';
+                } else if (phase === 'summing' && idx === j) {
+                    cls += ' adding';
+                } else if ((phase === 'summing' || phase === 'compare') && idx >= i && idx < i + k && idx < j) {
+                    cls += ' in-window';
+                } else if (phase === 'summing' && idx >= i && idx <= j) {
+                    cls += ' in-window';
+                }
+
+                el.className = cls;
+                el.innerHTML = `<span class="idx-label">${idx}</span>${val}`;
+
+                // Pointers
+                if (phase !== 'idle' && phase !== 'done') {
+                    if (phase === 'summing' || phase === 'compare') {
+                        if (idx === i && idx === j) {
+                            el.innerHTML += `<span class="pointer-label pointer-i">i=${i}</span>`;
+                            el.innerHTML += `<span class="pointer-label pointer-j">j=${j}</span>`;
+                        } else if (idx === i) {
+                            el.innerHTML += `<span class="pointer-label pointer-i">i=${i}</span>`;
+                        } else if (idx === j && phase === 'summing') {
+                            el.innerHTML += `<span class="pointer-label pointer-j">j=${j}</span>`;
+                        }
+                    } else if (phase === 'next_i') {
+                        if (idx === i) {
+                            el.innerHTML += `<span class="pointer-label pointer-i">i=${i}</span>`;
+                        }
+                    }
+                }
+
+                c.appendChild(el);
+            });
+        }
+
+        function renderState() {
+            const active = phase !== 'idle' && phase !== 'done';
+            document.getElementById('iVal').textContent = active || phase === 'compare' ? i : '—';
+            document.getElementById('jVal').textContent = phase === 'summing' ? j : '—';
+            document.getElementById('numjVal').textContent = phase === 'summing' && j < n ? nums[j] : '—';
+            document.getElementById('sumVal').textContent = currentSum;
+
+            const curAvg = phase === 'compare' ? (currentSum / k).toFixed(5) : '—';
+            document.getElementById('curAvgVal').textContent = curAvg;
+
+            document.getElementById('maxSumVal').textContent = maxSum === -Infinity ? '−∞' : maxSum;
+            document.getElementById('maxAvgVal').textContent = maxSum === -Infinity ? '−∞' : (maxSum / k).toFixed(5);
+            document.getElementById('resultVal').textContent = phase === 'done' ? (maxSum / k).toFixed(5) : '—';
+        }
+
+        function renderChips() {
+            document.getElementById('kChip').textContent = `k = ${k}`;
+            document.getElementById('sumChip').textContent = `Sum: ${currentSum}`;
+            const avg = phase === 'compare' || phase === 'next_i' || phase === 'done'
+                ? (currentSum / k).toFixed(2) : '—';
+            document.getElementById('avgChip').textContent = `Avg: ${phase === 'done' ? (maxSum / k).toFixed(2) : avg}`;
+        }
+
+        // ─── Step Logic ───
+        function step() {
+            if (phase === 'done') return;
+            stepNum++;
+
+            switch (phase) {
+                case 'idle':
+                    // Start first window: i=0, j=0
+                    i = 0; j = 0;
+                    currentSum = 0;
+                    currentSum += nums[j];
+                    addLog(`▶ Window i=${i}: j=${j}, add nums[${j}]=${nums[j]}. sum=${currentSum}`, 'add');
+                    phase = 'summing';
+
+                    if (j === i + k - 1) {
+                        // Window complete (k=1 edge case)
+                        phase = 'compare';
+                    }
+                    break;
+
+                case 'summing':
+                    j++;
+                    if (j <= i + k - 1 && j < n) {
+                        currentSum += nums[j];
+                        addLog(`  j=${j}: add nums[${j}]=${nums[j]}. sum=${currentSum}`, 'add');
+
+                        if (j === i + k - 1) {
+                            phase = 'compare';
+                        }
+                    }
+                    break;
+
+                case 'compare':
+                    const avg = currentSum / k;
+                    if (currentSum > maxSum) {
+                        maxSum = currentSum;
+                        bestStart = i;
+                        addLog(`🏆 Window [${i}..${i + k - 1}]: sum=${currentSum}, avg=${avg.toFixed(5)} → NEW BEST!`, 'best');
+                    } else {
+                        addLog(`📊 Window [${i}..${i + k - 1}]: sum=${currentSum}, avg=${avg.toFixed(5)}. Best stays ${maxSum} (${(maxSum / k).toFixed(5)})`, 'check');
+                    }
+                    phase = 'next_i';
+                    break;
+
+                case 'next_i':
+                    i++;
+                    if (i > n - k) {
+                        phase = 'done';
+                        addLog(`✅ All windows checked. maxSum=${maxSum}, Answer = ${maxSum}/${k} = ${(maxSum / k).toFixed(5)}`, 'found');
+                    } else {
+                        j = i;
+                        currentSum = nums[j];
+                        addLog(`▶ Window i=${i}: j=${j}, add nums[${j}]=${nums[j]}. sum=${currentSum}`, 'info');
+                        phase = 'summing';
+
+                        if (j === i + k - 1) {
+                            phase = 'compare';
+                        }
+                    }
+                    break;
+            }
+
+            render();
+            updateControls();
+        }
+
+        // ─── Log ───
+        function addLog(msg, type = 'info') {
+            const log = document.getElementById('logContainer');
+            const entry = document.createElement('div');
+            entry.className = `log-entry ${type}`;
+            entry.textContent = `[${stepNum}] ${msg}`;
+            log.appendChild(entry);
+            log.scrollTop = log.scrollHeight;
+        }
+        function clearLog() { document.getElementById('logContainer').innerHTML = ''; }
+
+        // ─── Playback ───
+        function play() {
+            if (isRunning || phase === 'done') return;
+            isRunning = true;
+            updateControls();
+            runLoop();
+        }
+        function runLoop() {
+            if (!isRunning || phase === 'done') {
+                isRunning = false; updateControls(); return;
+            }
+            step();
+            if (phase !== 'done') {
+                const delay = 1100 - (speed * 100);
+                timer = setTimeout(runLoop, Math.max(50, delay));
+            } else {
+                isRunning = false; updateControls();
+            }
+        }
+        function pause() {
+            isRunning = false;
+            if (timer) clearTimeout(timer);
+            updateControls();
+        }
+        function resetViz() { pause(); init(); }
+
+        function updateControls() {
+            document.getElementById('playBtn').disabled = isRunning || phase === 'done';
+            document.getElementById('pauseBtn').disabled = !isRunning;
+            document.getElementById('stepBtn').disabled = isRunning || phase === 'done';
+            document.getElementById('resetBtn').disabled = isRunning;
+            document.getElementById('loadBtn').disabled = isRunning;
+        }
+
+        // ─── Custom Input ───
+        function loadCustomInput() {
+            const raw = document.getElementById('customInput').value.trim();
+            const parsed = raw.split(',').map(s => parseInt(s.trim(), 10)).filter(v => !isNaN(v));
+            const newK = parseInt(document.getElementById('kInput').value, 10);
+            if (parsed.length === 0) {
+                alert('Enter a valid comma-separated array, e.g. 1,12,-5,-6,50,3');
+                return;
+            }
+            if (isNaN(newK) || newK < 1 || newK > parsed.length) {
+                alert(`k must be between 1 and ${parsed.length}`);
+                return;
+            }
+            nums = parsed;
+            k = newK;
+            resetViz();
+        }
+
+        // ─── Events ───
+        document.getElementById('playBtn').addEventListener('click', play);
+        document.getElementById('pauseBtn').addEventListener('click', pause);
+        document.getElementById('stepBtn').addEventListener('click', step);
+        document.getElementById('resetBtn').addEventListener('click', resetViz);
+        document.getElementById('loadBtn').addEventListener('click', loadCustomInput);
+        document.getElementById('speedSlider').addEventListener('input', e => speed = parseInt(e.target.value));
+        document.getElementById('customInput').addEventListener('keydown', e => { if (e.key === 'Enter') loadCustomInput(); });
+        document.getElementById('kInput').addEventListener('keydown', e => { if (e.key === 'Enter') loadCustomInput(); });
+
+        // ─── Start ───
+        init();
+    </script>
+</body>
+
+</html>

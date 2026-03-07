@@ -1,0 +1,1881 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Maximum Product of Three Numbers - Single Pass O(n) Visualizer</title>
+    <link
+        href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=Source+Serif+4:opsz,wght@8..60,400;8..60,600;8..60,700&display=swap"
+        rel="stylesheet">
+    <style>
+        :root {
+            --bg-primary: #0f0f0f;
+            --bg-secondary: #171717;
+            --bg-tertiary: #212121;
+            --bg-elevated: #2a2a2a;
+            --text-primary: #fafafa;
+            --text-secondary: #a1a1aa;
+            --text-muted: #71717a;
+            --accent: #22d3ee;
+            --accent-dim: #06b6d4;
+            --accent-glow: rgba(34, 211, 238, 0.15);
+            --success: #4ade80;
+            --success-dim: #22c55e;
+            --error: #f87171;
+            --warning: #fbbf24;
+            --info: #818cf8;
+            --border: #27272a;
+            --border-light: #3f3f46;
+            --max1: #f472b6;
+            --max2: #c084fc;
+            --max3: #a78bfa;
+            --min1: #38bdf8;
+            --min2: #22d3ee;
+            --current: #fbbf24;
+            --tracker-bg: rgba(255, 255, 255, 0.03);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Source Serif 4', Georgia, serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            min-height: 100vh;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1440px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        /* Header */
+        header {
+            text-align: center;
+            margin-bottom: 2.5rem;
+            padding-bottom: 2rem;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .problem-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            background: linear-gradient(135deg, rgba(34, 211, 238, 0.15), rgba(74, 222, 128, 0.15));
+            border: 1px solid var(--accent-dim);
+            padding: 0.35rem 1rem;
+            border-radius: 2rem;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.8rem;
+            color: var(--accent);
+            margin-bottom: 1rem;
+            letter-spacing: 0.05em;
+        }
+
+        .badge-optimal {
+            background: linear-gradient(135deg, var(--success), var(--accent));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            font-weight: 700;
+        }
+
+        h1 {
+            font-size: 2.25rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+            letter-spacing: -0.02em;
+        }
+
+        .subtitle {
+            color: var(--text-secondary);
+            font-size: 1.1rem;
+        }
+
+        .complexity-badges {
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+            margin-top: 1.25rem;
+        }
+
+        .complexity-badge {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.75rem;
+            padding: 0.4rem 0.8rem;
+            border-radius: 0.25rem;
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border);
+        }
+
+        .complexity-badge.optimal {
+            background: linear-gradient(135deg, rgba(74, 222, 128, 0.1), rgba(34, 211, 238, 0.1));
+            border-color: var(--success-dim);
+        }
+
+        .complexity-badge span {
+            color: var(--text-muted);
+        }
+
+        .complexity-badge code {
+            color: var(--success);
+            font-weight: 600;
+        }
+
+        /* Main Layout */
+        .main-grid {
+            display: grid;
+            grid-template-columns: 1fr 380px;
+            gap: 1.5rem;
+        }
+
+        /* Panels */
+        .panel {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            border-radius: 0.75rem;
+            overflow: hidden;
+        }
+
+        .panel-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 1rem 1.25rem;
+            background: var(--bg-tertiary);
+            border-bottom: 1px solid var(--border);
+        }
+
+        .panel-title {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.8rem;
+            font-weight: 600;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+        }
+
+        .panel-content {
+            padding: 1.5rem;
+        }
+
+        /* Input Section */
+        .input-section {
+            margin-bottom: 1.5rem;
+        }
+
+        .input-group {
+            display: flex;
+            gap: 0.75rem;
+            align-items: stretch;
+        }
+
+        .input-wrapper {
+            flex: 1;
+            position: relative;
+        }
+
+        .input-wrapper input {
+            width: 100%;
+            padding: 0.85rem 1rem;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.95rem;
+            background: var(--bg-primary);
+            border: 1px solid var(--border);
+            border-radius: 0.5rem;
+            color: var(--text-primary);
+            transition: all 0.2s;
+        }
+
+        .input-wrapper input:focus {
+            outline: none;
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px var(--accent-glow);
+        }
+
+        .input-wrapper input::placeholder {
+            color: var(--text-muted);
+        }
+
+        .btn {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.8rem;
+            font-weight: 600;
+            padding: 0.75rem 1.25rem;
+            border: 1px solid var(--border);
+            border-radius: 0.5rem;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--accent), var(--success));
+            border-color: var(--accent);
+            color: var(--bg-primary);
+        }
+
+        .btn-primary:hover {
+            opacity: 0.9;
+            transform: translateY(-1px);
+        }
+
+        .btn-secondary {
+            background: var(--bg-tertiary);
+            color: var(--text-primary);
+        }
+
+        .btn-secondary:hover {
+            background: var(--bg-elevated);
+            border-color: var(--border-light);
+        }
+
+        .btn-icon {
+            width: 2.75rem;
+            padding: 0;
+            justify-content: center;
+        }
+
+        .btn:disabled {
+            opacity: 0.4;
+            cursor: not-allowed;
+        }
+
+        /* Preset Buttons */
+        .presets {
+            display: flex;
+            gap: 0.5rem;
+            margin-top: 0.75rem;
+            flex-wrap: wrap;
+        }
+
+        .preset-btn {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.7rem;
+            padding: 0.4rem 0.7rem;
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border);
+            border-radius: 0.25rem;
+            color: var(--text-secondary);
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .preset-btn:hover {
+            background: var(--bg-elevated);
+            color: var(--text-primary);
+            border-color: var(--border-light);
+        }
+
+        /* Array Visualization */
+        .array-section {
+            margin: 1.5rem 0;
+        }
+
+        .array-label {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            margin-bottom: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .current-index-badge {
+            background: rgba(251, 191, 36, 0.15);
+            color: var(--current);
+            padding: 0.2rem 0.6rem;
+            border-radius: 0.25rem;
+            font-size: 0.7rem;
+        }
+
+        .array-display {
+            display: flex;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+            justify-content: center;
+            padding: 1.5rem;
+            background: var(--bg-primary);
+            border-radius: 0.5rem;
+            border: 1px solid var(--border);
+            min-height: 100px;
+            align-items: center;
+        }
+
+        .array-element {
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 0.5rem;
+            transition: transform 0.3s;
+        }
+
+        .element-index {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.6rem;
+            color: var(--text-muted);
+        }
+
+        .element-value {
+            width: 52px;
+            height: 52px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 1rem;
+            font-weight: 600;
+            background: var(--bg-tertiary);
+            border: 2px solid var(--border);
+            border-radius: 0.5rem;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .element-value.visited {
+            background: var(--bg-elevated);
+            border-color: var(--border-light);
+        }
+
+        .element-value.current {
+            border-color: var(--current);
+            background: rgba(251, 191, 36, 0.15);
+            box-shadow: 0 0 25px rgba(251, 191, 36, 0.4);
+            transform: scale(1.1);
+        }
+
+        .element-value.is-max1 {
+            border-color: var(--max1);
+            box-shadow: 0 0 15px rgba(244, 114, 182, 0.3);
+        }
+
+        .element-value.is-max2 {
+            border-color: var(--max2);
+            box-shadow: 0 0 15px rgba(192, 132, 252, 0.3);
+        }
+
+        .element-value.is-max3 {
+            border-color: var(--max3);
+            box-shadow: 0 0 15px rgba(167, 139, 250, 0.3);
+        }
+
+        .element-value.is-min1 {
+            border-color: var(--min1);
+            box-shadow: 0 0 15px rgba(56, 189, 248, 0.3);
+        }
+
+        .element-value.is-min2 {
+            border-color: var(--min2);
+            box-shadow: 0 0 15px rgba(34, 211, 238, 0.3);
+        }
+
+        .element-value.winner {
+            border-color: var(--success);
+            background: rgba(74, 222, 128, 0.15);
+            box-shadow: 0 0 25px rgba(74, 222, 128, 0.4);
+        }
+
+        .element-marker {
+            position: absolute;
+            bottom: -1.4rem;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.55rem;
+            font-weight: 700;
+            padding: 0.1rem 0.25rem;
+            border-radius: 0.15rem;
+            white-space: nowrap;
+        }
+
+        /* Tracker Cards */
+        .trackers-section {
+            margin: 1.5rem 0;
+        }
+
+        .trackers-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1rem;
+        }
+
+        .tracker-group {
+            background: var(--bg-primary);
+            border: 1px solid var(--border);
+            border-radius: 0.5rem;
+            padding: 1rem;
+        }
+
+        .tracker-group-title {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.7rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            margin-bottom: 0.75rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .tracker-group-title .icon {
+            font-size: 0.9rem;
+        }
+
+        .tracker-cards {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .tracker-card {
+            flex: 1;
+            background: var(--tracker-bg);
+            border: 2px solid var(--border);
+            border-radius: 0.5rem;
+            padding: 0.6rem;
+            text-align: center;
+            transition: all 0.3s;
+        }
+
+        .tracker-card.max1 {
+            border-color: var(--max1);
+        }
+
+        .tracker-card.max2 {
+            border-color: var(--max2);
+        }
+
+        .tracker-card.max3 {
+            border-color: var(--max3);
+        }
+
+        .tracker-card.min1 {
+            border-color: var(--min1);
+        }
+
+        .tracker-card.min2 {
+            border-color: var(--min2);
+        }
+
+        .tracker-card.updating {
+            transform: scale(1.05);
+            box-shadow: 0 0 20px currentColor;
+        }
+
+        .tracker-card.max1.updating {
+            box-shadow: 0 0 20px rgba(244, 114, 182, 0.5);
+        }
+
+        .tracker-card.max2.updating {
+            box-shadow: 0 0 20px rgba(192, 132, 252, 0.5);
+        }
+
+        .tracker-card.max3.updating {
+            box-shadow: 0 0 20px rgba(167, 139, 250, 0.5);
+        }
+
+        .tracker-card.min1.updating {
+            box-shadow: 0 0 20px rgba(56, 189, 248, 0.5);
+        }
+
+        .tracker-card.min2.updating {
+            box-shadow: 0 0 20px rgba(34, 211, 238, 0.5);
+        }
+
+        .tracker-label {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.65rem;
+            color: var(--text-muted);
+            margin-bottom: 0.25rem;
+        }
+
+        .tracker-value {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 1.1rem;
+            font-weight: 700;
+        }
+
+        .tracker-card.max1 .tracker-value {
+            color: var(--max1);
+        }
+
+        .tracker-card.max2 .tracker-value {
+            color: var(--max2);
+        }
+
+        .tracker-card.max3 .tracker-value {
+            color: var(--max3);
+        }
+
+        .tracker-card.min1 .tracker-value {
+            color: var(--min1);
+        }
+
+        .tracker-card.min2 .tracker-value {
+            color: var(--min2);
+        }
+
+        /* Candidates Section */
+        .candidates-section {
+            display: grid;
+            grid-template-columns: 1fr auto 1fr;
+            gap: 0.75rem;
+            align-items: center;
+            margin: 1.5rem 0;
+        }
+
+        .candidate-card {
+            background: var(--bg-primary);
+            border: 2px solid var(--border);
+            border-radius: 0.5rem;
+            padding: 1rem;
+            text-align: center;
+            transition: all 0.3s;
+            opacity: 0.5;
+        }
+
+        .candidate-card.active {
+            opacity: 1;
+        }
+
+        .candidate-card.candidate1.active {
+            border-color: var(--max1);
+            background: rgba(244, 114, 182, 0.08);
+        }
+
+        .candidate-card.candidate2.active {
+            border-color: var(--min1);
+            background: rgba(56, 189, 248, 0.08);
+        }
+
+        .candidate-card.winner {
+            border-color: var(--success);
+            background: rgba(74, 222, 128, 0.1);
+            box-shadow: 0 0 25px rgba(74, 222, 128, 0.2);
+            opacity: 1;
+        }
+
+        .candidate-label {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.65rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            margin-bottom: 0.4rem;
+        }
+
+        .candidate-formula {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.7rem;
+            color: var(--text-secondary);
+            margin-bottom: 0.4rem;
+        }
+
+        .candidate-value {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 1.4rem;
+            font-weight: 700;
+            color: var(--text-muted);
+        }
+
+        .candidate-card.candidate1.active .candidate-value {
+            color: var(--max1);
+        }
+
+        .candidate-card.candidate2.active .candidate-value {
+            color: var(--min1);
+        }
+
+        .candidate-card.winner .candidate-value {
+            color: var(--success);
+        }
+
+        .vs-badge {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.8rem;
+            font-weight: 700;
+            color: var(--text-muted);
+            background: var(--bg-tertiary);
+            padding: 0.5rem 0.75rem;
+            border-radius: 0.25rem;
+        }
+
+        /* Controls */
+        .controls {
+            display: flex;
+            gap: 0.5rem;
+            align-items: center;
+            justify-content: center;
+            margin: 1.5rem 0;
+            flex-wrap: wrap;
+        }
+
+        .speed-control {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            margin-left: 1rem;
+            padding-left: 1rem;
+            border-left: 1px solid var(--border);
+        }
+
+        .speed-label {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.75rem;
+            color: var(--text-muted);
+        }
+
+        .speed-slider {
+            width: 100px;
+            height: 4px;
+            -webkit-appearance: none;
+            appearance: none;
+            background: var(--bg-tertiary);
+            border-radius: 2px;
+            outline: none;
+        }
+
+        .speed-slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 14px;
+            height: 14px;
+            background: linear-gradient(135deg, var(--accent), var(--success));
+            border-radius: 50%;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+
+        .speed-slider::-webkit-slider-thumb:hover {
+            transform: scale(1.2);
+        }
+
+        .speed-value {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.75rem;
+            color: var(--accent);
+            min-width: 40px;
+        }
+
+        /* Side Panel State */
+        .state-grid {
+            display: grid;
+            gap: 0.5rem;
+        }
+
+        .state-section-title {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.65rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            margin-top: 0.75rem;
+            margin-bottom: 0.25rem;
+            padding-bottom: 0.25rem;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .state-section-title:first-child {
+            margin-top: 0;
+        }
+
+        .state-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0.5rem 0.75rem;
+            background: var(--bg-primary);
+            border: 1px solid var(--border);
+            border-radius: 0.4rem;
+        }
+
+        .state-label {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.7rem;
+            color: var(--text-muted);
+        }
+
+        .state-value {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+
+        .state-value.max1-color {
+            color: var(--max1);
+        }
+
+        .state-value.max2-color {
+            color: var(--max2);
+        }
+
+        .state-value.max3-color {
+            color: var(--max3);
+        }
+
+        .state-value.min1-color {
+            color: var(--min1);
+        }
+
+        .state-value.min2-color {
+            color: var(--min2);
+        }
+
+        .state-value.current-color {
+            color: var(--current);
+        }
+
+        .state-value.success-color {
+            color: var(--success);
+        }
+
+        /* Progress */
+        .progress-section {
+            margin-top: 1rem;
+            padding-top: 1rem;
+            border-top: 1px solid var(--border);
+        }
+
+        .progress-bar-container {
+            height: 6px;
+            background: var(--bg-primary);
+            border-radius: 3px;
+            overflow: hidden;
+            margin-top: 0.5rem;
+        }
+
+        .progress-bar {
+            height: 100%;
+            background: linear-gradient(90deg, var(--accent), var(--success));
+            border-radius: 3px;
+            transition: width 0.3s ease;
+        }
+
+        .progress-text {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            display: flex;
+            justify-content: space-between;
+            margin-top: 0.5rem;
+        }
+
+        /* Execution Log */
+        .log-panel {
+            margin-top: 1.5rem;
+        }
+
+        .log-content {
+            max-height: 200px;
+            overflow-y: auto;
+            padding: 0.75rem;
+            background: var(--bg-primary);
+            border-radius: 0 0 0.5rem 0.5rem;
+        }
+
+        .log-content::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .log-content::-webkit-scrollbar-track {
+            background: var(--bg-secondary);
+        }
+
+        .log-content::-webkit-scrollbar-thumb {
+            background: var(--border-light);
+            border-radius: 3px;
+        }
+
+        .log-entry {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.68rem;
+            padding: 0.3rem 0.5rem;
+            border-radius: 0.25rem;
+            margin-bottom: 0.25rem;
+            display: flex;
+            align-items: flex-start;
+            gap: 0.4rem;
+            line-height: 1.4;
+        }
+
+        .log-entry.scan {
+            background: rgba(251, 191, 36, 0.1);
+            color: var(--current);
+            border-left: 2px solid var(--current);
+        }
+
+        .log-entry.update-max {
+            background: rgba(244, 114, 182, 0.1);
+            color: var(--max1);
+            border-left: 2px solid var(--max1);
+        }
+
+        .log-entry.update-min {
+            background: rgba(56, 189, 248, 0.1);
+            color: var(--min1);
+            border-left: 2px solid var(--min1);
+        }
+
+        .log-entry.compute {
+            background: var(--bg-secondary);
+            color: var(--text-secondary);
+        }
+
+        .log-entry.result {
+            background: rgba(74, 222, 128, 0.1);
+            color: var(--success);
+            border-left: 2px solid var(--success);
+            font-weight: 600;
+        }
+
+        .log-step-num {
+            color: var(--text-muted);
+            min-width: 2rem;
+        }
+
+        /* Result Display */
+        .result-display {
+            text-align: center;
+            padding: 1.5rem;
+            background: linear-gradient(135deg, rgba(74, 222, 128, 0.1), rgba(34, 211, 238, 0.05));
+            border: 1px solid var(--success-dim);
+            border-radius: 0.5rem;
+            margin-top: 1rem;
+        }
+
+        .result-display.hidden {
+            display: none;
+        }
+
+        .result-label {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.75rem;
+            color: var(--success);
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            margin-bottom: 0.5rem;
+        }
+
+        .result-value {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--success);
+        }
+
+        .result-triplet {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+            margin-top: 0.5rem;
+        }
+
+        /* Status Indicator */
+        .status-indicator {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.4rem;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.7rem;
+            padding: 0.3rem 0.6rem;
+            border-radius: 1rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .status-indicator.ready {
+            background: rgba(129, 140, 248, 0.15);
+            color: var(--info);
+        }
+
+        .status-indicator.running {
+            background: rgba(34, 211, 238, 0.15);
+            color: var(--accent);
+        }
+
+        .status-indicator.paused {
+            background: rgba(248, 113, 113, 0.15);
+            color: var(--error);
+        }
+
+        .status-indicator.complete {
+            background: rgba(74, 222, 128, 0.15);
+            color: var(--success);
+        }
+
+        .status-dot {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: currentColor;
+        }
+
+        .status-indicator.running .status-dot {
+            animation: pulse 1s infinite;
+        }
+
+        @keyframes pulse {
+
+            0%,
+            100% {
+                opacity: 1;
+            }
+
+            50% {
+                opacity: 0.4;
+            }
+        }
+
+        /* Algorithm Display */
+        .algorithm-section {
+            margin-top: 1.5rem;
+        }
+
+        .code-block {
+            background: var(--bg-primary);
+            border: 1px solid var(--border);
+            border-radius: 0.5rem;
+            padding: 0.75rem;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.68rem;
+            line-height: 1.5;
+            overflow-x: auto;
+        }
+
+        .code-line {
+            padding: 0.1rem 0.4rem;
+            border-radius: 0.2rem;
+            transition: background 0.2s;
+        }
+
+        .code-line.active {
+            background: var(--accent-glow);
+            border-left: 2px solid var(--accent);
+            margin-left: -2px;
+        }
+
+        .code-keyword {
+            color: #c678dd;
+        }
+
+        .code-variable {
+            color: #e06c75;
+        }
+
+        .code-function {
+            color: #61afef;
+        }
+
+        .code-number {
+            color: #d19a66;
+        }
+
+        .code-comment {
+            color: var(--text-muted);
+            font-style: italic;
+        }
+
+        /* Responsive */
+        @media (max-width: 1100px) {
+            .main-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 640px) {
+            .container {
+                padding: 1rem;
+            }
+
+            h1 {
+                font-size: 1.5rem;
+            }
+
+            .input-group {
+                flex-direction: column;
+            }
+
+            .controls {
+                flex-direction: column;
+            }
+
+            .speed-control {
+                margin-left: 0;
+                padding-left: 0;
+                border-left: none;
+                padding-top: 0.75rem;
+                border-top: 1px solid var(--border);
+            }
+
+            .trackers-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .candidates-section {
+                grid-template-columns: 1fr;
+                gap: 0.5rem;
+            }
+
+            .vs-badge {
+                display: none;
+            }
+
+            .element-value {
+                width: 42px;
+                height: 42px;
+                font-size: 0.85rem;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <header>
+            <div class="problem-badge">
+                <span>LeetCode 628</span>
+                <span>•</span>
+                <span class="badge-optimal">★ OPTIMAL</span>
+            </div>
+            <h1>Maximum Product of Three Numbers</h1>
+            <p class="subtitle">Single Pass O(n) Visualizer</p>
+            <div class="complexity-badges">
+                <div class="complexity-badge optimal">
+                    <span>Time:</span> <code>O(n)</code>
+                </div>
+                <div class="complexity-badge optimal">
+                    <span>Space:</span> <code>O(1)</code>
+                </div>
+            </div>
+        </header>
+
+        <div class="main-grid">
+            <div class="visualization-area">
+                <div class="panel input-section">
+                    <div class="panel-header">
+                        <span class="panel-title">Input Array</span>
+                        <span class="status-indicator ready" id="status">
+                            <span class="status-dot"></span>
+                            <span id="status-text">Ready</span>
+                        </span>
+                    </div>
+                    <div class="panel-content">
+                        <div class="input-group">
+                            <div class="input-wrapper">
+                                <input type="text" id="arrayInput" placeholder="Enter comma-separated numbers"
+                                    value="-4, -3, 1, 2, 5">
+                            </div>
+                            <button class="btn btn-primary" id="resetBtn">
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                    stroke-width="2.5">
+                                    <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8" />
+                                    <path d="M3 3v5h5" />
+                                </svg>
+                                Reset
+                            </button>
+                        </div>
+                        <div class="presets">
+                            <button class="preset-btn" data-array="1, 2, 3">[1, 2, 3]</button>
+                            <button class="preset-btn" data-array="1, 2, 3, 4">[1, 2, 3, 4]</button>
+                            <button class="preset-btn" data-array="-4, -3, 1, 2, 5">[-4, -3, 1, 2, 5]</button>
+                            <button class="preset-btn" data-array="-100, -99, 1, 2, 3">[-100, -99, 1, 2, 3]</button>
+                            <button class="preset-btn" data-array="-1, -2, -3, -4">[-1, -2, -3, -4]</button>
+                            <button class="preset-btn" data-array="9, 1, -5, -8, 3, 7">[9, 1, -5, -8, 3, 7]</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="array-section">
+                    <div class="array-label">
+                        <span>Array Traversal</span>
+                        <span class="current-index-badge" id="currentIndexBadge">index: —</span>
+                    </div>
+                    <div class="array-display" id="arrayDisplay"></div>
+                </div>
+
+                <div class="trackers-section">
+                    <div class="trackers-grid">
+                        <div class="tracker-group">
+                            <div class="tracker-group-title">
+                                <span class="icon">📈</span>
+                                <span>Three Largest (Maximums)</span>
+                            </div>
+                            <div class="tracker-cards">
+                                <div class="tracker-card max1" id="trackerMax1">
+                                    <div class="tracker-label">max1</div>
+                                    <div class="tracker-value">-∞</div>
+                                </div>
+                                <div class="tracker-card max2" id="trackerMax2">
+                                    <div class="tracker-label">max2</div>
+                                    <div class="tracker-value">-∞</div>
+                                </div>
+                                <div class="tracker-card max3" id="trackerMax3">
+                                    <div class="tracker-label">max3</div>
+                                    <div class="tracker-value">-∞</div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="tracker-group">
+                            <div class="tracker-group-title">
+                                <span class="icon">📉</span>
+                                <span>Two Smallest (Minimums)</span>
+                            </div>
+                            <div class="tracker-cards">
+                                <div class="tracker-card min1" id="trackerMin1">
+                                    <div class="tracker-label">min1</div>
+                                    <div class="tracker-value">+∞</div>
+                                </div>
+                                <div class="tracker-card min2" id="trackerMin2">
+                                    <div class="tracker-label">min2</div>
+                                    <div class="tracker-value">+∞</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="candidates-section">
+                    <div class="candidate-card candidate1" id="candidate1Card">
+                        <div class="candidate-label">Candidate 1</div>
+                        <div class="candidate-formula">max1 × max2 × max3</div>
+                        <div class="candidate-value" id="candidate1Value">—</div>
+                    </div>
+                    <div class="vs-badge">VS</div>
+                    <div class="candidate-card candidate2" id="candidate2Card">
+                        <div class="candidate-label">Candidate 2</div>
+                        <div class="candidate-formula">min1 × min2 × max1</div>
+                        <div class="candidate-value" id="candidate2Value">—</div>
+                    </div>
+                </div>
+
+                <div class="controls">
+                    <button class="btn btn-icon btn-secondary" id="stepBackBtn" title="Step Back" disabled>
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2">
+                            <polygon points="19 20 9 12 19 4 19 20" />
+                            <line x1="5" y1="19" x2="5" y2="5" />
+                        </svg>
+                    </button>
+                    <button class="btn btn-primary" id="playPauseBtn">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" id="playIcon">
+                            <polygon points="5 3 19 12 5 21 5 3" />
+                        </svg>
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" id="pauseIcon"
+                            style="display: none;">
+                            <rect x="6" y="4" width="4" height="16" />
+                            <rect x="14" y="4" width="4" height="16" />
+                        </svg>
+                        <span id="playPauseText">Play</span>
+                    </button>
+                    <button class="btn btn-icon btn-secondary" id="stepForwardBtn" title="Step Forward">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2">
+                            <polygon points="5 4 15 12 5 20 5 4" />
+                            <line x1="19" y1="5" x2="19" y2="19" />
+                        </svg>
+                    </button>
+                    <div class="speed-control">
+                        <span class="speed-label">Speed:</span>
+                        <input type="range" class="speed-slider" id="speedSlider" min="1" max="10" value="5">
+                        <span class="speed-value" id="speedValue">1.0x</span>
+                    </div>
+                </div>
+
+                <div class="result-display hidden" id="resultDisplay">
+                    <div class="result-label">Maximum Product Found</div>
+                    <div class="result-value" id="resultValue">0</div>
+                    <div class="result-triplet" id="resultTriplet"></div>
+                </div>
+
+                <div class="algorithm-section panel">
+                    <div class="panel-header">
+                        <span class="panel-title">Algorithm</span>
+                    </div>
+                    <div class="code-block">
+                        <div class="code-line" data-line="1"><span class="code-keyword">function</span> <span
+                                class="code-function">maxProduct</span>(nums) {</div>
+                        <div class="code-line" data-line="2"> <span class="code-keyword">let</span> max1=max2=max3 =
+                            -<span class="code-number">Infinity</span>;</div>
+                        <div class="code-line" data-line="3"> <span class="code-keyword">let</span> min1=min2 = <span
+                                class="code-number">Infinity</span>;</div>
+                        <div class="code-line" data-line="4"> <span class="code-keyword">for</span> (<span
+                                class="code-keyword">const</span> <span class="code-variable">num</span> <span
+                                class="code-keyword">of</span> nums) {</div>
+                        <div class="code-line" data-line="5"> <span class="code-comment">// Update 3 maximums</span>
+                        </div>
+                        <div class="code-line" data-line="6"> <span class="code-keyword">if</span> (num >= max1) {</div>
+                        <div class="code-line" data-line="7"> [max3,max2,max1] = [max2,max1,num];</div>
+                        <div class="code-line" data-line="8"> } <span class="code-keyword">else if</span> (num >= max2)
+                            {</div>
+                        <div class="code-line" data-line="9"> [max3,max2] = [max2,num];</div>
+                        <div class="code-line" data-line="10"> } <span class="code-keyword">else if</span> (num > max3)
+                            max3 = num;</div>
+                        <div class="code-line" data-line="11"> <span class="code-comment">// Update 2 minimums</span>
+                        </div>
+                        <div class="code-line" data-line="12"> <span class="code-keyword">if</span> (num <= min1)
+                                {</div>
+                                <div class="code-line" data-line="13"> [min2,min1] = [min1,num];</div>
+                                <div class="code-line" data-line="14"> } <span class="code-keyword">else if</span> (num
+                                    < min2) min2=num;</div>
+                                        <div class="code-line" data-line="15"> }</div>
+                                        <div class="code-line" data-line="16"> <span class="code-keyword">return</span>
+                                            Math.<span class="code-function">max</span>(max1*max2*max3, min1*min2*max1);
+                                        </div>
+                                        <div class="code-line" data-line="17">}</div>
+                                </div>
+                        </div>
+                    </div>
+
+                    <div class="side-panel">
+                        <div class="panel">
+                            <div class="panel-header">
+                                <span class="panel-title">Current State</span>
+                            </div>
+                            <div class="panel-content">
+                                <div class="state-grid">
+                                    <div class="state-section-title">Iteration</div>
+                                    <div class="state-item">
+                                        <span class="state-label">Current Index</span>
+                                        <span class="state-value current-color" id="stateIndex">—</span>
+                                    </div>
+                                    <div class="state-item">
+                                        <span class="state-label">Current Value</span>
+                                        <span class="state-value current-color" id="stateNum">—</span>
+                                    </div>
+
+                                    <div class="state-section-title">Maximums</div>
+                                    <div class="state-item">
+                                        <span class="state-label">max1 (largest)</span>
+                                        <span class="state-value max1-color" id="stateMax1">-∞</span>
+                                    </div>
+                                    <div class="state-item">
+                                        <span class="state-label">max2</span>
+                                        <span class="state-value max2-color" id="stateMax2">-∞</span>
+                                    </div>
+                                    <div class="state-item">
+                                        <span class="state-label">max3</span>
+                                        <span class="state-value max3-color" id="stateMax3">-∞</span>
+                                    </div>
+
+                                    <div class="state-section-title">Minimums</div>
+                                    <div class="state-item">
+                                        <span class="state-label">min1 (smallest)</span>
+                                        <span class="state-value min1-color" id="stateMin1">+∞</span>
+                                    </div>
+                                    <div class="state-item">
+                                        <span class="state-label">min2</span>
+                                        <span class="state-value min2-color" id="stateMin2">+∞</span>
+                                    </div>
+
+                                    <div class="state-section-title">Candidates</div>
+                                    <div class="state-item">
+                                        <span class="state-label">Candidate 1</span>
+                                        <span class="state-value max1-color" id="stateC1">—</span>
+                                    </div>
+                                    <div class="state-item">
+                                        <span class="state-label">Candidate 2</span>
+                                        <span class="state-value min1-color" id="stateC2">—</span>
+                                    </div>
+                                    <div class="state-item">
+                                        <span class="state-label">Max Product</span>
+                                        <span class="state-value success-color" id="stateResult">—</span>
+                                    </div>
+                                </div>
+
+                                <div class="progress-section">
+                                    <div class="progress-bar-container">
+                                        <div class="progress-bar" id="progressBar" style="width: 0%"></div>
+                                    </div>
+                                    <div class="progress-text">
+                                        <span>Step <span id="currentStep">0</span> / <span
+                                                id="totalSteps">0</span></span>
+                                        <span id="progressPercent">0%</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="panel log-panel">
+                            <div class="panel-header">
+                                <span class="panel-title">Execution Log</span>
+                                <button class="btn btn-secondary" id="clearLogBtn"
+                                    style="padding: 0.3rem 0.6rem; font-size: 0.7rem;">Clear</button>
+                            </div>
+                            <div class="log-content" id="logContent">
+                                <div class="log-entry compute">
+                                    <span class="log-step-num">[init]</span>
+                                    <span>Waiting to start...</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <script>
+                class SinglePassVisualizer {
+                    constructor() {
+                        this.nums = [];
+                        this.steps = [];
+                        this.currentStepIndex = -1;
+                        this.isPlaying = false;
+                        this.playInterval = null;
+                        this.speed = 5;
+
+                        this.initElements();
+                        this.bindEvents();
+                        this.parseInput();
+                    }
+
+                    initElements() {
+                        this.arrayInput = document.getElementById('arrayInput');
+                        this.arrayDisplay = document.getElementById('arrayDisplay');
+                        this.currentIndexBadge = document.getElementById('currentIndexBadge');
+                        this.playPauseBtn = document.getElementById('playPauseBtn');
+                        this.playIcon = document.getElementById('playIcon');
+                        this.pauseIcon = document.getElementById('pauseIcon');
+                        this.playPauseText = document.getElementById('playPauseText');
+                        this.stepForwardBtn = document.getElementById('stepForwardBtn');
+                        this.stepBackBtn = document.getElementById('stepBackBtn');
+                        this.resetBtn = document.getElementById('resetBtn');
+                        this.speedSlider = document.getElementById('speedSlider');
+                        this.speedValue = document.getElementById('speedValue');
+                        this.logContent = document.getElementById('logContent');
+                        this.clearLogBtn = document.getElementById('clearLogBtn');
+                        this.statusIndicator = document.getElementById('status');
+                        this.statusText = document.getElementById('statusText');
+                        this.progressBar = document.getElementById('progressBar');
+                        this.currentStepEl = document.getElementById('currentStep');
+                        this.totalStepsEl = document.getElementById('totalSteps');
+                        this.progressPercent = document.getElementById('progressPercent');
+                        this.resultDisplay = document.getElementById('resultDisplay');
+                        this.resultValue = document.getElementById('resultValue');
+                        this.resultTriplet = document.getElementById('resultTriplet');
+
+                        // Tracker elements
+                        this.trackerMax1 = document.getElementById('trackerMax1');
+                        this.trackerMax2 = document.getElementById('trackerMax2');
+                        this.trackerMax3 = document.getElementById('trackerMax3');
+                        this.trackerMin1 = document.getElementById('trackerMin1');
+                        this.trackerMin2 = document.getElementById('trackerMin2');
+
+                        // Candidate cards
+                        this.candidate1Card = document.getElementById('candidate1Card');
+                        this.candidate2Card = document.getElementById('candidate2Card');
+                        this.candidate1Value = document.getElementById('candidate1Value');
+                        this.candidate2Value = document.getElementById('candidate2Value');
+
+                        // State elements
+                        this.stateIndex = document.getElementById('stateIndex');
+                        this.stateNum = document.getElementById('stateNum');
+                        this.stateMax1 = document.getElementById('stateMax1');
+                        this.stateMax2 = document.getElementById('stateMax2');
+                        this.stateMax3 = document.getElementById('stateMax3');
+                        this.stateMin1 = document.getElementById('stateMin1');
+                        this.stateMin2 = document.getElementById('stateMin2');
+                        this.stateC1 = document.getElementById('stateC1');
+                        this.stateC2 = document.getElementById('stateC2');
+                        this.stateResult = document.getElementById('stateResult');
+                    }
+
+                    bindEvents() {
+                        this.resetBtn.addEventListener('click', () => this.reset());
+                        this.playPauseBtn.addEventListener('click', () => this.togglePlayPause());
+                        this.stepForwardBtn.addEventListener('click', () => this.stepForward());
+                        this.stepBackBtn.addEventListener('click', () => this.stepBack());
+                        this.speedSlider.addEventListener('input', (e) => this.updateSpeed(e.target.value));
+                        this.clearLogBtn.addEventListener('click', () => this.clearLog());
+                        this.arrayInput.addEventListener('keypress', (e) => {
+                            if (e.key === 'Enter') this.reset();
+                        });
+
+                        document.querySelectorAll('.preset-btn').forEach(btn => {
+                            btn.addEventListener('click', () => {
+                                this.arrayInput.value = btn.dataset.array;
+                                this.reset();
+                            });
+                        });
+                    }
+
+                    parseInput() {
+                        const input = this.arrayInput.value;
+                        this.nums = input.split(',')
+                            .map(s => parseInt(s.trim(), 10))
+                            .filter(n => !isNaN(n));
+
+                        if (this.nums.length < 3) {
+                            this.nums = [1, 2, 3];
+                            this.arrayInput.value = '1, 2, 3';
+                        }
+
+                        this.generateSteps();
+                        this.renderArray();
+                        this.updateTotalSteps();
+                    }
+
+                    formatValue(val) {
+                        if (val === -Infinity) return '-∞';
+                        if (val === Infinity) return '+∞';
+                        return val;
+                    }
+
+                    generateSteps() {
+                        this.steps = [];
+                        const nums = this.nums;
+                        let max1 = -Infinity, max2 = -Infinity, max3 = -Infinity;
+                        let min1 = Infinity, min2 = Infinity;
+
+                        // Initial state
+                        this.steps.push({
+                            type: 'init',
+                            index: -1,
+                            num: null,
+                            max1, max2, max3, min1, min2,
+                            updating: [],
+                            line: 2,
+                            message: `Initialize: max1=max2=max3=-∞, min1=min2=+∞`
+                        });
+
+                        // Process each element
+                        for (let i = 0; i < nums.length; i++) {
+                            const num = nums[i];
+                            const prevMax1 = max1, prevMax2 = max2, prevMax3 = max3;
+                            const prevMin1 = min1, prevMin2 = min2;
+                            let updating = [];
+                            let line = 4;
+                            let maxMsg = '', minMsg = '';
+
+                            // Scan step
+                            this.steps.push({
+                                type: 'scan',
+                                index: i,
+                                num,
+                                max1, max2, max3, min1, min2,
+                                updating: [],
+                                line: 4,
+                                message: `Scanning nums[${i}] = ${num}`
+                            });
+
+                            // Update maximums
+                            if (num >= max1) {
+                                max3 = max2;
+                                max2 = max1;
+                                max1 = num;
+                                updating = ['max1', 'max2', 'max3'];
+                                line = 7;
+                                maxMsg = `${num} ≥ max1(${this.formatValue(prevMax1)}): shift all → max1=${num}, max2=${this.formatValue(prevMax1)}, max3=${this.formatValue(prevMax2)}`;
+                            } else if (num >= max2) {
+                                max3 = max2;
+                                max2 = num;
+                                updating = ['max2', 'max3'];
+                                line = 9;
+                                maxMsg = `${num} ≥ max2(${this.formatValue(prevMax2)}): shift → max2=${num}, max3=${this.formatValue(prevMax2)}`;
+                            } else if (num > max3) {
+                                max3 = num;
+                                updating = ['max3'];
+                                line = 10;
+                                maxMsg = `${num} > max3(${this.formatValue(prevMax3)}): max3=${num}`;
+                            } else {
+                                maxMsg = `${num} not larger than any max`;
+                            }
+
+                            // Add max update step
+                            this.steps.push({
+                                type: 'update-max',
+                                index: i,
+                                num,
+                                max1, max2, max3,
+                                min1: prevMin1, min2: prevMin2,
+                                updating,
+                                line,
+                                message: maxMsg
+                            });
+
+                            // Update minimums
+                            updating = [];
+                            if (num <= min1) {
+                                min2 = min1;
+                                min1 = num;
+                                updating = ['min1', 'min2'];
+                                line = 13;
+                                minMsg = `${num} ≤ min1(${this.formatValue(prevMin1)}): shift → min1=${num}, min2=${this.formatValue(prevMin1)}`;
+                            } else if (num < min2) {
+                                min2 = num;
+                                updating = ['min2'];
+                                line = 14;
+                                minMsg = `${num} < min2(${this.formatValue(prevMin2)}): min2=${num}`;
+                            } else {
+                                minMsg = `${num} not smaller than any min`;
+                            }
+
+                            // Add min update step
+                            this.steps.push({
+                                type: 'update-min',
+                                index: i,
+                                num,
+                                max1, max2, max3, min1, min2,
+                                updating,
+                                line,
+                                message: minMsg
+                            });
+                        }
+
+                        // Compute candidates
+                        const c1 = max1 * max2 * max3;
+                        const c2 = min1 * min2 * max1;
+
+                        this.steps.push({
+                            type: 'compute-c1',
+                            index: -1,
+                            num: null,
+                            max1, max2, max3, min1, min2,
+                            c1,
+                            updating: [],
+                            line: 16,
+                            message: `Candidate 1 = ${max1} × ${max2} × ${max3} = ${c1}`
+                        });
+
+                        this.steps.push({
+                            type: 'compute-c2',
+                            index: -1,
+                            num: null,
+                            max1, max2, max3, min1, min2,
+                            c1, c2,
+                            updating: [],
+                            line: 16,
+                            message: `Candidate 2 = ${min1} × ${min2} × ${max1} = ${c2}`
+                        });
+
+                        // Final result
+                        const maxProduct = Math.max(c1, c2);
+                        const winner = c1 >= c2 ? 1 : 2;
+                        const triplet = winner === 1 ? [max1, max2, max3] : [min1, min2, max1];
+
+                        this.steps.push({
+                            type: 'result',
+                            index: -1,
+                            num: null,
+                            max1, max2, max3, min1, min2,
+                            c1, c2,
+                            maxProduct,
+                            winner,
+                            triplet,
+                            updating: [],
+                            line: 16,
+                            message: `max(${c1}, ${c2}) = ${maxProduct} → Candidate ${winner} wins!`
+                        });
+                    }
+
+                    renderArray() {
+                        this.arrayDisplay.innerHTML = this.nums.map((num, idx) => `
+                    <div class="array-element" data-index="${idx}">
+                        <span class="element-index">[${idx}]</span>
+                        <div class="element-value">${num}</div>
+                    </div>
+                `).join('');
+                    }
+
+                    updateArrayHighlights(step) {
+                        document.querySelectorAll('.array-element').forEach(el => {
+                            const idx = parseInt(el.dataset.index);
+                            const valueEl = el.querySelector('.element-value');
+
+                            valueEl.classList.remove('current', 'visited', 'is-max1', 'is-max2', 'is-max3', 'is-min1', 'is-min2', 'winner');
+
+                            if (step.index >= 0) {
+                                if (idx < step.index) {
+                                    valueEl.classList.add('visited');
+                                } else if (idx === step.index) {
+                                    valueEl.classList.add('current');
+                                }
+                            }
+                        });
+
+                        // Update current index badge
+                        this.currentIndexBadge.textContent = step.index >= 0 ? `index: ${step.index}` : 'index: —';
+                    }
+
+                    updateTrackers(step) {
+                        // Reset updating state
+                        [this.trackerMax1, this.trackerMax2, this.trackerMax3, this.trackerMin1, this.trackerMin2].forEach(t => {
+                            t.classList.remove('updating');
+                        });
+
+                        // Update values
+                        this.trackerMax1.querySelector('.tracker-value').textContent = this.formatValue(step.max1);
+                        this.trackerMax2.querySelector('.tracker-value').textContent = this.formatValue(step.max2);
+                        this.trackerMax3.querySelector('.tracker-value').textContent = this.formatValue(step.max3);
+                        this.trackerMin1.querySelector('.tracker-value').textContent = this.formatValue(step.min1);
+                        this.trackerMin2.querySelector('.tracker-value').textContent = this.formatValue(step.min2);
+
+                        // Highlight updating trackers
+                        if (step.updating) {
+                            step.updating.forEach(tracker => {
+                                const el = document.getElementById(`tracker${tracker.charAt(0).toUpperCase() + tracker.slice(1)}`);
+                                if (el) el.classList.add('updating');
+                            });
+                        }
+                    }
+
+                    updateCandidates(step) {
+                        this.candidate1Card.classList.remove('active', 'winner');
+                        this.candidate2Card.classList.remove('active', 'winner');
+                        this.candidate1Value.textContent = '—';
+                        this.candidate2Value.textContent = '—';
+
+                        if (step.c1 !== undefined) {
+                            this.candidate1Card.classList.add('active');
+                            this.candidate1Value.textContent = step.c1;
+                        }
+
+                        if (step.c2 !== undefined) {
+                            this.candidate2Card.classList.add('active');
+                            this.candidate2Value.textContent = step.c2;
+                        }
+
+                        if (step.type === 'result') {
+                            if (step.winner === 1) {
+                                this.candidate1Card.classList.add('winner');
+                            } else {
+                                this.candidate2Card.classList.add('winner');
+                            }
+                        }
+                    }
+
+                    updateState(step) {
+                        this.stateIndex.textContent = step.index >= 0 ? step.index : '—';
+                        this.stateNum.textContent = step.num !== null ? step.num : '—';
+                        this.stateMax1.textContent = this.formatValue(step.max1);
+                        this.stateMax2.textContent = this.formatValue(step.max2);
+                        this.stateMax3.textContent = this.formatValue(step.max3);
+                        this.stateMin1.textContent = this.formatValue(step.min1);
+                        this.stateMin2.textContent = this.formatValue(step.min2);
+                        this.stateC1.textContent = step.c1 !== undefined ? step.c1 : '—';
+                        this.stateC2.textContent = step.c2 !== undefined ? step.c2 : '—';
+                        this.stateResult.textContent = step.maxProduct !== undefined ? step.maxProduct : '—';
+                    }
+
+                    updateCodeHighlight(line) {
+                        document.querySelectorAll('.code-line').forEach(el => {
+                            el.classList.remove('active');
+                            if (parseInt(el.dataset.line) === line) {
+                                el.classList.add('active');
+                            }
+                        });
+                    }
+
+                    addLogEntry(step, stepNum) {
+                        let logType = 'compute';
+                        if (step.type === 'scan') logType = 'scan';
+                        else if (step.type === 'update-max') logType = 'update-max';
+                        else if (step.type === 'update-min') logType = 'update-min';
+                        else if (step.type === 'result') logType = 'result';
+
+                        const entry = document.createElement('div');
+                        entry.className = `log-entry ${logType}`;
+                        entry.innerHTML = `
+                    <span class="log-step-num">[${stepNum}]</span>
+                    <span>${step.message}</span>
+                `;
+                        this.logContent.appendChild(entry);
+                        this.logContent.scrollTop = this.logContent.scrollHeight;
+                    }
+
+                    updateProgress() {
+                        const progress = this.steps.length > 0
+                            ? ((this.currentStepIndex + 1) / this.steps.length) * 100
+                            : 0;
+                        this.progressBar.style.width = `${progress}%`;
+                        this.currentStepEl.textContent = this.currentStepIndex + 1;
+                        this.progressPercent.textContent = `${Math.round(progress)}%`;
+                    }
+
+                    updateTotalSteps() {
+                        this.totalStepsEl.textContent = this.steps.length;
+                    }
+
+                    updateStatus(status) {
+                        this.statusIndicator.className = `status-indicator ${status}`;
+                        const statusNames = {
+                            ready: 'Ready',
+                            running: 'Running',
+                            paused: 'Paused',
+                            complete: 'Complete'
+                        };
+                        this.statusText.textContent = statusNames[status] || status;
+                    }
+
+                    showResult(step) {
+                        this.resultDisplay.classList.remove('hidden');
+                        this.resultValue.textContent = step.maxProduct;
+                        this.resultTriplet.textContent = `Triplet: (${step.triplet.join(', ')}) — Candidate ${step.winner}`;
+                    }
+
+                    hideResult() {
+                        this.resultDisplay.classList.add('hidden');
+                    }
+
+                    stepForward() {
+                        if (this.currentStepIndex >= this.steps.length - 1) return;
+
+                        this.currentStepIndex++;
+                        const step = this.steps[this.currentStepIndex];
+
+                        this.updateArrayHighlights(step);
+                        this.updateTrackers(step);
+                        this.updateCandidates(step);
+                        this.updateState(step);
+                        this.updateCodeHighlight(step.line);
+                        this.addLogEntry(step, this.currentStepIndex + 1);
+                        this.updateProgress();
+
+                        if (step.type === 'result') {
+                            this.showResult(step);
+                            this.pause();
+                            this.updateStatus('complete');
+                        }
+
+                        this.updateButtons();
+                    }
+
+                    stepBack() {
+                        if (this.currentStepIndex < 0) return;
+
+                        const lastEntry = this.logContent.lastElementChild;
+                        if (lastEntry && this.currentStepIndex >= 0) {
+                            lastEntry.remove();
+                        }
+
+                        this.currentStepIndex--;
+                        this.hideResult();
+
+                        if (this.currentStepIndex < 0) {
+                            this.renderArray();
+                            this.updateTrackers({ max1: -Infinity, max2: -Infinity, max3: -Infinity, min1: Infinity, min2: Infinity, updating: [] });
+                            this.updateCandidates({});
+                            this.updateState({ index: -1, num: null, max1: -Infinity, max2: -Infinity, max3: -Infinity, min1: Infinity, min2: Infinity });
+                            this.updateCodeHighlight(0);
+                            this.currentIndexBadge.textContent = 'index: —';
+                            this.updateStatus('ready');
+                        } else {
+                            const step = this.steps[this.currentStepIndex];
+                            this.updateArrayHighlights(step);
+                            this.updateTrackers(step);
+                            this.updateCandidates(step);
+                            this.updateState(step);
+                            this.updateCodeHighlight(step.line);
+                            this.updateStatus('paused');
+                        }
+
+                        this.updateProgress();
+                        this.updateButtons();
+                    }
+
+                    togglePlayPause() {
+                        if (this.isPlaying) {
+                            this.pause();
+                        } else {
+                            this.play();
+                        }
+                    }
+
+                    play() {
+                        if (this.currentStepIndex >= this.steps.length - 1) {
+                            this.reset();
+                        }
+
+                        this.isPlaying = true;
+                        this.playIcon.style.display = 'none';
+                        this.pauseIcon.style.display = 'block';
+                        this.playPauseText.textContent = 'Pause';
+                        this.updateStatus('running');
+
+                        const interval = 1200 / this.speed;
+                        this.playInterval = setInterval(() => {
+                            if (this.currentStepIndex >= this.steps.length - 1) {
+                                this.pause();
+                                return;
+                            }
+                            this.stepForward();
+                        }, interval);
+                    }
+
+                    pause() {
+                        this.isPlaying = false;
+                        this.playIcon.style.display = 'block';
+                        this.pauseIcon.style.display = 'none';
+                        this.playPauseText.textContent = 'Play';
+
+                        if (this.playInterval) {
+                            clearInterval(this.playInterval);
+                            this.playInterval = null;
+                        }
+
+                        if (this.currentStepIndex >= this.steps.length - 1) {
+                            this.updateStatus('complete');
+                        } else if (this.currentStepIndex >= 0) {
+                            this.updateStatus('paused');
+                        } else {
+                            this.updateStatus('ready');
+                        }
+                    }
+
+                    reset() {
+                        this.pause();
+                        this.currentStepIndex = -1;
+                        this.parseInput();
+                        this.renderArray();
+                        this.updateTrackers({ max1: -Infinity, max2: -Infinity, max3: -Infinity, min1: Infinity, min2: Infinity, updating: [] });
+                        this.updateCandidates({});
+                        this.updateState({ index: -1, num: null, max1: -Infinity, max2: -Infinity, max3: -Infinity, min1: Infinity, min2: Infinity });
+                        this.updateCodeHighlight(0);
+                        this.currentIndexBadge.textContent = 'index: —';
+                        this.clearLog();
+                        this.updateProgress();
+                        this.updateStatus('ready');
+                        this.hideResult();
+                        this.updateButtons();
+
+                        const entry = document.createElement('div');
+                        entry.className = 'log-entry compute';
+                        entry.innerHTML = `<span class="log-step-num">[init]</span><span>Array: [${this.nums.join(', ')}], n = ${this.nums.length}</span>`;
+                        this.logContent.appendChild(entry);
+                    }
+
+                    updateSpeed(value) {
+                        this.speed = parseInt(value);
+                        const speedMultiplier = (this.speed / 5).toFixed(1);
+                        this.speedValue.textContent = `${speedMultiplier}x`;
+
+                        if (this.isPlaying) {
+                            this.pause();
+                            this.play();
+                        }
+                    }
+
+                    clearLog() {
+                        this.logContent.innerHTML = '';
+                    }
+
+                    updateButtons() {
+                        this.stepBackBtn.disabled = this.currentStepIndex < 0;
+                        this.stepForwardBtn.disabled = this.currentStepIndex >= this.steps.length - 1;
+                    }
+                }
+
+                document.addEventListener('DOMContentLoaded', () => {
+                    new SinglePassVisualizer();
+                });
+            </script>
+</body>
+
+</html>

@@ -1,0 +1,1150 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LeetCode 1984 - Sorting + Sliding Window Visualization</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+            padding: 20px;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2em;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            opacity: 0.95;
+            font-size: 1.1em;
+        }
+
+        .complexity-badge {
+            display: inline-block;
+            background: rgba(255,255,255,0.2);
+            padding: 8px 16px;
+            border-radius: 20px;
+            margin-top: 10px;
+            font-weight: 600;
+        }
+
+        .main-content {
+            display: grid;
+            grid-template-columns: 1fr 400px;
+            gap: 20px;
+            padding: 30px;
+        }
+
+        .left-panel {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .right-panel {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .card {
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 20px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+
+        .card h2 {
+            color: #11998e;
+            margin-bottom: 15px;
+            font-size: 1.3em;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .icon {
+            font-size: 1.2em;
+        }
+
+        /* Input Section */
+        .input-group {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 15px;
+            flex-wrap: wrap;
+        }
+
+        .input-group label {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+            flex: 1;
+            min-width: 200px;
+        }
+
+        .input-group input {
+            padding: 10px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 1em;
+            transition: border-color 0.3s;
+        }
+
+        .input-group input:focus {
+            outline: none;
+            border-color: #11998e;
+        }
+
+        /* Controls */
+        .controls {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+
+        button {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            font-size: 1em;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+            color: white;
+        }
+
+        .btn-success {
+            background: #28a745;
+            color: white;
+        }
+
+        .btn-warning {
+            background: #ffc107;
+            color: #333;
+        }
+
+        .btn-danger {
+            background: #dc3545;
+            color: white;
+        }
+
+        .btn-secondary {
+            background: #6c757d;
+            color: white;
+        }
+
+        button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        /* Speed Control */
+        .speed-control {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            flex: 1;
+            min-width: 200px;
+        }
+
+        .speed-control input[type="range"] {
+            width: 100%;
+        }
+
+        .speed-value {
+            color: #11998e;
+            font-weight: 600;
+        }
+
+        /* Phase Indicator */
+        .phase-indicator {
+            display: flex;
+            gap: 15px;
+            margin: 15px 0;
+            justify-content: center;
+        }
+
+        .phase {
+            padding: 10px 20px;
+            border-radius: 20px;
+            background: #e9ecef;
+            color: #666;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+
+        .phase.active {
+            background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+            color: white;
+            transform: scale(1.1);
+            box-shadow: 0 4px 12px rgba(17, 153, 142, 0.4);
+        }
+
+        /* Array Visualization */
+        .array-section {
+            margin: 20px 0;
+        }
+
+        .array-label {
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 10px;
+            font-size: 1.1em;
+        }
+
+        .array-container {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            justify-content: center;
+            padding: 20px;
+            background: white;
+            border-radius: 10px;
+            min-height: 100px;
+            align-items: center;
+        }
+
+        .array-element {
+            width: 70px;
+            height: 70px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            background: #e9ecef;
+            border: 3px solid #ddd;
+            border-radius: 10px;
+            font-size: 1.3em;
+            font-weight: bold;
+            transition: all 0.3s;
+            position: relative;
+        }
+
+        .array-element .index {
+            position: absolute;
+            top: -22px;
+            font-size: 0.7em;
+            color: #666;
+            font-weight: normal;
+        }
+
+        .array-element .value {
+            font-size: 1.3em;
+        }
+
+        .array-element.sorting {
+            background: #ffc107;
+            border-color: #ff9800;
+            animation: sorting-pulse 0.6s ease-in-out;
+        }
+
+        @keyframes sorting-pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.15); }
+        }
+
+        .array-element.window-left {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-color: #667eea;
+            transform: scale(1.05);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.5);
+        }
+
+        .array-element.window-right {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            color: white;
+            border-color: #f5576c;
+            transform: scale(1.05);
+            box-shadow: 0 4px 12px rgba(245, 87, 108, 0.5);
+        }
+
+        .array-element.in-window {
+            background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+            color: white;
+            border-color: #11998e;
+            transform: scale(1.05);
+            box-shadow: 0 4px 12px rgba(17, 153, 142, 0.4);
+        }
+
+        .pointer-label {
+            position: absolute;
+            bottom: -28px;
+            font-size: 0.75em;
+            font-weight: 600;
+            padding: 2px 8px;
+            border-radius: 10px;
+            white-space: nowrap;
+        }
+
+        .pointer-label.left {
+            background: #667eea;
+            color: white;
+        }
+
+        .pointer-label.right {
+            background: #f5576c;
+            color: white;
+        }
+
+        /* Window Info */
+        .window-info {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            border: 3px solid #11998e;
+            margin: 15px 0;
+        }
+
+        .window-info h3 {
+            color: #11998e;
+            margin-bottom: 15px;
+            font-size: 1.2em;
+        }
+
+        .window-details {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+        }
+
+        .window-detail {
+            padding: 10px;
+            background: #f8f9fa;
+            border-radius: 8px;
+            border-left: 4px solid #11998e;
+        }
+
+        .detail-label {
+            font-size: 0.85em;
+            color: #666;
+            margin-bottom: 4px;
+        }
+
+        .detail-value {
+            font-size: 1.3em;
+            font-weight: bold;
+            color: #11998e;
+        }
+
+        /* Variables Display */
+        .variables {
+            display: grid;
+            gap: 10px;
+        }
+
+        .variable-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px;
+            background: white;
+            border-radius: 8px;
+            border-left: 4px solid #11998e;
+        }
+
+        .variable-name {
+            font-weight: 600;
+            color: #333;
+        }
+
+        .variable-value {
+            font-family: 'Courier New', monospace;
+            color: #11998e;
+            font-weight: bold;
+            font-size: 1.1em;
+        }
+
+        .variable-value.highlight {
+            animation: highlight-flash 0.5s;
+        }
+
+        @keyframes highlight-flash {
+            0%, 100% { background: transparent; }
+            50% { background: #38ef7d; padding: 4px 8px; border-radius: 4px; color: white; }
+        }
+
+        /* Execution Log */
+        .log-container {
+            background: #1e1e1e;
+            color: #d4d4d4;
+            border-radius: 10px;
+            padding: 15px;
+            height: 400px;
+            overflow-y: auto;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9em;
+        }
+
+        .log-entry {
+            padding: 4px 0;
+            border-bottom: 1px solid #333;
+            animation: slideIn 0.3s;
+        }
+
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateX(-10px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+
+        .log-entry.info { color: #4ec9b0; }
+        .log-entry.warning { color: #ffc107; }
+        .log-entry.success { color: #38ef7d; }
+        .log-entry.error { color: #dc3545; }
+        .log-entry.step { color: #9cdcfe; }
+        .log-entry.phase { color: #c586c0; font-weight: bold; }
+
+        /* Result Display */
+        .result-box {
+            background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+            font-size: 1.5em;
+            font-weight: bold;
+            margin-top: 20px;
+        }
+
+        .result-box.hidden {
+            display: none;
+        }
+
+        /* Progress Bar */
+        .progress-container {
+            background: #e9ecef;
+            border-radius: 10px;
+            height: 30px;
+            overflow: hidden;
+            margin: 15px 0;
+        }
+
+        .progress-bar {
+            height: 100%;
+            background: linear-gradient(90deg, #11998e 0%, #38ef7d 100%);
+            transition: width 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 600;
+        }
+
+        /* Stats */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+        }
+
+        .stat-card {
+            background: white;
+            padding: 15px;
+            border-radius: 10px;
+            text-align: center;
+            border: 2px solid #e9ecef;
+        }
+
+        .stat-label {
+            font-size: 0.9em;
+            color: #666;
+            margin-bottom: 5px;
+        }
+
+        .stat-value {
+            font-size: 1.5em;
+            font-weight: bold;
+            color: #11998e;
+        }
+
+        /* Complexity Display */
+        .complexity-info {
+            background: white;
+            padding: 15px;
+            border-radius: 10px;
+            margin-top: 15px;
+        }
+
+        .complexity-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 0;
+            border-bottom: 1px solid #e9ecef;
+        }
+
+        .complexity-row:last-child {
+            border-bottom: none;
+        }
+
+        /* Scrollbar Styling */
+        .log-container::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        .log-container::-webkit-scrollbar-track {
+            background: #2d2d2d;
+            border-radius: 10px;
+        }
+
+        .log-container::-webkit-scrollbar-thumb {
+            background: #11998e;
+            border-radius: 10px;
+        }
+
+        /* Responsive */
+        @media (max-width: 1024px) {
+            .main-content {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>⚡ LeetCode 1984: Optimal Solution Visualization</h1>
+            <p>Sorting + Sliding Window Approach</p>
+            <div class="complexity-badge">Time: O(n log n) | Space: O(1)</div>
+        </div>
+
+        <div class="main-content">
+            <div class="left-panel">
+                <!-- Input Section -->
+                <div class="card">
+                    <h2><span class="icon">⚙️</span> Configuration</h2>
+                    <div class="input-group">
+                        <label>
+                            <strong>Array (comma-separated):</strong>
+                            <input type="text" id="arrayInput" value="9,4,1,7" placeholder="e.g., 9,4,1,7">
+                        </label>
+                        <label>
+                            <strong>K (number of students):</strong>
+                            <input type="number" id="kInput" value="2" min="1" placeholder="e.g., 2">
+                        </label>
+                    </div>
+                    <div class="controls">
+                        <button class="btn-primary" onclick="initialize()">
+                            <span>🔄</span> Initialize
+                        </button>
+                        <button class="btn-success" id="playBtn" onclick="play()" disabled>
+                            <span>▶️</span> Play
+                        </button>
+                        <button class="btn-warning" id="pauseBtn" onclick="pause()" disabled>
+                            <span>⏸️</span> Pause
+                        </button>
+                        <button class="btn-secondary" id="stepBtn" onclick="step()" disabled>
+                            <span>⏭️</span> Step
+                        </button>
+                        <button class="btn-danger" onclick="reset()">
+                            <span>🔄</span> Reset
+                        </button>
+                    </div>
+                    <div class="speed-control">
+                        <label><strong>Animation Speed:</strong></label>
+                        <input type="range" id="speedSlider" min="300" max="2000" value="1000" step="100" oninput="updateSpeed()">
+                        <div>Speed: <span class="speed-value" id="speedValue">1000ms</span></div>
+                    </div>
+                </div>
+
+                <!-- Phase Indicator -->
+                <div class="card">
+                    <h2><span class="icon">🎯</span> Algorithm Phase</h2>
+                    <div class="phase-indicator">
+                        <div class="phase" id="phaseInit">Initialization</div>
+                        <div class="phase" id="phaseSorting">Sorting</div>
+                        <div class="phase" id="phaseWindow">Sliding Window</div>
+                        <div class="phase" id="phaseComplete">Complete</div>
+                    </div>
+                </div>
+
+                <!-- Array Visualization -->
+                <div class="card">
+                    <h2><span class="icon">📊</span> Array Visualization</h2>
+
+                    <div class="array-section">
+                        <div class="array-label">Original Array:</div>
+                        <div class="array-container" id="originalArray"></div>
+                    </div>
+
+                    <div class="array-section">
+                        <div class="array-label">Sorted Array:</div>
+                        <div class="array-container" id="sortedArray"></div>
+                    </div>
+
+                    <div class="window-info" id="windowInfo" style="display: none;">
+                        <h3>📍 Current Window Information</h3>
+                        <div class="window-details">
+                            <div class="window-detail">
+                                <div class="detail-label">Window Position</div>
+                                <div class="detail-value" id="windowPos">-</div>
+                            </div>
+                            <div class="window-detail">
+                                <div class="detail-label">Window Size</div>
+                                <div class="detail-value" id="windowSize">-</div>
+                            </div>
+                            <div class="window-detail">
+                                <div class="detail-label">Min (Left)</div>
+                                <div class="detail-value" id="windowMin">-</div>
+                            </div>
+                            <div class="window-detail">
+                                <div class="detail-label">Max (Right)</div>
+                                <div class="detail-value" id="windowMax">-</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="progress-container">
+                        <div class="progress-bar" id="progressBar" style="width: 0%">0%</div>
+                    </div>
+                </div>
+
+                <!-- Variables -->
+                <div class="card">
+                    <h2><span class="icon">📝</span> Current State</h2>
+                    <div class="variables">
+                        <div class="variable-row">
+                            <span class="variable-name">Current Index (i):</span>
+                            <span class="variable-value" id="varIndex">-</span>
+                        </div>
+                        <div class="variable-row">
+                            <span class="variable-name">Window Start:</span>
+                            <span class="variable-value" id="varWindowStart">-</span>
+                        </div>
+                        <div class="variable-row">
+                            <span class="variable-name">Window End:</span>
+                            <span class="variable-value" id="varWindowEnd">-</span>
+                        </div>
+                        <div class="variable-row">
+                            <span class="variable-name">Current Difference:</span>
+                            <span class="variable-value" id="varCurrentDiff">-</span>
+                        </div>
+                        <div class="variable-row">
+                            <span class="variable-name">Minimum Difference:</span>
+                            <span class="variable-value" id="varMinDiff">∞</span>
+                        </div>
+                    </div>
+
+                    <div class="complexity-info">
+                        <h3 style="color: #11998e; margin-bottom: 10px;">⏱️ Complexity Analysis</h3>
+                        <div class="complexity-row">
+                            <strong>Sorting Phase:</strong>
+                            <span>O(n log n)</span>
+                        </div>
+                        <div class="complexity-row">
+                            <strong>Window Phase:</strong>
+                            <span>O(n)</span>
+                        </div>
+                        <div class="complexity-row">
+                            <strong>Total Time:</strong>
+                            <span style="color: #11998e; font-weight: bold;">O(n log n)</span>
+                        </div>
+                        <div class="complexity-row">
+                            <strong>Space:</strong>
+                            <span style="color: #11998e; font-weight: bold;">O(1)</span>
+                        </div>
+                    </div>
+
+                    <div class="result-box hidden" id="resultBox">
+                        Final Answer: <span id="finalAnswer">-</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="right-panel">
+                <!-- Statistics -->
+                <div class="card">
+                    <h2><span class="icon">📈</span> Statistics</h2>
+                    <div class="stats-grid">
+                        <div class="stat-card">
+                            <div class="stat-label">Array Length (n)</div>
+                            <div class="stat-value" id="statN">0</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-label">K Value</div>
+                            <div class="stat-value" id="statK">0</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-label">Windows Checked</div>
+                            <div class="stat-value" id="statWindows">0</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-label">Total Windows</div>
+                            <div class="stat-value" id="statTotalWindows">0</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Execution Log -->
+                <div class="card" style="flex: 1;">
+                    <h2><span class="icon">📋</span> Execution Log</h2>
+                    <div class="log-container" id="logContainer">
+                        <div class="log-entry info">Ready to start. Click Initialize to begin.</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let originalNums = [];
+        let nums = [];
+        let k = 0;
+        let currentPhase = 'init'; // init, sorting, window, complete
+        let currentStep = 0;
+        let windowIndex = 0;
+        let isPlaying = false;
+        let animationSpeed = 1000;
+        let timeoutId = null;
+        let minDiff = Infinity;
+        let totalWindows = 0;
+
+        function addLog(message, type = 'info') {
+            const logContainer = document.getElementById('logContainer');
+            const entry = document.createElement('div');
+            entry.className = `log-entry ${type}`;
+            const timestamp = new Date().toLocaleTimeString();
+            entry.textContent = `[${timestamp}] ${message}`;
+            logContainer.appendChild(entry);
+            logContainer.scrollTop = logContainer.scrollHeight;
+        }
+
+        function updateVariable(id, value, highlight = false) {
+            const element = document.getElementById(id);
+            element.textContent = value;
+            if (highlight) {
+                element.classList.add('highlight');
+                setTimeout(() => element.classList.remove('highlight'), 500);
+            }
+        }
+
+        function setPhase(phase) {
+            currentPhase = phase;
+            document.querySelectorAll('.phase').forEach(p => p.classList.remove('active'));
+
+            const phaseMap = {
+                'init': 'phaseInit',
+                'sorting': 'phaseSorting',
+                'window': 'phaseWindow',
+                'complete': 'phaseComplete'
+            };
+
+            if (phaseMap[phase]) {
+                document.getElementById(phaseMap[phase]).classList.add('active');
+            }
+        }
+
+        function renderOriginalArray() {
+            const container = document.getElementById('originalArray');
+            container.innerHTML = '';
+
+            originalNums.forEach((num, idx) => {
+                const element = document.createElement('div');
+                element.className = 'array-element';
+
+                const index = document.createElement('span');
+                index.className = 'index';
+                index.textContent = `[${idx}]`;
+                element.appendChild(index);
+
+                const value = document.createElement('span');
+                value.className = 'value';
+                value.textContent = num;
+                element.appendChild(value);
+
+                container.appendChild(element);
+            });
+        }
+
+        function renderSortedArray(windowStart = -1, windowEnd = -1, highlight = false) {
+            const container = document.getElementById('sortedArray');
+            container.innerHTML = '';
+
+            if (nums.length === 0) {
+                container.innerHTML = '<em style="color: #999;">Sorting in progress...</em>';
+                return;
+            }
+
+            nums.forEach((num, idx) => {
+                const element = document.createElement('div');
+                element.className = 'array-element';
+
+                if (highlight && idx >= windowStart && idx <= windowEnd) {
+                    if (idx === windowStart) {
+                        element.classList.add('window-left');
+                        const label = document.createElement('span');
+                        label.className = 'pointer-label left';
+                        label.textContent = 'MIN';
+                        element.appendChild(label);
+                    } else if (idx === windowEnd) {
+                        element.classList.add('window-right');
+                        const label = document.createElement('span');
+                        label.className = 'pointer-label right';
+                        label.textContent = 'MAX';
+                        element.appendChild(label);
+                    } else {
+                        element.classList.add('in-window');
+                    }
+                }
+
+                const index = document.createElement('span');
+                index.className = 'index';
+                index.textContent = `[${idx}]`;
+                element.appendChild(index);
+
+                const value = document.createElement('span');
+                value.className = 'value';
+                value.textContent = num;
+                element.appendChild(value);
+
+                container.appendChild(element);
+            });
+        }
+
+        function initialize() {
+            // Parse input
+            const arrayInput = document.getElementById('arrayInput').value;
+            const kInput = document.getElementById('kInput').value;
+
+            originalNums = arrayInput.split(',').map(s => parseInt(s.trim())).filter(n => !isNaN(n));
+            k = parseInt(kInput);
+
+            // Validation
+            if (originalNums.length === 0) {
+                alert('Please enter a valid array');
+                return;
+            }
+            if (k < 1 || k > originalNums.length) {
+                alert('K must be between 1 and array length');
+                return;
+            }
+
+            // Reset state
+            nums = [];
+            currentPhase = 'init';
+            currentStep = 0;
+            windowIndex = 0;
+            minDiff = Infinity;
+            totalWindows = originalNums.length - k + 1;
+
+            // Reset UI
+            document.getElementById('logContainer').innerHTML = '';
+            document.getElementById('resultBox').classList.add('hidden');
+            document.getElementById('windowInfo').style.display = 'none';
+
+            // Update stats
+            document.getElementById('statN').textContent = originalNums.length;
+            document.getElementById('statK').textContent = k;
+            document.getElementById('statWindows').textContent = 0;
+            document.getElementById('statTotalWindows').textContent = totalWindows;
+
+            // Update variables
+            updateVariable('varIndex', '-');
+            updateVariable('varWindowStart', '-');
+            updateVariable('varWindowEnd', '-');
+            updateVariable('varCurrentDiff', '-');
+            updateVariable('varMinDiff', '∞');
+
+            // Render arrays
+            renderOriginalArray();
+            renderSortedArray();
+
+            // Update progress
+            document.getElementById('progressBar').style.width = '0%';
+            document.getElementById('progressBar').textContent = '0%';
+
+            // Set phase
+            setPhase('init');
+
+            // Enable controls
+            document.getElementById('playBtn').disabled = false;
+            document.getElementById('stepBtn').disabled = false;
+
+            // Log
+            addLog('═══════════════════════════════════════', 'phase');
+            addLog('INITIALIZATION PHASE', 'phase');
+            addLog('═══════════════════════════════════════', 'phase');
+            addLog(`Input array: [${originalNums.join(', ')}]`, 'info');
+            addLog(`K = ${k}`, 'info');
+            addLog(`Array length (n) = ${originalNums.length}`, 'info');
+            addLog(`Total windows to check: n - k + 1 = ${totalWindows}`, 'info');
+            addLog('Ready to start optimization!', 'success');
+        }
+
+        function step() {
+            if (currentPhase === 'init') {
+                // Start sorting phase
+                performSorting();
+            } else if (currentPhase === 'sorting') {
+                // Move to window phase
+                startWindowPhase();
+            } else if (currentPhase === 'window') {
+                // Process window
+                if (windowIndex < totalWindows) {
+                    processWindow();
+                } else {
+                    finish();
+                }
+            } else if (currentPhase === 'complete') {
+                // Already done
+                return;
+            }
+        }
+
+        function performSorting() {
+            setPhase('sorting');
+
+            addLog('═══════════════════════════════════════', 'phase');
+            addLog('SORTING PHASE', 'phase');
+            addLog('═══════════════════════════════════════', 'phase');
+            addLog('Sorting array in ascending order...', 'step');
+
+            // Copy and sort
+            nums = [...originalNums].sort((a, b) => a - b);
+
+            addLog(`Sorted array: [${nums.join(', ')}]`, 'success');
+            addLog('✓ Sorting complete in O(n log n) time', 'success');
+            addLog('Key insight: Similar values are now adjacent!', 'info');
+
+            // Render sorted array
+            renderSortedArray();
+
+            // Animate sorting briefly
+            setTimeout(() => {
+                currentPhase = 'sorting';
+            }, 100);
+        }
+
+        function startWindowPhase() {
+            setPhase('window');
+            document.getElementById('windowInfo').style.display = 'block';
+
+            addLog('═══════════════════════════════════════', 'phase');
+            addLog('SLIDING WINDOW PHASE', 'phase');
+            addLog('═══════════════════════════════════════', 'phase');
+            addLog(`Starting to slide window of size k=${k}`, 'info');
+            addLog(`Will check ${totalWindows} consecutive windows`, 'info');
+
+            windowIndex = 0;
+        }
+
+        function processWindow() {
+            const start = windowIndex;
+            const end = windowIndex + k - 1;
+
+            const windowValues = nums.slice(start, end + 1);
+            const min = nums[start];
+            const max = nums[end];
+            const diff = max - min;
+
+            const isNewMin = diff < minDiff;
+            if (isNewMin) {
+                minDiff = diff;
+            }
+
+            // Update UI
+            renderSortedArray(start, end, true);
+
+            // Update window info
+            document.getElementById('windowPos').textContent = `[${start}...${end}]`;
+            document.getElementById('windowSize').textContent = k;
+            document.getElementById('windowMin').textContent = min;
+            document.getElementById('windowMax').textContent = max;
+
+            // Update variables
+            updateVariable('varIndex', windowIndex, true);
+            updateVariable('varWindowStart', start, true);
+            updateVariable('varWindowEnd', end, true);
+            updateVariable('varCurrentDiff', diff, true);
+            updateVariable('varMinDiff', minDiff, isNewMin);
+
+            // Update stats
+            document.getElementById('statWindows').textContent = windowIndex + 1;
+
+            // Update progress
+            const progress = ((windowIndex + 1) / totalWindows * 100).toFixed(1);
+            document.getElementById('progressBar').style.width = progress + '%';
+            document.getElementById('progressBar').textContent = progress + '%';
+
+            // Log
+            addLog(`Window #${windowIndex + 1}: indices [${start}...${end}]`, 'step');
+            addLog(`  Values: [${windowValues.join(', ')}]`, 'info');
+            addLog(`  Min (left) = ${min}, Max (right) = ${max}`, 'info');
+            addLog(`  Difference = ${max} - ${min} = ${diff}`, 'info');
+
+            if (isNewMin) {
+                addLog(`  ✓ NEW MINIMUM FOUND: ${minDiff}`, 'success');
+            } else {
+                addLog(`  Current min remains: ${minDiff}`, 'info');
+            }
+
+            windowIndex++;
+
+            if (windowIndex >= totalWindows) {
+                setTimeout(() => finish(), animationSpeed / 2);
+            }
+        }
+
+        function finish() {
+            setPhase('complete');
+            isPlaying = false;
+
+            document.getElementById('playBtn').disabled = true;
+            document.getElementById('pauseBtn').disabled = true;
+            document.getElementById('stepBtn').disabled = true;
+
+            if (timeoutId) {
+                clearTimeout(timeoutId);
+                timeoutId = null;
+            }
+
+            const finalAnswer = minDiff;
+            document.getElementById('finalAnswer').textContent = finalAnswer;
+            document.getElementById('resultBox').classList.remove('hidden');
+
+            addLog('═══════════════════════════════════════', 'success');
+            addLog('ALGORITHM COMPLETE', 'success');
+            addLog('═══════════════════════════════════════', 'success');
+            addLog(`Final Answer: ${finalAnswer}`, 'success');
+            addLog(`Total operations: O(n log n) sorting + O(n) window scan`, 'info');
+            addLog(`Space complexity: O(1) auxiliary space`, 'info');
+            addLog('✓ Optimal solution achieved!', 'success');
+
+            renderSortedArray();
+        }
+
+        function play() {
+            isPlaying = true;
+            document.getElementById('playBtn').disabled = true;
+            document.getElementById('pauseBtn').disabled = false;
+            document.getElementById('stepBtn').disabled = true;
+
+            addLog('▶️ Starting automatic execution...', 'warning');
+
+            autoPlay();
+        }
+
+        function autoPlay() {
+            if (!isPlaying || currentPhase === 'complete') {
+                return;
+            }
+
+            step();
+
+            if (currentPhase !== 'complete') {
+                timeoutId = setTimeout(autoPlay, animationSpeed);
+            }
+        }
+
+        function pause() {
+            isPlaying = false;
+            document.getElementById('playBtn').disabled = false;
+            document.getElementById('pauseBtn').disabled = true;
+            document.getElementById('stepBtn').disabled = false;
+
+            if (timeoutId) {
+                clearTimeout(timeoutId);
+                timeoutId = null;
+            }
+
+            addLog('⏸️ Paused', 'warning');
+        }
+
+        function reset() {
+            isPlaying = false;
+            currentPhase = 'init';
+            currentStep = 0;
+            windowIndex = 0;
+            minDiff = Infinity;
+            nums = [];
+
+            if (timeoutId) {
+                clearTimeout(timeoutId);
+                timeoutId = null;
+            }
+
+            document.getElementById('playBtn').disabled = true;
+            document.getElementById('pauseBtn').disabled = true;
+            document.getElementById('stepBtn').disabled = true;
+
+            document.getElementById('originalArray').innerHTML = '';
+            document.getElementById('sortedArray').innerHTML = '';
+            document.getElementById('logContainer').innerHTML = '<div class="log-entry info">Ready to start. Click Initialize to begin.</div>';
+            document.getElementById('resultBox').classList.add('hidden');
+            document.getElementById('windowInfo').style.display = 'none';
+
+            updateVariable('varIndex', '-');
+            updateVariable('varWindowStart', '-');
+            updateVariable('varWindowEnd', '-');
+            updateVariable('varCurrentDiff', '-');
+            updateVariable('varMinDiff', '∞');
+
+            document.getElementById('statN').textContent = '0';
+            document.getElementById('statK').textContent = '0';
+            document.getElementById('statWindows').textContent = '0';
+            document.getElementById('statTotalWindows').textContent = '0';
+
+            document.getElementById('progressBar').style.width = '0%';
+            document.getElementById('progressBar').textContent = '0%';
+
+            setPhase('init');
+
+            addLog('🔄 Reset complete. Enter values and click Initialize.', 'info');
+        }
+
+        function updateSpeed() {
+            const slider = document.getElementById('speedSlider');
+            animationSpeed = parseInt(slider.value);
+            document.getElementById('speedValue').textContent = animationSpeed + 'ms';
+        }
+
+        // Initialize on load
+        window.onload = function() {
+            addLog('═══════════════════════════════════════', 'success');
+            addLog('SORTING + SLIDING WINDOW VISUALIZATION', 'success');
+            addLog('═══════════════════════════════════════', 'success');
+            addLog('This demonstrates the optimal O(n log n) solution', 'info');
+            addLog('Enter your array and k value, then click Initialize', 'info');
+        };
+    </script>
+</body>
+</html>

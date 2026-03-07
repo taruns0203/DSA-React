@@ -1,0 +1,1759 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Maximum Product of Three Numbers - Sorting Approach Visualizer</title>
+    <link
+        href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=Source+Serif+4:opsz,wght@8..60,400;8..60,600;8..60,700&display=swap"
+        rel="stylesheet">
+    <style>
+        :root {
+            --bg-primary: #0a0f1a;
+            --bg-secondary: #111827;
+            --bg-tertiary: #1f2937;
+            --bg-elevated: #374151;
+            --text-primary: #f9fafb;
+            --text-secondary: #9ca3af;
+            --text-muted: #6b7280;
+            --accent: #06b6d4;
+            --accent-dim: #0891b2;
+            --accent-glow: rgba(6, 182, 212, 0.15);
+            --success: #10b981;
+            --success-dim: #059669;
+            --error: #f43f5e;
+            --warning: #f59e0b;
+            --info: #6366f1;
+            --border: #1f2937;
+            --border-light: #374151;
+            --candidate1: #8b5cf6;
+            --candidate2: #ec4899;
+            --sorted: #10b981;
+            --comparing: #f59e0b;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Source Serif 4', Georgia, serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            min-height: 100vh;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        /* Header */
+        header {
+            text-align: center;
+            margin-bottom: 2.5rem;
+            padding-bottom: 2rem;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .problem-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            background: var(--accent-glow);
+            border: 1px solid var(--accent-dim);
+            padding: 0.35rem 1rem;
+            border-radius: 2rem;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.8rem;
+            color: var(--accent);
+            margin-bottom: 1rem;
+            letter-spacing: 0.05em;
+        }
+
+        h1 {
+            font-size: 2.25rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+            letter-spacing: -0.02em;
+        }
+
+        .subtitle {
+            color: var(--text-secondary);
+            font-size: 1.1rem;
+        }
+
+        .complexity-badges {
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+            margin-top: 1.25rem;
+        }
+
+        .complexity-badge {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.75rem;
+            padding: 0.4rem 0.8rem;
+            border-radius: 0.25rem;
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border);
+        }
+
+        .complexity-badge span {
+            color: var(--text-muted);
+        }
+
+        .complexity-badge code {
+            color: var(--accent);
+            font-weight: 600;
+        }
+
+        /* Main Layout */
+        .main-grid {
+            display: grid;
+            grid-template-columns: 1fr 360px;
+            gap: 1.5rem;
+        }
+
+        /* Panels */
+        .panel {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            border-radius: 0.75rem;
+            overflow: hidden;
+        }
+
+        .panel-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 1rem 1.25rem;
+            background: var(--bg-tertiary);
+            border-bottom: 1px solid var(--border);
+        }
+
+        .panel-title {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.8rem;
+            font-weight: 600;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+        }
+
+        .panel-content {
+            padding: 1.5rem;
+        }
+
+        /* Input Section */
+        .input-section {
+            margin-bottom: 1.5rem;
+        }
+
+        .input-group {
+            display: flex;
+            gap: 0.75rem;
+            align-items: stretch;
+        }
+
+        .input-wrapper {
+            flex: 1;
+            position: relative;
+        }
+
+        .input-wrapper input {
+            width: 100%;
+            padding: 0.85rem 1rem;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.95rem;
+            background: var(--bg-primary);
+            border: 1px solid var(--border);
+            border-radius: 0.5rem;
+            color: var(--text-primary);
+            transition: all 0.2s;
+        }
+
+        .input-wrapper input:focus {
+            outline: none;
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px var(--accent-glow);
+        }
+
+        .input-wrapper input::placeholder {
+            color: var(--text-muted);
+        }
+
+        .btn {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.8rem;
+            font-weight: 600;
+            padding: 0.75rem 1.25rem;
+            border: 1px solid var(--border);
+            border-radius: 0.5rem;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .btn-primary {
+            background: var(--accent);
+            border-color: var(--accent);
+            color: var(--bg-primary);
+        }
+
+        .btn-primary:hover {
+            background: var(--accent-dim);
+            border-color: var(--accent-dim);
+        }
+
+        .btn-secondary {
+            background: var(--bg-tertiary);
+            color: var(--text-primary);
+        }
+
+        .btn-secondary:hover {
+            background: var(--bg-elevated);
+            border-color: var(--border-light);
+        }
+
+        .btn-icon {
+            width: 2.75rem;
+            padding: 0;
+            justify-content: center;
+        }
+
+        .btn:disabled {
+            opacity: 0.4;
+            cursor: not-allowed;
+        }
+
+        /* Preset Buttons */
+        .presets {
+            display: flex;
+            gap: 0.5rem;
+            margin-top: 0.75rem;
+            flex-wrap: wrap;
+        }
+
+        .preset-btn {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.7rem;
+            padding: 0.4rem 0.7rem;
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border);
+            border-radius: 0.25rem;
+            color: var(--text-secondary);
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .preset-btn:hover {
+            background: var(--bg-elevated);
+            color: var(--text-primary);
+            border-color: var(--border-light);
+        }
+
+        /* Array Visualization */
+        .array-section {
+            margin: 1.5rem 0;
+        }
+
+        .array-row {
+            margin-bottom: 1.5rem;
+        }
+
+        .array-label {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            margin-bottom: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .array-label .phase-badge {
+            background: var(--accent-glow);
+            color: var(--accent);
+            padding: 0.2rem 0.5rem;
+            border-radius: 0.25rem;
+            font-size: 0.65rem;
+        }
+
+        .array-display {
+            display: flex;
+            gap: 0.4rem;
+            flex-wrap: wrap;
+            justify-content: center;
+            padding: 1.25rem;
+            background: var(--bg-primary);
+            border-radius: 0.5rem;
+            border: 1px solid var(--border);
+            min-height: 90px;
+            align-items: center;
+        }
+
+        .array-element {
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 0.4rem;
+            transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .array-element.moving {
+            z-index: 10;
+        }
+
+        .element-index {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.6rem;
+            color: var(--text-muted);
+        }
+
+        .element-value {
+            width: 48px;
+            height: 48px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.95rem;
+            font-weight: 600;
+            background: var(--bg-tertiary);
+            border: 2px solid var(--border);
+            border-radius: 0.5rem;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .element-value.comparing {
+            border-color: var(--comparing);
+            background: rgba(245, 158, 11, 0.15);
+            box-shadow: 0 0 20px rgba(245, 158, 11, 0.3);
+            transform: scale(1.05);
+        }
+
+        .element-value.sorted {
+            border-color: var(--sorted);
+            background: rgba(16, 185, 129, 0.1);
+        }
+
+        .element-value.candidate1 {
+            border-color: var(--candidate1);
+            background: rgba(139, 92, 246, 0.15);
+            box-shadow: 0 0 20px rgba(139, 92, 246, 0.3);
+            transform: scale(1.08);
+        }
+
+        .element-value.candidate2 {
+            border-color: var(--candidate2);
+            background: rgba(236, 72, 153, 0.15);
+            box-shadow: 0 0 20px rgba(236, 72, 153, 0.3);
+            transform: scale(1.08);
+        }
+
+        .element-value.winner {
+            border-color: var(--success);
+            background: rgba(16, 185, 129, 0.2);
+            box-shadow: 0 0 25px rgba(16, 185, 129, 0.4);
+            transform: scale(1.1);
+        }
+
+        .pointer-label {
+            position: absolute;
+            top: -1.5rem;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.65rem;
+            font-weight: 700;
+            padding: 0.1rem 0.35rem;
+            border-radius: 0.2rem;
+            white-space: nowrap;
+        }
+
+        .pointer-min {
+            background: var(--candidate2);
+            color: white;
+        }
+
+        .pointer-max {
+            background: var(--candidate1);
+            color: white;
+        }
+
+        /* Candidates Display */
+        .candidates-section {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+            margin: 1.5rem 0;
+        }
+
+        .candidate-card {
+            background: var(--bg-primary);
+            border: 2px solid var(--border);
+            border-radius: 0.5rem;
+            padding: 1rem;
+            text-align: center;
+            transition: all 0.3s;
+        }
+
+        .candidate-card.active-1 {
+            border-color: var(--candidate1);
+            background: rgba(139, 92, 246, 0.08);
+        }
+
+        .candidate-card.active-2 {
+            border-color: var(--candidate2);
+            background: rgba(236, 72, 153, 0.08);
+        }
+
+        .candidate-card.winner {
+            border-color: var(--success);
+            background: rgba(16, 185, 129, 0.1);
+            box-shadow: 0 0 20px rgba(16, 185, 129, 0.2);
+        }
+
+        .candidate-label {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.7rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            margin-bottom: 0.5rem;
+        }
+
+        .candidate-formula {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+            margin-bottom: 0.5rem;
+        }
+
+        .candidate-value {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 1.5rem;
+            font-weight: 700;
+        }
+
+        .candidate-card.active-1 .candidate-value {
+            color: var(--candidate1);
+        }
+
+        .candidate-card.active-2 .candidate-value {
+            color: var(--candidate2);
+        }
+
+        .candidate-card.winner .candidate-value {
+            color: var(--success);
+        }
+
+        .candidate-desc {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.65rem;
+            color: var(--text-muted);
+            margin-top: 0.5rem;
+        }
+
+        /* Controls */
+        .controls {
+            display: flex;
+            gap: 0.5rem;
+            align-items: center;
+            justify-content: center;
+            margin: 1.5rem 0;
+            flex-wrap: wrap;
+        }
+
+        .speed-control {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            margin-left: 1rem;
+            padding-left: 1rem;
+            border-left: 1px solid var(--border);
+        }
+
+        .speed-label {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.75rem;
+            color: var(--text-muted);
+        }
+
+        .speed-slider {
+            width: 100px;
+            height: 4px;
+            -webkit-appearance: none;
+            appearance: none;
+            background: var(--bg-tertiary);
+            border-radius: 2px;
+            outline: none;
+        }
+
+        .speed-slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 14px;
+            height: 14px;
+            background: var(--accent);
+            border-radius: 50%;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+
+        .speed-slider::-webkit-slider-thumb:hover {
+            transform: scale(1.2);
+        }
+
+        .speed-value {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.75rem;
+            color: var(--accent);
+            min-width: 40px;
+        }
+
+        /* State Panel */
+        .state-grid {
+            display: grid;
+            gap: 0.6rem;
+        }
+
+        .state-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0.6rem 0.9rem;
+            background: var(--bg-primary);
+            border: 1px solid var(--border);
+            border-radius: 0.5rem;
+        }
+
+        .state-label {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.75rem;
+            color: var(--text-muted);
+        }
+
+        .state-value {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.85rem;
+            font-weight: 600;
+        }
+
+        .state-value.candidate1-color {
+            color: var(--candidate1);
+        }
+
+        .state-value.candidate2-color {
+            color: var(--candidate2);
+        }
+
+        .state-value.accent-color {
+            color: var(--accent);
+        }
+
+        .state-value.success-color {
+            color: var(--success);
+        }
+
+        /* Phase Indicator */
+        .phase-indicator {
+            background: var(--bg-primary);
+            border: 1px solid var(--border);
+            border-radius: 0.5rem;
+            padding: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .phase-steps {
+            display: flex;
+            justify-content: space-between;
+            position: relative;
+        }
+
+        .phase-steps::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 10%;
+            right: 10%;
+            height: 2px;
+            background: var(--border);
+            transform: translateY(-50%);
+            z-index: 0;
+        }
+
+        .phase-step {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 0.4rem;
+            z-index: 1;
+        }
+
+        .phase-dot {
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            background: var(--bg-tertiary);
+            border: 2px solid var(--border);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.7rem;
+            font-weight: 600;
+            color: var(--text-muted);
+            transition: all 0.3s;
+        }
+
+        .phase-step.active .phase-dot {
+            background: var(--accent);
+            border-color: var(--accent);
+            color: var(--bg-primary);
+            box-shadow: 0 0 15px var(--accent-glow);
+        }
+
+        .phase-step.complete .phase-dot {
+            background: var(--success);
+            border-color: var(--success);
+            color: white;
+        }
+
+        .phase-text {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.6rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .phase-step.active .phase-text {
+            color: var(--accent);
+        }
+
+        .phase-step.complete .phase-text {
+            color: var(--success);
+        }
+
+        /* Progress Display */
+        .progress-section {
+            margin-top: 1rem;
+            padding-top: 1rem;
+            border-top: 1px solid var(--border);
+        }
+
+        .progress-bar-container {
+            height: 6px;
+            background: var(--bg-primary);
+            border-radius: 3px;
+            overflow: hidden;
+            margin-top: 0.5rem;
+        }
+
+        .progress-bar {
+            height: 100%;
+            background: linear-gradient(90deg, var(--accent), var(--accent-dim));
+            border-radius: 3px;
+            transition: width 0.3s ease;
+        }
+
+        .progress-text {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            display: flex;
+            justify-content: space-between;
+            margin-top: 0.5rem;
+        }
+
+        /* Execution Log */
+        .log-panel {
+            margin-top: 1.5rem;
+        }
+
+        .log-content {
+            max-height: 240px;
+            overflow-y: auto;
+            padding: 1rem;
+            background: var(--bg-primary);
+            border-radius: 0 0 0.5rem 0.5rem;
+        }
+
+        .log-content::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .log-content::-webkit-scrollbar-track {
+            background: var(--bg-secondary);
+        }
+
+        .log-content::-webkit-scrollbar-thumb {
+            background: var(--border-light);
+            border-radius: 3px;
+        }
+
+        .log-entry {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.72rem;
+            padding: 0.35rem 0.5rem;
+            border-radius: 0.25rem;
+            margin-bottom: 0.3rem;
+            display: flex;
+            align-items: flex-start;
+            gap: 0.5rem;
+            line-height: 1.4;
+        }
+
+        .log-entry.sort {
+            background: rgba(6, 182, 212, 0.1);
+            color: var(--accent);
+            border-left: 2px solid var(--accent);
+        }
+
+        .log-entry.candidate1 {
+            background: rgba(139, 92, 246, 0.1);
+            color: var(--candidate1);
+            border-left: 2px solid var(--candidate1);
+        }
+
+        .log-entry.candidate2 {
+            background: rgba(236, 72, 153, 0.1);
+            color: var(--candidate2);
+            border-left: 2px solid var(--candidate2);
+        }
+
+        .log-entry.compare {
+            background: var(--bg-secondary);
+            color: var(--text-muted);
+        }
+
+        .log-entry.result {
+            background: rgba(16, 185, 129, 0.1);
+            color: var(--success);
+            border-left: 2px solid var(--success);
+            font-weight: 600;
+        }
+
+        .log-step-num {
+            color: var(--text-muted);
+            min-width: 2.5rem;
+        }
+
+        /* Result Display */
+        .result-display {
+            text-align: center;
+            padding: 1.5rem;
+            background: linear-gradient(135deg, rgba(16, 185, 129, 0.1), rgba(16, 185, 129, 0.05));
+            border: 1px solid var(--success-dim);
+            border-radius: 0.5rem;
+            margin-top: 1rem;
+        }
+
+        .result-display.hidden {
+            display: none;
+        }
+
+        .result-label {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.75rem;
+            color: var(--success);
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            margin-bottom: 0.5rem;
+        }
+
+        .result-value {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--success);
+        }
+
+        .result-triplet {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+            margin-top: 0.5rem;
+        }
+
+        /* Status Indicator */
+        .status-indicator {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.4rem;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.7rem;
+            padding: 0.3rem 0.6rem;
+            border-radius: 1rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .status-indicator.ready {
+            background: rgba(99, 102, 241, 0.15);
+            color: var(--info);
+        }
+
+        .status-indicator.running {
+            background: rgba(6, 182, 212, 0.15);
+            color: var(--accent);
+        }
+
+        .status-indicator.paused {
+            background: rgba(244, 63, 94, 0.15);
+            color: var(--error);
+        }
+
+        .status-indicator.complete {
+            background: rgba(16, 185, 129, 0.15);
+            color: var(--success);
+        }
+
+        .status-dot {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: currentColor;
+        }
+
+        .status-indicator.running .status-dot {
+            animation: pulse 1s infinite;
+        }
+
+        @keyframes pulse {
+
+            0%,
+            100% {
+                opacity: 1;
+            }
+
+            50% {
+                opacity: 0.4;
+            }
+        }
+
+        /* Algorithm Display */
+        .algorithm-section {
+            margin-top: 1.5rem;
+        }
+
+        .code-block {
+            background: var(--bg-primary);
+            border: 1px solid var(--border);
+            border-radius: 0.5rem;
+            padding: 1rem;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.72rem;
+            line-height: 1.6;
+            overflow-x: auto;
+        }
+
+        .code-line {
+            padding: 0.12rem 0.5rem;
+            border-radius: 0.25rem;
+            transition: background 0.2s;
+        }
+
+        .code-line.active {
+            background: var(--accent-glow);
+            border-left: 2px solid var(--accent);
+            margin-left: -2px;
+        }
+
+        .code-keyword {
+            color: #c678dd;
+        }
+
+        .code-variable {
+            color: #e06c75;
+        }
+
+        .code-function {
+            color: #61afef;
+        }
+
+        .code-number {
+            color: #d19a66;
+        }
+
+        .code-comment {
+            color: var(--text-muted);
+            font-style: italic;
+        }
+
+        /* Responsive */
+        @media (max-width: 1024px) {
+            .main-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 640px) {
+            .container {
+                padding: 1rem;
+            }
+
+            h1 {
+                font-size: 1.5rem;
+            }
+
+            .input-group {
+                flex-direction: column;
+            }
+
+            .controls {
+                flex-direction: column;
+            }
+
+            .speed-control {
+                margin-left: 0;
+                padding-left: 0;
+                border-left: none;
+                padding-top: 0.75rem;
+                border-top: 1px solid var(--border);
+            }
+
+            .candidates-section {
+                grid-template-columns: 1fr;
+            }
+
+            .element-value {
+                width: 40px;
+                height: 40px;
+                font-size: 0.85rem;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <header>
+            <div class="problem-badge">
+                <span>LeetCode 628</span>
+                <span>•</span>
+                <span>Sorting Approach</span>
+            </div>
+            <h1>Maximum Product of Three Numbers</h1>
+            <p class="subtitle">Sorting O(n log n) Visualizer</p>
+            <div class="complexity-badges">
+                <div class="complexity-badge">
+                    <span>Time:</span> <code>O(n log n)</code>
+                </div>
+                <div class="complexity-badge">
+                    <span>Space:</span> <code>O(1)</code>
+                </div>
+            </div>
+        </header>
+
+        <div class="main-grid">
+            <div class="visualization-area">
+                <div class="panel input-section">
+                    <div class="panel-header">
+                        <span class="panel-title">Input Array</span>
+                        <span class="status-indicator ready" id="status">
+                            <span class="status-dot"></span>
+                            <span id="status-text">Ready</span>
+                        </span>
+                    </div>
+                    <div class="panel-content">
+                        <div class="input-group">
+                            <div class="input-wrapper">
+                                <input type="text" id="arrayInput" placeholder="Enter comma-separated numbers"
+                                    value="-4, -3, 1, 2, 5">
+                            </div>
+                            <button class="btn btn-primary" id="resetBtn">
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                    stroke-width="2.5">
+                                    <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8" />
+                                    <path d="M3 3v5h5" />
+                                </svg>
+                                Reset
+                            </button>
+                        </div>
+                        <div class="presets">
+                            <button class="preset-btn" data-array="1, 2, 3">[1, 2, 3]</button>
+                            <button class="preset-btn" data-array="1, 2, 3, 4">[1, 2, 3, 4]</button>
+                            <button class="preset-btn" data-array="-4, -3, 1, 2, 5">[-4, -3, 1, 2, 5]</button>
+                            <button class="preset-btn" data-array="-100, -99, 1, 2, 3">[-100, -99, 1, 2, 3]</button>
+                            <button class="preset-btn" data-array="-1, -2, -3, -4">[-1, -2, -3, -4]</button>
+                            <button class="preset-btn" data-array="5, 6, -2, -1, 3">[5, 6, -2, -1, 3]</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Phase Indicator -->
+                <div class="phase-indicator">
+                    <div class="phase-steps">
+                        <div class="phase-step" id="phase1">
+                            <div class="phase-dot">1</div>
+                            <span class="phase-text">Sort Array</span>
+                        </div>
+                        <div class="phase-step" id="phase2">
+                            <div class="phase-dot">2</div>
+                            <span class="phase-text">Candidate 1</span>
+                        </div>
+                        <div class="phase-step" id="phase3">
+                            <div class="phase-dot">3</div>
+                            <span class="phase-text">Candidate 2</span>
+                        </div>
+                        <div class="phase-step" id="phase4">
+                            <div class="phase-dot">4</div>
+                            <span class="phase-text">Compare</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="array-section">
+                    <div class="array-row">
+                        <div class="array-label">
+                            <span id="arrayLabel">Original Array</span>
+                        </div>
+                        <div class="array-display" id="arrayDisplay"></div>
+                    </div>
+                </div>
+
+                <div class="candidates-section">
+                    <div class="candidate-card" id="candidate1Card">
+                        <div class="candidate-label">Candidate 1</div>
+                        <div class="candidate-formula" id="candidate1Formula">nums[n-1] × nums[n-2] × nums[n-3]</div>
+                        <div class="candidate-value" id="candidate1Value">—</div>
+                        <div class="candidate-desc">Three largest numbers</div>
+                    </div>
+                    <div class="candidate-card" id="candidate2Card">
+                        <div class="candidate-label">Candidate 2</div>
+                        <div class="candidate-formula" id="candidate2Formula">nums[0] × nums[1] × nums[n-1]</div>
+                        <div class="candidate-value" id="candidate2Value">—</div>
+                        <div class="candidate-desc">Two smallest × largest</div>
+                    </div>
+                </div>
+
+                <div class="controls">
+                    <button class="btn btn-icon btn-secondary" id="stepBackBtn" title="Step Back" disabled>
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2">
+                            <polygon points="19 20 9 12 19 4 19 20" />
+                            <line x1="5" y1="19" x2="5" y2="5" />
+                        </svg>
+                    </button>
+                    <button class="btn btn-primary" id="playPauseBtn">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" id="playIcon">
+                            <polygon points="5 3 19 12 5 21 5 3" />
+                        </svg>
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" id="pauseIcon"
+                            style="display: none;">
+                            <rect x="6" y="4" width="4" height="16" />
+                            <rect x="14" y="4" width="4" height="16" />
+                        </svg>
+                        <span id="playPauseText">Play</span>
+                    </button>
+                    <button class="btn btn-icon btn-secondary" id="stepForwardBtn" title="Step Forward">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2">
+                            <polygon points="5 4 15 12 5 20 5 4" />
+                            <line x1="19" y1="5" x2="19" y2="19" />
+                        </svg>
+                    </button>
+                    <div class="speed-control">
+                        <span class="speed-label">Speed:</span>
+                        <input type="range" class="speed-slider" id="speedSlider" min="1" max="10" value="5">
+                        <span class="speed-value" id="speedValue">1.0x</span>
+                    </div>
+                </div>
+
+                <div class="result-display hidden" id="resultDisplay">
+                    <div class="result-label">Maximum Product Found</div>
+                    <div class="result-value" id="resultValue">0</div>
+                    <div class="result-triplet" id="resultTriplet"></div>
+                </div>
+
+                <div class="algorithm-section panel">
+                    <div class="panel-header">
+                        <span class="panel-title">Algorithm</span>
+                    </div>
+                    <div class="code-block">
+                        <div class="code-line" data-line="1"><span class="code-keyword">function</span> <span
+                                class="code-function">maxProduct</span>(nums) {</div>
+                        <div class="code-line" data-line="2"> nums.<span class="code-function">sort</span>((a, b) => a -
+                            b); <span class="code-comment">// Sort ascending</span></div>
+                        <div class="code-line" data-line="3"> <span class="code-keyword">const</span> <span
+                                class="code-variable">n</span> = nums.length;</div>
+                        <div class="code-line" data-line="4"></div>
+                        <div class="code-line" data-line="5"> <span class="code-comment">// Candidate 1: Three
+                                largest</span></div>
+                        <div class="code-line" data-line="6"> <span class="code-keyword">const</span> <span
+                                class="code-variable">c1</span> = nums[n-<span class="code-number">1</span>] *
+                            nums[n-<span class="code-number">2</span>] * nums[n-<span class="code-number">3</span>];
+                        </div>
+                        <div class="code-line" data-line="7"></div>
+                        <div class="code-line" data-line="8"> <span class="code-comment">// Candidate 2: Two smallest ×
+                                largest</span></div>
+                        <div class="code-line" data-line="9"> <span class="code-keyword">const</span> <span
+                                class="code-variable">c2</span> = nums[<span class="code-number">0</span>] * nums[<span
+                                class="code-number">1</span>] * nums[n-<span class="code-number">1</span>];</div>
+                        <div class="code-line" data-line="10"></div>
+                        <div class="code-line" data-line="11"> <span class="code-keyword">return</span> Math.<span
+                                class="code-function">max</span>(c1, c2);</div>
+                        <div class="code-line" data-line="12">}</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="side-panel">
+                <div class="panel">
+                    <div class="panel-header">
+                        <span class="panel-title">Current State</span>
+                    </div>
+                    <div class="panel-content">
+                        <div class="state-grid">
+                            <div class="state-item">
+                                <span class="state-label">Phase</span>
+                                <span class="state-value accent-color" id="statePhase">—</span>
+                            </div>
+                            <div class="state-item">
+                                <span class="state-label">Array Length (n)</span>
+                                <span class="state-value" id="stateN">—</span>
+                            </div>
+                            <div class="state-item">
+                                <span class="state-label">nums[0]</span>
+                                <span class="state-value candidate2-color" id="stateMin1">—</span>
+                            </div>
+                            <div class="state-item">
+                                <span class="state-label">nums[1]</span>
+                                <span class="state-value candidate2-color" id="stateMin2">—</span>
+                            </div>
+                            <div class="state-item">
+                                <span class="state-label">nums[n-3]</span>
+                                <span class="state-value candidate1-color" id="stateMax3">—</span>
+                            </div>
+                            <div class="state-item">
+                                <span class="state-label">nums[n-2]</span>
+                                <span class="state-value candidate1-color" id="stateMax2">—</span>
+                            </div>
+                            <div class="state-item">
+                                <span class="state-label">nums[n-1]</span>
+                                <span class="state-value candidate1-color" id="stateMax1">—</span>
+                            </div>
+                            <div class="state-item">
+                                <span class="state-label">Candidate 1</span>
+                                <span class="state-value candidate1-color" id="stateC1">—</span>
+                            </div>
+                            <div class="state-item">
+                                <span class="state-label">Candidate 2</span>
+                                <span class="state-value candidate2-color" id="stateC2">—</span>
+                            </div>
+                            <div class="state-item">
+                                <span class="state-label">Max Product</span>
+                                <span class="state-value success-color" id="stateMax">—</span>
+                            </div>
+                        </div>
+
+                        <div class="progress-section">
+                            <div class="progress-bar-container">
+                                <div class="progress-bar" id="progressBar" style="width: 0%"></div>
+                            </div>
+                            <div class="progress-text">
+                                <span>Step <span id="currentStep">0</span> / <span id="totalSteps">0</span></span>
+                                <span id="progressPercent">0%</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="panel log-panel">
+                    <div class="panel-header">
+                        <span class="panel-title">Execution Log</span>
+                        <button class="btn btn-secondary" id="clearLogBtn"
+                            style="padding: 0.3rem 0.6rem; font-size: 0.7rem;">Clear</button>
+                    </div>
+                    <div class="log-content" id="logContent">
+                        <div class="log-entry compare">
+                            <span class="log-step-num">[init]</span>
+                            <span>Waiting to start...</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        class SortingVisualizer {
+            constructor() {
+                this.originalNums = [];
+                this.nums = [];
+                this.sortedNums = [];
+                this.steps = [];
+                this.currentStepIndex = -1;
+                this.isPlaying = false;
+                this.playInterval = null;
+                this.speed = 5;
+
+                this.initElements();
+                this.bindEvents();
+                this.parseInput();
+            }
+
+            initElements() {
+                this.arrayInput = document.getElementById('arrayInput');
+                this.arrayDisplay = document.getElementById('arrayDisplay');
+                this.arrayLabel = document.getElementById('arrayLabel');
+                this.playPauseBtn = document.getElementById('playPauseBtn');
+                this.playIcon = document.getElementById('playIcon');
+                this.pauseIcon = document.getElementById('pauseIcon');
+                this.playPauseText = document.getElementById('playPauseText');
+                this.stepForwardBtn = document.getElementById('stepForwardBtn');
+                this.stepBackBtn = document.getElementById('stepBackBtn');
+                this.resetBtn = document.getElementById('resetBtn');
+                this.speedSlider = document.getElementById('speedSlider');
+                this.speedValue = document.getElementById('speedValue');
+                this.logContent = document.getElementById('logContent');
+                this.clearLogBtn = document.getElementById('clearLogBtn');
+                this.statusIndicator = document.getElementById('status');
+                this.statusText = document.getElementById('statusText');
+                this.progressBar = document.getElementById('progressBar');
+                this.currentStepEl = document.getElementById('currentStep');
+                this.totalStepsEl = document.getElementById('totalSteps');
+                this.progressPercent = document.getElementById('progressPercent');
+                this.resultDisplay = document.getElementById('resultDisplay');
+                this.resultValue = document.getElementById('resultValue');
+                this.resultTriplet = document.getElementById('resultTriplet');
+
+                // Candidate cards
+                this.candidate1Card = document.getElementById('candidate1Card');
+                this.candidate2Card = document.getElementById('candidate2Card');
+                this.candidate1Value = document.getElementById('candidate1Value');
+                this.candidate2Value = document.getElementById('candidate2Value');
+                this.candidate1Formula = document.getElementById('candidate1Formula');
+                this.candidate2Formula = document.getElementById('candidate2Formula');
+
+                // State elements
+                this.statePhase = document.getElementById('statePhase');
+                this.stateN = document.getElementById('stateN');
+                this.stateMin1 = document.getElementById('stateMin1');
+                this.stateMin2 = document.getElementById('stateMin2');
+                this.stateMax1 = document.getElementById('stateMax1');
+                this.stateMax2 = document.getElementById('stateMax2');
+                this.stateMax3 = document.getElementById('stateMax3');
+                this.stateC1 = document.getElementById('stateC1');
+                this.stateC2 = document.getElementById('stateC2');
+                this.stateMax = document.getElementById('stateMax');
+
+                // Phase indicators
+                this.phases = [
+                    document.getElementById('phase1'),
+                    document.getElementById('phase2'),
+                    document.getElementById('phase3'),
+                    document.getElementById('phase4')
+                ];
+            }
+
+            bindEvents() {
+                this.resetBtn.addEventListener('click', () => this.reset());
+                this.playPauseBtn.addEventListener('click', () => this.togglePlayPause());
+                this.stepForwardBtn.addEventListener('click', () => this.stepForward());
+                this.stepBackBtn.addEventListener('click', () => this.stepBack());
+                this.speedSlider.addEventListener('input', (e) => this.updateSpeed(e.target.value));
+                this.clearLogBtn.addEventListener('click', () => this.clearLog());
+                this.arrayInput.addEventListener('keypress', (e) => {
+                    if (e.key === 'Enter') this.reset();
+                });
+
+                document.querySelectorAll('.preset-btn').forEach(btn => {
+                    btn.addEventListener('click', () => {
+                        this.arrayInput.value = btn.dataset.array;
+                        this.reset();
+                    });
+                });
+            }
+
+            parseInput() {
+                const input = this.arrayInput.value;
+                this.originalNums = input.split(',')
+                    .map(s => parseInt(s.trim(), 10))
+                    .filter(n => !isNaN(n));
+
+                if (this.originalNums.length < 3) {
+                    this.originalNums = [1, 2, 3];
+                    this.arrayInput.value = '1, 2, 3';
+                }
+
+                this.nums = [...this.originalNums];
+                this.sortedNums = [...this.originalNums].sort((a, b) => a - b);
+                this.generateSteps();
+                this.renderArray(this.originalNums);
+                this.updateTotalSteps();
+            }
+
+            generateSteps() {
+                this.steps = [];
+                const n = this.originalNums.length;
+                const sorted = [...this.originalNums].sort((a, b) => a - b);
+
+                // Step 1: Initial state
+                this.steps.push({
+                    type: 'init',
+                    phase: 0,
+                    array: [...this.originalNums],
+                    highlight: [],
+                    line: 1,
+                    message: `Starting with array: [${this.originalNums.join(', ')}], n = ${n}`
+                });
+
+                // Step 2: Sorting phase - show the process
+                this.steps.push({
+                    type: 'sorting',
+                    phase: 1,
+                    array: [...this.originalNums],
+                    highlight: this.originalNums.map((_, i) => i),
+                    highlightType: 'comparing',
+                    line: 2,
+                    message: `Sorting array in ascending order...`
+                });
+
+                // Step 3: Array is sorted
+                this.steps.push({
+                    type: 'sorted',
+                    phase: 1,
+                    array: sorted,
+                    highlight: sorted.map((_, i) => i),
+                    highlightType: 'sorted',
+                    line: 3,
+                    message: `Array sorted: [${sorted.join(', ')}]`
+                });
+
+                // Step 4: Identify positions
+                this.steps.push({
+                    type: 'identify',
+                    phase: 1,
+                    array: sorted,
+                    highlight: [],
+                    line: 3,
+                    message: `n = ${n}, positions: [0], [1], [n-3]=${n - 3}, [n-2]=${n - 2}, [n-1]=${n - 1}`
+                });
+
+                // Step 5: Calculate Candidate 1 - highlight positions
+                this.steps.push({
+                    type: 'candidate1-highlight',
+                    phase: 2,
+                    array: sorted,
+                    highlight: [n - 3, n - 2, n - 1],
+                    highlightType: 'candidate1',
+                    line: 6,
+                    message: `Candidate 1: Three largest at indices [${n - 3}], [${n - 2}], [${n - 1}]`
+                });
+
+                const c1 = sorted[n - 1] * sorted[n - 2] * sorted[n - 3];
+
+                // Step 6: Calculate Candidate 1 - compute
+                this.steps.push({
+                    type: 'candidate1-calc',
+                    phase: 2,
+                    array: sorted,
+                    highlight: [n - 3, n - 2, n - 1],
+                    highlightType: 'candidate1',
+                    c1: c1,
+                    c1Values: [sorted[n - 1], sorted[n - 2], sorted[n - 3]],
+                    line: 6,
+                    message: `Candidate 1 = ${sorted[n - 1]} × ${sorted[n - 2]} × ${sorted[n - 3]} = ${c1}`
+                });
+
+                // Step 7: Calculate Candidate 2 - highlight positions
+                this.steps.push({
+                    type: 'candidate2-highlight',
+                    phase: 3,
+                    array: sorted,
+                    highlight: [0, 1, n - 1],
+                    highlightType: 'candidate2',
+                    c1: c1,
+                    line: 9,
+                    message: `Candidate 2: Two smallest [0], [1] + largest [${n - 1}]`
+                });
+
+                const c2 = sorted[0] * sorted[1] * sorted[n - 1];
+
+                // Step 8: Calculate Candidate 2 - compute
+                this.steps.push({
+                    type: 'candidate2-calc',
+                    phase: 3,
+                    array: sorted,
+                    highlight: [0, 1, n - 1],
+                    highlightType: 'candidate2',
+                    c1: c1,
+                    c2: c2,
+                    c2Values: [sorted[0], sorted[1], sorted[n - 1]],
+                    line: 9,
+                    message: `Candidate 2 = ${sorted[0]} × ${sorted[1]} × ${sorted[n - 1]} = ${c2}`
+                });
+
+                // Step 9: Compare candidates
+                const maxProduct = Math.max(c1, c2);
+                const winner = c1 >= c2 ? 1 : 2;
+                const winnerTriplet = winner === 1
+                    ? [sorted[n - 3], sorted[n - 2], sorted[n - 1]]
+                    : [sorted[0], sorted[1], sorted[n - 1]];
+
+                this.steps.push({
+                    type: 'compare',
+                    phase: 4,
+                    array: sorted,
+                    highlight: winner === 1 ? [n - 3, n - 2, n - 1] : [0, 1, n - 1],
+                    highlightType: 'winner',
+                    c1: c1,
+                    c2: c2,
+                    winner: winner,
+                    line: 11,
+                    message: `Comparing: ${c1} vs ${c2} → Candidate ${winner} wins!`
+                });
+
+                // Step 10: Final result
+                this.steps.push({
+                    type: 'result',
+                    phase: 4,
+                    array: sorted,
+                    highlight: winner === 1 ? [n - 3, n - 2, n - 1] : [0, 1, n - 1],
+                    highlightType: 'winner',
+                    c1: c1,
+                    c2: c2,
+                    maxProduct: maxProduct,
+                    triplet: winnerTriplet,
+                    winner: winner,
+                    line: 11,
+                    message: `Maximum Product = ${maxProduct} from (${winnerTriplet.join(', ')})`
+                });
+            }
+
+            renderArray(arr, highlights = [], highlightType = '') {
+                this.arrayDisplay.innerHTML = arr.map((num, idx) => {
+                    const isHighlighted = highlights.includes(idx);
+                    const highlightClass = isHighlighted ? highlightType : '';
+
+                    return `
+                        <div class="array-element" data-index="${idx}">
+                            <span class="element-index">[${idx}]</span>
+                            <div class="element-value ${highlightClass}">${num}</div>
+                        </div>
+                    `;
+                }).join('');
+            }
+
+            updatePhaseIndicators(currentPhase) {
+                this.phases.forEach((phase, idx) => {
+                    phase.classList.remove('active', 'complete');
+                    if (idx + 1 < currentPhase) {
+                        phase.classList.add('complete');
+                    } else if (idx + 1 === currentPhase) {
+                        phase.classList.add('active');
+                    }
+                });
+            }
+
+            updateCandidateCards(step) {
+                // Reset cards
+                this.candidate1Card.classList.remove('active-1', 'winner');
+                this.candidate2Card.classList.remove('active-2', 'winner');
+                this.candidate1Value.textContent = '—';
+                this.candidate2Value.textContent = '—';
+
+                if (step.c1 !== undefined) {
+                    this.candidate1Value.textContent = step.c1;
+                    if (step.type === 'candidate1-calc' || step.type === 'candidate1-highlight') {
+                        this.candidate1Card.classList.add('active-1');
+                    }
+                }
+
+                if (step.c2 !== undefined) {
+                    this.candidate2Value.textContent = step.c2;
+                    if (step.type === 'candidate2-calc' || step.type === 'candidate2-highlight') {
+                        this.candidate2Card.classList.add('active-2');
+                    }
+                }
+
+                if (step.type === 'compare' || step.type === 'result') {
+                    this.candidate1Card.classList.add('active-1');
+                    this.candidate2Card.classList.add('active-2');
+
+                    if (step.winner === 1) {
+                        this.candidate1Card.classList.add('winner');
+                        this.candidate1Card.classList.remove('active-1');
+                    } else {
+                        this.candidate2Card.classList.add('winner');
+                        this.candidate2Card.classList.remove('active-2');
+                    }
+                }
+            }
+
+            updateState(step) {
+                const n = this.sortedNums.length;
+                const sorted = this.sortedNums;
+
+                // Phase
+                const phaseNames = ['—', 'Sorting', 'Candidate 1', 'Candidate 2', 'Compare'];
+                this.statePhase.textContent = phaseNames[step.phase] || '—';
+
+                // N
+                this.stateN.textContent = n;
+
+                // Only show values after sorting
+                if (step.type !== 'init' && step.type !== 'sorting') {
+                    this.stateMin1.textContent = sorted[0];
+                    this.stateMin2.textContent = sorted[1];
+                    this.stateMax3.textContent = sorted[n - 3];
+                    this.stateMax2.textContent = sorted[n - 2];
+                    this.stateMax1.textContent = sorted[n - 1];
+                } else {
+                    this.stateMin1.textContent = '—';
+                    this.stateMin2.textContent = '—';
+                    this.stateMax3.textContent = '—';
+                    this.stateMax2.textContent = '—';
+                    this.stateMax1.textContent = '—';
+                }
+
+                // Candidates
+                this.stateC1.textContent = step.c1 !== undefined ? step.c1 : '—';
+                this.stateC2.textContent = step.c2 !== undefined ? step.c2 : '—';
+                this.stateMax.textContent = step.maxProduct !== undefined ? step.maxProduct : '—';
+            }
+
+            updateCodeHighlight(line) {
+                document.querySelectorAll('.code-line').forEach(el => {
+                    el.classList.remove('active');
+                    if (parseInt(el.dataset.line) === line) {
+                        el.classList.add('active');
+                    }
+                });
+            }
+
+            updateArrayLabel(step) {
+                if (step.type === 'init' || step.type === 'sorting') {
+                    this.arrayLabel.textContent = 'Original Array';
+                } else {
+                    this.arrayLabel.textContent = 'Sorted Array (Ascending)';
+                }
+            }
+
+            addLogEntry(step, stepNum) {
+                let logType = 'compare';
+                if (step.type === 'sorting' || step.type === 'sorted' || step.type === 'identify') {
+                    logType = 'sort';
+                } else if (step.type.includes('candidate1')) {
+                    logType = 'candidate1';
+                } else if (step.type.includes('candidate2')) {
+                    logType = 'candidate2';
+                } else if (step.type === 'result') {
+                    logType = 'result';
+                }
+
+                const entry = document.createElement('div');
+                entry.className = `log-entry ${logType}`;
+                entry.innerHTML = `
+                    <span class="log-step-num">[${stepNum}]</span>
+                    <span>${step.message}</span>
+                `;
+                this.logContent.appendChild(entry);
+                this.logContent.scrollTop = this.logContent.scrollHeight;
+            }
+
+            updateProgress() {
+                const progress = this.steps.length > 0
+                    ? ((this.currentStepIndex + 1) / this.steps.length) * 100
+                    : 0;
+                this.progressBar.style.width = `${progress}%`;
+                this.currentStepEl.textContent = this.currentStepIndex + 1;
+                this.progressPercent.textContent = `${Math.round(progress)}%`;
+            }
+
+            updateTotalSteps() {
+                this.totalStepsEl.textContent = this.steps.length;
+            }
+
+            updateStatus(status) {
+                this.statusIndicator.className = `status-indicator ${status}`;
+                const statusNames = {
+                    ready: 'Ready',
+                    running: 'Running',
+                    paused: 'Paused',
+                    complete: 'Complete'
+                };
+                this.statusText.textContent = statusNames[status] || status;
+            }
+
+            showResult(step) {
+                this.resultDisplay.classList.remove('hidden');
+                this.resultValue.textContent = step.maxProduct;
+                this.resultTriplet.textContent = `Triplet: (${step.triplet.join(', ')}) — Candidate ${step.winner}`;
+            }
+
+            hideResult() {
+                this.resultDisplay.classList.add('hidden');
+            }
+
+            stepForward() {
+                if (this.currentStepIndex >= this.steps.length - 1) return;
+
+                this.currentStepIndex++;
+                const step = this.steps[this.currentStepIndex];
+
+                this.renderArray(step.array, step.highlight, step.highlightType || '');
+                this.updatePhaseIndicators(step.phase);
+                this.updateCandidateCards(step);
+                this.updateState(step);
+                this.updateCodeHighlight(step.line);
+                this.updateArrayLabel(step);
+                this.addLogEntry(step, this.currentStepIndex + 1);
+                this.updateProgress();
+
+                if (step.type === 'result') {
+                    this.showResult(step);
+                    this.pause();
+                    this.updateStatus('complete');
+                }
+
+                this.updateButtons();
+            }
+
+            stepBack() {
+                if (this.currentStepIndex < 0) return;
+
+                // Remove last log entry
+                const lastEntry = this.logContent.lastElementChild;
+                if (lastEntry && this.currentStepIndex >= 0) {
+                    lastEntry.remove();
+                }
+
+                this.currentStepIndex--;
+                this.hideResult();
+
+                if (this.currentStepIndex < 0) {
+                    this.renderArray(this.originalNums);
+                    this.updatePhaseIndicators(0);
+                    this.updateCandidateCards({});
+                    this.updateState({ phase: 0 });
+                    this.updateCodeHighlight(0);
+                    this.arrayLabel.textContent = 'Original Array';
+                    this.updateStatus('ready');
+                } else {
+                    const step = this.steps[this.currentStepIndex];
+                    this.renderArray(step.array, step.highlight, step.highlightType || '');
+                    this.updatePhaseIndicators(step.phase);
+                    this.updateCandidateCards(step);
+                    this.updateState(step);
+                    this.updateCodeHighlight(step.line);
+                    this.updateArrayLabel(step);
+                    this.updateStatus('paused');
+                }
+
+                this.updateProgress();
+                this.updateButtons();
+            }
+
+            togglePlayPause() {
+                if (this.isPlaying) {
+                    this.pause();
+                } else {
+                    this.play();
+                }
+            }
+
+            play() {
+                if (this.currentStepIndex >= this.steps.length - 1) {
+                    this.reset();
+                }
+
+                this.isPlaying = true;
+                this.playIcon.style.display = 'none';
+                this.pauseIcon.style.display = 'block';
+                this.playPauseText.textContent = 'Pause';
+                this.updateStatus('running');
+
+                const interval = 1500 / this.speed;
+                this.playInterval = setInterval(() => {
+                    if (this.currentStepIndex >= this.steps.length - 1) {
+                        this.pause();
+                        return;
+                    }
+                    this.stepForward();
+                }, interval);
+            }
+
+            pause() {
+                this.isPlaying = false;
+                this.playIcon.style.display = 'block';
+                this.pauseIcon.style.display = 'none';
+                this.playPauseText.textContent = 'Play';
+
+                if (this.playInterval) {
+                    clearInterval(this.playInterval);
+                    this.playInterval = null;
+                }
+
+                if (this.currentStepIndex >= this.steps.length - 1) {
+                    this.updateStatus('complete');
+                } else if (this.currentStepIndex >= 0) {
+                    this.updateStatus('paused');
+                } else {
+                    this.updateStatus('ready');
+                }
+            }
+
+            reset() {
+                this.pause();
+                this.currentStepIndex = -1;
+                this.parseInput();
+                this.renderArray(this.originalNums);
+                this.updatePhaseIndicators(0);
+                this.updateCandidateCards({});
+                this.updateState({ phase: 0 });
+                this.updateCodeHighlight(0);
+                this.arrayLabel.textContent = 'Original Array';
+                this.clearLog();
+                this.updateProgress();
+                this.updateStatus('ready');
+                this.hideResult();
+                this.updateButtons();
+
+                // Add initial log entry
+                const entry = document.createElement('div');
+                entry.className = 'log-entry compare';
+                entry.innerHTML = `<span class="log-step-num">[init]</span><span>Array loaded: [${this.originalNums.join(', ')}], n = ${this.originalNums.length}</span>`;
+                this.logContent.appendChild(entry);
+            }
+
+            updateSpeed(value) {
+                this.speed = parseInt(value);
+                const speedMultiplier = (this.speed / 5).toFixed(1);
+                this.speedValue.textContent = `${speedMultiplier}x`;
+
+                if (this.isPlaying) {
+                    this.pause();
+                    this.play();
+                }
+            }
+
+            clearLog() {
+                this.logContent.innerHTML = '';
+            }
+
+            updateButtons() {
+                this.stepBackBtn.disabled = this.currentStepIndex < 0;
+                this.stepForwardBtn.disabled = this.currentStepIndex >= this.steps.length - 1;
+            }
+        }
+
+        // Initialize visualizer
+        document.addEventListener('DOMContentLoaded', () => {
+            new SortingVisualizer();
+        });
+    </script>
+</body>
+
+</html>

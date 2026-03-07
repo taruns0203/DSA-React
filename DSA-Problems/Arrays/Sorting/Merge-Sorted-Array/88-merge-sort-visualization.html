@@ -1,0 +1,426 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Merge Sorted Array - Brute Force</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            min-height: 100vh;
+            padding: 20px;
+            color: #333;
+        }
+        .container {
+            max-width: 1100px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            overflow: hidden;
+        }
+        header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 25px;
+            text-align: center;
+        }
+        h1 { font-size: 1.5em; margin-bottom: 8px; }
+        .subtitle { font-size: 1em; opacity: 0.9; }
+        .complexity-badge {
+            display: inline-block;
+            background: rgba(255,255,255,0.2);
+            padding: 6px 14px;
+            border-radius: 15px;
+            margin-top: 8px;
+            font-size: 0.85em;
+        }
+        .main-content {
+            display: grid;
+            grid-template-columns: 1fr 280px;
+            gap: 20px;
+            padding: 20px;
+        }
+        .card {
+            background: #f8f9fa;
+            border-radius: 12px;
+            padding: 16px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            margin-bottom: 16px;
+        }
+        .card-title {
+            font-size: 0.95em;
+            font-weight: 600;
+            margin-bottom: 12px;
+            color: #667eea;
+        }
+        
+        /* Controls */
+        .controls { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+        button {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 8px;
+            font-size: 0.85em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        button:hover { transform: translateY(-2px); }
+        button:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+        .btn-primary { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; }
+        .btn-success { background: linear-gradient(135deg, #28a745 0%, #20c997 100%); color: white; }
+        .btn-warning { background: linear-gradient(135deg, #ffc107 0%, #ff9800 100%); color: white; }
+        .btn-secondary { background: #6c757d; color: white; }
+        .speed-control { display: flex; align-items: center; gap: 6px; flex: 1; min-width: 140px; }
+        .speed-control input[type="range"] { flex: 1; height: 5px; }
+
+        /* Arrays */
+        .array-section { margin-bottom: 25px; }
+        .array-label { font-weight: 600; margin-bottom: 8px; color: #555; font-size: 0.9em; }
+        .array-container {
+            display: flex;
+            gap: 10px;
+            min-height: 60px;
+            padding: 10px;
+            background: #fff;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            position: relative;
+        }
+        
+        .array-item {
+            width: 50px;
+            height: 50px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            color: white;
+            position: relative;
+            transition: all 0.4s ease;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            font-size: 1.1em;
+            background: #3498db;
+        }
+        .array-item.empty { background: #dfe6e9; color: #b2bec3; box-shadow: none; border: 2px dashed #b2bec3; }
+        .array-item.nums2 { background: #e67e22; }
+        .array-item.merged { background: #e67e22; } /* From nums2 originally */
+        .array-item.sorted { background: #27ae60; }
+        
+        .array-item.highlight { transform: scale(1.15); z-index: 10; box-shadow: 0 0 15px rgba(0,0,0,0.2); border: 2px solid #333; }
+        
+        .idx-label {
+            position: absolute;
+            top: -20px;
+            font-size: 0.6em;
+            color: #888;
+            width: 100%;
+            text-align: center;
+        }
+
+        /* Pointers */
+        .pointer {
+            position: absolute;
+            bottom: -25px;
+            font-size: 0.8em;
+            font-weight: 700;
+            transition: all 0.4s ease;
+            text-align: center;
+            width: 50px; 
+            /* To center under item, left needs calc */
+        }
+        .ptr-i { color: #8e44ad; }
+        .ptr-j { color: #d35400; }
+        
+        /* State & Log */
+        .state-display { background: white; border-radius: 8px; padding: 10px; font-family: 'Courier New', monospace; font-size: 0.85em; }
+        .state-row { display: flex; justify-content: space-between; padding: 4px 0; border-bottom: 1px solid #eee; }
+        
+        .log-container { 
+            background: white; border-radius: 8px; padding: 10px; 
+            max-height: 200px; overflow-y: auto; 
+            font-family: 'Courier New', monospace; font-size: 0.65em; 
+        }
+        .log-entry { padding: 3px 6px; margin: 2px 0; border-radius: 4px; border-left: 3px solid #ccc; background: #f9f9f9; }
+        .log-entry.copy { border-left-color: #e67e22; background: #fdf2e9; }
+        .log-entry.sort { border-left-color: #27ae60; background: #eafaf1; }
+        .log-entry.info { border-left-color: #3498db; background: #ebf5fb; }
+        
+        /* Animation Classes */
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
+        .fade-in { animation: fadeIn 0.4s ease; }
+        
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Merge Sorted Array</h1>
+            <div class="subtitle">Brute Force: Merge & Sort</div>
+            <div class="complexity-badge">Time: O((M+N) log(M+N)) | Space: O(1)</div>
+        </header>
+
+        <div class="main-content">
+            <div class="left-panel">
+                <div class="card">
+                    <div class="card-title">⚙️ Controls</div>
+                    <div class="controls">
+                        <button class="btn-primary" id="playBtn">▶️ Play</button>
+                        <button class="btn-warning" id="pauseBtn" disabled>⏸️ Pause</button>
+                        <button class="btn-success" id="stepBtn">⏭️ Step</button>
+                        <button class="btn-secondary" id="resetBtn">🔄 Reset</button>
+                        <div class="speed-control">
+                            <label>Speed:</label>
+                            <input type="range" id="speedSlider" min="1" max="10" value="5">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="array-section">
+                        <div class="array-label">nums1 (Size: m + n)</div>
+                        <div class="array-container" id="nums1Container"></div>
+                    </div>
+                    
+                    <div class="array-section" id="nums2Section">
+                        <div class="array-label">nums2 (Size: n)</div>
+                        <div class="array-container" id="nums2Container"></div>
+                    </div>
+                </div>
+                
+                <div class="card">
+                    <div class="card-title">ℹ️ Strategy</div>
+                    <div style="font-size: 0.9em; color: #555;">
+                        1. <strong>Copy Phase</strong>: Iterate through <code>nums2</code> and place elements into the buffer space (zeros) at the end of <code>nums1</code>. <br>
+                        2. <strong>Sort Phase</strong>: Run a standard sort on the entire <code>nums1</code> array.
+                    </div>
+                </div>
+            </div>
+
+            <div class="right-panel">
+                <div class="card">
+                    <div class="card-title">📊 State</div>
+                    <div class="state-display">
+                        <div class="state-row"><span>m (Initial):</span><span id="mVal">3</span></div>
+                        <div class="state-row"><span>n (nums2):</span><span id="nVal">3</span></div>
+                        <div class="state-row"><span>Phase:</span><span id="phaseVal">Init</span></div>
+                        <div class="state-row"><span>i (nums2 idx):</span><span id="iVal">-</span></div>
+                        <div class="state-row"><span>Target (m+i):</span><span id="targetVal">-</span></div>
+                    </div>
+                </div>
+
+                <div class="card" style="flex-grow: 1; display: flex; flex-direction: column;">
+                    <div class="card-title">📝 Execution Log</div>
+                    <div class="log-container" id="logContainer"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Problem Data
+        const initialM = 3;
+        const nums2Data = [2, 5, 6];
+        const initialNums1 = [1, 2, 3, 0, 0, 0]; // m=3, n=3 buffer
+        
+        let nums1 = [];
+        let m = 3;
+        let n = 3;
+        
+        // State
+        let phase = 'init'; // init, copy, sort, done
+        let i = 0; // index for nums2 copying
+        let sortI = 0; // outer loop for bubble sort
+        let sortJ = 0; // inner loop for bubble sort
+        
+        let isRunning = false;
+        let timer = null;
+        let speed = 5;
+        let stepCount = 0;
+
+        function init() {
+            nums1 = [...initialNums1];
+            m = initialM;
+            n = nums2Data.length;
+            
+            phase = 'init';
+            i = 0;
+            sortI = 0;
+            sortJ = 0;
+            
+            clearLog();
+            addLog("Ready to start. Init state.", "info");
+            render();
+            updateControls();
+        }
+
+        function render() {
+            const c1 = document.getElementById('nums1Container');
+            c1.innerHTML = '';
+            
+            nums1.forEach((val, idx) => {
+                const el = document.createElement('div');
+                // Determine class based on original content logic or phase
+                let cls = 'array-item';
+                
+                // Visualization Logic
+                if (phase === 'init' || phase === 'copy') {
+                    if (idx >= m && val === 0) cls += ' empty';
+                    else if (idx >= m && val !== 0) cls += ' merged'; // Copied from nums2
+                } else if (phase === 'sort' || phase === 'done') {
+                    // Logic: no specific differentiation needed visually unless sorted
+                    if (phase === 'done') cls += ' sorted';
+                }
+                
+                // Highlight current operation
+                if (phase === 'copy' && idx === m + i) cls += ' highlight';
+                if (phase === 'sort' && (idx === sortJ || idx === sortJ + 1)) cls += ' highlight';
+
+                el.className = cls;
+                el.textContent = val;
+                
+                // Index Label
+                const lbl = document.createElement('div');
+                lbl.className = 'idx-label';
+                lbl.textContent = idx;
+                el.appendChild(lbl);
+                
+                c1.appendChild(el);
+            });
+
+            // Render nums2
+            const c2 = document.getElementById('nums2Container');
+            c2.innerHTML = '';
+            if (phase !== 'done') { // Keep showing? Yes.
+                nums2Data.forEach((val, idx) => {
+                    const el = document.createElement('div');
+                    let cls = 'array-item nums2';
+                    if (phase === 'copy' && idx === i) cls += ' highlight';
+                    if (phase === 'copy' && idx < i) {
+                        el.style.opacity = '0.5';
+                        el.style.background = '#ccc';
+                    }
+                    
+                    el.className = cls;
+                    el.textContent = val;
+                    c2.appendChild(el);
+                });
+            } else {
+                c2.innerHTML = '<div style="color:#aaa; font-style:italic; padding:10px;">Merged & done</div>';
+            }
+
+            // State Panel
+            document.getElementById('mVal').textContent = m;
+            document.getElementById('nVal').textContent = n;
+            document.getElementById('phaseVal').textContent = phase;
+            document.getElementById('iVal').textContent = phase === 'copy' ? i : '-';
+            document.getElementById('targetVal').textContent = phase === 'copy' ? (m + i) : '-';
+        }
+
+        function step() {
+            stepCount++;
+            
+            if (phase === 'init') {
+                phase = 'copy';
+                i = 0;
+                addLog("Starting Copy Phase...", "info");
+            }
+            else if (phase === 'copy') {
+                if (i < n) {
+                    const val = nums2Data[i];
+                    const targetIdx = m + i;
+                    nums1[targetIdx] = val;
+                    addLog(`Copy nums2[${i}] (${val}) -> nums1[${targetIdx}]`, "copy");
+                    i++;
+                } else {
+                    phase = 'sort';
+                    sortI = 0;
+                    sortJ = 0;
+                    addLog("Copy complete. Starting Sort Phase (Bubble Sort for viz)...", "info");
+                }
+            }
+            else if (phase === 'sort') {
+                // Bubble sort step
+                if (sortI < nums1.length - 1) {
+                    if (sortJ < nums1.length - sortI - 1) {
+                        // Compare & Swap
+                        if (nums1[sortJ] > nums1[sortJ + 1]) {
+                            [nums1[sortJ], nums1[sortJ + 1]] = [nums1[sortJ + 1], nums1[sortJ]];
+                            addLog(`Swap ${nums1[sortJ+1]} and ${nums1[sortJ]}`, "sort");
+                        }
+                        sortJ++;
+                    } else {
+                        sortJ = 0;
+                        sortI++;
+                    }
+                } else {
+                    phase = 'done';
+                    addLog("Sorting complete!", "success");
+                    stop();
+                }
+            }
+            
+            render();
+        }
+
+        function addLog(msg, type = 'info') {
+            const log = document.getElementById('logContainer');
+            log.innerHTML += `<div class="log-entry ${type}">[${stepCount}] ${msg}</div>`;
+            log.scrollTop = log.scrollHeight;
+        }
+
+        function clearLog() { document.getElementById('logContainer').innerHTML = ''; }
+
+        function play() {
+            if (isRunning) return;
+            isRunning = true;
+            updateControls();
+            runLoop();
+        }
+
+        function runLoop() {
+            if (!isRunning) return;
+            step();
+            if (phase !== 'done') {
+                // Adjust speed delay
+                // Range 1-10. 1 = slow (1000ms), 10 = fast (100ms)
+                const delay = 1100 - (speed * 100);
+                timer = setTimeout(runLoop, Math.max(50, delay));
+            }
+        }
+
+        function stop() {
+            isRunning = false;
+            if (timer) clearTimeout(timer);
+            updateControls();
+        }
+
+        function reset() {
+            stop();
+            init();
+        }
+
+        function updateControls() {
+            document.getElementById('playBtn').disabled = isRunning || phase === 'done';
+            document.getElementById('pauseBtn').disabled = !isRunning;
+            document.getElementById('stepBtn').disabled = isRunning || phase === 'done';
+            document.getElementById('resetBtn').disabled = isRunning;
+        }
+
+        // Listeners
+        document.getElementById('playBtn').addEventListener('click', play);
+        document.getElementById('pauseBtn').addEventListener('click', stop);
+        document.getElementById('stepBtn').addEventListener('click', step);
+        document.getElementById('resetBtn').addEventListener('click', reset);
+        document.getElementById('speedSlider').addEventListener('input', (e) => speed = parseInt(e.target.value));
+
+        // Start
+        init();
+
+    </script>
+</body>
+</html>

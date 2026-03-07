@@ -1,0 +1,842 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>141 - Brute-Force: Hash Set Cycle Detection</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #0f0c29 0%, #302b63 50%, #24243e 100%);
+            min-height: 100vh;
+            padding: 18px;
+            color: #e0e0e0
+        }
+
+        .container {
+            max-width: 1360px;
+            margin: 0 auto;
+            background: rgba(25, 25, 50, .95);
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, .5), 0 0 40px rgba(41, 128, 185, .07);
+            overflow: hidden;
+            border: 1px solid rgba(255, 255, 255, .06)
+        }
+
+        header {
+            background: linear-gradient(135deg, #2980b9, #3498db);
+            color: #fff;
+            padding: 22px;
+            text-align: center
+        }
+
+        h1 {
+            font-size: 1.15em;
+            margin-bottom: 5px
+        }
+
+        .subtitle {
+            font-size: .84em;
+            opacity: .92
+        }
+
+        .badge {
+            display: inline-block;
+            background: rgba(255, 255, 255, .2);
+            padding: 5px 14px;
+            border-radius: 15px;
+            margin-top: 7px;
+            font-size: .78em
+        }
+
+        .main-content {
+            display: grid;
+            grid-template-columns: 1fr 280px;
+            gap: 16px;
+            padding: 18px
+        }
+
+        .card {
+            background: rgba(40, 40, 75, .8);
+            border-radius: 14px;
+            padding: 15px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, .2);
+            margin-bottom: 14px;
+            border: 1px solid rgba(255, 255, 255, .05)
+        }
+
+        .card-title {
+            font-size: .88em;
+            font-weight: 600;
+            margin-bottom: 10px;
+            color: #3498db
+        }
+
+        button {
+            padding: 7px 14px;
+            border: none;
+            border-radius: 8px;
+            font-size: .82em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all .3s
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, .3)
+        }
+
+        button:disabled {
+            opacity: .4;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #2980b9, #3498db);
+            color: #fff
+        }
+
+        .btn-success {
+            background: linear-gradient(135deg, #27ae60, #2ecc71);
+            color: #fff
+        }
+
+        .btn-warning {
+            background: linear-gradient(135deg, #f39c12, #e67e22);
+            color: #fff
+        }
+
+        .btn-secondary {
+            background: rgba(100, 100, 140, .7);
+            color: #fff
+        }
+
+        .btn-info {
+            background: linear-gradient(135deg, #8e44ad, #9b59b6);
+            color: #fff
+        }
+
+        .controls {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            align-items: center
+        }
+
+        .speed-control {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            flex: 1;
+            min-width: 140px
+        }
+
+        .speed-control label {
+            font-size: .8em;
+            color: #aaa
+        }
+
+        .speed-control input[type="range"] {
+            flex: 1;
+            height: 5px;
+            accent-color: #3498db
+        }
+
+        .speed-control span {
+            font-size: .8em;
+            color: #3498db;
+            min-width: 24px
+        }
+
+        .input-section {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+            flex-wrap: wrap
+        }
+
+        .input-section input {
+            padding: 7px 10px;
+            border-radius: 8px;
+            border: 1px solid rgba(255, 255, 255, .15);
+            background: rgba(20, 20, 45, .8);
+            color: #e0e0e0;
+            font-size: .85em;
+            font-family: 'Courier New', monospace;
+            flex: 1;
+            min-width: 80px
+        }
+
+        .input-section input:focus {
+            outline: none;
+            border-color: #3498db
+        }
+
+        .input-section label {
+            font-size: .82em;
+            color: #aaa;
+            white-space: nowrap
+        }
+
+        /* Linked list visualization */
+        .ll-area {
+            padding: 16px;
+            background: rgba(20, 20, 50, .4);
+            border-radius: 10px;
+            min-height: 100px;
+            overflow-x: auto
+        }
+
+        .ll-row {
+            display: flex;
+            align-items: center;
+            gap: 0;
+            min-height: 70px;
+            padding: 10px 0;
+            flex-wrap: nowrap
+        }
+
+        .ll-node {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            position: relative;
+            flex-shrink: 0
+        }
+
+        .node-box {
+            width: 52px;
+            height: 52px;
+            border-radius: 12px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            font-family: 'Courier New', monospace;
+            font-weight: 700;
+            border: 2.5px solid;
+            transition: all .35s;
+            position: relative
+        }
+
+        .node-box.idle {
+            border-color: rgba(100, 100, 140, .3);
+            background: rgba(40, 40, 70, .6);
+            color: #aaa
+        }
+
+        .node-box.current {
+            border-color: #f1c40f;
+            background: rgba(241, 196, 15, .08);
+            color: #f1c40f;
+            box-shadow: 0 0 14px rgba(241, 196, 15, .15)
+        }
+
+        .node-box.visited {
+            border-color: rgba(46, 204, 113, .35);
+            background: rgba(46, 204, 113, .06);
+            color: #2ecc71
+        }
+
+        .node-box.cycle-found {
+            border-color: #e74c3c;
+            background: rgba(231, 76, 60, .1);
+            color: #e74c3c;
+            box-shadow: 0 0 14px rgba(231, 76, 60, .2);
+            animation: pulse-red 1s infinite
+        }
+
+        @keyframes pulse-red {
+
+            0%,
+            100% {
+                box-shadow: 0 0 14px rgba(231, 76, 60, .2)
+            }
+
+            50% {
+                box-shadow: 0 0 22px rgba(231, 76, 60, .4)
+            }
+        }
+
+        .node-val {
+            font-size: 1.1em
+        }
+
+        .node-idx {
+            font-size: .4em;
+            color: #666;
+            margin-top: 1px
+        }
+
+        .node-ptr-label {
+            position: absolute;
+            top: -16px;
+            font-size: .5em;
+            font-weight: 700;
+            color: #f1c40f;
+            white-space: nowrap
+        }
+
+        .arrow {
+            width: 28px;
+            height: 2px;
+            background: rgba(150, 150, 200, .2);
+            position: relative;
+            flex-shrink: 0;
+            display: flex;
+            align-items: center;
+            justify-content: flex-end
+        }
+
+        .arrow::after {
+            content: '▶';
+            font-size: .55em;
+            color: rgba(150, 150, 200, .3);
+            position: absolute;
+            right: -4px
+        }
+
+        .arrow.active {
+            background: rgba(241, 196, 15, .3)
+        }
+
+        .arrow.active::after {
+            color: rgba(241, 196, 15, .5)
+        }
+
+        .cycle-arrow {
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center
+        }
+
+        .cycle-label {
+            font-size: .55em;
+            color: #e74c3c;
+            padding: 2px 6px;
+            border: 1.5px solid rgba(231, 76, 60, .3);
+            border-radius: 6px;
+            background: rgba(231, 76, 60, .06);
+            white-space: nowrap;
+            margin-left: 4px
+        }
+
+        .null-marker {
+            font-size: .7em;
+            color: #555;
+            font-family: 'Courier New', monospace;
+            padding: 0 8px;
+            flex-shrink: 0
+        }
+
+        /* Visited set display */
+        .set-area {
+            padding: 10px;
+            background: rgba(20, 20, 50, .4);
+            border-radius: 10px;
+            min-height: 40px
+        }
+
+        .set-row {
+            display: flex;
+            gap: 5px;
+            flex-wrap: wrap;
+            align-items: center
+        }
+
+        .set-item {
+            padding: 4px 10px;
+            border-radius: 6px;
+            font-family: 'Courier New', monospace;
+            font-size: .78em;
+            font-weight: 700;
+            border: 1.5px solid rgba(46, 204, 113, .3);
+            background: rgba(46, 204, 113, .06);
+            color: #2ecc71;
+            transition: all .3s
+        }
+
+        .set-item.new {
+            border-color: #f1c40f;
+            background: rgba(241, 196, 15, .08);
+            color: #f1c40f;
+            box-shadow: 0 0 8px rgba(241, 196, 15, .1)
+        }
+
+        .set-item.found {
+            border-color: #e74c3c;
+            background: rgba(231, 76, 60, .08);
+            color: #e74c3c;
+            box-shadow: 0 0 8px rgba(231, 76, 60, .15)
+        }
+
+        .set-empty {
+            font-size: .75em;
+            color: #555
+        }
+
+        .action-box {
+            padding: 12px;
+            background: rgba(20, 20, 50, .4);
+            border-radius: 10px;
+            text-align: center;
+            font-family: 'Courier New', monospace;
+            font-size: .85em;
+            min-height: 48px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            flex-wrap: wrap
+        }
+
+        .result-box {
+            padding: 14px;
+            border-radius: 10px;
+            text-align: center;
+            font-weight: 700;
+            font-size: 1em;
+            transition: all .3s
+        }
+
+        .rb-neutral {
+            background: rgba(100, 100, 140, .12);
+            color: #888
+        }
+
+        .rb-run {
+            background: rgba(52, 152, 219, .06);
+            color: #3498db;
+            border: 1px solid rgba(52, 152, 219, .12)
+        }
+
+        .rb-true {
+            background: rgba(231, 76, 60, .12);
+            color: #e74c3c;
+            border: 1px solid rgba(231, 76, 60, .25)
+        }
+
+        .rb-false {
+            background: rgba(46, 204, 113, .12);
+            color: #2ecc71;
+            border: 1px solid rgba(46, 204, 113, .25)
+        }
+
+        .state-display {
+            background: rgba(20, 20, 50, .5);
+            border-radius: 8px;
+            padding: 10px;
+            font-family: 'Courier New', monospace;
+            font-size: .65em
+        }
+
+        .state-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 4px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, .05)
+        }
+
+        .state-row:last-child {
+            border-bottom: none
+        }
+
+        .state-label {
+            font-weight: 600;
+            color: #3498db
+        }
+
+        .state-val {
+            color: #ccc;
+            text-align: right;
+            max-width: 130px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap
+        }
+
+        .log-container {
+            background: rgba(20, 20, 50, .5);
+            border-radius: 8px;
+            padding: 10px;
+            max-height: 300px;
+            overflow-y: auto;
+            font-family: 'Courier New', monospace;
+            font-size: .52em
+        }
+
+        .log-entry {
+            padding: 3px 7px;
+            margin: 2px 0;
+            border-radius: 4px;
+            border-left: 3px solid #555;
+            background: rgba(40, 40, 70, .5);
+            line-height: 1.5
+        }
+
+        .log-entry.success {
+            border-left-color: #2ecc71;
+            background: rgba(46, 204, 113, .08);
+            color: #2ecc71
+        }
+
+        .log-entry.warning {
+            border-left-color: #f39c12;
+            background: rgba(243, 156, 18, .08);
+            color: #f39c12
+        }
+
+        .log-entry.info {
+            border-left-color: #3498db;
+            background: rgba(52, 152, 219, .08);
+            color: #8ec8f0
+        }
+
+        .log-entry.orange {
+            border-left-color: #e67e22;
+            background: rgba(230, 126, 34, .08);
+            color: #e67e22
+        }
+
+        .log-entry.error {
+            border-left-color: #e74c3c;
+            background: rgba(231, 76, 60, .08);
+            color: #e74c3c
+        }
+
+        .log-container::-webkit-scrollbar {
+            width: 5px
+        }
+
+        .log-container::-webkit-scrollbar-track {
+            background: transparent
+        }
+
+        .log-container::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, .15);
+            border-radius: 3px
+        }
+
+        @media(max-width:960px) {
+            .main-content {
+                grid-template-columns: 1fr
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <header>
+            <h1>🔗 Linked List Cycle (141)</h1>
+            <div class="subtitle">Brute-Force — Hash Set: Track Visited Nodes</div>
+            <div class="badge">Time: O(n) | Space: O(n)</div>
+        </header>
+        <div class="main-content">
+            <div class="left-panel">
+                <div class="card">
+                    <div class="card-title">⚙️ Controls</div>
+                    <div class="controls">
+                        <button class="btn-primary" id="playBtn">▶️ Play</button>
+                        <button class="btn-warning" id="pauseBtn" disabled>⏸️ Pause</button>
+                        <button class="btn-success" id="stepBtn">⏭️ Step</button>
+                        <button class="btn-secondary" id="resetBtn">🔄 Reset</button>
+                        <div class="speed-control">
+                            <label>Speed:</label>
+                            <input type="range" id="speedSlider" min="1" max="10" value="5">
+                            <span id="speedValue">5x</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="card">
+                    <div class="card-title">✏️ Custom Input</div>
+                    <div class="input-section">
+                        <label>values:</label>
+                        <input type="text" id="arrInput" value="3,2,0,-4" placeholder="e.g. 3,2,0,-4">
+                        <label>pos:</label>
+                        <input type="number" id="posInput" value="1" min="-1" max="20" style="width:50px;flex:none">
+                        <button class="btn-info" id="applyBtn">Apply</button>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-title">🔗 Linked List — current pointer highlighted</div>
+                    <div class="ll-area">
+                        <div class="ll-row" id="llDisplay"></div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-title">📦 Visited Set</div>
+                    <div class="set-area">
+                        <div class="set-row" id="setDisplay"><span class="set-empty">{ empty }</span></div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-title">🔍 Action</div>
+                    <div class="action-box" id="actionBox"><span style="color:#555">—</span></div>
+                </div>
+
+                <div class="card">
+                    <div class="result-box rb-neutral" id="resultBox">Ready — press Play or Step</div>
+                </div>
+            </div>
+
+            <div class="right-panel">
+                <div class="card">
+                    <div class="card-title">📋 Current State</div>
+                    <div class="state-display">
+                        <div class="state-row"><span class="state-label">Phase:</span><span class="state-val"
+                                id="stPhase">init</span></div>
+                        <div class="state-row"><span class="state-label">Step:</span><span class="state-val"
+                                id="stStep">0</span></div>
+                        <div class="state-row"><span class="state-label">current:</span><span class="state-val"
+                                id="stCur">—</span></div>
+                        <div class="state-row"><span class="state-label">current.val:</span><span class="state-val"
+                                id="stCurVal">—</span></div>
+                        <div class="state-row"><span class="state-label">In set?:</span><span class="state-val"
+                                id="stInSet">—</span></div>
+                        <div class="state-row"><span class="state-label">Set size:</span><span class="state-val"
+                                id="stSetSz">0</span></div>
+                        <div class="state-row"><span class="state-label">has cycle:</span><span class="state-val"
+                                id="stResult">?</span></div>
+                    </div>
+                </div>
+                <div class="card" style="flex:1">
+                    <div class="card-title">📝 Execution Log</div>
+                    <div class="log-container" id="logContainer">
+                        <div class="log-entry info">Walk the list. If current is in visited → cycle! If null → no cycle.
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let VALS = [3, 2, 0, -4];
+        let POS = 1;  // -1 = no cycle
+        let curIdx = 0;
+        let visitedIdxs = new Set();
+        let nodeStates = []; // idle, current, visited, cycle-found
+        let newSetIdx = -1;  // for highlight animation
+
+        // phases: init | check | add-advance | done
+        let phase = 'init';
+        let stepCount = 0, isRunning = false, speed = 5, isDone = false;
+
+        const $ = id => document.getElementById(id);
+        const logC = $('logContainer');
+        function addLog(m, t = 'info') { logC.innerHTML += `<div class="log-entry ${t}">[${stepCount}] ${m}</div>`; logC.scrollTop = logC.scrollHeight }
+        function clearLog() { logC.innerHTML = '' }
+
+        function getNextIdx(idx) {
+            if (idx < 0 || idx >= VALS.length) return -1;
+            if (idx === VALS.length - 1) return POS; // tail connects to pos (-1 = null)
+            return idx + 1;
+        }
+
+        function renderLL() {
+            const container = $('llDisplay');
+            container.innerHTML = '';
+            for (let i = 0; i < VALS.length; i++) {
+                // Node
+                const nodeDiv = document.createElement('div');
+                nodeDiv.className = 'll-node';
+                const box = document.createElement('div');
+                const st = nodeStates[i] || 'idle';
+                box.className = 'node-box ' + st;
+                box.innerHTML = `<div class="node-val">${VALS[i]}</div><div class="node-idx">idx ${i}</div>`;
+                if (st === 'current') {
+                    const ptr = document.createElement('div');
+                    ptr.className = 'node-ptr-label';
+                    ptr.textContent = '▼ current';
+                    box.appendChild(ptr);
+                }
+                nodeDiv.appendChild(box);
+                container.appendChild(nodeDiv);
+                // Arrow
+                if (i < VALS.length - 1) {
+                    const arrow = document.createElement('div');
+                    arrow.className = 'arrow' + (st === 'current' ? ' active' : '');
+                    container.appendChild(arrow);
+                }
+            }
+            // After last node, show cycle arrow or null
+            if (POS >= 0 && POS < VALS.length) {
+                const cyc = document.createElement('div');
+                cyc.className = 'cycle-arrow';
+                cyc.innerHTML = `<div class="cycle-label">↩ → node[${POS}] (val=${VALS[POS]})</div>`;
+                container.appendChild(cyc);
+            } else {
+                const nl = document.createElement('div');
+                nl.className = 'null-marker';
+                const arrow = document.createElement('div');
+                arrow.className = 'arrow';
+                container.appendChild(arrow);
+                nl.textContent = 'null';
+                container.appendChild(nl);
+            }
+        }
+
+        function renderSet() {
+            const container = $('setDisplay');
+            container.innerHTML = '';
+            if (visitedIdxs.size === 0) {
+                container.innerHTML = '<span class="set-empty">{ empty }</span>';
+                return;
+            }
+            const h = document.createElement('span');
+            h.style.cssText = 'color:#555;font-size:.75em;margin-right:4px';
+            h.textContent = '{ ';
+            container.appendChild(h);
+            const sorted = [...visitedIdxs].sort((a, b) => a - b);
+            sorted.forEach((idx, i) => {
+                const item = document.createElement('div');
+                let cls = 'set-item';
+                if (idx === newSetIdx) cls += ' new';
+                if (nodeStates[idx] === 'cycle-found') cls += ' found';
+                item.className = cls;
+                item.textContent = `[${idx}]=${VALS[idx]}`;
+                container.appendChild(item);
+            });
+            const t = document.createElement('span');
+            t.style.cssText = 'color:#555;font-size:.75em;margin-left:4px';
+            t.textContent = ' }';
+            container.appendChild(t);
+        }
+
+        function doStep() {
+            if (isDone) { stopExec(); return; }
+            stepCount++;
+
+            switch (phase) {
+                case 'init': {
+                    curIdx = 0;
+                    visitedIdxs = new Set();
+                    nodeStates = new Array(VALS.length).fill('idle');
+                    newSetIdx = -1;
+                    addLog(`List: [${VALS}], pos=${POS}`, 'info');
+                    addLog(POS >= 0 ? `Cycle: tail→node[${POS}]` : 'No cycle (tail→null)', 'orange');
+                    $('resultBox').className = 'result-box rb-run';
+                    $('resultBox').textContent = 'Traversing with hash set...';
+                    if (VALS.length === 0) {
+                        addLog('Empty list → return false', 'success');
+                        phase = 'done'; isDone = true;
+                        $('resultBox').className = 'result-box rb-false';
+                        $('resultBox').textContent = '✅ return false (empty list)';
+                        $('stResult').textContent = 'false';
+                        stopExec(); return;
+                    }
+                    phase = 'check';
+                    renderLL(); renderSet();
+                    break;
+                }
+                case 'check': {
+                    if (curIdx < 0) {
+                        // null reached
+                        addLog('current = null → no cycle → return false', 'success');
+                        $('resultBox').className = 'result-box rb-false';
+                        $('resultBox').textContent = '✅ return false — no cycle detected';
+                        $('actionBox').innerHTML = '<span style="color:#2ecc71;font-weight:700">Reached null → return false</span>';
+                        $('stResult').textContent = 'false';
+                        phase = 'done'; isDone = true;
+                        stopExec(); return;
+                    }
+                    // Highlight current
+                    nodeStates.forEach((s, i) => { if (s === 'current') nodeStates[i] = 'visited'; });
+                    nodeStates[curIdx] = 'current';
+                    $('stCur').textContent = `node[${curIdx}]`;
+                    $('stCurVal').textContent = VALS[curIdx];
+                    $('stStep').textContent = stepCount;
+
+                    if (visitedIdxs.has(curIdx)) {
+                        // CYCLE FOUND
+                        nodeStates[curIdx] = 'cycle-found';
+                        addLog(`node[${curIdx}] (val=${VALS[curIdx]}) IS in visited → CYCLE! return true`, 'error');
+                        $('stInSet').textContent = '✓ YES → CYCLE!';
+                        $('actionBox').innerHTML =
+                            `<span style="color:#e74c3c;font-weight:700">🔄 node[${curIdx}]=${VALS[curIdx]} already visited → CYCLE!</span>`;
+                        $('resultBox').className = 'result-box rb-true';
+                        $('resultBox').textContent = `🔄 return true — cycle at node[${curIdx}]`;
+                        $('stResult').textContent = 'true';
+                        newSetIdx = -1;
+                        phase = 'done'; isDone = true;
+                        renderLL(); renderSet();
+                        stopExec(); return;
+                    } else {
+                        addLog(`node[${curIdx}] (val=${VALS[curIdx]}) NOT in visited`, 'info');
+                        $('stInSet').textContent = '✗ No';
+                        $('actionBox').innerHTML =
+                            `<span style="color:#3498db">node[${curIdx}]=${VALS[curIdx]}</span>` +
+                            `<span style="color:#888"> not in set → add & advance</span>`;
+                    }
+                    phase = 'add-advance';
+                    renderLL(); renderSet();
+                    break;
+                }
+                case 'add-advance': {
+                    visitedIdxs.add(curIdx);
+                    newSetIdx = curIdx;
+                    $('stSetSz').textContent = visitedIdxs.size;
+                    addLog(`  Add node[${curIdx}] to visited. Set size = ${visitedIdxs.size}`, 'success');
+                    const nextIdx = getNextIdx(curIdx);
+                    addLog(`  Advance: current = current.next → ${nextIdx < 0 ? 'null' : 'node[' + nextIdx + ']'}`, 'info');
+                    curIdx = nextIdx;
+                    phase = 'check';
+                    renderLL(); renderSet();
+                    break;
+                }
+            }
+            $('stPhase').textContent = phase;
+        }
+
+        function play() { if (isRunning || isDone) return; isRunning = true; $('playBtn').disabled = true; $('pauseBtn').disabled = false; $('stepBtn').disabled = true; runLoop() }
+        function pause() { isRunning = false; $('playBtn').disabled = false; $('pauseBtn').disabled = true; $('stepBtn').disabled = false }
+        function stopExec() { isRunning = false; $('playBtn').disabled = true; $('pauseBtn').disabled = true; $('stepBtn').disabled = true }
+        function runLoop() { if (!isRunning) return; doStep(); if (isRunning && !isDone) setTimeout(runLoop, Math.max(150, 600 - speed * 50)) }
+
+        function init() {
+            const s = $('arrInput').value || '3,2,0,-4';
+            VALS = s.split(',').map(x => parseInt(x.trim())).filter(x => !isNaN(x));
+            POS = parseInt($('posInput').value);
+            if (isNaN(POS)) POS = -1;
+            if (POS >= VALS.length) POS = -1;
+            curIdx = 0; visitedIdxs = new Set(); newSetIdx = -1;
+            nodeStates = new Array(VALS.length).fill('idle');
+            phase = 'init'; stepCount = 0; isDone = false;
+            $('resultBox').className = 'result-box rb-neutral';
+            $('resultBox').textContent = 'Ready — press Play or Step';
+            $('actionBox').innerHTML = '<span style="color:#555">—</span>';
+            $('stCur').textContent = '—'; $('stCurVal').textContent = '—';
+            $('stInSet').textContent = '—'; $('stSetSz').textContent = '0';
+            $('stResult').textContent = '?'; $('stStep').textContent = '0';
+            $('playBtn').disabled = false; $('pauseBtn').disabled = true; $('stepBtn').disabled = false;
+            clearLog(); addLog('Walk the list. If current is in visited → cycle! If null → no cycle.', 'info');
+            renderLL(); renderSet();
+        }
+
+        $('playBtn').addEventListener('click', play);
+        $('pauseBtn').addEventListener('click', pause);
+        $('stepBtn').addEventListener('click', () => { if (!isDone) doStep() });
+        $('resetBtn').addEventListener('click', () => { isRunning = false; init() });
+        $('speedSlider').addEventListener('input', e => { speed = parseInt(e.target.value); $('speedValue').textContent = speed + 'x' });
+        $('applyBtn').addEventListener('click', () => { isRunning = false; init() });
+
+        init();
+    </script>
+</body>
+
+</html>

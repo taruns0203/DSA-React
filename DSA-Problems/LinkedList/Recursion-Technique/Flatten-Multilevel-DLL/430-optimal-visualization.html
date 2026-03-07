@@ -1,0 +1,1243 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>430 - Optimal: Iterative In-Place Flattening (No Recursion)</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #0a1628 0%, #1a3a4a 50%, #0d2137 100%);
+            min-height: 100vh;
+            padding: 18px;
+            color: #e0e0e0
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: rgba(20, 30, 50, .95);
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, .5), 0 0 40px rgba(26, 188, 156, .07);
+            overflow: hidden;
+            border: 1px solid rgba(255, 255, 255, .06)
+        }
+
+        header {
+            background: linear-gradient(135deg, #16a085, #1abc9c);
+            color: #fff;
+            padding: 22px;
+            text-align: center
+        }
+
+        h1 {
+            font-size: 1.15em;
+            margin-bottom: 5px
+        }
+
+        .subtitle {
+            font-size: .84em;
+            opacity: .92
+        }
+
+        .badge {
+            display: inline-block;
+            background: rgba(255, 255, 255, .2);
+            padding: 5px 14px;
+            border-radius: 15px;
+            margin-top: 7px;
+            font-size: .78em
+        }
+
+        .main-content {
+            display: grid;
+            grid-template-columns: 1fr 290px;
+            gap: 16px;
+            padding: 18px
+        }
+
+        .card {
+            background: rgba(30, 45, 65, .85);
+            border-radius: 14px;
+            padding: 15px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, .2);
+            margin-bottom: 14px;
+            border: 1px solid rgba(255, 255, 255, .05)
+        }
+
+        .card-title {
+            font-size: .88em;
+            font-weight: 600;
+            margin-bottom: 10px;
+            color: #1abc9c
+        }
+
+        button {
+            padding: 7px 14px;
+            border: none;
+            border-radius: 8px;
+            font-size: .82em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all .3s
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, .3)
+        }
+
+        button:disabled {
+            opacity: .4;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #16a085, #1abc9c);
+            color: #fff
+        }
+
+        .btn-success {
+            background: linear-gradient(135deg, #27ae60, #2ecc71);
+            color: #fff
+        }
+
+        .btn-warning {
+            background: linear-gradient(135deg, #f39c12, #e67e22);
+            color: #fff
+        }
+
+        .btn-secondary {
+            background: rgba(100, 100, 140, .7);
+            color: #fff
+        }
+
+        .btn-info {
+            background: linear-gradient(135deg, #3498db, #2980b9);
+            color: #fff
+        }
+
+        .controls {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            align-items: center
+        }
+
+        .speed-control {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            flex: 1;
+            min-width: 140px
+        }
+
+        .speed-control label {
+            font-size: .8em;
+            color: #aaa
+        }
+
+        .speed-control input[type="range"] {
+            flex: 1;
+            height: 5px;
+            accent-color: #1abc9c
+        }
+
+        .speed-control span {
+            font-size: .8em;
+            color: #1abc9c;
+            min-width: 24px
+        }
+
+        .input-section {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+            flex-wrap: wrap
+        }
+
+        .input-section input {
+            padding: 7px 10px;
+            border-radius: 8px;
+            border: 1px solid rgba(255, 255, 255, .15);
+            background: rgba(15, 25, 40, .8);
+            color: #e0e0e0;
+            font-size: .82em;
+            font-family: 'Courier New', monospace;
+        }
+
+        .input-section input:focus {
+            outline: none;
+            border-color: #1abc9c
+        }
+
+        .input-section label {
+            font-size: .82em;
+            color: #aaa
+        }
+
+        .input-hint {
+            font-size: .68em;
+            color: #777;
+            margin-top: 5px;
+            line-height: 1.4
+        }
+
+        /* ── Multilevel original structure ──────────── */
+        .ml-container {
+            padding: 12px;
+            background: rgba(15, 25, 40, .4);
+            border-radius: 10px;
+            overflow-x: auto;
+            min-height: 70px;
+        }
+
+        .ml-level {
+            display: flex;
+            align-items: center;
+            margin-bottom: 4px;
+            min-height: 50px
+        }
+
+        .ml-spacer {
+            width: 58px;
+            min-width: 58px;
+            height: 44px
+        }
+
+        .ml-node {
+            width: 44px;
+            min-width: 44px;
+            height: 44px;
+            border-radius: 10px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 1.05em;
+            border: 2.5px solid rgba(150, 150, 200, .12);
+            background: rgba(50, 70, 100, .08);
+            font-family: 'Courier New', monospace;
+            color: #888;
+            transition: all .35s;
+        }
+
+        .ml-node .nd-sub {
+            font-size: .36em;
+            color: #555;
+            margin-top: 1px
+        }
+
+        .ml-node.done-nd {
+            border-color: #2ecc71;
+            background: rgba(46, 204, 113, .06);
+            color: #2ecc71
+        }
+
+        .ml-arrow {
+            color: #555;
+            font-size: .72em;
+            margin: 0 2px;
+            min-width: 14px;
+            text-align: center
+        }
+
+        .ml-arrow.done-a {
+            color: #2ecc71
+        }
+
+        .child-connector {
+            display: flex;
+            align-items: center;
+            min-height: 18px
+        }
+
+        .ml-child-arrow {
+            width: 44px;
+            min-width: 44px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: .72em;
+            color: #555;
+            height: 18px
+        }
+
+        /* ── Flat list (main visualization) ─────────── */
+        .flat-container {
+            padding: 14px;
+            background: rgba(15, 25, 40, .4);
+            border-radius: 10px;
+            overflow-x: auto;
+            min-height: 74px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 0;
+        }
+
+        .fnode {
+            width: 48px;
+            height: 48px;
+            border-radius: 10px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 1.1em;
+            border: 2.5px solid rgba(150, 150, 200, .1);
+            background: rgba(50, 70, 100, .06);
+            font-family: 'Courier New', monospace;
+            color: #777;
+            transition: all .4s;
+            position: relative;
+        }
+
+        .fnode .nd-sub {
+            font-size: .36em;
+            color: #555;
+            margin-top: 1px
+        }
+
+        .fnode.curr-node {
+            border-color: #1abc9c;
+            background: rgba(26, 188, 156, .14);
+            color: #1abc9c;
+            box-shadow: 0 0 16px rgba(26, 188, 156, .3);
+            transform: scale(1.12);
+        }
+
+        .fnode.tail-scan {
+            border-color: #e67e22;
+            background: rgba(230, 126, 34, .12);
+            color: #e67e22;
+            box-shadow: 0 0 10px rgba(230, 126, 34, .15);
+        }
+
+        .fnode.child-head {
+            border-color: #9b59b6;
+            background: rgba(155, 89, 182, .12);
+            color: #bb6bd9;
+            box-shadow: 0 0 10px rgba(155, 89, 182, .15);
+        }
+
+        .fnode.splice-node {
+            border-color: #e74c3c;
+            background: rgba(231, 76, 60, .12);
+            color: #e74c3c;
+            box-shadow: 0 0 12px rgba(231, 76, 60, .2);
+            transform: scale(1.06);
+        }
+
+        .fnode.tail-found {
+            border-color: #f39c12;
+            background: rgba(243, 156, 18, .12);
+            color: #f39c12;
+            box-shadow: 0 0 12px rgba(243, 156, 18, .2);
+            transform: scale(1.08);
+        }
+
+        .fnode.processed {
+            border-color: #2ecc71;
+            background: rgba(46, 204, 113, .06);
+            color: #2ecc71;
+        }
+
+        .fnode.done-nd {
+            border-color: #2ecc71;
+            background: rgba(46, 204, 113, .08);
+            color: #2ecc71;
+        }
+
+        .farrow {
+            font-size: .72em;
+            margin: 0 1px;
+            color: #555;
+            min-width: 16px;
+            text-align: center
+        }
+
+        .farrow.new-link {
+            color: #e74c3c;
+            font-weight: 700
+        }
+
+        .farrow.done-a {
+            color: #2ecc71
+        }
+
+        /* ── Pointer labels under nodes ─────────────── */
+        .ptr-labels {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 0;
+            padding: 0 14px;
+            min-height: 20px;
+        }
+
+        .ptr-lbl {
+            width: 48px;
+            text-align: center;
+            font-size: .52em;
+            font-weight: 700;
+            font-family: 'Courier New', monospace;
+            min-width: 48px;
+        }
+
+        .ptr-lbl-sp {
+            width: 16px;
+            min-width: 16px;
+        }
+
+        .ptr-curr {
+            color: #1abc9c
+        }
+
+        .ptr-tail {
+            color: #f39c12
+        }
+
+        .ptr-child {
+            color: #9b59b6
+        }
+
+        .ptr-next {
+            color: #3498db
+        }
+
+        /* ── Pointer diagram ───────────────────────── */
+        .ptr-diagram {
+            padding: 10px;
+            background: rgba(15, 25, 40, .5);
+            border-radius: 8px;
+            font-family: 'Courier New', monospace;
+            font-size: .72em;
+            line-height: 1.6;
+            min-height: 50px;
+        }
+
+        .ptr-line {
+            padding: 2px 0
+        }
+
+        .plbl {
+            color: #1abc9c;
+            font-weight: 700
+        }
+
+        .pval {
+            color: #ccc
+        }
+
+        .parr {
+            color: #e74c3c
+        }
+
+        .pnull {
+            color: #666;
+            font-style: italic
+        }
+
+        .status-ind {
+            text-align: center;
+            padding: 11px;
+            border-radius: 10px;
+            font-weight: 700;
+            font-size: .85em;
+            transition: all .3s;
+        }
+
+        .si-neutral {
+            background: rgba(100, 100, 140, .12);
+            color: #888
+        }
+
+        .si-run {
+            background: rgba(26, 188, 156, .06);
+            color: #1abc9c;
+            border: 1px solid rgba(26, 188, 156, .15)
+        }
+
+        .si-done {
+            background: rgba(46, 204, 113, .12);
+            color: #2ecc71;
+            border: 1px solid rgba(46, 204, 113, .25)
+        }
+
+        .state-display {
+            background: rgba(15, 25, 40, .5);
+            border-radius: 8px;
+            padding: 10px;
+            font-family: 'Courier New', monospace;
+            font-size: .68em;
+        }
+
+        .state-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 4px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, .05)
+        }
+
+        .state-row:last-child {
+            border-bottom: none
+        }
+
+        .state-label {
+            font-weight: 600;
+            color: #1abc9c
+        }
+
+        .state-val {
+            color: #ccc;
+            text-align: right;
+            max-width: 155px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap
+        }
+
+        .algo-box {
+            padding: 10px;
+            background: rgba(15, 25, 40, .5);
+            border-radius: 8px;
+            font-family: 'Courier New', monospace;
+            font-size: .62em;
+            line-height: 1.7;
+        }
+
+        .algo-line {
+            padding: 1px 6px;
+            border-radius: 3px;
+            transition: background .3s
+        }
+
+        .algo-line.active {
+            background: rgba(26, 188, 156, .12);
+            color: #1abc9c
+        }
+
+        .algo-line .kw {
+            color: #c678dd
+        }
+
+        .algo-line .fn {
+            color: #61afef
+        }
+
+        .algo-line .cm {
+            color: #5c6370;
+            font-style: italic
+        }
+
+        .log-container {
+            background: rgba(15, 25, 40, .5);
+            border-radius: 8px;
+            padding: 10px;
+            max-height: 220px;
+            overflow-y: auto;
+            font-family: 'Courier New', monospace;
+            font-size: .54em;
+        }
+
+        .log-entry {
+            padding: 3px 7px;
+            margin: 2px 0;
+            border-radius: 4px;
+            border-left: 3px solid #555;
+            background: rgba(30, 45, 65, .5);
+            line-height: 1.5;
+        }
+
+        .log-entry.success {
+            border-left-color: #2ecc71;
+            background: rgba(46, 204, 113, .08);
+            color: #2ecc71
+        }
+
+        .log-entry.warning {
+            border-left-color: #f39c12;
+            background: rgba(243, 156, 18, .08);
+            color: #f39c12
+        }
+
+        .log-entry.info {
+            border-left-color: #3498db;
+            background: rgba(52, 152, 219, .08);
+            color: #8ec8f0
+        }
+
+        .log-entry.purple {
+            border-left-color: #9b59b6;
+            background: rgba(155, 89, 182, .08);
+            color: #bb6bd9
+        }
+
+        .log-entry.orange {
+            border-left-color: #e67e22;
+            background: rgba(230, 126, 34, .08);
+            color: #e67e22
+        }
+
+        .log-entry.error {
+            border-left-color: #e74c3c;
+            background: rgba(231, 76, 60, .08);
+            color: #e74c3c
+        }
+
+        .log-entry.teal {
+            border-left-color: #1abc9c;
+            background: rgba(26, 188, 156, .08);
+            color: #1abc9c
+        }
+
+        .log-container::-webkit-scrollbar {
+            width: 5px
+        }
+
+        .log-container::-webkit-scrollbar-track {
+            background: transparent
+        }
+
+        .log-container::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, .15);
+            border-radius: 3px
+        }
+
+        @media(max-width:960px) {
+            .main-content {
+                grid-template-columns: 1fr
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <header>
+            <h1>⚡ Flatten a Multilevel Doubly Linked List</h1>
+            <div class="subtitle">Optimal — Iterative In-Place Flattening (No Recursion)</div>
+            <div class="badge">Time: O(n) | Space: O(1) — only pointer variables, no stack</div>
+        </header>
+        <div class="main-content">
+            <div class="left-panel">
+                <div class="card">
+                    <div class="card-title">⚙️ Controls</div>
+                    <div class="controls">
+                        <button class="btn-primary" id="playBtn">▶️ Play</button>
+                        <button class="btn-warning" id="pauseBtn" disabled>⏸️ Pause</button>
+                        <button class="btn-success" id="stepBtn">⏭️ Step</button>
+                        <button class="btn-secondary" id="resetBtn">🔄 Reset</button>
+                        <div class="speed-control">
+                            <label>Speed:</label>
+                            <input type="range" id="speedSlider" min="1" max="10" value="5">
+                            <span id="speedValue">5x</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="card">
+                    <div class="card-title">✏️ Custom Input</div>
+                    <div class="input-section">
+                        <label>Serialized:</label>
+                        <input type="text" id="listInput" value="1,2,3,4,5,6,null,null,null,7,8,9,10,null,null,11,12"
+                            placeholder="serialized list" style="flex:1;min-width:200px">
+                        <button class="btn-info" id="applyBtn">Apply</button>
+                    </div>
+                    <div class="input-hint">LeetCode format with nulls as level separators. E.g.:
+                        1,2,3,4,5,6,null,null,null,7,8,9,10,null,null,11,12</div>
+                </div>
+
+                <div class="card">
+                    <div class="card-title">🏗️ Original Structure</div>
+                    <div class="ml-container" id="mlDisplay"></div>
+                </div>
+
+                <div class="card">
+                    <div class="card-title">⚡ Live Flattening (Iterative In-Place)</div>
+                    <div class="flat-container" id="flatDisplay"><span style="color:#555">— press Play or Step —</span>
+                    </div>
+                    <div class="ptr-labels" id="ptrLabels"></div>
+                </div>
+
+                <div class="card">
+                    <div class="card-title">🔀 Current Operation</div>
+                    <div class="ptr-diagram" id="ptrDiagram"><span style="color:#555">— no operation yet —</span></div>
+                </div>
+
+                <div class="card">
+                    <div class="status-ind si-neutral" id="statusInd">Ready — press Play or Step</div>
+                </div>
+            </div>
+
+            <div class="right-panel">
+                <div class="card">
+                    <div class="card-title">📋 Current State</div>
+                    <div class="state-display">
+                        <div class="state-row"><span class="state-label">Phase:</span><span class="state-val"
+                                id="stPhase">init</span></div>
+                        <div class="state-row"><span class="state-label">curr:</span><span class="state-val"
+                                id="stCurr">—</span></div>
+                        <div class="state-row"><span class="state-label">curr.child:</span><span class="state-val"
+                                id="stChild">—</span></div>
+                        <div class="state-row"><span class="state-label">curr.next:</span><span class="state-val"
+                                id="stNext">—</span></div>
+                        <div class="state-row"><span class="state-label">tail:</span><span class="state-val"
+                                id="stTail">—</span></div>
+                        <div class="state-row"><span class="state-label">Nodes left:</span><span class="state-val"
+                                id="stRemain">—</span></div>
+                    </div>
+                </div>
+                <div class="card">
+                    <div class="card-title">📖 Algorithm</div>
+                    <div class="algo-box" id="algoBox">
+                        <div class="algo-line" id="aL0"><span class="kw">let</span> curr = head</div>
+                        <div class="algo-line" id="aL1"><span class="kw">while</span> (curr) {</div>
+                        <div class="algo-line" id="aL2">&nbsp;&nbsp;<span class="kw">if</span> (curr.child) {</div>
+                        <div class="algo-line" id="aL3">&nbsp;&nbsp;&nbsp;&nbsp;<span class="cm">// find tail of
+                                child</span></div>
+                        <div class="algo-line" id="aL4">&nbsp;&nbsp;&nbsp;&nbsp;tail = <span
+                                class="fn">findTail</span>(child)</div>
+                        <div class="algo-line" id="aL5">&nbsp;&nbsp;&nbsp;&nbsp;tail.next = curr.next</div>
+                        <div class="algo-line" id="aL6">&nbsp;&nbsp;&nbsp;&nbsp;curr.next.prev = tail</div>
+                        <div class="algo-line" id="aL7">&nbsp;&nbsp;&nbsp;&nbsp;curr.next = curr.child</div>
+                        <div class="algo-line" id="aL8">&nbsp;&nbsp;&nbsp;&nbsp;child.prev = curr</div>
+                        <div class="algo-line" id="aL9">&nbsp;&nbsp;&nbsp;&nbsp;curr.child = <span
+                                class="pnull">null</span></div>
+                        <div class="algo-line" id="aL10">&nbsp;&nbsp;}</div>
+                        <div class="algo-line" id="aL11">&nbsp;&nbsp;curr = curr.next</div>
+                        <div class="algo-line" id="aL12">}</div>
+                    </div>
+                </div>
+                <div class="card" style="flex:1">
+                    <div class="card-title">📝 Execution Log</div>
+                    <div class="log-container" id="logContainer">
+                        <div class="log-entry teal">Walk list, splice children inline. O(1) space.</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        /* ── Node ─────────────────────────────────────────── */
+        class MLNode {
+            constructor(val) {
+                this.val = val; this.prev = null; this.next = null;
+                this.child = null; this.id = MLNode._id++;
+                this.level = 0; this.posInLevel = 0;
+            }
+        }
+        MLNode._id = 0;
+
+        /* ── Parser ───────────────────────────────────────── */
+        function parseInput(str) {
+            const tokens = str.split(',').map(s => s.trim());
+            const parsed = tokens.map(t => t.toLowerCase() === 'null' ? null : parseInt(t));
+            if (!parsed.length || parsed[0] === null) return null;
+            MLNode._id = 0;
+            const levels = [], allNodes = [];
+            let idx = 0;
+            const level0 = [];
+            while (idx < parsed.length && parsed[idx] !== null) {
+                const n = new MLNode(parsed[idx]); n.level = 0; n.posInLevel = level0.length;
+                level0.push(n); allNodes.push(n); idx++;
+            }
+            for (let i = 0; i < level0.length - 1; i++) { level0[i].next = level0[i + 1]; level0[i + 1].prev = level0[i]; }
+            if (idx < parsed.length) idx++;
+            levels.push(level0);
+            let parentLevel = 0;
+            while (idx < parsed.length) {
+                let nc = 0;
+                while (idx < parsed.length && parsed[idx] === null) { nc++; idx++; }
+                if (idx >= parsed.length) break;
+                const pn = levels[parentLevel][nc];
+                const cl = []; const cln = parentLevel + 1;
+                while (idx < parsed.length && parsed[idx] !== null) {
+                    const n = new MLNode(parsed[idx]); n.level = cln; n.posInLevel = cl.length;
+                    cl.push(n); allNodes.push(n); idx++;
+                }
+                for (let i = 0; i < cl.length - 1; i++) { cl[i].next = cl[i + 1]; cl[i + 1].prev = cl[i]; }
+                if (pn && cl.length > 0) pn.child = cl[0];
+                levels.push(cl); parentLevel++;
+                if (idx < parsed.length) idx++;
+            }
+            return { head: level0[0] || null, levels, allNodes };
+        }
+
+        /* ── State ────────────────────────────────────────── */
+        let inputStr = '1,2,3,4,5,6,null,null,null,7,8,9,10,null,null,11,12';
+        let data = null;
+        let nodeMap = {};
+        let nodeStates = {};     // id → visual state
+        let ptrLabelMap = {};    // id → label string
+        let highlightArrows = {}; // `${fromId}-${toId}` → class
+        let activeAlgoLine = -1;
+
+        let steps = [], stepIdx = 0, stepCount = 0;
+        let isRunning = false, speed = 5, isDone = false;
+        let phase = 'init';
+        let stCurr = '—', stChild = '—', stNext = '—', stTail = '—', stRemain = '—';
+
+        const $ = id => document.getElementById(id);
+        const logC = $('logContainer');
+        function addLog(m, t = 'info') { logC.innerHTML += `<div class="log-entry ${t}">[${stepCount}] ${m}</div>`; logC.scrollTop = logC.scrollHeight }
+        function clearLog() { logC.innerHTML = '' }
+
+        /* ── Build flat order from head ────────────────── */
+        function buildFlatOrder() {
+            const order = []; const visited = new Set();
+            let n = data.head;
+            while (n) { if (visited.has(n.id)) break; visited.add(n.id); order.push(n.id); n = n.next; }
+            return order;
+        }
+
+        /* ── Pre-compute steps ─────────────────────────── */
+        function buildSteps() {
+            steps = [];
+            if (!data || !data.head) return;
+            // Deep-clone for simulation
+            const cm = {};
+            for (const n of data.allNodes) {
+                cm[n.id] = { id: n.id, val: n.val, next: n.next ? n.next.id : null, prev: n.prev ? n.prev.id : null, child: n.child ? n.child.id : null };
+            }
+            const g = id => id !== null && id !== undefined ? cm[id] : null;
+
+            steps.push({ type: 'start' });
+
+            let currId = data.head.id;
+            steps.push({ type: 'init-curr', id: currId, val: g(currId).val, line: 0 });
+
+            while (currId !== null) {
+                const curr = g(currId);
+                steps.push({ type: 'check-loop', id: currId, val: curr.val, line: 1 });
+
+                if (curr.child !== null) {
+                    const childId = curr.child;
+                    const childVal = g(childId).val;
+                    const nextId = curr.next;
+                    const nextVal = nextId !== null ? g(nextId).val : null;
+
+                    steps.push({ type: 'has-child', currId, currVal: curr.val, childId, childVal, line: 2 });
+
+                    // Find tail of child list
+                    let tailId = childId;
+                    steps.push({ type: 'tail-start', tailId, tailVal: g(tailId).val, line: 3 });
+                    while (g(tailId).next !== null) {
+                        const oldTail = tailId;
+                        tailId = g(tailId).next;
+                        steps.push({ type: 'tail-scan', tailId, tailVal: g(tailId).val, prevId: oldTail, line: 4 });
+                    }
+                    steps.push({ type: 'tail-found', tailId, tailVal: g(tailId).val, line: 4 });
+
+                    // Splice 1: tail.next = curr.next
+                    steps.push({ type: 'splice-tail-next', tailId, tailVal: g(tailId).val, nextId, nextVal, line: 5 });
+                    g(tailId).next = nextId;
+
+                    // Splice 2: curr.next.prev = tail (if next exists)
+                    if (nextId !== null) {
+                        steps.push({ type: 'splice-next-prev', nextId, nextVal, tailId, tailVal: g(tailId).val, line: 6 });
+                        g(nextId).prev = tailId;
+                    } else {
+                        steps.push({ type: 'splice-next-prev-skip', line: 6 });
+                    }
+
+                    // Splice 3: curr.next = curr.child
+                    steps.push({ type: 'splice-curr-next', currId, currVal: curr.val, childId, childVal, line: 7 });
+                    curr.next = childId;
+
+                    // Splice 4: child.prev = curr
+                    steps.push({ type: 'splice-child-prev', childId, childVal, currId, currVal: curr.val, line: 8 });
+                    g(childId).prev = currId;
+
+                    // Clear child
+                    steps.push({ type: 'clear-child', currId, currVal: curr.val, line: 9 });
+                    curr.child = null;
+
+                    steps.push({ type: 'splice-done', currId, currVal: curr.val });
+                } else {
+                    steps.push({ type: 'no-child', id: currId, val: curr.val, line: 2 });
+                }
+
+                // Advance curr
+                const advanceId = curr.next;
+                steps.push({ type: 'advance', fromId: currId, fromVal: curr.val, toId: advanceId, toVal: advanceId !== null ? g(advanceId).val : null, line: 11 });
+                currId = advanceId;
+            }
+
+            steps.push({ type: 'done', line: 12 });
+        }
+
+        /* ── Apply actual mutations ────────────────────── */
+        function mutate(type, s) {
+            switch (type) {
+                case 'splice-tail-next':
+                    nodeMap[s.tailId].next = s.nextId !== null ? nodeMap[s.nextId] : null;
+                    break;
+                case 'splice-next-prev':
+                    nodeMap[s.nextId].prev = nodeMap[s.tailId];
+                    break;
+                case 'splice-curr-next':
+                    nodeMap[s.currId].next = nodeMap[s.childId];
+                    break;
+                case 'splice-child-prev':
+                    nodeMap[s.childId].prev = nodeMap[s.currId];
+                    break;
+                case 'clear-child':
+                    nodeMap[s.currId].child = null;
+                    break;
+            }
+        }
+
+        /* ── Render ────────────────────────────────────── */
+        function renderMultilevel() {
+            if (!data || !data.levels) { $('mlDisplay').innerHTML = '<span style="color:#555">— empty —</span>'; return; }
+            let html = '';
+            for (let lvl = 0; lvl < data.levels.length; lvl++) {
+                const level = data.levels[lvl];
+                if (!level.length) continue;
+                let indent = 0;
+                if (lvl > 0) { for (const p of data.levels[lvl - 1]) { if (p.child === level[0]) { indent = p.posInLevel; break; } } }
+                if (lvl > 0) {
+                    let c = '<div class="child-connector">';
+                    for (let s = 0; s < indent; s++) c += '<div class="ml-spacer"></div>';
+                    c += '<div class="ml-child-arrow">↓</div></div>';
+                    html += c;
+                }
+                html += '<div class="ml-level">';
+                for (let s = 0; s < indent; s++) html += '<div class="ml-spacer"></div>';
+                for (let i = 0; i < level.length; i++) {
+                    const node = level[i];
+                    let cls = 'ml-node';
+                    if (isDone) cls += ' done-nd';
+                    const ci = node.child ? '↓' : '';
+                    html += `<div class="${cls}">${node.val}<span class="nd-sub">${ci || ''}</span></div>`;
+                    if (i < level.length - 1) html += `<span class="ml-arrow${isDone ? ' done-a' : ''}">⇄</span>`;
+                    else html += `<span class="ml-arrow" style="opacity:.4">→∅</span>`;
+                }
+                html += '</div>';
+            }
+            $('mlDisplay').innerHTML = html;
+        }
+
+        function renderFlat() {
+            const order = buildFlatOrder();
+            if (order.length === 0 && phase === 'init') {
+                $('flatDisplay').innerHTML = '<span style="color:#555">— press Play or Step —</span>';
+                $('ptrLabels').innerHTML = '';
+                return;
+            }
+            let h = '', lblH = '';
+            for (let i = 0; i < order.length; i++) {
+                const nid = order[i];
+                const node = nodeMap[nid];
+                if (!node) continue;
+                const st = nodeStates[nid] || '';
+                let cls = 'fnode';
+                if (st) cls += ' ' + st;
+                if (isDone) cls = 'fnode done-nd';
+                h += `<div class="${cls}">${node.val}<span class="nd-sub">n${nid}</span></div>`;
+
+                const lbl = ptrLabelMap[nid] || '';
+                const lblCls = lbl.includes('curr') ? 'ptr-curr' : lbl.includes('tail') ? 'ptr-tail' : lbl.includes('child') ? 'ptr-child' : lbl.includes('next') ? 'ptr-next' : '';
+                lblH += `<div class="ptr-lbl ${lblCls}">${lbl}</div>`;
+
+                if (i < order.length - 1) {
+                    const arrKey = `${nid}-${order[i + 1]}`;
+                    const aCls = highlightArrows[arrKey] || '';
+                    h += `<span class="farrow ${aCls}${isDone ? ' done-a' : ''}">${isDone ? '⇄' : '⇄'}</span>`;
+                    lblH += '<div class="ptr-lbl-sp"></div>';
+                }
+            }
+            $('flatDisplay').innerHTML = h;
+            $('ptrLabels').innerHTML = lblH;
+        }
+
+        function renderPtrDiagram(html) {
+            $('ptrDiagram').innerHTML = html || '<span style="color:#555">— no operation yet —</span>';
+        }
+
+        function setAlgoLine(line) {
+            for (let i = 0; i <= 12; i++) {
+                const el = $('aL' + i);
+                if (el) el.classList.toggle('active', i === line);
+            }
+            activeAlgoLine = line;
+        }
+
+        function renderState() {
+            $('stPhase').textContent = phase;
+            $('stCurr').textContent = stCurr;
+            $('stChild').textContent = stChild;
+            $('stNext').textContent = stNext;
+            $('stTail').textContent = stTail;
+            const order = buildFlatOrder();
+            const currIdx = order.findIndex(id => nodeStates[id] === 'curr-node');
+            $('stRemain').textContent = currIdx >= 0 ? (order.length - currIdx) : (phase === 'done' ? '0' : '—');
+        }
+
+        function render() { renderMultilevel(); renderFlat(); renderState(); }
+
+        /* ── Execute step ──────────────────────────────── */
+        function doStep() {
+            if (isDone || stepIdx >= steps.length) { stopExec(); return; }
+            stepCount++;
+            const s = steps[stepIdx++];
+
+            // Clear transient visuals
+            for (const id in nodeStates) {
+                if (['splice-node', 'tail-scan', 'child-head', 'tail-found'].includes(nodeStates[id])) {
+                    nodeStates[id] = 'processed';
+                }
+            }
+            highlightArrows = {};
+            ptrLabelMap = {};
+
+            switch (s.type) {
+                case 'start':
+                    phase = 'flatten';
+                    addLog('━━ Iterative In-Place Flattening ━━', 'teal');
+                    $('statusInd').className = 'status-ind si-run';
+                    $('statusInd').textContent = 'Iterative In-Place Flattening...';
+                    break;
+
+                case 'init-curr':
+                    nodeStates[s.id] = 'curr-node';
+                    stCurr = `node(${s.val})`;
+                    ptrLabelMap[s.id] = '▲curr';
+                    addLog(`curr = head = node(${s.val})`, 'teal');
+                    setAlgoLine(s.line);
+                    break;
+
+                case 'check-loop':
+                    nodeStates[s.id] = 'curr-node';
+                    stCurr = `node(${s.val})`;
+                    ptrLabelMap[s.id] = '▲curr';
+                    const cn = nodeMap[s.id];
+                    stChild = cn.child ? `node(${cn.child.val})` : 'null';
+                    stNext = cn.next ? `node(${cn.next.val})` : 'null';
+                    stTail = '—';
+                    addLog(`while(curr): curr = node(${s.val})`, 'info');
+                    setAlgoLine(s.line);
+                    break;
+
+                case 'has-child':
+                    nodeStates[s.currId] = 'curr-node';
+                    nodeStates[s.childId] = 'child-head';
+                    ptrLabelMap[s.currId] = '▲curr';
+                    ptrLabelMap[s.childId] = '▲child';
+                    stChild = `node(${s.childVal})`;
+                    addLog(`✨ node(${s.currVal}) HAS child → node(${s.childVal})!`, 'orange');
+                    setAlgoLine(s.line);
+                    renderPtrDiagram(
+                        `<div class="ptr-line"><span class="plbl">curr</span> = <span class="pval">node(${s.currVal})</span></div>` +
+                        `<div class="ptr-line"><span class="plbl">curr.child</span> <span class="parr">→</span> <span class="pval">node(${s.childVal})</span></div>` +
+                        `<div class="ptr-line"><span class="plbl">Goal:</span> <span class="pval">find tail of child list, then splice</span></div>`
+                    );
+                    break;
+
+                case 'no-child':
+                    nodeStates[s.id] = 'curr-node';
+                    ptrLabelMap[s.id] = '▲curr';
+                    stChild = 'null';
+                    addLog(`  node(${s.val}): no child, advance`, 'info');
+                    setAlgoLine(s.line);
+                    renderPtrDiagram(`<div class="ptr-line"><span class="plbl">curr</span> = <span class="pval">node(${s.val})</span> — <span class="pval">no child, skip</span></div>`);
+                    break;
+
+                case 'tail-start':
+                    nodeStates[s.tailId] = 'tail-scan';
+                    stTail = `node(${s.tailVal})`;
+                    ptrLabelMap[s.tailId] = '▲tail';
+                    addLog(`  🔍 Find tail: start at node(${s.tailVal})`, 'warning');
+                    setAlgoLine(s.line);
+                    break;
+
+                case 'tail-scan':
+                    nodeStates[s.prevId] = 'processed';
+                    nodeStates[s.tailId] = 'tail-scan';
+                    stTail = `node(${s.tailVal})`;
+                    ptrLabelMap[s.tailId] = '▲tail';
+                    addLog(`  🔍 tail.next exists → tail = node(${s.tailVal})`, 'warning');
+                    setAlgoLine(s.line);
+                    break;
+
+                case 'tail-found':
+                    nodeStates[s.tailId] = 'tail-found';
+                    stTail = `node(${s.tailVal})`;
+                    ptrLabelMap[s.tailId] = '★TAIL';
+                    addLog(`  ★ Tail found: node(${s.tailVal}) (tail.next = null)`, 'orange');
+                    setAlgoLine(s.line);
+                    renderPtrDiagram(
+                        `<div class="ptr-line"><span class="plbl">tail</span> = <span class="pval">node(${s.tailVal})</span> ✓</div>` +
+                        `<div class="ptr-line"><span class="pval">Now splice: connect tail → next, curr → child</span></div>`
+                    );
+                    break;
+
+                case 'splice-tail-next':
+                    mutate('splice-tail-next', s);
+                    nodeStates[s.tailId] = 'splice-node';
+                    if (s.nextId !== null) { nodeStates[s.nextId] = 'splice-node'; highlightArrows[`${s.tailId}-${s.nextId}`] = 'new-link'; }
+                    ptrLabelMap[s.tailId] = '★TAIL';
+                    addLog(`  🔗 tail.next = ${s.nextVal !== null ? 'node(' + s.nextVal + ')' : 'null'}`, 'error');
+                    setAlgoLine(s.line);
+                    renderPtrDiagram(
+                        `<div class="ptr-line"><span class="plbl">SPLICE:</span> tail.next = ${s.nextVal !== null ? 'node(' + s.nextVal + ')' : '<span class="pnull">null</span>'}</div>` +
+                        `<div class="ptr-line"><span class="pval">node(${s.tailVal})</span> <span class="parr">.next →</span> <span class="pval">${s.nextVal !== null ? 'node(' + s.nextVal + ')' : 'null'}</span></div>`
+                    );
+                    break;
+
+                case 'splice-next-prev':
+                    mutate('splice-next-prev', s);
+                    nodeStates[s.nextId] = 'splice-node';
+                    nodeStates[s.tailId] = 'splice-node';
+                    addLog(`  🔗 node(${s.nextVal}).prev = node(${s.tailVal})`, 'error');
+                    setAlgoLine(s.line);
+                    renderPtrDiagram(
+                        `<div class="ptr-line"><span class="plbl">SPLICE:</span> next.prev = tail</div>` +
+                        `<div class="ptr-line"><span class="pval">node(${s.nextVal})</span> <span class="parr">.prev →</span> <span class="pval">node(${s.tailVal})</span></div>`
+                    );
+                    break;
+
+                case 'splice-next-prev-skip':
+                    addLog(`  ⏭ curr.next is null, skip next.prev assignment`, 'info');
+                    setAlgoLine(s.line);
+                    break;
+
+                case 'splice-curr-next':
+                    mutate('splice-curr-next', s);
+                    nodeStates[s.currId] = 'splice-node';
+                    nodeStates[s.childId] = 'splice-node';
+                    highlightArrows[`${s.currId}-${s.childId}`] = 'new-link';
+                    ptrLabelMap[s.currId] = '▲curr';
+                    addLog(`  🔗 curr.next = child → node(${s.currVal}).next = node(${s.childVal})`, 'error');
+                    setAlgoLine(s.line);
+                    renderPtrDiagram(
+                        `<div class="ptr-line"><span class="plbl">SPLICE:</span> curr.next = curr.child</div>` +
+                        `<div class="ptr-line"><span class="pval">node(${s.currVal})</span> <span class="parr">.next →</span> <span class="pval">node(${s.childVal})</span></div>`
+                    );
+                    break;
+
+                case 'splice-child-prev':
+                    mutate('splice-child-prev', s);
+                    addLog(`  🔗 child.prev = curr → node(${s.childVal}).prev = node(${s.currVal})`, 'error');
+                    setAlgoLine(s.line);
+                    renderPtrDiagram(
+                        `<div class="ptr-line"><span class="plbl">SPLICE:</span> child.prev = curr</div>` +
+                        `<div class="ptr-line"><span class="pval">node(${s.childVal})</span> <span class="parr">.prev →</span> <span class="pval">node(${s.currVal})</span></div>`
+                    );
+                    break;
+
+                case 'clear-child':
+                    mutate('clear-child', s);
+                    addLog(`  🚫 node(${s.currVal}).child = null`, 'warning');
+                    setAlgoLine(s.line);
+                    renderPtrDiagram(
+                        `<div class="ptr-line"><span class="plbl">CLEAR:</span> curr.child = <span class="pnull">null</span></div>`
+                    );
+                    break;
+
+                case 'splice-done':
+                    nodeStates[s.currId] = 'curr-node';
+                    ptrLabelMap[s.currId] = '▲curr';
+                    addLog(`  ✅ Splice complete! Child list now inline after node(${s.currVal})`, 'success');
+                    renderPtrDiagram(
+                        `<div class="ptr-line"><span class="plbl">✅ SPLICE COMPLETE</span></div>` +
+                        `<div class="ptr-line"><span class="pval">..→ node(${s.currVal}) ⇄ [child list] ⇄ [old next] →..</span></div>` +
+                        `<div class="ptr-line"><span class="plbl">Key:</span> <span class="pval">deeper children ahead will be handled naturally!</span></div>`
+                    );
+                    break;
+
+                case 'advance':
+                    if (s.fromId !== null) nodeStates[s.fromId] = 'processed';
+                    if (s.toId !== null) {
+                        nodeStates[s.toId] = 'curr-node';
+                        stCurr = `node(${s.toVal})`;
+                        ptrLabelMap[s.toId] = '▲curr';
+                        addLog(`  → curr = curr.next = node(${s.toVal})`, 'info');
+                    } else {
+                        stCurr = 'null';
+                        addLog(`  → curr = curr.next = null (end!)`, 'teal');
+                    }
+                    setAlgoLine(s.line);
+                    renderPtrDiagram(
+                        s.toId !== null ?
+                            `<div class="ptr-line"><span class="plbl">ADVANCE:</span> curr = curr.next = <span class="pval">node(${s.toVal})</span></div>` :
+                            `<div class="ptr-line"><span class="plbl">ADVANCE:</span> curr = <span class="pnull">null</span> — loop ends</div>`
+                    );
+                    break;
+
+                case 'done': {
+                    isDone = true; phase = 'done';
+                    const result = buildFlatOrder().map(id => nodeMap[id].val).join(' ⇄ ');
+                    addLog(`🎉 Done! Result: [${result}]`, 'success');
+                    $('statusInd').className = 'status-ind si-done';
+                    $('statusInd').textContent = `✅ Done! [${result}]`;
+                    setAlgoLine(s.line);
+                    renderPtrDiagram(
+                        `<div class="ptr-line"><span class="plbl">🎉 RESULT:</span></div>` +
+                        `<div class="ptr-line"><span class="pval">${result}</span></div>` +
+                        `<div class="ptr-line"><span class="plbl">Complexity:</span> <span class="pval">O(n) time, O(1) space ✓</span></div>`
+                    );
+                    stopExec();
+                    break;
+                }
+            }
+
+            render();
+        }
+
+        /* ── Playback ──────────────────────────────────── */
+        function play() { if (isRunning || isDone) return; isRunning = true; $('playBtn').disabled = true; $('pauseBtn').disabled = false; $('stepBtn').disabled = true; runLoop() }
+        function pause() { isRunning = false; $('playBtn').disabled = false; $('pauseBtn').disabled = true; $('stepBtn').disabled = false }
+        function stopExec() { isRunning = false; $('playBtn').disabled = true; $('pauseBtn').disabled = true; $('stepBtn').disabled = true }
+        function runLoop() { if (!isRunning) return; doStep(); if (isRunning && !isDone) setTimeout(runLoop, 500 / speed) }
+
+        /* ── Init ──────────────────────────────────────── */
+        function init() {
+            MLNode._id = 0;
+            data = parseInput(inputStr);
+            nodeMap = {}; nodeStates = {}; ptrLabelMap = {}; highlightArrows = {};
+            if (data) for (const n of data.allNodes) nodeMap[n.id] = n;
+            phase = 'init'; stepIdx = 0; stepCount = 0; isDone = false; isRunning = false;
+            stCurr = '—'; stChild = '—'; stNext = '—'; stTail = '—'; stRemain = '—';
+            activeAlgoLine = -1; setAlgoLine(-1);
+            buildSteps();
+            $('statusInd').className = 'status-ind si-neutral';
+            $('statusInd').textContent = 'Ready — press Play or Step';
+            $('playBtn').disabled = false; $('pauseBtn').disabled = true; $('stepBtn').disabled = false;
+            clearLog(); addLog('Walk list, splice children inline. O(1) space.', 'teal');
+            renderPtrDiagram(null);
+            render();
+        }
+
+        /* ── Events ────────────────────────────────────── */
+        $('playBtn').addEventListener('click', play);
+        $('pauseBtn').addEventListener('click', pause);
+        $('stepBtn').addEventListener('click', () => { if (!isDone) doStep() });
+        $('resetBtn').addEventListener('click', () => { isRunning = false; init() });
+        $('speedSlider').addEventListener('input', e => { speed = parseInt(e.target.value); $('speedValue').textContent = speed + 'x' });
+        $('applyBtn').addEventListener('click', () => {
+            const v = $('listInput').value.trim();
+            if (!v) { alert('Please enter a serialized list.'); return; }
+            inputStr = v; isRunning = false; init();
+        });
+
+        init();
+    </script>
+</body>
+
+</html>

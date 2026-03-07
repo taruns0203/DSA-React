@@ -1,0 +1,489 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LCIS - Brute Force (Try Every Start)</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            min-height: 100vh;
+            padding: 20px;
+            color: #333;
+        }
+        .container {
+            max-width: 1100px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            overflow: hidden;
+        }
+        header {
+            background: linear-gradient(135deg, #FF6B6B 0%, #EE5253 100%);
+            color: white;
+            padding: 25px;
+            text-align: center;
+        }
+        h1 { font-size: 1.5em; margin-bottom: 8px; }
+        .subtitle { font-size: 1em; opacity: 0.9; }
+        .complexity-badge {
+            display: inline-block;
+            background: rgba(255,255,255,0.2);
+            padding: 6px 14px;
+            border-radius: 15px;
+            margin-top: 8px;
+            font-size: 0.85em;
+        }
+        .main-content {
+            display: grid;
+            grid-template-columns: 1fr 280px;
+            gap: 20px;
+            padding: 20px;
+        }
+        .card {
+            background: #f8f9fa;
+            border-radius: 12px;
+            padding: 16px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            margin-bottom: 16px;
+        }
+        .card-title {
+            font-size: 0.95em;
+            font-weight: 600;
+            margin-bottom: 12px;
+            color: #FF6B6B;
+        }
+        
+        /* Controls */
+        .controls { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+        button {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 8px;
+            font-size: 0.85em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        button:hover { transform: translateY(-2px); }
+        button:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+        .btn-primary { background: linear-gradient(135deg, #FF6B6B 0%, #EE5253 100%); color: white; }
+        .btn-success { background: linear-gradient(135deg, #28a745 0%, #20c997 100%); color: white; }
+        .btn-warning { background: linear-gradient(135deg, #ffc107 0%, #ff9800 100%); color: white; }
+        .btn-secondary { background: #6c757d; color: white; }
+        .speed-control { display: flex; align-items: center; gap: 6px; flex: 1; min-width: 140px; }
+        .speed-control input[type="range"] { flex: 1; height: 5px; accent-color: #FF6B6B; }
+
+        /* Array Viz */
+        .array-container {
+            display: flex;
+            align-items: flex-end;
+            justify-content: center;
+            gap: 4px;
+            height: 200px;
+            padding: 20px 10px;
+            background: #fff;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            position: relative;
+        }
+        
+        .array-bar {
+            width: 45px;
+            background: #dfe6e9;
+            border-radius: 4px 4px 0 0;
+            position: relative;
+            transition: all 0.3s ease;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            padding-top: 5px;
+            color: #636e72;
+            font-weight: bold;
+            font-size: 0.9em;
+        }
+        
+        /* Bar States */
+        .bar-active { background: #54a0ff; color: white; } /* Being checked */
+        .bar-start { border: 3px solid #ff9f43; z-index: 5; } /* Start of current scan */
+        .bar-fail { background: #ff6b6b; color: white; } /* Failure point */
+        .bar-success { background: #1dd1a1; color: white; } /* Part of valid sequence */
+        
+        .idx-label {
+            position: absolute;
+            bottom: -25px;
+            font-size: 0.7em;
+            color: #888;
+            width: 100%;
+            text-align: center;
+        }
+        
+        .ptr {
+            position: absolute;
+            bottom: -45px;
+            font-size: 0.8em;
+            font-weight: 700;
+            text-align: center;
+            width: 45px;
+            transition: left 0.3s ease;
+        }
+        .ptr-i { color: #ff9f43; bottom: -45px; }
+        .ptr-i::before { content: 'i'; display: block; }
+        
+        .ptr-j { color: #54a0ff; bottom: -25px; } /* Closer to bar */
+        .ptr-j::before { content: 'j'; display: block; }
+        .ptr-j::after { content: '↑'; display: block; }
+
+        /* State & Log */
+        .state-display { background: white; border-radius: 8px; padding: 10px; font-family: 'Courier New', monospace; font-size: 0.85em; }
+        .state-row { display: flex; justify-content: space-between; padding: 4px 0; border-bottom: 1px solid #eee; }
+        .highlight-val { color: #FF6B6B; font-weight: bold; }
+        
+        .log-container { 
+            background: white; border-radius: 8px; padding: 10px; 
+            max-height: 200px; overflow-y: auto; 
+            font-family: 'Courier New', monospace; font-size: 0.65em; 
+        }
+        .log-entry { padding: 3px 6px; margin: 2px 0; border-radius: 4px; border-left: 3px solid #ccc; background: #f9f9f9; }
+        .log-entry.start { border-left-color: #ff9f43; background: #fff3e0; }
+        .log-entry.check { border-left-color: #54a0ff; background: #e3f2fd; }
+        .log-entry.fail { border-left-color: #ff6b6b; background: #ffebee; }
+        .log-entry.success { border-left-color: #1dd1a1; background: #e0f2f1; }
+        
+        .max-len-display {
+            text-align: center;
+            padding: 10px;
+            background: #2d3436;
+            color: white;
+            border-radius: 8px;
+            margin-top: 10px;
+            font-size: 1.2em;
+            font-weight: bold;
+        }
+        
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Longest Continuous Increasing Subsequence</h1>
+            <div class="subtitle">Brute Force: Try Every Start Position</div>
+            <div class="complexity-badge">Time: O(N²) | Space: O(1)</div>
+        </header>
+
+        <div class="main-content">
+            <div class="left-panel">
+                <div class="card">
+                    <div class="card-title">⚙️ Controls</div>
+                    <div class="controls">
+                        <button class="btn-primary" id="playBtn">▶️ Play</button>
+                        <button class="btn-warning" id="pauseBtn" disabled>⏸️ Pause</button>
+                        <button class="btn-success" id="stepBtn">⏭️ Step</button>
+                        <button class="btn-secondary" id="resetBtn">🔄 Reset</button>
+                        <div class="speed-control">
+                            <label>Speed:</label>
+                            <input type="range" id="speedSlider" min="1" max="10" value="5">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-title">Array Visualization</div>
+                    <div class="array-container" id="arrayContainer">
+                        <!-- Bars populated by JS -->
+                    </div>
+                </div>
+                
+                <div class="card">
+                    <div class="card-title">ℹ️ Logic</div>
+                    <div style="font-size: 0.9em; color: #555;">
+                        1. Iterate <code>i</code> from 0 to N-1 (Start Position).<br>
+                        2. From <code>i</code>, extend <code>j</code> rightward.<br>
+                        3. If <code>nums[j] > nums[j-1]</code>, continue.<br>
+                        4. Else, stop and record length.
+                    </div>
+                </div>
+            </div>
+
+            <div class="right-panel">
+                <div class="card">
+                    <div class="card-title">📊 State</div>
+                    <div class="state-display">
+                        <div class="state-row"><span>i (Start):</span><span id="iVal">-</span></div>
+                        <div class="state-row"><span>j (Current):</span><span id="jVal">-</span></div>
+                        <div class="state-row"><span>Comparison:</span><span id="compVal">-</span></div>
+                        <div class="state-row"><span>Current Len:</span><span id="curLenVal">-</span></div>
+                    </div>
+                    <div class="max-len-display">
+                        Max Length: <span id="maxLenVal">0</span>
+                    </div>
+                </div>
+
+                <div class="card" style="flex-grow: 1; display: flex; flex-direction: column;">
+                    <div class="card-title">📝 Execution Log</div>
+                    <div class="log-container" id="logContainer"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Data
+        const nums = [1, 3, 5, 4, 7];
+        let n = nums.length;
+        
+        let i = 0;
+        let j = 0;
+        let startLen = 0;
+        let maxLen = 0;
+        
+        // State Machine
+        // phases: 'init', 'start_i', 'check_j', 'update_max', 'break', 'next_i', 'done'
+        let phase = 'init';
+        
+        let isRunning = false;
+        let timer = null;
+        let speed = 5;
+        let stepCount = 0;
+        
+        const maxVal = Math.max(...nums);
+
+        function init() {
+            i = 0;
+            j = 0;
+            maxLen = 0;
+            phase = 'init';
+            stepCount = 0;
+            
+            clearLog();
+            addLog(`Array: [${nums.join(', ')}]`, "info");
+            
+            render();
+            updateControls();
+        }
+
+        function createBar(val, idx) {
+            const el = document.createElement('div');
+            let cls = 'array-bar';
+            
+            // Visual logic based on phase/indices
+            if (phase !== 'init' && phase !== 'done') {
+                if (idx === i) cls += ' bar-start';
+                
+                // Active range [i, j]
+                // Actually j is the one being CHECKED against j-1.
+                // Or if phase is update_max, we confirmed up to j-1?
+                
+                // Let's highlight the current sequence being built
+                // If checking j against j-1.
+                // If success, range [i..j] is green.
+                // If fail, j is red.
+                
+                if (phase === 'check_j') {
+                    if (idx >= i && idx < j) cls += ' bar-success';
+                    if (idx === j) cls += ' bar-active';
+                }
+                else if (phase === 'update_max' || phase === 'break') {
+                    // Result of check
+                    // If break, j failed.
+                    // If update_max (end of i loop for j), all green up to j-1?
+                    if (idx >= i && idx < j) cls += ' bar-success';
+                    if (phase === 'break' && idx === j) cls += ' bar-fail';
+                }
+            }
+            
+            el.className = cls;
+            el.textContent = val;
+            
+            // Set Height
+            const hPercent = (val / maxVal) * 80 + 10;
+            el.style.height = `${hPercent}%`;
+            
+            const lbl = document.createElement('div');
+            lbl.className = 'idx-label';
+            lbl.textContent = idx;
+            el.appendChild(lbl);
+            
+            return el;
+        }
+
+        function render() {
+            const container = document.getElementById('arrayContainer');
+            container.innerHTML = '';
+            
+            nums.forEach((val, idx) => {
+                container.appendChild(createBar(val, idx));
+            });
+            
+            // Pointers
+            if (phase !== 'done' && phase !== 'init') {
+                const ptrI = document.createElement('div');
+                ptrI.className = 'ptr ptr-i';
+                ptrI.style.left = `${(i * 49)}px`; // 45px + 4px gap
+                container.appendChild(ptrI);
+                
+                if (phase === 'check_j' || phase === 'update_max' || phase === 'break') {
+                    const ptrJ = document.createElement('div');
+                    ptrJ.className = 'ptr ptr-j';
+                    ptrJ.style.left = `${(j * 49)}px`;
+                    container.appendChild(ptrJ);
+                }
+            }
+
+            // State Updates
+            document.getElementById('iVal').textContent = phase === 'done' ? '-' : i;
+            document.getElementById('jVal').textContent = (phase === 'check_j' || phase === 'break') ? j : '-';
+            
+            let compTxt = '-';
+            if (phase === 'check_j') compTxt = `${nums[j]} > ${nums[j-1]}?`;
+            else if (phase === 'break') compTxt = `${nums[j]} <= ${nums[j-1]} (Fail)`;
+            document.getElementById('compVal').textContent = compTxt;
+            
+            // Current length calculation
+            // If in check_j, length is j - i + 1 if successful?
+            // Actually, we count valid length.
+            // If checking j, current valid sequence is i to j-1. Length j-i.
+            
+            let curLen = '-';
+            if (phase !== 'init' && phase !== 'done' && phase !== 'next_i') {
+                // If checking j, valid length so far is j-i?
+                // Example: i=0, j=1. Valid so far [0]. check 1.
+                // If j check passes, len becomes j-i+1.
+                curLen = (phase === 'break') ? (j - i) : (j - i + 1);
+                // logic: loop j from i+1.
+                // initial length 1.
+            }
+            document.getElementById('curLenVal').textContent = curLen;
+            document.getElementById('maxLenVal').textContent = maxLen;
+        }
+
+        function step() {
+            stepCount++;
+            
+            if (phase === 'init') {
+                phase = 'start_i';
+                i = 0;
+                addLog(`Start scanning from i=0`, "info");
+            }
+            else if (phase === 'start_i') {
+                if (i < n) {
+                    j = i + 1;
+                    if (j < n) {
+                        phase = 'check_j';
+                        addLog(`i=${i}. Start checking j=${j}`, "start");
+                    } else {
+                        // Single element at end
+                        const len = 1;
+                        addLog(`Only one element at i=${i}. Len=1`, "success");
+                        if (len > maxLen) maxLen = len;
+                        phase = 'next_i';
+                    }
+                } else {
+                    phase = 'done';
+                    addLog(`Done. Final Max Length: ${maxLen}`, "success");
+                    stop();
+                }
+            }
+            else if (phase === 'check_j') {
+                if (nums[j] > nums[j-1]) {
+                    addLog(`${nums[j]} > ${nums[j-1]}. Continue.`, "check");
+                    j++;
+                    if (j >= n) {
+                        phase = 'update_max';
+                    }
+                } else {
+                    addLog(`${nums[j]} <= ${nums[j-1]}. Sequence broken.`, "fail");
+                    phase = 'break';
+                }
+            }
+            else if (phase === 'update_max') {
+                const len = j - i;
+                addLog(`End of array. Valid length: ${len}`, "success");
+                if (len > maxLen) {
+                    maxLen = len;
+                    addLog(`New Max Length: ${maxLen}`, "success");
+                }
+                phase = 'next_i';
+            }
+            else if (phase === 'break') {
+                const len = j - i;
+                addLog(`Subarray ended. Valid length: ${len}`, "info");
+                if (len > maxLen) {
+                    maxLen = len;
+                    addLog(`New Max Length: ${maxLen}`, "success");
+                }
+                phase = 'next_i';
+            }
+            else if (phase === 'next_i') {
+                i++;
+                if (i < n) {
+                    phase = 'start_i';
+                    addLog(`Move start to i=${i}`, "info");
+                } else {
+                    phase = 'done';
+                    addLog(`Done. Final Max Length: ${maxLen}`, "success");
+                    stop();
+                }
+            }
+            
+            render();
+        }
+
+        function addLog(msg, type = 'info') {
+            const log = document.getElementById('logContainer');
+            log.innerHTML += `<div class="log-entry ${type}">[${stepCount}] ${msg}</div>`;
+            log.scrollTop = log.scrollHeight;
+        }
+
+        function clearLog() { document.getElementById('logContainer').innerHTML = ''; }
+
+        function play() {
+            if (isRunning) return;
+            isRunning = true;
+            updateControls();
+            runLoop();
+        }
+
+        function runLoop() {
+            if (!isRunning) return;
+            step();
+            if (phase !== 'done') {
+                const delay = 1000 - (speed * 90);
+                timer = setTimeout(runLoop, Math.max(50, delay));
+            }
+        }
+
+        function stop() {
+            isRunning = false;
+            if (timer) clearTimeout(timer);
+            updateControls();
+        }
+
+        function reset() {
+            stop();
+            init();
+        }
+
+        function updateControls() {
+            document.getElementById('playBtn').disabled = isRunning || phase === 'done';
+            document.getElementById('pauseBtn').disabled = !isRunning;
+            document.getElementById('stepBtn').disabled = isRunning || phase === 'done';
+            document.getElementById('resetBtn').disabled = isRunning;
+        }
+
+        // Listeners
+        document.getElementById('playBtn').addEventListener('click', play);
+        document.getElementById('pauseBtn').addEventListener('click', stop);
+        document.getElementById('stepBtn').addEventListener('click', step);
+        document.getElementById('resetBtn').addEventListener('click', reset);
+        document.getElementById('speedSlider').addEventListener('input', (e) => speed = parseInt(e.target.value));
+
+        // Start
+        init();
+
+    </script>
+</body>
+</html>

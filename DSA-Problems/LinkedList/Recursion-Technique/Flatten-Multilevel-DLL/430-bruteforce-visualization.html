@@ -1,0 +1,1182 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>430 - Brute-Force: Collect & Rebuild (Flatten Multilevel DLL)</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #0f0c29 0%, #302b63 50%, #24243e 100%);
+            min-height: 100vh;
+            padding: 18px;
+            color: #e0e0e0
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: rgba(25, 25, 50, .95);
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, .5), 0 0 40px rgba(192, 57, 43, .07);
+            overflow: hidden;
+            border: 1px solid rgba(255, 255, 255, .06)
+        }
+
+        header {
+            background: linear-gradient(135deg, #c0392b, #e74c3c);
+            color: #fff;
+            padding: 22px;
+            text-align: center
+        }
+
+        h1 {
+            font-size: 1.15em;
+            margin-bottom: 5px
+        }
+
+        .subtitle {
+            font-size: .84em;
+            opacity: .92
+        }
+
+        .badge {
+            display: inline-block;
+            background: rgba(255, 255, 255, .2);
+            padding: 5px 14px;
+            border-radius: 15px;
+            margin-top: 7px;
+            font-size: .78em
+        }
+
+        .main-content {
+            display: grid;
+            grid-template-columns: 1fr 280px;
+            gap: 16px;
+            padding: 18px
+        }
+
+        .card {
+            background: rgba(40, 40, 75, .8);
+            border-radius: 14px;
+            padding: 15px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, .2);
+            margin-bottom: 14px;
+            border: 1px solid rgba(255, 255, 255, .05)
+        }
+
+        .card-title {
+            font-size: .88em;
+            font-weight: 600;
+            margin-bottom: 10px;
+            color: #e74c3c
+        }
+
+        button {
+            padding: 7px 14px;
+            border: none;
+            border-radius: 8px;
+            font-size: .82em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all .3s
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, .3)
+        }
+
+        button:disabled {
+            opacity: .4;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #c0392b, #e74c3c);
+            color: #fff
+        }
+
+        .btn-success {
+            background: linear-gradient(135deg, #27ae60, #2ecc71);
+            color: #fff
+        }
+
+        .btn-warning {
+            background: linear-gradient(135deg, #f39c12, #e67e22);
+            color: #fff
+        }
+
+        .btn-secondary {
+            background: rgba(100, 100, 140, .7);
+            color: #fff
+        }
+
+        .btn-info {
+            background: linear-gradient(135deg, #3498db, #2980b9);
+            color: #fff
+        }
+
+        .controls {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            align-items: center
+        }
+
+        .speed-control {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            flex: 1;
+            min-width: 140px
+        }
+
+        .speed-control label {
+            font-size: .8em;
+            color: #aaa
+        }
+
+        .speed-control input[type="range"] {
+            flex: 1;
+            height: 5px;
+            accent-color: #e74c3c
+        }
+
+        .speed-control span {
+            font-size: .8em;
+            color: #e74c3c;
+            min-width: 24px
+        }
+
+        .input-section {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+            flex-wrap: wrap
+        }
+
+        .input-section input,
+        .input-section textarea {
+            padding: 7px 10px;
+            border-radius: 8px;
+            border: 1px solid rgba(255, 255, 255, .15);
+            background: rgba(20, 20, 45, .8);
+            color: #e0e0e0;
+            font-size: .82em;
+            font-family: 'Courier New', monospace;
+        }
+
+        .input-section input:focus,
+        .input-section textarea:focus {
+            outline: none;
+            border-color: #e74c3c
+        }
+
+        .input-section label {
+            font-size: .82em;
+            color: #aaa
+        }
+
+        .input-hint {
+            font-size: .68em;
+            color: #777;
+            margin-top: 5px;
+            line-height: 1.4
+        }
+
+        /* Multilevel linked list display */
+        .ml-container {
+            padding: 12px;
+            background: rgba(20, 20, 50, .4);
+            border-radius: 10px;
+            overflow-x: auto;
+            min-height: 80px;
+        }
+
+        .ml-level {
+            display: flex;
+            align-items: center;
+            margin-bottom: 4px;
+            min-height: 50px;
+            position: relative;
+        }
+
+        .ml-spacer {
+            width: 58px;
+            min-width: 58px;
+            height: 44px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .ml-node {
+            width: 44px;
+            min-width: 44px;
+            height: 44px;
+            border-radius: 10px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 1.05em;
+            border: 2.5px solid rgba(150, 150, 200, .12);
+            background: rgba(60, 60, 100, .12);
+            font-family: 'Courier New', monospace;
+            color: #888;
+            transition: all .35s;
+            position: relative;
+        }
+
+        .ml-node .nd-sub {
+            font-size: .36em;
+            color: #555;
+            margin-top: 1px;
+        }
+
+        .ml-arrow {
+            color: #555;
+            font-size: .72em;
+            margin: 0 2px;
+            min-width: 14px;
+            text-align: center;
+        }
+
+        .ml-child-arrow {
+            width: 44px;
+            min-width: 44px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: .72em;
+            color: #555;
+            height: 18px;
+        }
+
+        .child-connector {
+            display: flex;
+            align-items: center;
+            min-height: 18px;
+        }
+
+        .ml-node.visiting {
+            border-color: #f1c40f;
+            background: rgba(241, 196, 15, .12);
+            color: #f1c40f;
+            box-shadow: 0 0 12px rgba(241, 196, 15, .2);
+            transform: scale(1.08);
+        }
+
+        .ml-node.visited {
+            border-color: #3498db;
+            background: rgba(52, 152, 219, .08);
+            color: #3498db;
+        }
+
+        .ml-node.rebuilding {
+            border-color: #2ecc71;
+            background: rgba(46, 204, 113, .12);
+            color: #2ecc71;
+            box-shadow: 0 0 10px rgba(46, 204, 113, .15);
+        }
+
+        .ml-node.done-nd {
+            border-color: #2ecc71;
+            background: rgba(46, 204, 113, .06);
+            color: #2ecc71;
+        }
+
+        .ml-arrow.done-a {
+            color: #2ecc71
+        }
+
+        /* Result list */
+        .result-row {
+            display: flex;
+            gap: 0;
+            padding: 10px;
+            background: rgba(20, 20, 50, .4);
+            border-radius: 10px;
+            min-height: 56px;
+            align-items: center;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .res-node {
+            width: 44px;
+            height: 44px;
+            border-radius: 10px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 1.05em;
+            border: 2.5px solid rgba(150, 150, 200, .08);
+            background: rgba(60, 60, 100, .06);
+            font-family: 'Courier New', monospace;
+            color: #444;
+            transition: all .35s;
+        }
+
+        .res-node.placed {
+            border-color: #2ecc71;
+            background: rgba(46, 204, 113, .08);
+            color: #2ecc71;
+        }
+
+        .res-node.placing {
+            border-color: #f39c12;
+            background: rgba(243, 156, 18, .12);
+            color: #f39c12;
+            box-shadow: 0 0 10px rgba(243, 156, 18, .2);
+            transform: scale(1.08);
+        }
+
+        .res-arrow {
+            color: #444;
+            font-size: .72em;
+            margin: 0 1px;
+        }
+
+        .res-arrow.placed {
+            color: #2ecc71
+        }
+
+        /* Values array */
+        .arr-row {
+            display: flex;
+            gap: 3px;
+            padding: 10px;
+            background: rgba(20, 20, 50, .4);
+            border-radius: 10px;
+            min-height: 50px;
+            align-items: center;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .ac {
+            width: 42px;
+            height: 42px;
+            border-radius: 8px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: .95em;
+            border: 2px solid rgba(150, 150, 200, .1);
+            background: rgba(60, 60, 100, .1);
+            font-family: 'Courier New', monospace;
+            color: #666;
+            transition: all .35s;
+        }
+
+        .ac-idx {
+            font-size: .38em;
+            color: #555;
+            margin-top: 1px
+        }
+
+        .ac.filled {
+            border-color: #f1c40f;
+            background: rgba(241, 196, 15, .06);
+            color: #f1c40f;
+        }
+
+        .ac.adding {
+            border-color: #f1c40f;
+            background: rgba(241, 196, 15, .15);
+            color: #f1c40f;
+            box-shadow: 0 0 12px rgba(241, 196, 15, .2);
+            transform: scale(1.1);
+        }
+
+        .ac.reading {
+            border-color: #2ecc71;
+            background: rgba(46, 204, 113, .12);
+            color: #2ecc71;
+            box-shadow: 0 0 10px rgba(46, 204, 113, .15);
+        }
+
+        /* Call stack */
+        .stack-container {
+            padding: 8px;
+            background: rgba(20, 20, 50, .4);
+            border-radius: 8px;
+            min-height: 40px;
+        }
+
+        .stack-frame {
+            padding: 5px 8px;
+            margin: 2px 0;
+            border-radius: 5px;
+            font-family: 'Courier New', monospace;
+            font-size: .7em;
+            border-left: 3px solid #9b59b6;
+            background: rgba(155, 89, 182, .08);
+            color: #bb6bd9;
+        }
+
+        .stack-frame.active {
+            border-left-color: #f1c40f;
+            background: rgba(241, 196, 15, .08);
+            color: #f1c40f;
+        }
+
+        .status-ind {
+            text-align: center;
+            padding: 11px;
+            border-radius: 10px;
+            font-weight: 700;
+            font-size: .85em;
+            transition: all .3s;
+        }
+
+        .si-neutral {
+            background: rgba(100, 100, 140, .12);
+            color: #888
+        }
+
+        .si-run {
+            background: rgba(231, 76, 60, .06);
+            color: #e74c3c;
+            border: 1px solid rgba(231, 76, 60, .12)
+        }
+
+        .si-done {
+            background: rgba(46, 204, 113, .12);
+            color: #2ecc71;
+            border: 1px solid rgba(46, 204, 113, .25)
+        }
+
+        .state-display {
+            background: rgba(20, 20, 50, .5);
+            border-radius: 8px;
+            padding: 10px;
+            font-family: 'Courier New', monospace;
+            font-size: .68em;
+        }
+
+        .state-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 4px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, .05);
+        }
+
+        .state-row:last-child {
+            border-bottom: none
+        }
+
+        .state-label {
+            font-weight: 600;
+            color: #e74c3c
+        }
+
+        .state-val {
+            color: #ccc;
+            text-align: right;
+            max-width: 155px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .log-container {
+            background: rgba(20, 20, 50, .5);
+            border-radius: 8px;
+            padding: 10px;
+            max-height: 260px;
+            overflow-y: auto;
+            font-family: 'Courier New', monospace;
+            font-size: .54em;
+        }
+
+        .log-entry {
+            padding: 3px 7px;
+            margin: 2px 0;
+            border-radius: 4px;
+            border-left: 3px solid #555;
+            background: rgba(40, 40, 70, .5);
+            line-height: 1.5;
+        }
+
+        .log-entry.success {
+            border-left-color: #2ecc71;
+            background: rgba(46, 204, 113, .08);
+            color: #2ecc71
+        }
+
+        .log-entry.warning {
+            border-left-color: #f39c12;
+            background: rgba(243, 156, 18, .08);
+            color: #f39c12
+        }
+
+        .log-entry.info {
+            border-left-color: #3498db;
+            background: rgba(52, 152, 219, .08);
+            color: #8ec8f0
+        }
+
+        .log-entry.purple {
+            border-left-color: #9b59b6;
+            background: rgba(155, 89, 182, .08);
+            color: #bb6bd9
+        }
+
+        .log-entry.orange {
+            border-left-color: #e67e22;
+            background: rgba(230, 126, 34, .08);
+            color: #e67e22
+        }
+
+        .log-entry.error {
+            border-left-color: #e74c3c;
+            background: rgba(231, 76, 60, .08);
+            color: #e74c3c
+        }
+
+        .log-container::-webkit-scrollbar {
+            width: 5px
+        }
+
+        .log-container::-webkit-scrollbar-track {
+            background: transparent
+        }
+
+        .log-container::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, .15);
+            border-radius: 3px
+        }
+
+        @media(max-width:960px) {
+            .main-content {
+                grid-template-columns: 1fr
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <header>
+            <h1>📋 Flatten a Multilevel Doubly Linked List</h1>
+            <div class="subtitle">Brute-Force — DFS Collect Values to Array, Rebuild New DLL</div>
+            <div class="badge">Time: O(n) | Space: O(n) — stores all values in array + recursion stack</div>
+        </header>
+        <div class="main-content">
+            <div class="left-panel">
+                <div class="card">
+                    <div class="card-title">⚙️ Controls</div>
+                    <div class="controls">
+                        <button class="btn-primary" id="playBtn">▶️ Play</button>
+                        <button class="btn-warning" id="pauseBtn" disabled>⏸️ Pause</button>
+                        <button class="btn-success" id="stepBtn">⏭️ Step</button>
+                        <button class="btn-secondary" id="resetBtn">🔄 Reset</button>
+                        <div class="speed-control">
+                            <label>Speed:</label>
+                            <input type="range" id="speedSlider" min="1" max="10" value="5">
+                            <span id="speedValue">5x</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="card">
+                    <div class="card-title">✏️ Custom Input</div>
+                    <div class="input-section">
+                        <label>Serialized:</label>
+                        <input type="text" id="listInput" value="1,2,3,4,5,6,null,null,null,7,8,9,10,null,null,11,12"
+                            placeholder="serialized list" style="flex:1;min-width:200px">
+                        <button class="btn-info" id="applyBtn">Apply</button>
+                    </div>
+                    <div class="input-hint">Format: comma-separated values with nulls for level separators (LeetCode
+                        format).<br>
+                        E.g.: 1,2,3,4,5,6,null,null,null,7,8,9,10,null,null,11,12</div>
+                </div>
+
+                <div class="card">
+                    <div class="card-title">🔗 Multilevel Doubly Linked List</div>
+                    <div class="ml-container" id="mlDisplay"></div>
+                </div>
+
+                <div class="card">
+                    <div class="card-title">📦 values[] Array</div>
+                    <div class="arr-row" id="arrDisplay"><span style="color:#555">—</span></div>
+                </div>
+
+                <div class="card">
+                    <div class="card-title">🔗 Rebuilt Single-Level DLL</div>
+                    <div class="result-row" id="resultDisplay"><span style="color:#555">—</span></div>
+                </div>
+
+                <div class="card">
+                    <div class="status-ind si-neutral" id="statusInd">Ready — press Play or Step</div>
+                </div>
+            </div>
+
+            <div class="right-panel">
+                <div class="card">
+                    <div class="card-title">📋 Current State</div>
+                    <div class="state-display">
+                        <div class="state-row"><span class="state-label">Phase:</span><span class="state-val"
+                                id="stPhase">init</span></div>
+                        <div class="state-row"><span class="state-label">Total Nodes:</span><span class="state-val"
+                                id="stN">—</span></div>
+                        <div class="state-row"><span class="state-label">DFS at:</span><span class="state-val"
+                                id="stCurr">—</span></div>
+                        <div class="state-row"><span class="state-label">values[]:</span><span class="state-val"
+                                id="stVals">[]</span></div>
+                        <div class="state-row"><span class="state-label">Rebuild idx:</span><span class="state-val"
+                                id="stRebuild">—</span></div>
+                        <div class="state-row"><span class="state-label">Stack depth:</span><span class="state-val"
+                                id="stStack">0</span></div>
+                    </div>
+                </div>
+                <div class="card">
+                    <div class="card-title">📚 DFS Call Stack</div>
+                    <div class="stack-container" id="stackDisplay">
+                        <span style="color:#555;font-size:.7em">— empty —</span>
+                    </div>
+                </div>
+                <div class="card" style="flex:1">
+                    <div class="card-title">📝 Execution Log</div>
+                    <div class="log-container" id="logContainer">
+                        <div class="log-entry info">DFS collect all values → rebuild single-level DLL.</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        /* ─── Data structures ──────────────────────────────── */
+        class MLNode {
+            constructor(val) {
+                this.val = val;
+                this.prev = null;
+                this.next = null;
+                this.child = null;
+                this.id = MLNode._id++;
+                this.level = 0;
+                this.posInLevel = 0;
+            }
+        }
+        MLNode._id = 0;
+
+        /* ─── Parse LeetCode serialization ─────────────────── */
+        function parseInput(str) {
+            const tokens = str.split(',').map(s => s.trim());
+            const parsed = tokens.map(t => t.toLowerCase() === 'null' ? null : parseInt(t));
+            if (!parsed.length || parsed[0] === null) return null;
+
+            // Build level arrays separated by nulls
+            // The LeetCode format: values for level, null separators, values for next level etc.
+            // We need to identify which node on the parent level has the child.
+            // Strategy: walk token by token; build nodes per level.
+
+            MLNode._id = 0;
+
+            // Collect level data: split by the pattern where a null indicates
+            // the child pointer alignment
+            const levels = [];
+            let currentLevel = [];
+
+            // First, split the serialization into levels
+            // Level boundaries are determined by looking for null markers
+            // that indicate child connections
+
+            // Simpler approach: reconstruct manually
+            // Level 0: Read until we have the first set of values and nulls
+            // Then nulls at the start of next segment indicate alignment
+
+            // Actually let's parse it the standard LeetCode way:
+            // The serialization interleaves levels. Nulls serve as alignment markers.
+
+            // Parse approach: build nodes and track child connections.
+            // 1) First, separate into levels by finding groups between null-pairs
+            //    Actually the format is: all of level 0 values (ending with null),
+            //    then null padding + level 1 values (ending with null), etc.
+
+            // Better: use the queue-based reconstruction
+            // Level 0: take values until you hit a null (this null = end of level 0)
+            // Then remaining tokens represent child level entries.
+            // Nulls at start = skip positions on parent level.
+
+            // Let me implement the standard deserialization:
+            let idx = 0;
+            const allNodes = [];
+
+            // Build first level
+            const level0 = [];
+            while (idx < parsed.length && parsed[idx] !== null) {
+                const node = new MLNode(parsed[idx]);
+                node.level = 0;
+                node.posInLevel = level0.length;
+                level0.push(node);
+                allNodes.push(node);
+                idx++;
+            }
+            // Link level 0
+            for (let i = 0; i < level0.length - 1; i++) {
+                level0[i].next = level0[i + 1];
+                level0[i + 1].prev = level0[i];
+            }
+            if (idx < parsed.length) idx++; // skip the trailing null of level 0
+
+            levels.push(level0);
+
+            // Now process subsequent levels
+            let parentLevel = 0;
+            while (idx < parsed.length) {
+                // Count leading nulls to find which parent node has the child
+                let nullCount = 0;
+                while (idx < parsed.length && parsed[idx] === null) {
+                    nullCount++;
+                    idx++;
+                }
+
+                if (idx >= parsed.length) break;
+
+                // The child attaches to the parent node at position = nullCount
+                const parentNode = levels[parentLevel][nullCount];
+                const childLevel = [];
+                const childLevelNum = parentLevel + 1;
+
+                while (idx < parsed.length && parsed[idx] !== null) {
+                    const node = new MLNode(parsed[idx]);
+                    node.level = childLevelNum;
+                    node.posInLevel = childLevel.length;
+                    childLevel.push(node);
+                    allNodes.push(node);
+                    idx++;
+                }
+
+                // Link child level
+                for (let i = 0; i < childLevel.length - 1; i++) {
+                    childLevel[i].next = childLevel[i + 1];
+                    childLevel[i + 1].prev = childLevel[i];
+                }
+
+                // Attach child
+                if (parentNode && childLevel.length > 0) {
+                    parentNode.child = childLevel[0];
+                }
+
+                levels.push(childLevel);
+                parentLevel++;
+
+                if (idx < parsed.length) idx++; // skip trailing null
+            }
+
+            return { head: level0[0] || null, levels, allNodes };
+        }
+
+        /* ─── State ─────────────────────────────────────────── */
+        let inputStr = '1,2,3,4,5,6,null,null,null,7,8,9,10,null,null,11,12';
+        let data = null;
+        let values = [];
+        let visitedSet = new Set();
+        let currentNodeId = -1;
+        let callStack = [];
+        let rebuildIdx = -1;
+        let placedSet = new Set();
+        let placingIdx = -1;
+        let addingArrIdx = -1;
+        let readingArrIdx = -1;
+
+        // Animation steps queue
+        let steps = [];
+        let stepIdx = 0;
+        let stepCount = 0;
+        let isRunning = false;
+        let speed = 5;
+        let isDone = false;
+        let phase = 'init'; // init | dfs | rebuild | done
+
+        const $ = id => document.getElementById(id);
+        const logC = $('logContainer');
+        function addLog(m, t = 'info') {
+            logC.innerHTML += `<div class="log-entry ${t}">[${stepCount}] ${m}</div>`;
+            logC.scrollTop = logC.scrollHeight;
+        }
+        function clearLog() { logC.innerHTML = '' }
+
+        /* ─── Pre-compute all animation steps ──────────────── */
+        function buildSteps() {
+            steps = [];
+            if (!data || !data.head) return;
+
+            // Phase 1: DFS collect
+            steps.push({ type: 'phase-start', phase: 'dfs', msg: '━━ Phase 1: DFS Collect Values ━━' });
+
+            function dfsSteps(node, depth) {
+                steps.push({ type: 'push-stack', depth, startVal: node.val });
+                let curr = node;
+                while (curr) {
+                    steps.push({ type: 'visit', nodeId: curr.id, val: curr.val, depth });
+                    steps.push({ type: 'collect', nodeId: curr.id, val: curr.val });
+                    if (curr.child) {
+                        steps.push({ type: 'has-child', nodeId: curr.id, val: curr.val, childVal: curr.child.val });
+                        dfsSteps(curr.child, depth + 1);
+                        steps.push({ type: 'resume', nodeId: curr.id, val: curr.val, depth });
+                    }
+                    const nextNode = curr.next;
+                    if (nextNode) {
+                        steps.push({ type: 'move-next', fromId: curr.id, toId: nextNode.id, fromVal: curr.val, toVal: nextNode.val });
+                    } else {
+                        steps.push({ type: 'end-level', nodeId: curr.id, val: curr.val, depth });
+                    }
+                    curr = nextNode;
+                }
+                steps.push({ type: 'pop-stack', depth });
+            }
+
+            dfsSteps(data.head, 0);
+
+            steps.push({ type: 'dfs-done' });
+
+            // Phase 2: Rebuild
+            steps.push({ type: 'phase-start', phase: 'rebuild', msg: '━━ Phase 2: Rebuild Single-Level DLL ━━' });
+
+            // We know values will be collected in order during simulation
+            // Just generate rebuild steps for each position
+            const tempValues = [];
+            function tempDfs(node) {
+                let curr = node;
+                while (curr) {
+                    tempValues.push(curr.val);
+                    if (curr.child) tempDfs(curr.child);
+                    curr = curr.next;
+                }
+            }
+            tempDfs(data.head);
+
+            for (let i = 0; i < tempValues.length; i++) {
+                steps.push({ type: 'rebuild-node', idx: i, val: tempValues[i] });
+            }
+
+            steps.push({ type: 'done', result: tempValues });
+        }
+
+        /* ─── Render functions ─────────────────────────────── */
+        function renderMultilevel() {
+            if (!data || !data.levels) {
+                $('mlDisplay').innerHTML = '<span style="color:#555">— empty —</span>';
+                return;
+            }
+
+            let html = '';
+
+            for (let lvl = 0; lvl < data.levels.length; lvl++) {
+                const level = data.levels[lvl];
+                if (!level.length) continue;
+
+                // Find the parent node to determine indentation
+                let indent = 0;
+                if (lvl > 0) {
+                    // Find which parent has child pointing to level[0]
+                    for (const pNode of data.levels[lvl - 1]) {
+                        if (pNode.child === level[0]) {
+                            // indent = parent's visual position
+                            indent = pNode.posInLevel;
+                            break;
+                        }
+                    }
+                }
+
+                // Render child connector arrow if not level 0
+                if (lvl > 0) {
+                    let connHtml = '<div class="child-connector">';
+                    for (let s = 0; s < indent; s++) {
+                        connHtml += '<div class="ml-spacer"></div>';
+                    }
+                    connHtml += `<div class="ml-child-arrow">↓</div>`;
+                    connHtml += '</div>';
+                    html += connHtml;
+                }
+
+                // Render level nodes
+                html += '<div class="ml-level">';
+
+                // Add spacers for indentation
+                for (let s = 0; s < indent; s++) {
+                    html += '<div class="ml-spacer"></div>';
+                }
+
+                for (let i = 0; i < level.length; i++) {
+                    const node = level[i];
+                    let cls = 'ml-node';
+                    if (node.id === currentNodeId) cls += ' visiting';
+                    else if (visitedSet.has(node.id)) cls += ' visited';
+                    if (isDone) cls = 'ml-node done-nd';
+
+                    const childIndicator = node.child ? '↓' : '';
+                    html += `<div class="${cls}">${node.val}<span class="nd-sub">${childIndicator || `n${node.id}`}</span></div>`;
+
+                    if (i < level.length - 1) {
+                        html += `<span class="ml-arrow${isDone ? ' done-a' : ''}">⇄</span>`;
+                    } else {
+                        html += `<span class="ml-arrow" style="opacity:.4">→∅</span>`;
+                    }
+                }
+
+                html += '</div>';
+            }
+
+            $('mlDisplay').innerHTML = html;
+        }
+
+        function renderArray() {
+            if (values.length === 0) {
+                $('arrDisplay').innerHTML = '<span style="color:#555">—</span>';
+                return;
+            }
+            let h = '';
+            for (let i = 0; i < values.length; i++) {
+                let cls = 'ac filled';
+                if (i === addingArrIdx) cls = 'ac adding';
+                else if (i === readingArrIdx) cls = 'ac reading';
+                h += `<div class="${cls}">${values[i]}<span class="ac-idx">[${i}]</span></div>`;
+            }
+            $('arrDisplay').innerHTML = h;
+        }
+
+        function renderResult() {
+            if (rebuildIdx < 0 && !isDone) {
+                $('resultDisplay').innerHTML = '<span style="color:#555">—</span>';
+                return;
+            }
+            const total = values.length;
+            let h = '';
+            for (let i = 0; i < total; i++) {
+                let cls = 'res-node';
+                if (placedSet.has(i)) cls += ' placed';
+                if (i === placingIdx) cls = 'res-node placing';
+
+                const showVal = placedSet.has(i) || i === placingIdx;
+                h += `<div class="${cls}">${showVal ? values[i] : '?'}</div>`;
+
+                if (i < total - 1) {
+                    const arrowDone = placedSet.has(i) && (placedSet.has(i + 1) || i + 1 === placingIdx);
+                    h += `<span class="res-arrow${arrowDone ? ' placed' : ''}">⇄</span>`;
+                }
+            }
+            $('resultDisplay').innerHTML = h;
+        }
+
+        function renderStack() {
+            if (callStack.length === 0) {
+                $('stackDisplay').innerHTML = '<span style="color:#555;font-size:.7em">— empty —</span>';
+                return;
+            }
+            let h = '';
+            for (let i = callStack.length - 1; i >= 0; i--) {
+                const frame = callStack[i];
+                const isTop = i === callStack.length - 1;
+                h += `<div class="stack-frame${isTop ? ' active' : ''}">dfs(${frame.label}) depth=${frame.depth}</div>`;
+            }
+            $('stackDisplay').innerHTML = h;
+        }
+
+        function renderState() {
+            $('stPhase').textContent = phase;
+            $('stN').textContent = data ? data.allNodes.length : '—';
+            $('stCurr').textContent = currentNodeId >= 0 ? `node(${data.allNodes.find(n => n.id === currentNodeId)?.val ?? '?'})` : '—';
+            $('stVals').textContent = values.length > 0 ? `[${values.join(',')}]` : '[]';
+            $('stRebuild').textContent = rebuildIdx >= 0 ? rebuildIdx : '—';
+            $('stStack').textContent = callStack.length;
+        }
+
+        function render() {
+            renderMultilevel();
+            renderArray();
+            renderResult();
+            renderStack();
+            renderState();
+        }
+
+        /* ─── Execute one animation step ───────────────────── */
+        function doStep() {
+            if (isDone || stepIdx >= steps.length) { stopExec(); return; }
+            stepCount++;
+            const s = steps[stepIdx++];
+            addingArrIdx = -1;
+            readingArrIdx = -1;
+            placingIdx = -1;
+
+            switch (s.type) {
+                case 'phase-start':
+                    phase = s.phase;
+                    addLog(s.msg, 'orange');
+                    $('statusInd').className = 'status-ind si-run';
+                    $('statusInd').textContent = s.phase === 'dfs' ? 'Phase 1: DFS Collecting...' : 'Phase 2: Rebuilding DLL...';
+                    break;
+
+                case 'push-stack':
+                    callStack.push({ label: `node ${s.startVal}`, depth: s.depth });
+                    addLog(`${'  '.repeat(s.depth)}↘ dfs(${s.startVal}) — push stack (depth ${s.depth})`, 'purple');
+                    break;
+
+                case 'pop-stack':
+                    callStack.pop();
+                    addLog(`${'  '.repeat(s.depth)}↗ return from depth ${s.depth} — pop stack`, 'purple');
+                    break;
+
+                case 'visit':
+                    currentNodeId = s.nodeId;
+                    addLog(`${'  '.repeat(s.depth)}👁 Visit node ${s.val}`, 'info');
+                    break;
+
+                case 'collect':
+                    values.push(s.val);
+                    visitedSet.add(s.nodeId);
+                    addingArrIdx = values.length - 1;
+                    addLog(`${'  '.repeat(0)}  ➕ values.push(${s.val}) → [${values.join(',')}]`, 'warning');
+                    break;
+
+                case 'has-child':
+                    addLog(`${'  '.repeat(0)}  ↓ node ${s.val} has child → ${s.childVal}, recurse!`, 'error');
+                    break;
+
+                case 'resume':
+                    currentNodeId = s.nodeId;
+                    addLog(`${'  '.repeat(s.depth)}↩ Returned to node ${s.val} at depth ${s.depth}`, 'info');
+                    break;
+
+                case 'move-next':
+                    addLog(`${'  '.repeat(0)}  → move next: ${s.fromVal} → ${s.toVal}`, 'info');
+                    break;
+
+                case 'end-level':
+                    currentNodeId = -1;
+                    addLog(`${'  '.repeat(s.depth)}⏹ End of level at node ${s.val} (next=null)`, 'warning');
+                    break;
+
+                case 'dfs-done':
+                    currentNodeId = -1;
+                    addLog(`✅ DFS complete! values = [${values.join(',')}]`, 'success');
+                    break;
+
+                case 'rebuild-node':
+                    rebuildIdx = s.idx;
+                    placingIdx = s.idx;
+                    readingArrIdx = s.idx;
+                    if (s.idx === 0) {
+                        addLog(`  newHead = Node(${s.val})`, 'success');
+                    } else {
+                        addLog(`  Node(${s.val}): prev ⇄ Node(${values[s.idx - 1]})`, 'success');
+                    }
+                    // Mark previous as placed
+                    if (s.idx > 0) placedSet.add(s.idx - 1);
+                    break;
+
+                case 'done':
+                    if (values.length > 0) placedSet.add(values.length - 1);
+                    placingIdx = -1;
+                    readingArrIdx = -1;
+                    isDone = true;
+                    phase = 'done';
+                    addLog(`🎉 Done! Result: [${s.result.join(' ⇄ ')}]`, 'success');
+                    $('statusInd').className = 'status-ind si-done';
+                    $('statusInd').textContent = `✅ Done! [${s.result.join(' ⇄ ')}]`;
+                    stopExec();
+                    break;
+            }
+
+            render();
+        }
+
+        /* ─── Playback controls ────────────────────────────── */
+        function play() {
+            if (isRunning || isDone) return;
+            isRunning = true;
+            $('playBtn').disabled = true;
+            $('pauseBtn').disabled = false;
+            $('stepBtn').disabled = true;
+            runLoop();
+        }
+        function pause() {
+            isRunning = false;
+            $('playBtn').disabled = false;
+            $('pauseBtn').disabled = true;
+            $('stepBtn').disabled = false;
+        }
+        function stopExec() {
+            isRunning = false;
+            $('playBtn').disabled = true;
+            $('pauseBtn').disabled = true;
+            $('stepBtn').disabled = true;
+        }
+        function runLoop() {
+            if (!isRunning) return;
+            doStep();
+            if (isRunning && !isDone) setTimeout(runLoop, 500 / speed);
+        }
+
+        /* ─── Init & Reset ─────────────────────────────────── */
+        function init() {
+            MLNode._id = 0;
+            data = parseInput(inputStr);
+            values = [];
+            visitedSet = new Set();
+            currentNodeId = -1;
+            callStack = [];
+            rebuildIdx = -1;
+            placedSet = new Set();
+            placingIdx = -1;
+            addingArrIdx = -1;
+            readingArrIdx = -1;
+            stepIdx = 0;
+            stepCount = 0;
+            isDone = false;
+            phase = 'init';
+            isRunning = false;
+
+            buildSteps();
+
+            $('statusInd').className = 'status-ind si-neutral';
+            $('statusInd').textContent = 'Ready — press Play or Step';
+            $('playBtn').disabled = false;
+            $('pauseBtn').disabled = true;
+            $('stepBtn').disabled = false;
+            clearLog();
+            addLog('DFS collect all values → rebuild single-level DLL.', 'info');
+            render();
+        }
+
+        /* ─── Event listeners ──────────────────────────────── */
+        $('playBtn').addEventListener('click', play);
+        $('pauseBtn').addEventListener('click', pause);
+        $('stepBtn').addEventListener('click', () => { if (!isDone) doStep() });
+        $('resetBtn').addEventListener('click', () => { isRunning = false; init() });
+        $('speedSlider').addEventListener('input', e => {
+            speed = parseInt(e.target.value);
+            $('speedValue').textContent = speed + 'x';
+        });
+        $('applyBtn').addEventListener('click', () => {
+            const val = $('listInput').value.trim();
+            if (!val) { alert('Please enter a serialized list.'); return; }
+            inputStr = val;
+            isRunning = false;
+            init();
+        });
+
+        init();
+    </script>
+</body>
+
+</html>

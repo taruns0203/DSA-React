@@ -1,0 +1,481 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Longest Mountain - One Pass (State Machine)</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            min-height: 100vh;
+            padding: 20px;
+            color: #333;
+        }
+        .container {
+            max-width: 1100px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            overflow: hidden;
+        }
+        header {
+            background: linear-gradient(135deg, #00b894 0%, #55efc4 100%);
+            color: white;
+            padding: 25px;
+            text-align: center;
+        }
+        h1 { font-size: 1.5em; margin-bottom: 8px; }
+        .subtitle { font-size: 1em; opacity: 0.9; }
+        .complexity-badge {
+            display: inline-block;
+            background: rgba(255,255,255,0.2);
+            padding: 6px 14px;
+            border-radius: 15px;
+            margin-top: 8px;
+            font-size: 0.85em;
+        }
+        .main-content {
+            display: grid;
+            grid-template-columns: 1fr 280px;
+            gap: 20px;
+            padding: 20px;
+        }
+        .card {
+            background: #f8f9fa;
+            border-radius: 12px;
+            padding: 16px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            margin-bottom: 16px;
+        }
+        .card-title {
+            font-size: 0.95em;
+            font-weight: 600;
+            margin-bottom: 12px;
+            color: #00b894;
+        }
+        
+        /* Controls */
+        .controls { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+        button {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 8px;
+            font-size: 0.85em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        button:hover { transform: translateY(-2px); }
+        button:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+        .btn-primary { background: linear-gradient(135deg, #00b894 0%, #55efc4 100%); color: white; }
+        .btn-success { background: linear-gradient(135deg, #28a745 0%, #20c997 100%); color: white; }
+        .btn-warning { background: linear-gradient(135deg, #ffc107 0%, #ff9800 100%); color: white; }
+        .btn-secondary { background: #6c757d; color: white; }
+        .speed-control { display: flex; align-items: center; gap: 6px; flex: 1; min-width: 140px; }
+        .speed-control input[type="range"] { flex: 1; height: 5px; accent-color: #00b894; }
+
+        /* Array Viz */
+        .array-container {
+            display: flex;
+            align-items: flex-end;
+            justify-content: center;
+            gap: 4px;
+            height: 220px;
+            padding: 20px 10px;
+            background: #fff;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            position: relative;
+        }
+        
+        .array-bar {
+            width: 40px;
+            background: #dfe6e9;
+            border-radius: 4px 4px 0 0;
+            position: relative;
+            transition: all 0.3s ease;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            padding-top: 5px;
+            color: #636e72;
+            font-weight: bold;
+            font-size: 0.9em;
+        }
+        
+        /* Bar States */
+        .bar-processed { background: #b2bec3; }
+        .bar-current { border: 2px solid #00b894; background: #e17055; color: white; }
+        .bar-up { background: #0984e3; color: white; }
+        .bar-down { background: #6c5ce7; color: white; }
+        .bar-peak { background: #e84393; color: white; box-shadow: 0 0 10px rgba(232, 67, 147, 0.4); z-index: 2; }
+        
+        .idx-label {
+            position: absolute;
+            bottom: -25px;
+            font-size: 0.7em;
+            color: #888;
+            width: 100%;
+            text-align: center;
+        }
+        
+        .ptr {
+            position: absolute;
+            bottom: -45px;
+            font-size: 0.8em;
+            font-weight: 700;
+            text-align: center;
+            width: 40px;
+            transition: left 0.3s ease;
+            color: #00b894;
+        }
+        .ptr::before { content: 'i'; display: block; }
+
+        /* State & Log */
+        .state-display { background: white; border-radius: 8px; padding: 10px; font-family: 'Courier New', monospace; font-size: 0.85em; }
+        .state-row { display: flex; justify-content: space-between; padding: 4px 0; border-bottom: 1px solid #eee; }
+        .highlight-val { color: #00b894; font-weight: bold; }
+        
+        .log-container { 
+            background: white; border-radius: 8px; padding: 10px; 
+            max-height: 200px; overflow-y: auto; 
+            font-family: 'Courier New', monospace; font-size: 0.65em; 
+        }
+        .log-entry { padding: 3px 6px; margin: 2px 0; border-radius: 4px; border-left: 3px solid #ccc; background: #f9f9f9; }
+        .log-entry.up { border-left-color: #0984e3; background: #e1f5fe; }
+        .log-entry.down { border-left-color: #6c5ce7; background: #f3e5f5; }
+        .log-entry.peak { border-left-color: #e84393; background: #fce4ec; }
+        .log-entry.reset { border-left-color: #fab1a0; background: #fff5f0; }
+        
+        .max-len-display {
+            text-align: center;
+            padding: 10px;
+            background: #2d3436;
+            color: white;
+            border-radius: 8px;
+            margin-top: 10px;
+            font-size: 1.2em;
+            font-weight: bold;
+        }
+        
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Longest Mountain in Array</h1>
+            <div class="subtitle">Optimal: One Pass (State Machine)</div>
+            <div class="complexity-badge">Time: O(N) | Space: O(1)</div>
+        </header>
+
+        <div class="main-content">
+            <div class="left-panel">
+                <div class="card">
+                    <div class="card-title">⚙️ Controls</div>
+                    <div class="controls">
+                        <button class="btn-primary" id="playBtn">▶️ Play</button>
+                        <button class="btn-warning" id="pauseBtn" disabled>⏸️ Pause</button>
+                        <button class="btn-success" id="stepBtn">⏭️ Step</button>
+                        <button class="btn-secondary" id="resetBtn">🔄 Reset</button>
+                        <div class="speed-control">
+                            <label>Speed:</label>
+                            <input type="range" id="speedSlider" min="1" max="10" value="5">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-title">One Pass Scan</div>
+                    <div class="array-container" id="arrayContainer"></div>
+                </div>
+                
+                <div class="card">
+                    <div class="card-title">ℹ️ Logic</div>
+                    <div style="font-size: 0.9em; color: #555;">
+                        Iterate <code>i</code> from 1 to N. Track <code>up</code> and <code>down</code> lengths.<br>
+                        - Reset if valley or flat.<br>
+                        - Logic: <code>up++</code> if climbing, <code>down++</code> if falling.<br>
+                        - If <code>up > 0</code> and <code>down > 0</code>, update maxLen.
+                    </div>
+                </div>
+            </div>
+
+            <div class="right-panel">
+                <div class="card">
+                    <div class="card-title">📊 State</div>
+                    <div class="state-display">
+                        <div class="state-row"><span>i (Index):</span><span id="iVal">-</span></div>
+                        <div class="state-row"><span>Up Count:</span><span id="upVal">0</span></div>
+                        <div class="state-row"><span>Down Count:</span><span id="downVal">0</span></div>
+                        <div class="state-row"><span>Current Len:</span><span id="curLenVal">-</span></div>
+                    </div>
+                    <div class="max-len-display">
+                        Max Length: <span id="maxLenVal">0</span>
+                    </div>
+                </div>
+
+                <div class="card" style="flex-grow: 1; display: flex; flex-direction: column;">
+                    <div class="card-title">📝 Execution Log</div>
+                    <div class="log-container" id="logContainer"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Data
+        const arr = [2, 1, 4, 7, 3, 2, 5];
+        let n = arr.length;
+        
+        let i = 1;
+        let up = 0;
+        let down = 0;
+        let maxLen = 0;
+        
+        // State Machine
+        let phase = 'init'; 
+        let isRunning = false;
+        let timer = null;
+        let speed = 5;
+        let stepCount = 0;
+        
+        // Helper to find max height for bar scaling
+        const maxVal = Math.max(...arr);
+
+        function init() {
+            i = 1;
+            up = 0;
+            down = 0;
+            maxLen = 0;
+            phase = 'init';
+            stepCount = 0;
+            
+            clearLog();
+            addLog(`Array: [${arr.join(', ')}]`, "info");
+            
+            render();
+            updateControls();
+        }
+
+        function createBar(val, idx) {
+            const el = document.createElement('div');
+            let cls = 'array-bar';
+            
+            // Visual logic based on up/down state relative to i
+            // We need to visualize the current mountain being tracked.
+            // The mountain ends at i (or i-1).
+            // It spans back by (up + down) elements.
+            // Current i is the one we are processing.
+            
+            if (phase !== 'init' && phase !== 'done') {
+                if (idx === i) cls += ' bar-current';
+                
+                // Highlight the mountain parts
+                const mountainEnd = i; // or i-1 depending on when updated?
+                // The current state variables (up, down) reflect state ending at i-1? Start of loop.
+                // Actually, let's use the logic:
+                // If we are building up/down, mark previous elements.
+                
+                // Let's reconstruct ranges for viz:
+                // Peak is at i - down.
+                // Start is i - down - up.
+                
+                // Wait, logic is: up/down are updated. 
+                // Let's mark elements dynamically.
+                // Range [i-down, i-1] is down slope.
+                // Range [i-down-up, i-down] is up slope.
+                
+                // But wait, i is current index being processed against i-1.
+                // So the sequence ends at i.
+                
+                // Let's simplify:
+                // If down > 0, we have a down slope ending at i (or i-1).
+                // Let's use exact logic from loop.
+            }
+            
+            // Apply colors based on stored history? No, simple calculate.
+            // Visualization hack: if we detected 'up', color simple.
+            // Hard to do stateless without tracking ranges.
+            // Let's just highlight current i.
+            
+            el.className = cls;
+            el.textContent = val;
+            
+            const hPercent = (val / maxVal) * 80 + 10;
+            el.style.height = `${hPercent}%`;
+            
+            const lbl = document.createElement('div');
+            lbl.className = 'idx-label';
+            lbl.textContent = idx;
+            el.appendChild(lbl);
+            
+            return el;
+        }
+
+        function render() {
+            const container = document.getElementById('arrayContainer');
+            container.innerHTML = '';
+            
+            arr.forEach((val, idx) => {
+                const bar = createBar(val, idx);
+                
+                // Use inline styles for mountain coloring based on current UP/DOWN
+                // Current mountain span:
+                // End at i (if we just processed it) or i-1.
+                // Let's interpret current 'up' and 'down' as valid ranges ending at 'i'.
+                // If we haven't processed 'i' yet (start of loop), it ends at 'i-1'.
+                // But 'phase' says we are inside loop.
+                
+                // Simplified:
+                // If idx is within [i - down, i], it's down part.
+                // If idx is within [i - down - up, i - down], it's up part.
+                // (Assuming we updated up/down for i).
+                
+                // But render is called AFTER step. Step updates up/down for i.
+                // So ranges are valid ending at i.
+                
+                if (phase !== 'init' && phase !== 'done') {
+                    const currentIdx = i; 
+                    const peakIdx = i - down;
+                    const startIdx = peakIdx - up;
+                    
+                    if (idx > startIdx && idx <= peakIdx && up > 0) {
+                        bar.classList.add('bar-up');
+                    }
+                    if (idx > peakIdx && idx <= currentIdx && down > 0) {
+                        bar.classList.add('bar-down');
+                    }
+                    if(idx === peakIdx && up > 0 && down > 0) {
+                         bar.classList.add('bar-peak');
+                    }
+                }
+                
+                container.appendChild(bar);
+            });
+            
+            // Ptr
+            if (phase !== 'done' && phase !== 'init') {
+                const ptr = document.createElement('div');
+                ptr.className = 'ptr';
+                ptr.style.left = `${(i * 44)}px`; // 40px width + 4px gap
+                container.appendChild(ptr);
+            }
+
+            // State Updates
+            document.getElementById('iVal').textContent = phase === 'done' ? '-' : i;
+            document.getElementById('upVal').textContent = up;
+            document.getElementById('downVal').textContent = down;
+            
+            let cur = (up > 0 && down > 0) ? (up + down + 1) : '-';
+            document.getElementById('curLenVal').textContent = cur;
+            document.getElementById('maxLenVal').textContent = maxLen;
+        }
+
+        function step() {
+            stepCount++;
+            
+            if (phase === 'init') {
+                phase = 'process';
+                addLog("Starting Scan...", "info");
+            }
+            else if (phase === 'process') {
+                if (i < n) {
+                    // Check reset condition: valley or flat
+                    // Valley: down > 0 && arr[i] > arr[i-1]
+                    // Flat: arr[i] == arr[i-1]
+                    
+                    if ((down > 0 && arr[i] > arr[i-1]) || arr[i] === arr[i-1]) {
+                        up = 0;
+                        down = 0;
+                        addLog(`Reset at i=${i} (Valley or Flat).`, "reset");
+                    }
+                    
+                    // Count
+                    if (arr[i] > arr[i-1]) {
+                        up++;
+                        addLog(`Climb Up at i=${i}. Up=${up}`, "up");
+                    } else if (arr[i] < arr[i-1]) {
+                        down++;
+                        addLog(`Climb Down at i=${i}. Down=${down}`, "down");
+                    }
+                    
+                    // Check Mountain
+                    if (up > 0 && down > 0) {
+                        const currentLen = up + down + 1;
+                        // addLog(`Valid Mountain found. Len: ${currentLen}`, "peak");
+                        if (currentLen > maxLen) {
+                            maxLen = currentLen;
+                            addLog(`New Max Length: ${maxLen}`, "peak");
+                        }
+                    }
+                    
+                    // Move to next
+                    i++;
+                } else {
+                    phase = 'done';
+                    addLog(`Done! Final Result: ${maxLen}`, "success");
+                    stop();
+                }
+            }
+            
+            render();
+        }
+
+        function addLog(msg, type = 'info') {
+            const log = document.getElementById('logContainer');
+            log.innerHTML += `<div class="log-entry ${type}">[${stepCount}] ${msg}</div>`;
+            log.scrollTop = log.scrollHeight;
+        }
+
+        function clearLog() { document.getElementById('logContainer').innerHTML = ''; }
+
+        function play() {
+            if (isRunning) return;
+            isRunning = true;
+            updateControls();
+            runLoop();
+        }
+
+        function runLoop() {
+            if (!isRunning) return;
+            step();
+            if (phase !== 'done') {
+                const delay = 1000 - (speed * 90);
+                timer = setTimeout(runLoop, Math.max(50, delay));
+            }
+        }
+
+        function stop() {
+            isRunning = false;
+            if (timer) clearTimeout(timer);
+            updateControls();
+        }
+
+        function reset() {
+            stop();
+            init();
+        }
+
+        function updateControls() {
+            document.getElementById('playBtn').disabled = isRunning || phase === 'done';
+            document.getElementById('pauseBtn').disabled = !isRunning;
+            document.getElementById('stepBtn').disabled = isRunning || phase === 'done';
+            document.getElementById('resetBtn').disabled = isRunning;
+        }
+
+        // Listeners
+        document.getElementById('playBtn').addEventListener('click', play);
+        document.getElementById('pauseBtn').addEventListener('click', stop);
+        document.getElementById('stepBtn').addEventListener('click', step);
+        document.getElementById('resetBtn').addEventListener('click', reset);
+        document.getElementById('speedSlider').addEventListener('input', (e) => speed = parseInt(e.target.value));
+
+        // Start
+        init();
+
+    </script>
+</body>
+</html>

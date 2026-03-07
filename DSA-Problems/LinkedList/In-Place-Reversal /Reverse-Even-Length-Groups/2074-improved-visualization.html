@@ -1,0 +1,899 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>2074 - Improved: Per-Group Node Collection</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #0f0c29 0%, #302b63 50%, #24243e 100%);
+            min-height: 100vh;
+            padding: 18px;
+            color: #e0e0e0
+        }
+
+        .container {
+            max-width: 1360px;
+            margin: 0 auto;
+            background: rgba(25, 25, 50, .95);
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, .5), 0 0 40px rgba(230, 126, 34, .07);
+            overflow: hidden;
+            border: 1px solid rgba(255, 255, 255, .06)
+        }
+
+        header {
+            background: linear-gradient(135deg, #d35400, #e67e22);
+            color: #fff;
+            padding: 22px;
+            text-align: center
+        }
+
+        h1 {
+            font-size: 1.15em;
+            margin-bottom: 5px
+        }
+
+        .subtitle {
+            font-size: .84em;
+            opacity: .92
+        }
+
+        .badge {
+            display: inline-block;
+            background: rgba(255, 255, 255, .2);
+            padding: 5px 14px;
+            border-radius: 15px;
+            margin-top: 7px;
+            font-size: .78em
+        }
+
+        .main-content {
+            display: grid;
+            grid-template-columns: 1fr 280px;
+            gap: 16px;
+            padding: 18px
+        }
+
+        .card {
+            background: rgba(40, 40, 75, .8);
+            border-radius: 14px;
+            padding: 15px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, .2);
+            margin-bottom: 14px;
+            border: 1px solid rgba(255, 255, 255, .05)
+        }
+
+        .card-title {
+            font-size: .88em;
+            font-weight: 600;
+            margin-bottom: 10px;
+            color: #e67e22
+        }
+
+        button {
+            padding: 7px 14px;
+            border: none;
+            border-radius: 8px;
+            font-size: .82em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all .3s
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, .3)
+        }
+
+        button:disabled {
+            opacity: .4;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #d35400, #e67e22);
+            color: #fff
+        }
+
+        .btn-success {
+            background: linear-gradient(135deg, #27ae60, #2ecc71);
+            color: #fff
+        }
+
+        .btn-warning {
+            background: linear-gradient(135deg, #f39c12, #e67e22);
+            color: #fff
+        }
+
+        .btn-secondary {
+            background: rgba(100, 100, 140, .7);
+            color: #fff
+        }
+
+        .btn-info {
+            background: linear-gradient(135deg, #3498db, #2980b9);
+            color: #fff
+        }
+
+        .controls {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            align-items: center
+        }
+
+        .speed-control {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            flex: 1;
+            min-width: 140px
+        }
+
+        .speed-control label {
+            font-size: .8em;
+            color: #aaa
+        }
+
+        .speed-control input[type="range"] {
+            flex: 1;
+            height: 5px;
+            accent-color: #e67e22
+        }
+
+        .speed-control span {
+            font-size: .8em;
+            color: #e67e22;
+            min-width: 24px
+        }
+
+        .input-section {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+            flex-wrap: wrap
+        }
+
+        .input-section input {
+            padding: 7px 10px;
+            border-radius: 8px;
+            border: 1px solid rgba(255, 255, 255, .15);
+            background: rgba(20, 20, 45, .8);
+            color: #e0e0e0;
+            font-size: .85em;
+            font-family: 'Courier New', monospace;
+            flex: 1;
+            min-width: 180px
+        }
+
+        .input-section input:focus {
+            outline: none;
+            border-color: #e67e22
+        }
+
+        /* Linked list */
+        .ll-area {
+            padding: 10px;
+            background: rgba(20, 20, 50, .4);
+            border-radius: 10px;
+            min-height: 80px
+        }
+
+        .grp-row {
+            display: flex;
+            gap: 0;
+            min-height: 20px;
+            align-items: flex-end;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin-bottom: 2px
+        }
+
+        .grp-lbl {
+            text-align: center;
+            font-size: .48em;
+            font-weight: 700;
+            padding: 2px 0;
+            border-radius: 3px;
+            margin: 0 1px
+        }
+
+        .grp-lbl.even-lbl {
+            background: rgba(230, 126, 34, .1);
+            color: #e67e22;
+            border: 1px solid rgba(230, 126, 34, .15)
+        }
+
+        .grp-lbl.odd-lbl {
+            background: rgba(100, 100, 140, .06);
+            color: #555;
+            border: 1px solid rgba(100, 100, 140, .08)
+        }
+
+        .grp-spacer {
+            width: 14px;
+            margin: 0 1px
+        }
+
+        .ll-row {
+            display: flex;
+            gap: 0;
+            align-items: center;
+            justify-content: center;
+            flex-wrap: wrap
+        }
+
+        .ll-node {
+            display: flex;
+            align-items: center
+        }
+
+        .nd {
+            width: 44px;
+            height: 44px;
+            border-radius: 9px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 1.05em;
+            border: 2px solid rgba(150, 150, 200, .12);
+            background: rgba(60, 60, 100, .12);
+            font-family: 'Courier New', monospace;
+            color: #666;
+            transition: all .35s
+        }
+
+        .nd-idx {
+            font-size: .4em;
+            color: #555;
+            margin-top: 1px
+        }
+
+        .nd.collecting {
+            border-color: #f1c40f;
+            background: rgba(241, 196, 15, .1);
+            color: #f1c40f;
+            box-shadow: 0 0 8px rgba(241, 196, 15, .12)
+        }
+
+        .nd.in-grp {
+            border-color: #e67e22;
+            background: rgba(230, 126, 34, .06);
+            color: #e67e22
+        }
+
+        .nd.swapping {
+            border-color: #bb6bd9;
+            background: rgba(155, 89, 182, .15);
+            color: #bb6bd9;
+            box-shadow: 0 0 10px rgba(155, 89, 182, .2);
+            transform: scale(1.06)
+        }
+
+        .nd.swapped {
+            border-color: #2ecc71;
+            background: rgba(46, 204, 113, .08);
+            color: #2ecc71
+        }
+
+        .nd.skip-grp {
+            border-color: rgba(100, 100, 140, .15);
+            color: #555
+        }
+
+        .nd.done-nd {
+            border-color: #2ecc71;
+            background: rgba(46, 204, 113, .06);
+            color: #2ecc71
+        }
+
+        .arrow {
+            color: #555;
+            font-size: .78em;
+            margin: 0 1px
+        }
+
+        /* groupNodes[] display */
+        .coll-row {
+            display: flex;
+            gap: 4px;
+            padding: 10px;
+            background: rgba(20, 20, 50, .4);
+            border-radius: 10px;
+            min-height: 50px;
+            align-items: center;
+            justify-content: center;
+            flex-wrap: wrap
+        }
+
+        .cn {
+            width: 40px;
+            height: 40px;
+            border-radius: 7px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 1em;
+            border: 2px solid rgba(241, 196, 15, .2);
+            background: rgba(241, 196, 15, .05);
+            font-family: 'Courier New', monospace;
+            color: #f1c40f;
+            transition: all .35s
+        }
+
+        .cn.swap-cn {
+            border-color: #bb6bd9;
+            background: rgba(155, 89, 182, .12);
+            color: #bb6bd9;
+            box-shadow: 0 0 8px rgba(155, 89, 182, .15);
+            transform: scale(1.06)
+        }
+
+        .cn.done-cn {
+            border-color: #2ecc71;
+            background: rgba(46, 204, 113, .06);
+            color: #2ecc71
+        }
+
+        .cn-idx {
+            font-size: .4em;
+            color: #888;
+            margin-top: 1px
+        }
+
+        /* Action display */
+        .action-box {
+            padding: 10px;
+            background: rgba(20, 20, 50, .4);
+            border-radius: 8px;
+            text-align: center;
+            font-family: 'Courier New', monospace;
+            font-size: .82em;
+            min-height: 38px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            flex-wrap: wrap
+        }
+
+        .act-tag {
+            padding: 4px 10px;
+            border-radius: 6px;
+            font-weight: 600;
+            font-size: .82em
+        }
+
+        .act-collect {
+            background: rgba(241, 196, 15, .08);
+            border: 1px solid rgba(241, 196, 15, .12);
+            color: #f1c40f
+        }
+
+        .act-even {
+            background: rgba(230, 126, 34, .08);
+            border: 1px solid rgba(230, 126, 34, .12);
+            color: #e67e22
+        }
+
+        .act-odd {
+            background: rgba(100, 100, 140, .08);
+            border: 1px solid rgba(100, 100, 140, .1);
+            color: #888
+        }
+
+        .act-swap {
+            background: rgba(155, 89, 182, .08);
+            border: 1px solid rgba(155, 89, 182, .1);
+            color: #bb6bd9
+        }
+
+        .status-ind {
+            text-align: center;
+            padding: 11px;
+            border-radius: 10px;
+            font-weight: 700;
+            font-size: .85em;
+            transition: all .3s
+        }
+
+        .si-neutral {
+            background: rgba(100, 100, 140, .12);
+            color: #888
+        }
+
+        .si-run {
+            background: rgba(230, 126, 34, .08);
+            color: #e67e22;
+            border: 1px solid rgba(230, 126, 34, .15)
+        }
+
+        .si-done {
+            background: rgba(46, 204, 113, .12);
+            color: #2ecc71;
+            border: 1px solid rgba(46, 204, 113, .25)
+        }
+
+        .state-display {
+            background: rgba(20, 20, 50, .5);
+            border-radius: 8px;
+            padding: 10px;
+            font-family: 'Courier New', monospace;
+            font-size: .68em
+        }
+
+        .state-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 4px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, .05)
+        }
+
+        .state-row:last-child {
+            border-bottom: none
+        }
+
+        .state-label {
+            font-weight: 600;
+            color: #e67e22
+        }
+
+        .state-val {
+            color: #ccc;
+            text-align: right;
+            max-width: 150px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap
+        }
+
+        .log-container {
+            background: rgba(20, 20, 50, .5);
+            border-radius: 8px;
+            padding: 10px;
+            max-height: 240px;
+            overflow-y: auto;
+            font-family: 'Courier New', monospace;
+            font-size: .54em
+        }
+
+        .log-entry {
+            padding: 3px 7px;
+            margin: 2px 0;
+            border-radius: 4px;
+            border-left: 3px solid #555;
+            background: rgba(40, 40, 70, .5);
+            line-height: 1.5
+        }
+
+        .log-entry.success {
+            border-left-color: #2ecc71;
+            background: rgba(46, 204, 113, .08);
+            color: #2ecc71
+        }
+
+        .log-entry.warning {
+            border-left-color: #f39c12;
+            background: rgba(243, 156, 18, .08);
+            color: #f39c12
+        }
+
+        .log-entry.info {
+            border-left-color: #3498db;
+            background: rgba(52, 152, 219, .08);
+            color: #8ec8f0
+        }
+
+        .log-entry.error {
+            border-left-color: #e74c3c;
+            background: rgba(231, 76, 60, .08);
+            color: #e74c3c
+        }
+
+        .log-entry.purple {
+            border-left-color: #9b59b6;
+            background: rgba(155, 89, 182, .08);
+            color: #bb6bd9
+        }
+
+        .log-entry.orange {
+            border-left-color: #e67e22;
+            background: rgba(230, 126, 34, .08);
+            color: #e67e22
+        }
+
+        .log-container::-webkit-scrollbar {
+            width: 5px
+        }
+
+        .log-container::-webkit-scrollbar-track {
+            background: transparent
+        }
+
+        .log-container::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, .15);
+            border-radius: 3px
+        }
+
+        @media(max-width:960px) {
+            .main-content {
+                grid-template-columns: 1fr
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <header>
+            <h1>🔗 Reverse Nodes in Even Length Groups</h1>
+            <div class="subtitle">Improved — Per-Group Node Collection + Value Swap</div>
+            <div class="badge">Time: O(n) | Space: O(√n) — collects at most one group at a time</div>
+        </header>
+        <div class="main-content">
+            <div class="left-panel">
+                <div class="card">
+                    <div class="card-title">⚙️ Controls</div>
+                    <div class="controls">
+                        <button class="btn-primary" id="playBtn">▶️ Play</button>
+                        <button class="btn-warning" id="pauseBtn" disabled>⏸️ Pause</button>
+                        <button class="btn-success" id="stepBtn">⏭️ Step</button>
+                        <button class="btn-secondary" id="resetBtn">🔄 Reset</button>
+                        <div class="speed-control">
+                            <label>Speed:</label>
+                            <input type="range" id="speedSlider" min="1" max="10" value="5">
+                            <span id="speedValue">5x</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="card">
+                    <div class="card-title">✏️ Custom Input</div>
+                    <div class="input-section">
+                        <input type="text" id="listInput" value="5,2,6,3,9,1,7,3,8,4"
+                            placeholder="values (comma-separated)">
+                        <button class="btn-info" id="applyBtn">Apply</button>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-title">🔗 Linked List (n=<span id="nDisp">10</span>)</div>
+                    <div class="ll-area">
+                        <div class="grp-row" id="grpRow"></div>
+                        <div class="ll-row" id="llDisplay"></div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-title">📦 groupNodes[] — collected for current group</div>
+                    <div class="coll-row" id="collDisplay"><span style="color:#555">—</span></div>
+                </div>
+
+                <div class="card">
+                    <div class="card-title">🔄 Action</div>
+                    <div class="action-box" id="actionBox"><span style="color:#555">—</span></div>
+                </div>
+
+                <div class="card">
+                    <div class="status-ind si-neutral" id="statusInd">Ready — press Play or Step</div>
+                </div>
+            </div>
+
+            <div class="right-panel">
+                <div class="card">
+                    <div class="card-title">📋 Current State</div>
+                    <div class="state-display">
+                        <div class="state-row"><span class="state-label">Phase:</span><span class="state-val"
+                                id="stPhase">init</span></div>
+                        <div class="state-row"><span class="state-label">groupNum g:</span><span class="state-val"
+                                id="stG">—</span></div>
+                        <div class="state-row"><span class="state-label">actualLen:</span><span class="state-val"
+                                id="stLen">—</span></div>
+                        <div class="state-row"><span class="state-label">even?:</span><span class="state-val"
+                                id="stEven">—</span></div>
+                        <div class="state-row"><span class="state-label">collectIdx:</span><span class="state-val"
+                                id="stColl">—</span></div>
+                        <div class="state-row"><span class="state-label">swap l,r:</span><span class="state-val"
+                                id="stSwap">—</span></div>
+                        <div class="state-row"><span class="state-label">curr node:</span><span class="state-val"
+                                id="stCurr">—</span></div>
+                        <div class="state-row"><span class="state-label">groups done:</span><span class="state-val"
+                                id="stDone">0</span></div>
+                    </div>
+                </div>
+                <div class="card" style="flex:1">
+                    <div class="card-title">📝 Execution Log</div>
+                    <div class="log-container" id="logContainer">
+                        <div class="log-entry info">Per-group: collect node refs → swap values if even.</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let nodeVals = [5, 2, 6, 3, 9, 1, 7, 3, 8, 4];
+        let n;
+        let g = 1;           // current group number
+        let currPos = 0;     // current position in list (0-indexed)
+        let collectIdx = 0;  // how many collected so far in current group
+        let groupNodes = []; // indices of nodes in current group
+        let swapL = -1, swapR = -1;
+        let swappedNodes = new Set(); // global set of node indices already finalized
+        let groupsDoneCount = 0;
+
+        // Computed group info for display
+        let allGroups = [];
+
+        // phases: init | collect | decide | swapping | skip | next-group | done
+        let phase = 'init';
+        let stepCount = 0, isRunning = false, speed = 5, isDone = false;
+
+        const $ = id => document.getElementById(id);
+        const logC = $('logContainer');
+        function addLog(m, t = 'info') { logC.innerHTML += `<div class="log-entry ${t}">[${stepCount}] ${m}</div>`; logC.scrollTop = logC.scrollHeight }
+        function clearLog() { logC.innerHTML = '' }
+
+        function computeAllGroups() {
+            allGroups = [];
+            let idx = 0, gn = 1;
+            while (idx < n) {
+                const len = Math.min(gn, n - idx);
+                allGroups.push({ start: idx, len, groupNum: gn, even: len % 2 === 0 });
+                idx += len; gn++;
+            }
+        }
+
+        function render() {
+            $('nDisp').textContent = n;
+
+            // Group labels row
+            if (allGroups.length > 0) {
+                let gH = '';
+                for (let gi = 0; gi < allGroups.length; gi++) {
+                    const gr = allGroups[gi];
+                    const active = gr.groupNum === g && phase !== 'done' && phase !== 'init';
+                    for (let k = 0; k < gr.len; k++) {
+                        const lbl = k === 0 ? `G${gr.groupNum}(${gr.len})` : '';
+                        let cls = 'grp-lbl ' + (gr.even ? 'even-lbl' : 'odd-lbl');
+                        if (active) {
+                            gH += `<div class="${cls}" style="width:44px;${gr.even ? 'box-shadow:0 0 6px rgba(230,126,34,.2)' : ''}">${lbl}</div>`;
+                        } else {
+                            gH += `<div class="${cls}" style="width:44px">${lbl}</div>`;
+                        }
+                    }
+                    if (gi < allGroups.length - 1) gH += `<div class="grp-spacer"></div>`;
+                }
+                $('grpRow').innerHTML = gH;
+            }
+
+            // Linked list
+            let llH = '';
+            let nodeI = 0;
+            for (let gi = 0; gi < allGroups.length; gi++) {
+                const gr = allGroups[gi];
+                for (let k = 0; k < gr.len; k++) {
+                    const ni = gr.start + k;
+                    let cls = 'nd';
+                    const isInCurrGroup = gr.groupNum === g && phase !== 'done' && phase !== 'init';
+
+                    if (phase === 'collect' && ni === currPos - 1 + (collectIdx === 0 ? 0 : 0)) {
+                        // highlight currently being collected
+                    }
+                    if (isInCurrGroup && groupNodes.includes(ni)) {
+                        if (phase === 'swapping' && (ni === groupNodes[swapL] || ni === groupNodes[swapR])) {
+                            cls += ' swapping';
+                        } else if (phase === 'collect' && ni === groupNodes[groupNodes.length - 1] && collectIdx > 0) {
+                            cls += ' collecting';
+                        } else {
+                            cls += ' in-grp';
+                        }
+                    } else if (swappedNodes.has(ni)) {
+                        cls += ' swapped';
+                    } else if (phase === 'done') {
+                        cls += ' done-nd';
+                    } else if (isInCurrGroup && phase === 'skip') {
+                        cls += ' skip-grp';
+                    }
+
+                    llH += `<div class="ll-node"><div class="${cls}">${nodeVals[ni]}<span class="nd-idx">${ni}</span></div>`;
+                    if (ni < n - 1) llH += `<span class="arrow"> → </span>`;
+                    llH += '</div>';
+                }
+            }
+            $('llDisplay').innerHTML = llH;
+
+            // groupNodes[] collection
+            if (groupNodes.length > 0 && phase !== 'next-group' && phase !== 'done') {
+                let cH = '';
+                for (let i = 0; i < groupNodes.length; i++) {
+                    const ni = groupNodes[i];
+                    let cls = 'cn';
+                    if (phase === 'swapping' && (i === swapL || i === swapR)) cls += ' swap-cn';
+                    else if (swappedNodes.has(ni)) cls += ' done-cn';
+                    cH += `<div class="${cls}">${nodeVals[ni]}<span class="cn-idx">[${i}]</span></div>`;
+                }
+                $('collDisplay').innerHTML = cH;
+            } else {
+                $('collDisplay').innerHTML = '<span style="color:#555">—</span>';
+            }
+
+            // State
+            $('stPhase').textContent = phase;
+            $('stG').textContent = g;
+            $('stLen').textContent = groupNodes.length > 0 ? groupNodes.length : '—';
+            $('stEven').textContent = groupNodes.length > 0 ? (groupNodes.length % 2 === 0 ? 'YES ✓' : 'no') : '—';
+            $('stColl').textContent = phase === 'collect' ? collectIdx : '—';
+            $('stSwap').textContent = swapL >= 0 ? `${swapL}, ${swapR}` : '—';
+            $('stCurr').textContent = currPos < n ? `node(${nodeVals[currPos]}) @${currPos}` : 'null';
+            $('stDone').textContent = groupsDoneCount;
+        }
+
+        function doStep() {
+            if (isDone) { stopExec(); return; }
+            stepCount++;
+
+            switch (phase) {
+                case 'init': {
+                    n = nodeVals.length;
+                    g = 1; currPos = 0; collectIdx = 0; groupNodes = [];
+                    swapL = -1; swapR = -1; swappedNodes = new Set();
+                    groupsDoneCount = 0;
+                    computeAllGroups();
+                    addLog(`List: [${nodeVals.join(',')}], n=${n}`, 'info');
+                    addLog(`Groups: ${allGroups.map(gr => `G${gr.groupNum}(${gr.len})`).join(', ')}`, 'info');
+                    phase = 'collect';
+                    $('statusInd').className = 'status-ind si-run';
+                    $('statusInd').textContent = 'Processing groups...';
+                    render();
+                    break;
+                }
+                case 'collect': {
+                    if (currPos >= n) {
+                        // No more nodes, we're done
+                        if (groupNodes.length > 0) {
+                            phase = 'decide';
+                            render();
+                            doStep();
+                            return;
+                        }
+                        phase = 'done';
+                        isDone = true;
+                        addLog(`✅ All groups processed!`, 'success');
+                        addLog(`Result: [${nodeVals.join(', ')}]`, 'success');
+                        $('statusInd').className = 'status-ind si-done';
+                        $('statusInd').textContent = `✅ Done! [${nodeVals.join(', ')}]`;
+                        render(); stopExec();
+                        return;
+                    }
+                    if (collectIdx >= g) {
+                        // Group full, proceed to decide
+                        phase = 'decide';
+                        render();
+                        doStep();
+                        return;
+                    }
+                    groupNodes.push(currPos);
+                    collectIdx++;
+                    addLog(`  Collect node(${nodeVals[currPos]}) @${currPos} → groupNodes[${collectIdx - 1}]`, 'info');
+                    $('actionBox').innerHTML = `<div class="act-tag act-collect">Collect node(${nodeVals[currPos]}) into G${g}</div><span style="color:#888">${collectIdx}/${Math.min(g, n - (currPos - collectIdx + 1))}</span>`;
+                    currPos++;
+                    render();
+                    break;
+                }
+                case 'decide': {
+                    const len = groupNodes.length;
+                    const isEven = len % 2 === 0;
+                    addLog(`── G${g}: collected ${len} node(s) → ${isEven ? 'EVEN ✓ reverse!' : 'odd → skip'}`, isEven ? 'orange' : 'info');
+
+                    if (isEven) {
+                        swapL = 0;
+                        swapR = len - 1;
+                        phase = 'swapping';
+                        $('actionBox').innerHTML = `<div class="act-tag act-even">G${g}: len=${len} EVEN → swap values!</div>`;
+                    } else {
+                        phase = 'skip';
+                        $('actionBox').innerHTML = `<div class="act-tag act-odd">G${g}: len=${len} odd → skip</div>`;
+                    }
+                    render();
+                    break;
+                }
+                case 'swapping': {
+                    if (swapL >= swapR) {
+                        addLog(`  G${g} reversed: [${groupNodes.map(i => nodeVals[i]).join(',')}]`, 'success');
+                        groupNodes.forEach(i => swappedNodes.add(i));
+                        groupsDoneCount++;
+                        phase = 'next-group';
+                        swapL = -1; swapR = -1;
+                        render();
+                        doStep();
+                        return;
+                    }
+                    const li = groupNodes[swapL], ri = groupNodes[swapR];
+                    addLog(`  swap(node[${li}]=${nodeVals[li]}, node[${ri}]=${nodeVals[ri]})`, 'purple');
+                    [nodeVals[li], nodeVals[ri]] = [nodeVals[ri], nodeVals[li]];
+                    render();
+                    swapL++; swapR--;
+                    break;
+                }
+                case 'skip': {
+                    addLog(`  G${g} skipped (odd length).`, 'info');
+                    groupsDoneCount++;
+                    phase = 'next-group';
+                    render();
+                    doStep();
+                    return;
+                }
+                case 'next-group': {
+                    g++;
+                    collectIdx = 0;
+                    groupNodes = [];
+                    if (currPos >= n) {
+                        phase = 'done';
+                        isDone = true;
+                        addLog(`✅ All groups processed!`, 'success');
+                        addLog(`Result: [${nodeVals.join(', ')}]`, 'success');
+                        $('statusInd').className = 'status-ind si-done';
+                        $('statusInd').textContent = `✅ Done! [${nodeVals.join(', ')}]`;
+                        $('actionBox').innerHTML = `<span style="color:#2ecc71">✅ [${nodeVals.join(', ')}]</span>`;
+                        render(); stopExec();
+                        return;
+                    }
+                    addLog(`Moving to group ${g}...`, 'warning');
+                    phase = 'collect';
+                    render();
+                    break;
+                }
+            }
+        }
+
+        function play() { if (isRunning || isDone) return; isRunning = true; $('playBtn').disabled = true; $('pauseBtn').disabled = false; $('stepBtn').disabled = true; runLoop() }
+        function pause() { isRunning = false; $('playBtn').disabled = false; $('pauseBtn').disabled = true; $('stepBtn').disabled = false }
+        function stopExec() { isRunning = false; $('playBtn').disabled = true; $('pauseBtn').disabled = true; $('stepBtn').disabled = true }
+        function runLoop() { if (!isRunning) return; doStep(); if (isRunning && !isDone) setTimeout(runLoop, 400 / speed) }
+
+        function init() {
+            n = nodeVals.length; g = 1; currPos = 0; collectIdx = 0; groupNodes = [];
+            swapL = -1; swapR = -1; swappedNodes = new Set(); groupsDoneCount = 0;
+            computeAllGroups();
+            phase = 'init'; stepCount = 0; isDone = false;
+            $('statusInd').className = 'status-ind si-neutral';
+            $('statusInd').textContent = 'Ready — press Play or Step';
+            $('actionBox').innerHTML = '<span style="color:#555">—</span>';
+            $('playBtn').disabled = false; $('pauseBtn').disabled = true; $('stepBtn').disabled = false;
+            clearLog(); addLog('Per-group: collect node refs → swap values if even.', 'info');
+            render();
+        }
+
+        $('playBtn').addEventListener('click', play);
+        $('pauseBtn').addEventListener('click', pause);
+        $('stepBtn').addEventListener('click', () => { if (!isDone) doStep() });
+        $('resetBtn').addEventListener('click', () => { isRunning = false; nodeVals = $('listInput').value.split(',').map(x => parseInt(x.trim())).filter(x => !isNaN(x)); init() });
+        $('speedSlider').addEventListener('input', e => { speed = parseInt(e.target.value); $('speedValue').textContent = speed + 'x' });
+        $('applyBtn').addEventListener('click', () => {
+            const lv = $('listInput').value.trim();
+            if (!lv) { alert('Values required.'); return }
+            const vs = lv.split(',').map(x => parseInt(x.trim())).filter(x => !isNaN(x));
+            if (!vs.length) { alert('Need at least one value.'); return }
+            nodeVals = [...vs]; isRunning = false; init();
+        });
+
+        init();
+    </script>
+</body>
+
+</html>

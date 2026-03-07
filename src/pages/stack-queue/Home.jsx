@@ -1009,7 +1009,7 @@ export default function StackQueuesTopicPage() {
                           {tech.problems.map((p, pi) => (
                             <a
                               key={pi}
-                              href={p.href || `${p.slug}-visualizer.html`}
+                              href={`/${p.slug}`}
                               className="sq-prob-link"
                             >
                               <span className="sq-prob-num sq-mono">

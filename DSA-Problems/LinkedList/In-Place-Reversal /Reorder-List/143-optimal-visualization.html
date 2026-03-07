@@ -1,0 +1,1002 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>143 - Optimal: Split + Reverse + Merge</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #0f0c29 0%, #302b63 50%, #24243e 100%);
+            min-height: 100vh;
+            padding: 18px;
+            color: #e0e0e0
+        }
+
+        .container {
+            max-width: 1360px;
+            margin: 0 auto;
+            background: rgba(25, 25, 50, .95);
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, .5), 0 0 40px rgba(46, 204, 113, .07);
+            overflow: hidden;
+            border: 1px solid rgba(255, 255, 255, .06)
+        }
+
+        header {
+            background: linear-gradient(135deg, #16a085, #1abc9c);
+            color: #fff;
+            padding: 22px;
+            text-align: center
+        }
+
+        h1 {
+            font-size: 1.15em;
+            margin-bottom: 5px
+        }
+
+        .subtitle {
+            font-size: .84em;
+            opacity: .92
+        }
+
+        .badge {
+            display: inline-block;
+            background: rgba(255, 255, 255, .2);
+            padding: 5px 14px;
+            border-radius: 15px;
+            margin-top: 7px;
+            font-size: .78em
+        }
+
+        .main-content {
+            display: grid;
+            grid-template-columns: 1fr 280px;
+            gap: 16px;
+            padding: 18px
+        }
+
+        .card {
+            background: rgba(40, 40, 75, .8);
+            border-radius: 14px;
+            padding: 15px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, .2);
+            margin-bottom: 14px;
+            border: 1px solid rgba(255, 255, 255, .05)
+        }
+
+        .card-title {
+            font-size: .88em;
+            font-weight: 600;
+            margin-bottom: 10px;
+            color: #1abc9c
+        }
+
+        button {
+            padding: 7px 14px;
+            border: none;
+            border-radius: 8px;
+            font-size: .82em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all .3s
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, .3)
+        }
+
+        button:disabled {
+            opacity: .4;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #16a085, #1abc9c);
+            color: #fff
+        }
+
+        .btn-success {
+            background: linear-gradient(135deg, #27ae60, #2ecc71);
+            color: #fff
+        }
+
+        .btn-warning {
+            background: linear-gradient(135deg, #f39c12, #e67e22);
+            color: #fff
+        }
+
+        .btn-secondary {
+            background: rgba(100, 100, 140, .7);
+            color: #fff
+        }
+
+        .btn-info {
+            background: linear-gradient(135deg, #3498db, #2980b9);
+            color: #fff
+        }
+
+        .controls {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            align-items: center
+        }
+
+        .speed-control {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            flex: 1;
+            min-width: 140px
+        }
+
+        .speed-control label {
+            font-size: .8em;
+            color: #aaa
+        }
+
+        .speed-control input[type="range"] {
+            flex: 1;
+            height: 5px;
+            accent-color: #1abc9c
+        }
+
+        .speed-control span {
+            font-size: .8em;
+            color: #1abc9c;
+            min-width: 24px
+        }
+
+        .input-section {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+            flex-wrap: wrap
+        }
+
+        .input-section input {
+            padding: 7px 10px;
+            border-radius: 8px;
+            border: 1px solid rgba(255, 255, 255, .15);
+            background: rgba(20, 20, 45, .8);
+            color: #e0e0e0;
+            font-size: .85em;
+            font-family: 'Courier New', monospace;
+            flex: 1;
+            min-width: 180px
+        }
+
+        .input-section input:focus {
+            outline: none;
+            border-color: #1abc9c
+        }
+
+        /* Linked list rows */
+        .ll-area {
+            padding: 10px;
+            background: rgba(20, 20, 50, .4);
+            border-radius: 10px;
+            min-height: 60px
+        }
+
+        .ptr-row {
+            display: flex;
+            gap: 0;
+            min-height: 16px;
+            align-items: center;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin-bottom: 2px
+        }
+
+        .ptr-cell {
+            width: 46px;
+            text-align: center;
+            font-size: .48em;
+            font-weight: 700;
+            margin: 0 1px
+        }
+
+        .ptr-spacer {
+            width: 16px;
+            margin: 0 1px
+        }
+
+        .p-slow {
+            color: #3498db
+        }
+
+        .p-fast {
+            color: #e74c3c
+        }
+
+        .p-prev {
+            color: #9b59b6
+        }
+
+        .p-curr {
+            color: #f39c12
+        }
+
+        .p-p1 {
+            color: #3498db
+        }
+
+        .p-p2 {
+            color: #e67e22
+        }
+
+        .ll-row {
+            display: flex;
+            gap: 0;
+            align-items: center;
+            justify-content: center;
+            flex-wrap: wrap
+        }
+
+        .ll-node {
+            display: flex;
+            align-items: center
+        }
+
+        .nd {
+            width: 46px;
+            height: 46px;
+            border-radius: 10px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 1.1em;
+            border: 2.5px solid rgba(150, 150, 200, .12);
+            background: rgba(60, 60, 100, .12);
+            font-family: 'Courier New', monospace;
+            color: #666;
+            transition: all .35s
+        }
+
+        .nd-sub {
+            font-size: .38em;
+            color: #555;
+            margin-top: 1px
+        }
+
+        .nd.slow-nd {
+            border-color: #3498db;
+            background: rgba(52, 152, 219, .1);
+            color: #3498db;
+            box-shadow: 0 0 8px rgba(52, 152, 219, .1)
+        }
+
+        .nd.fast-nd {
+            border-color: #e74c3c;
+            background: rgba(231, 76, 60, .08);
+            color: #e74c3c
+        }
+
+        .nd.prev-nd {
+            border-color: #9b59b6;
+            background: rgba(155, 89, 182, .08);
+            color: #9b59b6
+        }
+
+        .nd.curr-nd {
+            border-color: #f39c12;
+            background: rgba(243, 156, 18, .1);
+            color: #f39c12;
+            box-shadow: 0 0 8px rgba(243, 156, 18, .1)
+        }
+
+        .nd.p1-nd {
+            border-color: #3498db;
+            background: rgba(52, 152, 219, .1);
+            color: #3498db;
+            box-shadow: 0 0 8px rgba(52, 152, 219, .1)
+        }
+
+        .nd.p2-nd {
+            border-color: #e67e22;
+            background: rgba(230, 126, 34, .1);
+            color: #e67e22;
+            box-shadow: 0 0 8px rgba(230, 126, 34, .1)
+        }
+
+        .nd.first-nd {
+            border-color: #3498db;
+            background: rgba(52, 152, 219, .04);
+            color: #3498db
+        }
+
+        .nd.second-nd {
+            border-color: #e67e22;
+            background: rgba(230, 126, 34, .04);
+            color: #e67e22
+        }
+
+        .nd.done-nd {
+            border-color: #2ecc71;
+            background: rgba(46, 204, 113, .06);
+            color: #2ecc71
+        }
+
+        .arrow {
+            color: #555;
+            font-size: .78em;
+            margin: 0 1px;
+            transition: all .3s
+        }
+
+        .arrow.cut-a {
+            color: #e74c3c;
+            font-weight: 700
+        }
+
+        .arrow.new-a {
+            color: #2ecc71;
+            font-weight: 700
+        }
+
+        .arrow.done-a {
+            color: #2ecc71
+        }
+
+        .phase-badge {
+            display: inline-block;
+            padding: 5px 12px;
+            border-radius: 8px;
+            font-size: .8em;
+            font-weight: 700;
+            margin-bottom: 8px
+        }
+
+        .pb-find {
+            background: rgba(52, 152, 219, .08);
+            border: 1px solid rgba(52, 152, 219, .12);
+            color: #3498db
+        }
+
+        .pb-rev {
+            background: rgba(155, 89, 182, .08);
+            border: 1px solid rgba(155, 89, 182, .12);
+            color: #bb6bd9
+        }
+
+        .pb-merge {
+            background: rgba(46, 204, 113, .08);
+            border: 1px solid rgba(46, 204, 113, .12);
+            color: #2ecc71
+        }
+
+        .pb-done {
+            background: rgba(46, 204, 113, .1);
+            border: 1px solid rgba(46, 204, 113, .15);
+            color: #2ecc71
+        }
+
+        .two-lists {
+            display: flex;
+            gap: 20px;
+            padding: 10px;
+            background: rgba(20, 20, 50, .4);
+            border-radius: 10px;
+            min-height: 60px;
+            align-items: center;
+            justify-content: center;
+            flex-wrap: wrap
+        }
+
+        .list-label {
+            font-size: .6em;
+            font-weight: 700;
+            margin-right: 4px;
+            padding: 3px 8px;
+            border-radius: 5px
+        }
+
+        .ll-first {
+            color: #3498db;
+            background: rgba(52, 152, 219, .06);
+            border: 1px solid rgba(52, 152, 219, .1)
+        }
+
+        .ll-second {
+            color: #e67e22;
+            background: rgba(230, 126, 34, .06);
+            border: 1px solid rgba(230, 126, 34, .1)
+        }
+
+        .action-box {
+            padding: 10px;
+            background: rgba(20, 20, 50, .4);
+            border-radius: 8px;
+            text-align: center;
+            font-family: 'Courier New', monospace;
+            font-size: .82em;
+            min-height: 38px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            flex-wrap: wrap
+        }
+
+        .status-ind {
+            text-align: center;
+            padding: 11px;
+            border-radius: 10px;
+            font-weight: 700;
+            font-size: .85em;
+            transition: all .3s
+        }
+
+        .si-neutral {
+            background: rgba(100, 100, 140, .12);
+            color: #888
+        }
+
+        .si-run {
+            background: rgba(26, 188, 156, .06);
+            color: #1abc9c;
+            border: 1px solid rgba(26, 188, 156, .12)
+        }
+
+        .si-done {
+            background: rgba(46, 204, 113, .12);
+            color: #2ecc71;
+            border: 1px solid rgba(46, 204, 113, .25)
+        }
+
+        .state-display {
+            background: rgba(20, 20, 50, .5);
+            border-radius: 8px;
+            padding: 10px;
+            font-family: 'Courier New', monospace;
+            font-size: .68em
+        }
+
+        .state-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 4px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, .05)
+        }
+
+        .state-row:last-child {
+            border-bottom: none
+        }
+
+        .state-label {
+            font-weight: 600;
+            color: #1abc9c
+        }
+
+        .state-val {
+            color: #ccc;
+            text-align: right;
+            max-width: 150px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap
+        }
+
+        .log-container {
+            background: rgba(20, 20, 50, .5);
+            border-radius: 8px;
+            padding: 10px;
+            max-height: 230px;
+            overflow-y: auto;
+            font-family: 'Courier New', monospace;
+            font-size: .54em
+        }
+
+        .log-entry {
+            padding: 3px 7px;
+            margin: 2px 0;
+            border-radius: 4px;
+            border-left: 3px solid #555;
+            background: rgba(40, 40, 70, .5);
+            line-height: 1.5
+        }
+
+        .log-entry.success {
+            border-left-color: #2ecc71;
+            background: rgba(46, 204, 113, .08);
+            color: #2ecc71
+        }
+
+        .log-entry.warning {
+            border-left-color: #f39c12;
+            background: rgba(243, 156, 18, .08);
+            color: #f39c12
+        }
+
+        .log-entry.info {
+            border-left-color: #3498db;
+            background: rgba(52, 152, 219, .08);
+            color: #8ec8f0
+        }
+
+        .log-entry.error {
+            border-left-color: #e74c3c;
+            background: rgba(231, 76, 60, .08);
+            color: #e74c3c
+        }
+
+        .log-entry.purple {
+            border-left-color: #9b59b6;
+            background: rgba(155, 89, 182, .08);
+            color: #bb6bd9
+        }
+
+        .log-entry.teal {
+            border-left-color: #1abc9c;
+            background: rgba(26, 188, 156, .08);
+            color: #1abc9c
+        }
+
+        .log-entry.orange {
+            border-left-color: #e67e22;
+            background: rgba(230, 126, 34, .08);
+            color: #e67e22
+        }
+
+        .log-container::-webkit-scrollbar {
+            width: 5px
+        }
+
+        .log-container::-webkit-scrollbar-track {
+            background: transparent
+        }
+
+        .log-container::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, .15);
+            border-radius: 3px
+        }
+
+        @media(max-width:960px) {
+            .main-content {
+                grid-template-columns: 1fr
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <header>
+            <h1>🔗 Reorder List</h1>
+            <div class="subtitle">Optimal — Find Middle + Reverse Second Half + Merge</div>
+            <div class="badge">Time: O(n) | Space: O(1) — pure pointer manipulation</div>
+        </header>
+        <div class="main-content">
+            <div class="left-panel">
+                <div class="card">
+                    <div class="card-title">⚙️ Controls</div>
+                    <div class="controls">
+                        <button class="btn-primary" id="playBtn">▶️ Play</button>
+                        <button class="btn-warning" id="pauseBtn" disabled>⏸️ Pause</button>
+                        <button class="btn-success" id="stepBtn">⏭️ Step</button>
+                        <button class="btn-secondary" id="resetBtn">🔄 Reset</button>
+                        <div class="speed-control">
+                            <label>Speed:</label>
+                            <input type="range" id="speedSlider" min="1" max="10" value="5">
+                            <span id="speedValue">5x</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="card">
+                    <div class="card-title">✏️ Custom Input</div>
+                    <div class="input-section">
+                        <input type="text" id="listInput" value="1,2,3,4,5" placeholder="values (comma-separated)">
+                        <button class="btn-info" id="applyBtn">Apply</button>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-title">🔗 Linked List</div>
+                    <div id="phaseBadge"></div>
+                    <div class="ll-area" id="mainArea">
+                        <div class="ptr-row" id="ptrRow"></div>
+                        <div class="ll-row" id="llDisplay"></div>
+                    </div>
+                    <div class="two-lists" id="twoLists" style="display:none"></div>
+                </div>
+
+                <div class="card">
+                    <div class="card-title">🔄 Action</div>
+                    <div class="action-box" id="actionBox"><span style="color:#555">—</span></div>
+                </div>
+
+                <div class="card">
+                    <div class="status-ind si-neutral" id="statusInd">Ready — press Play or Step</div>
+                </div>
+            </div>
+
+            <div class="right-panel">
+                <div class="card">
+                    <div class="card-title">📋 Current State</div>
+                    <div class="state-display">
+                        <div class="state-row"><span class="state-label">Step:</span><span class="state-val"
+                                id="stStep">—</span></div>
+                        <div class="state-row"><span class="state-label">slow:</span><span class="state-val"
+                                id="stSlow">—</span></div>
+                        <div class="state-row"><span class="state-label">fast:</span><span class="state-val"
+                                id="stFast">—</span></div>
+                        <div class="state-row"><span class="state-label">prev:</span><span class="state-val"
+                                id="stPrev">—</span></div>
+                        <div class="state-row"><span class="state-label">curr:</span><span class="state-val"
+                                id="stCurr">—</span></div>
+                        <div class="state-row"><span class="state-label">p1:</span><span class="state-val"
+                                id="stP1">—</span></div>
+                        <div class="state-row"><span class="state-label">p2:</span><span class="state-val"
+                                id="stP2">—</span></div>
+                    </div>
+                </div>
+                <div class="card" style="flex:1">
+                    <div class="card-title">📝 Execution Log</div>
+                    <div class="log-container" id="logContainer">
+                        <div class="log-entry info">3 steps: find middle → reverse 2nd half → merge.</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let initVals = [1, 2, 3, 4, 5];
+
+        // Linked list as {val, next}
+        let nodes = [];
+        let slowIdx = -1, fastIdx = -1;
+        let midIdx = -1;
+        let revPrev = -1, revCurr = -1;
+        let secondHead = -1;
+        let firstHalf = [], secondHalf = []; // for display
+        let p1 = -1, p2 = -1;
+        let mergeSubStep = 0; // 0=show, 1=link p1→p2, 2=link p2→tmp1, 3=advance
+
+        // phases: init | find-mid | find-mid-done | cut | reverse | reverse-done | merge | done
+        let phase = 'init';
+        let stepCount = 0, isRunning = false, speed = 5, isDone = false;
+
+        const $ = id => document.getElementById(id);
+        const logC = $('logContainer');
+        function addLog(m, t = 'info') { logC.innerHTML += `<div class="log-entry ${t}">[${stepCount}] ${m}</div>`; logC.scrollTop = logC.scrollHeight }
+        function clearLog() { logC.innerHTML = '' }
+
+        function buildList() {
+            nodes = [];
+            for (let i = 0; i < initVals.length; i++) {
+                nodes.push({ val: initVals[i], next: i + 1 < initVals.length ? i + 1 : -1 });
+            }
+        }
+
+        function getChain(startIdx) {
+            const o = []; let idx = startIdx; const v = new Set();
+            while (idx !== -1 && !v.has(idx)) { v.add(idx); o.push(idx); idx = nodes[idx].next; }
+            return o;
+        }
+
+        function nv(i) { return i >= 0 && i < nodes.length ? nodes[i].val : 'null'; }
+
+        function renderNodeRow(indices, container, ptrMap, arrowOverrides) {
+            let pH = '', lH = '';
+            for (let oi = 0; oi < indices.length; oi++) {
+                const idx = indices[oi];
+                let labels = [];
+                if (ptrMap) {
+                    for (const [name, { idx: pi, cls }] of Object.entries(ptrMap)) {
+                        if (pi === idx) labels.push(`<span class="${cls}">${name}</span>`);
+                    }
+                }
+                pH += `<div class="ptr-cell">${labels.join(' ')}</div>`;
+                if (oi < indices.length - 1) pH += `<div class="ptr-spacer"></div>`;
+            }
+            return pH;
+        }
+
+        function render() {
+            const showTwo = phase === 'reverse' || phase === 'reverse-done' || phase === 'merge';
+            $('mainArea').style.display = showTwo ? 'none' : '';
+            $('twoLists').style.display = showTwo ? '' : 'none';
+
+            // Phase badge
+            if (phase === 'find-mid' || phase === 'find-mid-done') {
+                $('phaseBadge').innerHTML = `<div class="phase-badge pb-find">Step 1: Find Middle (slow/fast)</div>`;
+            } else if (phase === 'cut') {
+                $('phaseBadge').innerHTML = `<div class="phase-badge pb-find">Step 1: Cut at middle</div>`;
+            } else if (phase === 'reverse' || phase === 'reverse-done') {
+                $('phaseBadge').innerHTML = `<div class="phase-badge pb-rev">Step 2: Reverse Second Half</div>`;
+            } else if (phase === 'merge') {
+                $('phaseBadge').innerHTML = `<div class="phase-badge pb-merge">Step 3: Merge / Interleave</div>`;
+            } else if (phase === 'done') {
+                $('phaseBadge').innerHTML = `<div class="phase-badge pb-done">✅ Complete</div>`;
+            } else {
+                $('phaseBadge').innerHTML = '';
+            }
+
+            if (!showTwo) {
+                // Single list view
+                const order = phase === 'done' ? getChain(0) : Array.from({ length: nodes.length }, (_, i) => i);
+                let pH = '', lH = '';
+                for (let oi = 0; oi < order.length; oi++) {
+                    const idx = order[oi];
+                    let labels = [];
+                    if (idx === slowIdx && (phase === 'find-mid' || phase === 'find-mid-done' || phase === 'cut'))
+                        labels.push('<span class="p-slow">slow</span>');
+                    if (idx === fastIdx && (phase === 'find-mid'))
+                        labels.push('<span class="p-fast">fast</span>');
+                    pH += `<div class="ptr-cell">${labels.join(' ')}</div>`;
+                    if (oi < order.length - 1) pH += `<div class="ptr-spacer"></div>`;
+
+                    let cls = 'nd';
+                    if (phase === 'find-mid' && idx === slowIdx && idx === fastIdx) cls += ' slow-nd';
+                    else if (phase === 'find-mid' && idx === slowIdx) cls += ' slow-nd';
+                    else if (phase === 'find-mid' && idx === fastIdx) cls += ' fast-nd';
+                    else if ((phase === 'find-mid-done' || phase === 'cut') && idx === slowIdx) cls += ' slow-nd';
+                    else if (phase === 'done') cls += ' done-nd';
+                    else if (phase === 'cut' && midIdx >= 0 && idx <= midIdx) cls += ' first-nd';
+                    else if (phase === 'cut' && midIdx >= 0 && idx > midIdx) cls += ' second-nd';
+
+                    lH += `<div class="ll-node"><div class="${cls}">${nodes[idx].val}<span class="nd-sub">L${idx}</span></div>`;
+                    if (oi < order.length - 1) {
+                        let aCls = 'arrow';
+                        if (phase === 'cut' && idx === midIdx) aCls += ' cut-a';
+                        else if (phase === 'done') aCls += ' done-a';
+                        lH += `<span class="${aCls}">${phase === 'cut' && idx === midIdx ? ' ✂ ' : ' → '}</span>`;
+                    }
+                    lH += '</div>';
+                }
+                $('ptrRow').innerHTML = pH;
+                $('llDisplay').innerHTML = lH;
+            } else {
+                // Two-list view
+                firstHalf = getChain(0);
+                secondHalf = secondHead >= 0 ? getChain(secondHead) : [];
+                if (phase === 'reverse' && revCurr >= 0) {
+                    // Show nodes being reversed separately
+                    const revDone = revPrev >= 0 ? getChain(revPrev) : [];
+                    const revRemain = revCurr >= 0 ? getChain(revCurr) : [];
+                    secondHalf = [...revDone, ...revRemain]; // approximate for display
+                }
+
+                let tH = '';
+                // First half
+                tH += '<div style="display:flex;align-items:center;gap:0">';
+                tH += `<span class="list-label ll-first">1st</span>`;
+                for (let i = 0; i < firstHalf.length; i++) {
+                    const idx = firstHalf[i];
+                    let cls = 'nd first-nd';
+                    if (phase === 'merge' && idx === p1) cls = 'nd p1-nd';
+                    tH += `<div class="ll-node"><div class="${cls}">${nodes[idx].val}<span class="nd-sub">L${idx}</span></div>`;
+                    if (i < firstHalf.length - 1) tH += `<span class="arrow"> → </span>`;
+                    tH += '</div>';
+                }
+                tH += '</div>';
+
+                // Second half
+                tH += '<div style="display:flex;align-items:center;gap:0">';
+                tH += `<span class="list-label ll-second">2nd</span>`;
+                const sec = secondHead >= 0 ? getChain(secondHead) : (revPrev >= 0 ? getChain(revPrev) : []);
+                if (sec.length === 0 && revCurr >= 0) {
+                    // Still reversing, show what we have
+                    const done = revPrev >= 0 ? getChain(revPrev) : [];
+                    const remaining = revCurr >= 0 ? getChain(revCurr) : [];
+                    // Reversed portion
+                    for (let i = 0; i < done.length; i++) {
+                        const idx = done[i];
+                        let cls = 'nd second-nd';
+                        tH += `<div class="ll-node"><div class="${cls}">${nodes[idx].val}</div>`;
+                        if (i < done.length - 1 || remaining.length > 0) tH += `<span class="arrow"> → </span>`;
+                        tH += '</div>';
+                    }
+                    // Remaining
+                    for (let i = 0; i < remaining.length; i++) {
+                        const idx = remaining[i];
+                        let cls = 'nd';
+                        if (idx === revCurr) cls += ' curr-nd';
+                        else cls += ' second-nd';
+                        tH += `<div class="ll-node"><div class="${cls}">${nodes[idx].val}</div>`;
+                        if (i < remaining.length - 1) tH += `<span class="arrow"> → </span>`;
+                        tH += '</div>';
+                    }
+                } else {
+                    for (let i = 0; i < sec.length; i++) {
+                        const idx = sec[i];
+                        let cls = 'nd second-nd';
+                        if (phase === 'merge' && idx === p2) cls = 'nd p2-nd';
+                        else if (phase === 'reverse' && idx === revCurr) cls = 'nd curr-nd';
+                        else if (phase === 'reverse' && idx === revPrev) cls = 'nd prev-nd';
+                        tH += `<div class="ll-node"><div class="${cls}">${nodes[idx].val}</div>`;
+                        if (i < sec.length - 1) tH += `<span class="arrow"> → </span>`;
+                        tH += '</div>';
+                    }
+                }
+                tH += '</div>';
+
+                $('twoLists').innerHTML = tH;
+            }
+
+            // State
+            $('stStep').textContent = phase;
+            $('stSlow').textContent = slowIdx >= 0 ? `node(${nv(slowIdx)})` : '—';
+            $('stFast').textContent = fastIdx >= 0 ? `node(${nv(fastIdx)})` : '—';
+            $('stPrev').textContent = revPrev >= 0 ? `node(${nv(revPrev)})` : (phase === 'reverse' ? 'null' : '—');
+            $('stCurr').textContent = revCurr >= 0 ? `node(${nv(revCurr)})` : '—';
+            $('stP1').textContent = p1 >= 0 ? `node(${nv(p1)})` : '—';
+            $('stP2').textContent = p2 >= 0 ? `node(${nv(p2)})` : '—';
+        }
+
+        function doStep() {
+            if (isDone) { stopExec(); return; }
+            stepCount++;
+
+            switch (phase) {
+                case 'init': {
+                    buildList();
+                    slowIdx = 0; fastIdx = 0; midIdx = -1;
+                    revPrev = -1; revCurr = -1; secondHead = -1;
+                    p1 = -1; p2 = -1; mergeSubStep = 0;
+                    addLog(`List: [${initVals.join(',')}], n=${initVals.length}`, 'info');
+                    if (initVals.length <= 2) {
+                        phase = 'done'; isDone = true;
+                        addLog(`n ≤ 2 → already reordered.`, 'success');
+                        $('statusInd').className = 'status-ind si-done';
+                        $('statusInd').textContent = `✅ Done!`;
+                        render(); stopExec(); return;
+                    }
+                    addLog(`━━ Step 1: Find middle (slow/fast) ━━`, 'info');
+                    phase = 'find-mid';
+                    $('statusInd').className = 'status-ind si-run';
+                    $('statusInd').textContent = 'Step 1: Finding middle...';
+                    render();
+                    break;
+                }
+                case 'find-mid': {
+                    const canAdvance = fastIdx >= 0 && nodes[fastIdx].next !== -1 &&
+                        nodes[nodes[fastIdx].next].next !== -1;
+                    if (!canAdvance) {
+                        midIdx = slowIdx;
+                        addLog(`  slow stops at node(${nv(slowIdx)}) — this is the middle`, 'success');
+                        phase = 'find-mid-done';
+                        render();
+                        break;
+                    }
+                    slowIdx = nodes[slowIdx].next;
+                    fastIdx = nodes[nodes[fastIdx].next].next;
+                    addLog(`  slow → node(${nv(slowIdx)}), fast → node(${nv(fastIdx)})`, 'info');
+                    render();
+                    break;
+                }
+                case 'find-mid-done': {
+                    addLog(`  Cut: slow(${nv(slowIdx)}).next → secondHead`, 'warning');
+                    midIdx = slowIdx;
+                    const secStart = nodes[slowIdx].next;
+                    nodes[slowIdx].next = -1; // cut
+                    secondHead = secStart;
+                    addLog(`  First half: [${getChain(0).map(i => nv(i)).join(',')}]`, 'info');
+                    addLog(`  Second half: [${getChain(secondHead).map(i => nv(i)).join(',')}]`, 'orange');
+                    phase = 'cut';
+                    render();
+                    break;
+                }
+                case 'cut': {
+                    addLog(`━━ Step 2: Reverse second half ━━`, 'purple');
+                    revPrev = -1;
+                    revCurr = secondHead;
+                    secondHead = -1; // will be set after reversal
+                    phase = 'reverse';
+                    $('statusInd').textContent = 'Step 2: Reversing second half...';
+                    render();
+                    break;
+                }
+                case 'reverse': {
+                    if (revCurr === -1) {
+                        secondHead = revPrev;
+                        addLog(`  Reversed! Head = node(${nv(secondHead)})`, 'success');
+                        addLog(`  Second half: [${getChain(secondHead).map(i => nv(i)).join(',')}]`, 'success');
+                        phase = 'reverse-done';
+                        render();
+                        break;
+                    }
+                    const next = nodes[revCurr].next;
+                    nodes[revCurr].next = revPrev;
+                    addLog(`  node(${nv(revCurr)}).next = ${revPrev >= 0 ? 'node(' + nv(revPrev) + ')' : 'null'}`, 'purple');
+                    revPrev = revCurr;
+                    revCurr = next;
+                    render();
+                    break;
+                }
+                case 'reverse-done': {
+                    addLog(`━━ Step 3: Merge / Interleave ━━`, 'teal');
+                    p1 = 0;
+                    p2 = secondHead;
+                    phase = 'merge';
+                    mergeSubStep = 0;
+                    $('statusInd').textContent = 'Step 3: Merging (interleaving)...';
+                    render();
+                    break;
+                }
+                case 'merge': {
+                    if (p2 === -1) {
+                        const result = getChain(0).map(i => nv(i));
+                        addLog(`✅ Reordered: [${result.join(' → ')}]`, 'success');
+                        phase = 'done'; isDone = true;
+                        p1 = -1; p2 = -1;
+                        $('statusInd').className = 'status-ind si-done';
+                        $('statusInd').textContent = `✅ Done! [${result.join(' → ')}]`;
+                        $('actionBox').innerHTML = `<span style="color:#2ecc71">✅ ${result.join(' → ')}</span>`;
+                        render(); stopExec();
+                        return;
+                    }
+
+                    if (mergeSubStep === 0) {
+                        // Save temps and show what we'll link
+                        $('actionBox').innerHTML = `<span style="color:#3498db">p1(${nv(p1)})</span> <span style="color:#2ecc71">→</span> <span style="color:#e67e22">p2(${nv(p2)})</span> <span style="color:#2ecc71">→</span> <span style="color:#3498db">p1.next(${nv(nodes[p1].next)})</span>`;
+                        addLog(`  p1(${nv(p1)}).next → p2(${nv(p2)}), p2.next → old-p1.next(${nv(nodes[p1].next)})`, 'teal');
+
+                        const tmp1 = nodes[p1].next;
+                        const tmp2 = nodes[p2].next;
+                        nodes[p1].next = p2;
+                        nodes[p2].next = tmp1;
+                        p1 = tmp1;
+                        p2 = tmp2;
+                        mergeSubStep = 0;
+                        render();
+                        break;
+                    }
+                    break;
+                }
+            }
+        }
+
+        function play() { if (isRunning || isDone) return; isRunning = true; $('playBtn').disabled = true; $('pauseBtn').disabled = false; $('stepBtn').disabled = true; runLoop() }
+        function pause() { isRunning = false; $('playBtn').disabled = false; $('pauseBtn').disabled = true; $('stepBtn').disabled = false }
+        function stopExec() { isRunning = false; $('playBtn').disabled = true; $('pauseBtn').disabled = true; $('stepBtn').disabled = true }
+        function runLoop() { if (!isRunning) return; doStep(); if (isRunning && !isDone) setTimeout(runLoop, 450 / speed) }
+
+        function init() {
+            buildList();
+            slowIdx = -1; fastIdx = -1; midIdx = -1;
+            revPrev = -1; revCurr = -1; secondHead = -1;
+            p1 = -1; p2 = -1; mergeSubStep = 0;
+            phase = 'init'; stepCount = 0; isDone = false;
+            $('statusInd').className = 'status-ind si-neutral';
+            $('statusInd').textContent = 'Ready — press Play or Step';
+            $('actionBox').innerHTML = '<span style="color:#555">—</span>';
+            $('playBtn').disabled = false; $('pauseBtn').disabled = true; $('stepBtn').disabled = false;
+            $('mainArea').style.display = ''; $('twoLists').style.display = 'none';
+            clearLog(); addLog('3 steps: find middle → reverse 2nd half → merge.', 'info');
+            render();
+        }
+
+        $('playBtn').addEventListener('click', play);
+        $('pauseBtn').addEventListener('click', pause);
+        $('stepBtn').addEventListener('click', () => { if (!isDone) doStep() });
+        $('resetBtn').addEventListener('click', () => { isRunning = false; init() });
+        $('speedSlider').addEventListener('input', e => { speed = parseInt(e.target.value); $('speedValue').textContent = speed + 'x' });
+        $('applyBtn').addEventListener('click', () => {
+            const lv = $('listInput').value.trim();
+            if (!lv) { alert('Values required.'); return }
+            const vs = lv.split(',').map(x => parseInt(x.trim())).filter(x => !isNaN(x));
+            if (!vs.length) { alert('Need at least one value.'); return }
+            initVals = [...vs]; isRunning = false; init();
+        });
+
+        init();
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,394 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>3Sum - Brute Force</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+            min-height: 100vh;
+            padding: 20px;
+            color: #333;
+        }
+        .container {
+            max-width: 1050px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            overflow: hidden;
+        }
+        header {
+            background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+            color: white;
+            padding: 25px;
+            text-align: center;
+        }
+        h1 { font-size: 1.5em; margin-bottom: 8px; }
+        .subtitle { font-size: 1em; opacity: 0.9; }
+        .complexity-badge {
+            display: inline-block;
+            background: rgba(255,255,255,0.2);
+            padding: 6px 14px;
+            border-radius: 15px;
+            margin-top: 8px;
+            font-size: 0.85em;
+        }
+        .main-content {
+            display: grid;
+            grid-template-columns: 1fr 240px;
+            gap: 20px;
+            padding: 20px;
+        }
+        .card {
+            background: #f8f9fa;
+            border-radius: 12px;
+            padding: 16px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            margin-bottom: 16px;
+        }
+        .card-title {
+            font-size: 0.95em;
+            font-weight: 600;
+            margin-bottom: 12px;
+            color: #11998e;
+        }
+        .controls { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+        button {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 8px;
+            font-size: 0.85em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        button:hover { transform: translateY(-2px); }
+        button:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+        .btn-primary { background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%); color: white; }
+        .btn-success { background: linear-gradient(135deg, #28a745 0%, #20c997 100%); color: white; }
+        .btn-warning { background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); color: white; }
+        .btn-secondary { background: #6c757d; color: white; }
+        .speed-control { display: flex; align-items: center; gap: 6px; flex: 1; min-width: 140px; }
+        .speed-control input[type="range"] { flex: 1; height: 5px; }
+        .array-display {
+            display: flex;
+            gap: 8px;
+            padding: 15px;
+            background: white;
+            border-radius: 8px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+        .array-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            transition: all 0.3s;
+        }
+        .array-value {
+            width: 45px;
+            height: 45px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 10px;
+            font-weight: 700;
+            font-size: 1em;
+            background: #e0f2f1;
+            border: 3px solid #26a69a;
+        }
+        .array-index { font-size: 0.7em; color: #64748b; margin-top: 4px; }
+        .array-item.pointer-i .array-value { background: #ffecb3; border-color: #ffa000; }
+        .array-item.pointer-j .array-value { background: #bbdefb; border-color: #1976d2; }
+        .array-item.pointer-k .array-value { background: #e1bee7; border-color: #8e24aa; }
+        .array-item.found .array-value { background: #c8e6c9; border-color: #43a047; }
+        .sum-display {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            padding: 15px;
+            background: white;
+            border-radius: 8px;
+            font-size: 1em;
+            flex-wrap: wrap;
+        }
+        .sum-part { padding: 8px 12px; border-radius: 8px; font-weight: 700; }
+        .sum-i { background: #ffecb3; color: #e65100; }
+        .sum-j { background: #bbdefb; color: #0d47a1; }
+        .sum-k { background: #e1bee7; color: #6a1b9a; }
+        .sum-result { background: #e0f2f1; color: #00695c; }
+        .sum-match { background: #c8e6c9; color: #2e7d32; }
+        .triplets-display {
+            background: white;
+            border-radius: 8px;
+            padding: 12px;
+            min-height: 50px;
+        }
+        .triplet-list { display: flex; flex-wrap: wrap; gap: 8px; }
+        .triplet-item {
+            padding: 6px 12px;
+            border-radius: 8px;
+            background: linear-gradient(135deg, #c8e6c9 0%, #a5d6a7 100%);
+            border: 2px solid #43a047;
+            font-weight: 600;
+            font-size: 0.85em;
+            color: #2e7d32;
+        }
+        .result-display { background: white; border-radius: 8px; padding: 15px; text-align: center; }
+        .result-label { font-size: 0.9em; color: #11998e; margin-bottom: 5px; }
+        .result-value { font-size: 1.1em; font-weight: 700; color: #28a745; }
+        .state-display { background: white; border-radius: 8px; padding: 10px; font-family: 'Courier New', monospace; font-size: 0.8em; }
+        .state-row { display: flex; justify-content: space-between; padding: 4px 0; border-bottom: 1px solid #e0e0e0; }
+        .state-row:last-child { border-bottom: none; }
+        .state-label { font-weight: 600; color: #11998e; }
+        .log-container { background: white; border-radius: 8px; padding: 10px; max-height: 130px; overflow-y: auto; font-family: 'Courier New', monospace; font-size: 0.65em; }
+        .log-entry { padding: 3px 6px; margin: 2px 0; border-radius: 4px; border-left: 3px solid #11998e; background: #f8f9fa; }
+        .log-entry.success { border-left-color: #28a745; background: #d4edda; }
+        .log-entry.warning { border-left-color: #ffc107; background: #fff3cd; }
+        .log-entry.info { border-left-color: #17a2b8; background: #d1ecf1; }
+        @media (max-width: 800px) { .main-content { grid-template-columns: 1fr; } }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🔺 3Sum</h1>
+            <div class="subtitle">Brute Force - Three Nested Loops</div>
+            <div class="complexity-badge">Time: O(n³) | Space: O(n)</div>
+        </header>
+        <div class="main-content">
+            <div class="left-panel">
+                <div class="card">
+                    <div class="card-title">⚙️ Controls</div>
+                    <div class="controls">
+                        <button class="btn-primary" id="playBtn">▶️ Play</button>
+                        <button class="btn-warning" id="pauseBtn" disabled>⏸️ Pause</button>
+                        <button class="btn-success" id="stepBtn">⏭️ Step</button>
+                        <button class="btn-secondary" id="resetBtn">🔄 Reset</button>
+                        <div class="speed-control">
+                            <label>Speed:</label>
+                            <input type="range" id="speedSlider" min="1" max="10" value="5">
+                            <span id="speedValue">5x</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="card">
+                    <div class="card-title">📋 Array (target = 0)</div>
+                    <div class="array-display" id="arrayDisplay"></div>
+                </div>
+                <div class="card">
+                    <div class="card-title">➕ Current Triplet Sum</div>
+                    <div class="sum-display" id="sumDisplay">
+                        <span class="sum-part sum-i">nums[i]</span>
+                        <span>+</span>
+                        <span class="sum-part sum-j">nums[j]</span>
+                        <span>+</span>
+                        <span class="sum-part sum-k">nums[k]</span>
+                        <span>=</span>
+                        <span class="sum-part sum-result">?</span>
+                    </div>
+                </div>
+                <div class="card">
+                    <div class="card-title">✅ Found Triplets</div>
+                    <div class="triplets-display">
+                        <div class="triplet-list" id="tripletList"><span style="color:#999">None yet</span></div>
+                    </div>
+                </div>
+            </div>
+            <div class="right-panel">
+                <div class="card">
+                    <div class="card-title">📋 Current State</div>
+                    <div class="state-display">
+                        <div class="state-row"><span class="state-label">i:</span><span id="iState">0</span></div>
+                        <div class="state-row"><span class="state-label">j:</span><span id="jState">1</span></div>
+                        <div class="state-row"><span class="state-label">k:</span><span id="kState">2</span></div>
+                        <div class="state-row"><span class="state-label">Sum:</span><span id="sumState">-</span></div>
+                    </div>
+                </div>
+                <div class="card" style="flex: 1;">
+                    <div class="card-title">📝 Execution Log</div>
+                    <div class="log-container" id="logContainer"><div class="log-entry info">Ready. Check all triplets.</div></div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script>
+        const nums = [-1, 0, 1, 2, -1, -4];
+        const n = nums.length;
+        
+        let i = 0, j = 1, k = 2;
+        let triplets = new Set();
+        let tripletList = [];
+        let foundTriplet = null;
+        let isRunning = false;
+        let speed = 5;
+        let stepCount = 0;
+        let done = false;
+
+        function init() {
+            i = 0; j = 1; k = 2;
+            triplets = new Set();
+            tripletList = [];
+            foundTriplet = null;
+            stepCount = 0;
+            done = false;
+            
+            clearLog();
+            addLog('Checking all triplets (i,j,k) where i<j<k', 'info');
+            updateState();
+            render();
+        }
+
+        function render() {
+            const arrayDisplay = document.getElementById('arrayDisplay');
+            arrayDisplay.innerHTML = nums.map((v, idx) => {
+                let cls = 'array-item';
+                if (foundTriplet && [i,j,k].includes(idx)) cls += ' found';
+                else if (idx === i) cls += ' pointer-i';
+                else if (idx === j) cls += ' pointer-j';
+                else if (idx === k) cls += ' pointer-k';
+                return `<div class="${cls}">
+                    <div class="array-value">${v}</div>
+                    <div class="array-index">${idx === i ? 'i' : idx === j ? 'j' : idx === k ? 'k' : idx}</div>
+                </div>`;
+            }).join('');
+            
+            const sum = nums[i] + nums[j] + nums[k];
+            const match = sum === 0;
+            const sumDisplay = document.getElementById('sumDisplay');
+            sumDisplay.innerHTML = `
+                <span class="sum-part sum-i">${nums[i]}</span>
+                <span>+</span>
+                <span class="sum-part sum-j">${nums[j]}</span>
+                <span>+</span>
+                <span class="sum-part sum-k">${nums[k]}</span>
+                <span>=</span>
+                <span class="sum-part ${match ? 'sum-match' : 'sum-result'}">${sum}</span>
+            `;
+            
+            const tripletListEl = document.getElementById('tripletList');
+            if (tripletList.length === 0) {
+                tripletListEl.innerHTML = '<span style="color:#999">None yet</span>';
+            } else {
+                tripletListEl.innerHTML = tripletList.map(t => 
+                    `<div class="triplet-item">[${t.join(', ')}]</div>`
+                ).join('');
+            }
+        }
+
+        function updateState() {
+            document.getElementById('iState').textContent = i;
+            document.getElementById('jState').textContent = j;
+            document.getElementById('kState').textContent = k;
+            document.getElementById('sumState').textContent = nums[i] + nums[j] + nums[k];
+        }
+
+        function addLog(msg, type = 'info') {
+            const log = document.getElementById('logContainer');
+            log.innerHTML += `<div class="log-entry ${type}">[${stepCount}] ${msg}</div>`;
+            log.scrollTop = log.scrollHeight;
+        }
+
+        function clearLog() { document.getElementById('logContainer').innerHTML = ''; }
+
+        function step() {
+            if (done) { stopExecution(); return; }
+            stepCount++;
+            foundTriplet = null;
+            
+            const sum = nums[i] + nums[j] + nums[k];
+            const tripletSorted = [nums[i], nums[j], nums[k]].sort((a,b) => a-b);
+            const key = tripletSorted.join(',');
+            
+            if (sum === 0) {
+                if (!triplets.has(key)) {
+                    triplets.add(key);
+                    tripletList.push(tripletSorted);
+                    foundTriplet = [i, j, k];
+                    addLog(`(${i},${j},${k}): ${nums[i]}+${nums[j]}+${nums[k]}=0 ✓ NEW`, 'success');
+                } else {
+                    addLog(`(${i},${j},${k}): sum=0 but duplicate`, 'warning');
+                }
+            } else {
+                addLog(`(${i},${j},${k}): ${nums[i]}+${nums[j]}+${nums[k]}=${sum}`, 'info');
+            }
+            
+            // Move to next triplet
+            k++;
+            if (k >= n) {
+                j++;
+                k = j + 1;
+            }
+            if (j >= n - 1) {
+                i++;
+                j = i + 1;
+                k = j + 1;
+            }
+            if (i >= n - 2) {
+                done = true;
+                addLog(`Done! Found ${tripletList.length} triplet(s)`, 'success');
+            }
+            
+            updateState();
+            render();
+        }
+
+        function play() {
+            if (isRunning) return;
+            isRunning = true;
+            document.getElementById('playBtn').disabled = true;
+            document.getElementById('pauseBtn').disabled = false;
+            document.getElementById('stepBtn').disabled = true;
+            runLoop();
+        }
+
+        function pause() {
+            isRunning = false;
+            document.getElementById('playBtn').disabled = false;
+            document.getElementById('pauseBtn').disabled = true;
+            document.getElementById('stepBtn').disabled = false;
+        }
+
+        function stopExecution() {
+            isRunning = false;
+            document.getElementById('playBtn').disabled = true;
+            document.getElementById('pauseBtn').disabled = true;
+            document.getElementById('stepBtn').disabled = true;
+        }
+
+        function runLoop() {
+            if (!isRunning) return;
+            step();
+            if (isRunning && !done) {
+                setTimeout(runLoop, 400 / speed);
+            } else {
+                stopExecution();
+            }
+        }
+
+        function reset() {
+            isRunning = false;
+            document.getElementById('playBtn').disabled = false;
+            document.getElementById('pauseBtn').disabled = true;
+            document.getElementById('stepBtn').disabled = false;
+            init();
+        }
+
+        document.getElementById('playBtn').addEventListener('click', play);
+        document.getElementById('pauseBtn').addEventListener('click', pause);
+        document.getElementById('stepBtn').addEventListener('click', step);
+        document.getElementById('resetBtn').addEventListener('click', reset);
+        document.getElementById('speedSlider').addEventListener('input', (e) => {
+            speed = parseInt(e.target.value);
+            document.getElementById('speedValue').textContent = speed + 'x';
+        });
+
+        init();
+    </script>
+</body>
+</html>

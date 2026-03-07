@@ -1,0 +1,1014 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>560. Subarray Sum Equals K - Brute Force O(n³)</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+            min-height: 100vh;
+            color: #e8e8e8;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1100px;
+            margin: 0 auto;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 25px;
+        }
+
+        h1 {
+            font-size: 1.7rem;
+            background: linear-gradient(90deg, #ff6b6b, #ffd93d);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 8px;
+        }
+
+        .subtitle {
+            color: #888;
+            font-size: 1rem;
+        }
+
+        .complexity-badge {
+            display: inline-block;
+            background: rgba(255, 107, 107, 0.2);
+            border: 1px solid #ff6b6b;
+            color: #ff6b6b;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            margin-top: 10px;
+        }
+
+        .whiteboard {
+            background: rgba(255, 255, 255, 0.03);
+            border-radius: 20px;
+            padding: 25px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+        }
+
+        .problem-info {
+            background: rgba(255, 107, 107, 0.1);
+            border: 1px solid rgba(255, 107, 107, 0.3);
+            border-radius: 12px;
+            padding: 12px;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .problem-info p {
+            color: #ff6b6b;
+            font-size: 0.9rem;
+        }
+
+        .section-title {
+            font-size: 1rem;
+            color: #ffd93d;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .section-title::before {
+            content: '';
+            width: 4px;
+            height: 18px;
+            background: linear-gradient(180deg, #ff6b6b, #ffd93d);
+            border-radius: 2px;
+        }
+
+        .target-display {
+            text-align: center;
+            margin-bottom: 15px;
+        }
+
+        .target-badge {
+            display: inline-block;
+            background: rgba(0, 217, 255, 0.2);
+            border: 2px solid #00d9ff;
+            color: #00d9ff;
+            padding: 6px 20px;
+            border-radius: 20px;
+            font-size: 1.1rem;
+            font-weight: bold;
+        }
+
+        /* Array Visualization */
+        .array-container {
+            display: flex;
+            justify-content: center;
+            gap: 8px;
+            margin: 20px 0;
+            flex-wrap: wrap;
+        }
+
+        .array-cell {
+            width: 70px;
+            height: 70px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            background: rgba(255, 255, 255, 0.05);
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            border-radius: 10px;
+            font-size: 1.5rem;
+            font-weight: bold;
+            position: relative;
+            transition: all 0.3s ease;
+        }
+
+        .array-cell .index {
+            position: absolute;
+            top: -22px;
+            font-size: 0.7rem;
+            color: #888;
+        }
+
+        .array-cell.start {
+            border-color: #ff6b6b;
+            box-shadow: 0 0 15px rgba(255, 107, 107, 0.4);
+        }
+
+        .array-cell.end {
+            border-color: #00d9ff;
+            box-shadow: 0 0 15px rgba(0, 217, 255, 0.4);
+        }
+
+        .array-cell.in-range {
+            background: rgba(168, 85, 247, 0.2);
+            border-color: #a855f7;
+        }
+
+        .array-cell.summing {
+            background: rgba(255, 217, 61, 0.3);
+            border-color: #ffd93d;
+            box-shadow: 0 0 15px rgba(255, 217, 61, 0.4);
+            transform: scale(1.05);
+        }
+
+        .array-cell.found {
+            background: rgba(0, 255, 136, 0.3);
+            border-color: #00ff88;
+            box-shadow: 0 0 20px rgba(0, 255, 136, 0.5);
+        }
+
+        .pointer {
+            position: absolute;
+            bottom: -28px;
+            font-size: 0.65rem;
+            padding: 2px 6px;
+            border-radius: 4px;
+            white-space: nowrap;
+        }
+
+        .pointer.start-ptr {
+            background: rgba(255, 107, 107, 0.3);
+            color: #ff6b6b;
+        }
+
+        .pointer.end-ptr {
+            background: rgba(0, 217, 255, 0.3);
+            color: #00d9ff;
+        }
+
+        .pointer.sum-ptr {
+            background: rgba(255, 217, 61, 0.3);
+            color: #ffd93d;
+        }
+
+        /* Subarray Display */
+        .subarray-display {
+            text-align: center;
+            margin: 15px 0;
+            padding: 15px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 10px;
+        }
+
+        .subarray-label {
+            font-size: 0.85rem;
+            color: #888;
+            margin-bottom: 8px;
+        }
+
+        .subarray-content {
+            font-size: 1.3rem;
+            font-family: 'Courier New', monospace;
+            color: #a855f7;
+        }
+
+        /* Variables Panel */
+        .variables-panel {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 10px;
+            margin: 20px 0;
+        }
+
+        .variable-card {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            padding: 10px;
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+
+        .variable-card.highlight {
+            border-color: #ffd93d;
+            box-shadow: 0 0 12px rgba(255, 217, 61, 0.3);
+        }
+
+        .variable-card.success {
+            border-color: #00ff88;
+            box-shadow: 0 0 12px rgba(0, 255, 136, 0.3);
+        }
+
+        .variable-name {
+            font-size: 0.75rem;
+            color: #888;
+            margin-bottom: 4px;
+        }
+
+        .variable-value {
+            font-size: 1.4rem;
+            font-weight: bold;
+            color: #fff;
+        }
+
+        /* Loop Indicators */
+        .loops-display {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+            margin: 15px 0;
+        }
+
+        .loop-box {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            border-radius: 10px;
+            padding: 12px;
+            text-align: center;
+        }
+
+        .loop-box.active {
+            border-color: #a855f7;
+            background: rgba(168, 85, 247, 0.1);
+        }
+
+        .loop-label {
+            font-size: 0.75rem;
+            color: #888;
+            margin-bottom: 5px;
+        }
+
+        .loop-code {
+            font-family: 'Courier New', monospace;
+            font-size: 0.8rem;
+            color: #ffd93d;
+        }
+
+        /* Comparison Box */
+        .comparison-box {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            padding: 15px;
+            margin: 15px 0;
+            text-align: center;
+        }
+
+        .comparison-text {
+            font-size: 1.2rem;
+            font-family: 'Courier New', monospace;
+            color: #ffd93d;
+        }
+
+        .comparison-result {
+            margin-top: 10px;
+            font-size: 0.95rem;
+            padding: 5px 15px;
+            border-radius: 15px;
+            display: inline-block;
+        }
+
+        .comparison-result.true {
+            background: rgba(0, 255, 136, 0.2);
+            color: #00ff88;
+        }
+
+        .comparison-result.false {
+            background: rgba(255, 107, 107, 0.2);
+            color: #ff6b6b;
+        }
+
+        .comparison-result.calculating {
+            background: rgba(255, 217, 61, 0.2);
+            color: #ffd93d;
+        }
+
+        /* Action Log */
+        .action-log {
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 10px;
+            padding: 10px;
+            margin: 12px 0;
+            font-family: 'Courier New', monospace;
+            font-size: 0.8rem;
+            max-height: 100px;
+            overflow-y: auto;
+        }
+
+        .log-entry {
+            padding: 3px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            opacity: 0;
+            transform: translateX(-20px);
+            animation: slideIn 0.3s ease forwards;
+        }
+
+        @keyframes slideIn {
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        .log-step {
+            color: #a855f7;
+        }
+
+        .log-action {
+            color: #888;
+        }
+
+        .log-value {
+            color: #00ff88;
+        }
+
+        /* Found Subarrays */
+        .found-subarrays {
+            background: rgba(0, 255, 136, 0.1);
+            border: 1px solid rgba(0, 255, 136, 0.3);
+            border-radius: 10px;
+            padding: 12px;
+            margin: 15px 0;
+        }
+
+        .found-title {
+            font-size: 0.85rem;
+            color: #00ff88;
+            margin-bottom: 8px;
+        }
+
+        .found-list {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .found-item {
+            background: rgba(0, 255, 136, 0.2);
+            padding: 5px 12px;
+            border-radius: 15px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9rem;
+            color: #00ff88;
+        }
+
+        /* Controls */
+        .controls {
+            display: flex;
+            justify-content: center;
+            gap: 12px;
+            margin-top: 20px;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            padding: 10px 25px;
+            border: none;
+            border-radius: 25px;
+            font-size: 0.95rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 600;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #ff6b6b, #ffd93d);
+            color: #1a1a2e;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(255, 107, 107, 0.3);
+        }
+
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.1);
+            color: #fff;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .btn-secondary:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        /* Speed Control */
+        .speed-control {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-top: 15px;
+            justify-content: center;
+        }
+
+        .speed-control label {
+            color: #888;
+            font-size: 0.85rem;
+        }
+
+        .speed-slider {
+            width: 120px;
+            height: 5px;
+            -webkit-appearance: none;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 3px;
+            outline: none;
+        }
+
+        .speed-slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 16px;
+            height: 16px;
+            background: linear-gradient(135deg, #ff6b6b, #ffd93d);
+            border-radius: 50%;
+            cursor: pointer;
+        }
+
+        /* Result Display */
+        .result-display {
+            text-align: center;
+            padding: 25px;
+            margin-top: 15px;
+            background: linear-gradient(135deg, rgba(0, 255, 136, 0.1), rgba(0, 217, 255, 0.1));
+            border-radius: 15px;
+            border: 1px solid rgba(0, 255, 136, 0.3);
+            display: none;
+        }
+
+        .result-display.show {
+            display: block;
+            animation: fadeIn 0.5s ease;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .result-label {
+            font-size: 1rem;
+            color: #888;
+            margin-bottom: 8px;
+        }
+
+        .result-value {
+            font-size: 3rem;
+            font-weight: bold;
+            background: linear-gradient(90deg, #00ff88, #00d9ff);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        /* Progress */
+        .progress-container {
+            margin: 12px 0;
+        }
+
+        .progress-bar {
+            height: 4px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 2px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #ff6b6b, #ffd93d);
+            width: 0%;
+            transition: width 0.3s ease;
+        }
+
+        .step-counter {
+            text-align: center;
+            margin-top: 8px;
+            font-size: 0.8rem;
+            color: #888;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <header>
+            <h1>📊 Subarray Sum Equals K</h1>
+            <p class="subtitle">Brute Force Approach - Triple Nested Loop</p>
+            <span class="complexity-badge">⏱️ O(n³) Time · 📦 O(1) Space</span>
+        </header>
+
+        <div class="whiteboard">
+            <div class="problem-info">
+                <p>💡 Check every possible subarray and calculate sum from scratch each time</p>
+            </div>
+
+            <div class="section-title">Array: nums = [1, 1, 1]</div>
+
+            <div class="target-display">
+                <span class="target-badge">🎯 Target k = 2</span>
+            </div>
+
+            <div class="array-container" id="arrayContainer"></div>
+
+            <div class="subarray-display">
+                <div class="subarray-label">Current Subarray</div>
+                <div class="subarray-content" id="subarrayContent">-</div>
+            </div>
+
+            <div class="loops-display">
+                <div class="loop-box" id="loop1">
+                    <div class="loop-label">Outer Loop (start)</div>
+                    <div class="loop-code" id="loop1Code">i = -</div>
+                </div>
+                <div class="loop-box" id="loop2">
+                    <div class="loop-label">Middle Loop (end)</div>
+                    <div class="loop-code" id="loop2Code">j = -</div>
+                </div>
+                <div class="loop-box" id="loop3">
+                    <div class="loop-label">Inner Loop (sum)</div>
+                    <div class="loop-code" id="loop3Code">m = -</div>
+                </div>
+            </div>
+
+            <div class="variables-panel">
+                <div class="variable-card" id="iCard">
+                    <div class="variable-name">Start (i)</div>
+                    <div class="variable-value" id="iValue">-</div>
+                </div>
+                <div class="variable-card" id="jCard">
+                    <div class="variable-name">End (j)</div>
+                    <div class="variable-value" id="jValue">-</div>
+                </div>
+                <div class="variable-card" id="mCard">
+                    <div class="variable-name">Sum Index (m)</div>
+                    <div class="variable-value" id="mValue">-</div>
+                </div>
+                <div class="variable-card" id="sumCard">
+                    <div class="variable-name">Current Sum</div>
+                    <div class="variable-value" id="sumValue">0</div>
+                </div>
+                <div class="variable-card" id="countCard">
+                    <div class="variable-name">Count</div>
+                    <div class="variable-value" id="countValue">0</div>
+                </div>
+            </div>
+
+            <div class="comparison-box" id="comparisonBox">
+                <div class="comparison-text" id="comparisonText">Click "Start" to begin</div>
+                <div class="comparison-result" id="comparisonResult"></div>
+            </div>
+
+            <div class="found-subarrays">
+                <div class="found-title">✅ Found Subarrays (sum = 2):</div>
+                <div class="found-list" id="foundList">
+                    <span style="color: #888; font-size: 0.85rem;">None yet...</span>
+                </div>
+            </div>
+
+            <div class="action-log" id="actionLog"></div>
+
+            <div class="progress-container">
+                <div class="progress-bar">
+                    <div class="progress-fill" id="progressFill"></div>
+                </div>
+                <div class="step-counter" id="stepCounter">Step 0 of 18</div>
+            </div>
+
+            <div class="result-display" id="resultDisplay">
+                <div class="result-label">✨ Total Subarrays Found!</div>
+                <div class="result-value" id="finalResult">2</div>
+            </div>
+
+            <div class="controls">
+                <button class="btn btn-secondary" id="resetBtn" onclick="reset()">↺ Reset</button>
+                <button class="btn btn-secondary" id="prevBtn" onclick="prevStep()" disabled>← Prev</button>
+                <button class="btn btn-primary" id="nextBtn" onclick="nextStep()">Start →</button>
+                <button class="btn btn-secondary" id="autoBtn" onclick="autoPlay()">▶ Auto</button>
+            </div>
+
+            <div class="speed-control">
+                <label>Speed:</label>
+                <input type="range" class="speed-slider" id="speedSlider" min="200" max="1500" value="600">
+                <span id="speedValue">600ms</span>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const nums = [1, 1, 1];
+        const k = 2;
+        let currentStep = 0;
+        let isPlaying = false;
+        let playInterval = null;
+        let foundSubarrays = [];
+
+        // Generate all steps
+        const steps = [];
+
+        // Initial step
+        steps.push({
+            type: 'init',
+            desc: 'Initialize count = 0'
+        });
+
+        // Generate steps for each subarray
+        for (let i = 0; i < nums.length; i++) {
+            for (let j = i; j < nums.length; j++) {
+                // Start of new subarray
+                steps.push({
+                    type: 'new-subarray',
+                    i: i,
+                    j: j,
+                    desc: `Checking subarray [${i}...${j}]`
+                });
+
+                // Calculate sum step by step
+                let sum = 0;
+                for (let m = i; m <= j; m++) {
+                    sum += nums[m];
+                    steps.push({
+                        type: 'add-element',
+                        i: i,
+                        j: j,
+                        m: m,
+                        sum: sum,
+                        desc: `sum += nums[${m}] = ${nums[m]}, sum = ${sum}`
+                    });
+                }
+
+                // Check if sum equals k
+                steps.push({
+                    type: 'check-sum',
+                    i: i,
+                    j: j,
+                    sum: sum,
+                    match: sum === k,
+                    subarray: nums.slice(i, j + 1),
+                    desc: `sum = ${sum}, k = ${k}, match: ${sum === k}`
+                });
+            }
+        }
+
+        // Final step
+        steps.push({
+            type: 'done',
+            desc: 'All subarrays checked!'
+        });
+
+        function initArray() {
+            const container = document.getElementById('arrayContainer');
+            container.innerHTML = '';
+
+            nums.forEach((num, idx) => {
+                const cell = document.createElement('div');
+                cell.className = 'array-cell';
+                cell.id = `cell-${idx}`;
+                cell.innerHTML = `<span class="index">index ${idx}</span>${num}`;
+                container.appendChild(cell);
+            });
+        }
+
+        function updateDisplay() {
+            // Reset cells
+            nums.forEach((_, idx) => {
+                const cell = document.getElementById(`cell-${idx}`);
+                cell.className = 'array-cell';
+                cell.innerHTML = `<span class="index">index ${idx}</span>${nums[idx]}`;
+            });
+
+            // Reset loop boxes
+            document.querySelectorAll('.loop-box').forEach(box => box.classList.remove('active'));
+
+            const step = steps[currentStep];
+            const compText = document.getElementById('comparisonText');
+            const compResult = document.getElementById('comparisonResult');
+
+            if (step.type === 'init') {
+                document.getElementById('iValue').textContent = '-';
+                document.getElementById('jValue').textContent = '-';
+                document.getElementById('mValue').textContent = '-';
+                document.getElementById('sumValue').textContent = '0';
+                document.getElementById('countValue').textContent = '0';
+                document.getElementById('subarrayContent').textContent = '-';
+
+                document.getElementById('loop1Code').textContent = 'i = -';
+                document.getElementById('loop2Code').textContent = 'j = -';
+                document.getElementById('loop3Code').textContent = 'm = -';
+
+                compText.textContent = 'Initialize: count = 0';
+                compResult.textContent = '';
+                compResult.className = 'comparison-result';
+
+                addLog('Init', 'count = 0', 'Start scanning');
+
+            } else if (step.type === 'new-subarray') {
+                document.getElementById('iValue').textContent = step.i;
+                document.getElementById('jValue').textContent = step.j;
+                document.getElementById('mValue').textContent = '-';
+                document.getElementById('sumValue').textContent = '0';
+
+                document.getElementById('loop1').classList.add('active');
+                document.getElementById('loop2').classList.add('active');
+                document.getElementById('loop1Code').textContent = `i = ${step.i}`;
+                document.getElementById('loop2Code').textContent = `j = ${step.j}`;
+                document.getElementById('loop3Code').textContent = 'm = -';
+
+                // Highlight start and end
+                const startCell = document.getElementById(`cell-${step.i}`);
+                startCell.classList.add('start');
+                if (step.i !== step.j) {
+                    startCell.innerHTML += '<span class="pointer start-ptr">i</span>';
+                }
+
+                const endCell = document.getElementById(`cell-${step.j}`);
+                endCell.classList.add('end');
+                endCell.innerHTML += `<span class="pointer end-ptr">${step.i === step.j ? 'i,j' : 'j'}</span>`;
+
+                // Mark range
+                for (let x = step.i; x <= step.j; x++) {
+                    document.getElementById(`cell-${x}`).classList.add('in-range');
+                }
+
+                const subarray = nums.slice(step.i, step.j + 1);
+                document.getElementById('subarrayContent').textContent = `[${subarray.join(', ')}]`;
+
+                compText.textContent = `New subarray: [${step.i}...${step.j}]`;
+                compResult.textContent = 'Reset sum = 0';
+                compResult.className = 'comparison-result calculating';
+
+                addLog(`[${step.i},${step.j}]`, 'New subarray', `[${subarray.join(',')}]`);
+
+            } else if (step.type === 'add-element') {
+                document.getElementById('iValue').textContent = step.i;
+                document.getElementById('jValue').textContent = step.j;
+                document.getElementById('mValue').textContent = step.m;
+                document.getElementById('sumValue').textContent = step.sum;
+
+                document.getElementById('loop1').classList.add('active');
+                document.getElementById('loop2').classList.add('active');
+                document.getElementById('loop3').classList.add('active');
+                document.getElementById('loop1Code').textContent = `i = ${step.i}`;
+                document.getElementById('loop2Code').textContent = `j = ${step.j}`;
+                document.getElementById('loop3Code').textContent = `m = ${step.m}`;
+
+                document.getElementById('mCard').classList.add('highlight');
+                document.getElementById('sumCard').classList.add('highlight');
+                setTimeout(() => {
+                    document.getElementById('mCard').classList.remove('highlight');
+                    document.getElementById('sumCard').classList.remove('highlight');
+                }, 300);
+
+                // Mark range and current summing element
+                for (let x = step.i; x <= step.j; x++) {
+                    const cell = document.getElementById(`cell-${x}`);
+                    cell.classList.add('in-range');
+                    if (x === step.m) {
+                        cell.classList.add('summing');
+                        cell.innerHTML += '<span class="pointer sum-ptr">+</span>';
+                    }
+                }
+
+                const subarray = nums.slice(step.i, step.j + 1);
+                document.getElementById('subarrayContent').textContent = `[${subarray.join(', ')}]`;
+
+                compText.textContent = `sum += nums[${step.m}] = ${nums[step.m]}`;
+                compResult.textContent = `sum = ${step.sum}`;
+                compResult.className = 'comparison-result calculating';
+
+            } else if (step.type === 'check-sum') {
+                document.getElementById('iValue').textContent = step.i;
+                document.getElementById('jValue').textContent = step.j;
+                document.getElementById('mValue').textContent = '-';
+                document.getElementById('sumValue').textContent = step.sum;
+
+                document.getElementById('loop1').classList.add('active');
+                document.getElementById('loop2').classList.add('active');
+                document.getElementById('loop1Code').textContent = `i = ${step.i}`;
+                document.getElementById('loop2Code').textContent = `j = ${step.j}`;
+                document.getElementById('loop3Code').textContent = 'done';
+
+                // Mark range
+                for (let x = step.i; x <= step.j; x++) {
+                    const cell = document.getElementById(`cell-${x}`);
+                    if (step.match) {
+                        cell.classList.add('found');
+                    } else {
+                        cell.classList.add('in-range');
+                    }
+                }
+
+                const subarray = nums.slice(step.i, step.j + 1);
+                document.getElementById('subarrayContent').textContent = `[${subarray.join(', ')}]`;
+
+                compText.textContent = `sum = ${step.sum} == k = ${k}?`;
+
+                if (step.match) {
+                    // Update count
+                    const currentCount = foundSubarrays.length + 1;
+                    document.getElementById('countValue').textContent = currentCount;
+                    document.getElementById('countCard').classList.add('success');
+                    setTimeout(() => document.getElementById('countCard').classList.remove('success'), 400);
+
+                    foundSubarrays.push(`[${subarray.join(',')}]`);
+                    updateFoundList();
+
+                    compResult.textContent = '✅ YES! count++';
+                    compResult.className = 'comparison-result true';
+
+                    addLog(`[${step.i},${step.j}]`, `sum=${step.sum}=k`, '✓ Found!');
+                } else {
+                    compResult.textContent = '❌ No match';
+                    compResult.className = 'comparison-result false';
+
+                    addLog(`[${step.i},${step.j}]`, `sum=${step.sum}≠k`, 'Continue');
+                }
+
+            } else if (step.type === 'done') {
+                document.getElementById('iValue').textContent = '✓';
+                document.getElementById('jValue').textContent = '✓';
+                document.getElementById('mValue').textContent = '✓';
+                document.getElementById('loop1Code').textContent = 'done';
+                document.getElementById('loop2Code').textContent = 'done';
+                document.getElementById('loop3Code').textContent = 'done';
+
+                compText.textContent = '🎉 All subarrays checked!';
+                compResult.textContent = `Total count = ${foundSubarrays.length}`;
+                compResult.className = 'comparison-result true';
+
+                document.getElementById('resultDisplay').classList.add('show');
+                document.getElementById('finalResult').textContent = foundSubarrays.length;
+
+                addLog('Done', 'All checked', `Count = ${foundSubarrays.length}`);
+            }
+
+            // Update progress
+            document.getElementById('progressFill').style.width = ((currentStep + 1) / steps.length * 100) + '%';
+            document.getElementById('stepCounter').textContent = `Step ${currentStep + 1} of ${steps.length}`;
+
+            // Update buttons
+            document.getElementById('prevBtn').disabled = currentStep === 0;
+            document.getElementById('nextBtn').disabled = currentStep >= steps.length - 1;
+            document.getElementById('nextBtn').textContent = currentStep === 0 ? 'Start →' : 'Next →';
+        }
+
+        function updateFoundList() {
+            const list = document.getElementById('foundList');
+            if (foundSubarrays.length === 0) {
+                list.innerHTML = '<span style="color: #888; font-size: 0.85rem;">None yet...</span>';
+            } else {
+                list.innerHTML = foundSubarrays.map(s => `<div class="found-item">${s}</div>`).join('');
+            }
+        }
+
+        function addLog(step, action, result) {
+            const log = document.getElementById('actionLog');
+            const entry = document.createElement('div');
+            entry.className = 'log-entry';
+            entry.innerHTML = `<span class="log-step">[${step}]</span> <span class="log-action">${action}</span> → <span class="log-value">${result}</span>`;
+            log.appendChild(entry);
+            log.scrollTop = log.scrollHeight;
+        }
+
+        function nextStep() {
+            if (currentStep < steps.length - 1) {
+                currentStep++;
+                updateDisplay();
+            }
+        }
+
+        function prevStep() {
+            if (currentStep > 0) {
+                // Recalculate found subarrays up to this point
+                foundSubarrays = [];
+                for (let i = 0; i < currentStep; i++) {
+                    if (steps[i].type === 'check-sum' && steps[i].match) {
+                        const subarray = nums.slice(steps[i].i, steps[i].j + 1);
+                        foundSubarrays.push(`[${subarray.join(',')}]`);
+                    }
+                }
+                updateFoundList();
+
+                currentStep--;
+                document.getElementById('actionLog').innerHTML = '';
+                document.getElementById('resultDisplay').classList.remove('show');
+                document.getElementById('countValue').textContent = foundSubarrays.length;
+
+                updateDisplay();
+            }
+        }
+
+        function reset() {
+            stopAutoPlay();
+            currentStep = 0;
+            foundSubarrays = [];
+            document.getElementById('actionLog').innerHTML = '';
+            document.getElementById('resultDisplay').classList.remove('show');
+            document.getElementById('countValue').textContent = '0';
+            updateFoundList();
+
+            document.getElementById('comparisonText').textContent = 'Click "Start" to begin';
+            document.getElementById('comparisonResult').textContent = '';
+            document.getElementById('progressFill').style.width = '0%';
+            document.getElementById('stepCounter').textContent = `Step 0 of ${steps.length}`;
+            document.getElementById('nextBtn').textContent = 'Start →';
+            document.getElementById('nextBtn').disabled = false;
+            document.getElementById('prevBtn').disabled = true;
+
+            initArray();
+        }
+
+        function autoPlay() {
+            if (isPlaying) {
+                stopAutoPlay();
+                return;
+            }
+
+            isPlaying = true;
+            document.getElementById('autoBtn').textContent = '⏸ Pause';
+
+            const speed = parseInt(document.getElementById('speedSlider').value);
+
+            playInterval = setInterval(() => {
+                if (currentStep < steps.length - 1) {
+                    nextStep();
+                } else {
+                    stopAutoPlay();
+                }
+            }, speed);
+        }
+
+        function stopAutoPlay() {
+            isPlaying = false;
+            document.getElementById('autoBtn').textContent = '▶ Auto';
+            if (playInterval) {
+                clearInterval(playInterval);
+                playInterval = null;
+            }
+        }
+
+        document.getElementById('speedSlider').addEventListener('input', function () {
+            document.getElementById('speedValue').textContent = this.value + 'ms';
+            if (isPlaying) {
+                stopAutoPlay();
+                autoPlay();
+            }
+        });
+
+        // Initialize
+        initArray();
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,545 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Largest Number — Greedy Custom Sort Visualization</title>
+<style>
+  :root {
+    --bg: #0f172a;
+    --surface: #1e293b;
+    --surface2: #334155;
+    --border: #475569;
+    --text: #e2e8f0;
+    --text-dim: #94a3b8;
+    --accent: #38bdf8;
+    --accent2: #818cf8;
+    --green: #4ade80;
+    --red: #f87171;
+    --orange: #fb923c;
+    --yellow: #facc15;
+    --pink: #f472b6;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    padding: 20px;
+  }
+  h1 {
+    text-align: center;
+    font-size: 1.5rem;
+    margin-bottom: 4px;
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+  .subtitle {
+    text-align: center;
+    color: var(--text-dim);
+    font-size: 0.82rem;
+    margin-bottom: 18px;
+  }
+  .container {
+    max-width: 1250px;
+    margin: 0 auto;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 14px;
+  }
+  .full { grid-column: 1 / -1; }
+  .panel {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 16px;
+  }
+  .panel-title {
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: var(--accent);
+    margin-bottom: 10px;
+    font-weight: 700;
+  }
+
+  /* Input */
+  .input-row { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+  .input-row label { font-size: 0.85rem; color: var(--text-dim); }
+  .input-row input[type="text"] {
+    flex: 1; min-width: 200px; padding: 8px 14px; border-radius: 8px;
+    border: 1px solid var(--border); background: var(--surface2);
+    color: var(--text); font-size: 0.95rem; outline: none;
+  }
+  .input-row input[type="text"]:focus {
+    border-color: var(--accent); box-shadow: 0 0 0 2px rgba(56,189,248,.2);
+  }
+
+  /* Buttons */
+  .btn {
+    padding: 8px 18px; border: none; border-radius: 8px; font-size: 0.85rem;
+    font-weight: 600; cursor: pointer; transition: all .15s;
+    display: inline-flex; align-items: center; gap: 6px;
+  }
+  .btn:hover { transform: translateY(-1px); filter: brightness(1.1); }
+  .btn:active { transform: translateY(0); }
+  .btn:disabled { opacity: .4; cursor: not-allowed; transform: none; }
+  .btn-primary { background: var(--accent); color: #0f172a; }
+  .btn-secondary { background: var(--surface2); color: var(--text); border: 1px solid var(--border); }
+  .btn-green { background: var(--green); color: #0f172a; }
+  .btn-orange { background: var(--orange); color: #0f172a; }
+  .btn-red { background: var(--red); color: #0f172a; }
+
+  /* Controls */
+  .controls-row { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+  .speed-ctrl { display: flex; align-items: center; gap: 8px; margin-left: auto; }
+  .speed-ctrl label { font-size: .8rem; color: var(--text-dim); }
+  .speed-ctrl input[type="range"] { width: 120px; accent-color: var(--accent); }
+  .speed-val { font-size: .8rem; color: var(--accent); min-width: 36px; }
+  .step-counter {
+    font-size: .8rem; color: var(--text-dim); padding: 4px 12px;
+    background: var(--surface2); border-radius: 6px;
+  }
+  .progress-bar { width: 100%; height: 4px; background: var(--surface2); border-radius: 2px; overflow: hidden; margin-top: 8px; }
+  .progress-fill { height: 100%; background: linear-gradient(90deg, var(--accent), var(--accent2)); border-radius: 2px; transition: width .3s; }
+
+  /* Warning */
+  .warning-box {
+    background: rgba(251,146,60,.1); border: 1px solid var(--orange);
+    border-radius: 8px; padding: 10px 14px; font-size: .82rem; color: var(--orange);
+    margin-top: 8px; display: none;
+  }
+  .warning-box.show { display: block; }
+
+  /* ─── Array visualization ─── */
+  .array-bar {
+    display: flex; gap: 4px; flex-wrap: wrap; align-items: flex-end; min-height: 60px;
+  }
+  .cell {
+    min-width: 48px; padding: 6px 10px; text-align: center; border-radius: 8px;
+    font-weight: 700; font-size: .95rem; border: 2px solid var(--border);
+    background: var(--surface2); transition: all .35s; position: relative;
+  }
+  .cell .idx {
+    position: absolute; top: -15px; left: 50%; transform: translateX(-50%);
+    font-size: .6rem; color: var(--text-dim); font-weight: 400;
+  }
+  .cell.compare-a {
+    border-color: var(--accent); background: rgba(56,189,248,.15);
+    box-shadow: 0 0 10px rgba(56,189,248,.25);
+  }
+  .cell.compare-b {
+    border-color: var(--pink); background: rgba(244,114,182,.15);
+    box-shadow: 0 0 10px rgba(244,114,182,.25);
+  }
+  .cell.sorted {
+    border-color: var(--green); background: rgba(74,222,128,.1);
+  }
+  .cell.swapping {
+    border-color: var(--yellow); background: rgba(250,204,21,.18);
+    box-shadow: 0 0 14px rgba(250,204,21,.3);
+    animation: pulse .4s ease-in-out;
+  }
+  @keyframes pulse {
+    0%,100% { transform: scale(1); }
+    50% { transform: scale(1.12); }
+  }
+  .cell.final {
+    border-color: var(--green); background: rgba(74,222,128,.15);
+    box-shadow: 0 0 12px rgba(74,222,128,.25);
+  }
+
+  /* Pointer labels */
+  .pointer-row { display: flex; gap: 4px; flex-wrap: wrap; min-height: 20px; margin-top: 2px; }
+  .ptr-slot {
+    min-width: 48px; padding: 0 10px; text-align: center; font-size: .65rem;
+    font-weight: 700; color: transparent;
+  }
+  .ptr-slot.ptr-i { color: var(--accent); }
+  .ptr-slot.ptr-j { color: var(--pink); }
+
+  /* Comparison box */
+  .compare-box {
+    display: flex; align-items: center; gap: 14px; flex-wrap: wrap;
+    min-height: 52px; margin-top: 4px;
+  }
+  .concat-tag {
+    padding: 8px 14px; border-radius: 8px; font-family: 'Courier New', monospace;
+    font-size: 1rem; font-weight: 700; border: 2px solid var(--border);
+    background: var(--surface2); transition: all .3s;
+  }
+  .concat-tag.a-tag { border-color: var(--accent); color: var(--accent); }
+  .concat-tag.b-tag { border-color: var(--pink); color: var(--pink); }
+  .concat-tag.winner { border-color: var(--green); color: var(--green); box-shadow: 0 0 10px rgba(74,222,128,.25); }
+  .concat-tag.loser { opacity: .45; }
+  .cmp-sym { font-size: 1.1rem; font-weight: 700; color: var(--text-dim); min-width: 28px; text-align: center; }
+
+  /* Result banner */
+  .result-banner {
+    text-align: center; font-size: 1.3rem; font-weight: 700;
+    font-family: 'Courier New', monospace; padding: 10px;
+    border-radius: 8px; border: 2px solid var(--green);
+    background: rgba(74,222,128,.08); color: var(--green);
+    display: none; margin-top: 8px;
+  }
+  .result-banner.show { display: block; }
+
+  /* State grid */
+  .state-grid {
+    display: grid; grid-template-columns: auto 1fr; gap: 5px 14px; font-size: .82rem;
+  }
+  .sk { color: var(--accent); font-weight: 600; font-family: 'Courier New', monospace; }
+  .sv { color: var(--text); font-family: 'Courier New', monospace; word-break: break-all; }
+
+  /* Log */
+  .log-entries {
+    max-height: 340px; overflow-y: auto; display: flex; flex-direction: column;
+    gap: 2px; font-size: .78rem; font-family: 'Courier New', monospace;
+  }
+  .log-entries::-webkit-scrollbar { width: 6px; }
+  .log-entries::-webkit-scrollbar-track { background: var(--surface); }
+  .log-entries::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+  .log-entry { padding: 3px 8px; border-radius: 4px; line-height: 1.5; white-space: pre-wrap; }
+  .log-entry.info { color: var(--text-dim); }
+  .log-entry.action { color: var(--accent); }
+  .log-entry.compare { color: var(--yellow); }
+  .log-entry.success { color: var(--green); }
+  .log-entry.swap { color: var(--orange); }
+  .log-entry.result { color: var(--green); font-weight: 700; }
+  .log-entry.hl { background: rgba(56,189,248,.06); }
+
+  /* Section label */
+  .sec-label { font-size: .7rem; text-transform: uppercase; letter-spacing: .5px; color: var(--text-dim); margin-bottom: 4px; }
+
+  @media (max-width: 768px) {
+    .container { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<h1>179. Largest Number — Greedy Custom Sort</h1>
+<p class="subtitle">Sort with comparator: place <em>a</em> before <em>b</em> if <code>a+b &gt; b+a</code> (bubble sort used for clarity)</p>
+
+<div class="container">
+  <!-- Input -->
+  <div class="panel full">
+    <div class="panel-title">Input</div>
+    <div class="input-row">
+      <label>nums =</label>
+      <input type="text" id="inputNums" value="3, 30, 34, 5, 9" placeholder="e.g. 3, 30, 34, 5, 9">
+      <button class="btn btn-primary" onclick="loadInput()">Load</button>
+      <button class="btn btn-red" onclick="resetAll()">⟳ Reset</button>
+    </div>
+    <div class="warning-box" id="warning"></div>
+  </div>
+
+  <!-- Controls -->
+  <div class="panel full">
+    <div class="panel-title">Controls</div>
+    <div class="controls-row">
+      <button class="btn btn-green" id="btnPlay" onclick="togglePlay()" disabled>▶ Play</button>
+      <button class="btn btn-secondary" id="btnStep" onclick="stepFwd()" disabled>⏭ Step</button>
+      <button class="btn btn-secondary" id="btnSkip" onclick="skipEnd()" disabled>⏩ Skip</button>
+      <span class="step-counter" id="stepCtr">Step 0 / 0</span>
+      <div class="speed-ctrl">
+        <label>Speed:</label>
+        <input type="range" id="speedSlider" min="1" max="10" value="5" oninput="updateSpeed()">
+        <span class="speed-val" id="speedVal">5x</span>
+      </div>
+    </div>
+    <div class="progress-bar"><div class="progress-fill" id="progFill" style="width:0%"></div></div>
+  </div>
+
+  <!-- Viz -->
+  <div class="panel full">
+    <div class="panel-title">Visualization</div>
+
+    <div class="sec-label">Array (strings) — <span style="color:var(--accent)">■</span> a &nbsp; <span style="color:var(--pink)">■</span> b &nbsp; <span style="color:var(--green)">■</span> sorted &nbsp; <span style="color:var(--yellow)">■</span> swapping</div>
+    <div class="pointer-row" id="ptrRow"></div>
+    <div class="array-bar" id="arrBar"></div>
+
+    <div style="margin-top:16px">
+      <div class="sec-label">Pairwise Concatenation Comparison</div>
+      <div class="compare-box" id="cmpBox">
+        <span style="color:var(--text-dim)">—</span>
+      </div>
+    </div>
+
+    <div class="result-banner" id="resultBanner"></div>
+  </div>
+
+  <!-- State -->
+  <div class="panel">
+    <div class="panel-title">Variable State</div>
+    <div class="state-grid">
+      <span class="sk">nums</span>       <span class="sv" id="svNums">—</span>
+      <span class="sk">strNums</span>    <span class="sv" id="svStr">—</span>
+      <span class="sk">pass</span>       <span class="sv" id="svPass">—</span>
+      <span class="sk">i (a)</span>      <span class="sv" id="svI">—</span>
+      <span class="sk">j (b)</span>      <span class="sv" id="svJ">—</span>
+      <span class="sk">a + b</span>      <span class="sv" id="svAB">—</span>
+      <span class="sk">b + a</span>      <span class="sv" id="svBA">—</span>
+      <span class="sk">action</span>     <span class="sv" id="svAct">—</span>
+      <span class="sk">result</span>     <span class="sv" id="svRes">—</span>
+    </div>
+  </div>
+
+  <!-- Log -->
+  <div class="panel">
+    <div class="panel-title">Execution Log</div>
+    <div class="log-entries" id="logBox"></div>
+  </div>
+</div>
+
+<script>
+/* ── state ── */
+let arr = [], steps = [], cur = 0, playing = false, timer = null, speed = 5;
+
+/* ── build sort steps (bubble sort to show each comparison clearly) ── */
+function buildSteps(strs) {
+  const a = [...strs];
+  const n = a.length;
+  const S = [];
+
+  S.push({ t:'init', arr:[...a], msg:`Converted to strings: [${a.map(s=>'"'+s+'"').join(', ')}]`, mt:'info' });
+
+  for (let pass = 0; pass < n - 1; pass++) {
+    S.push({ t:'pass_start', arr:[...a], pass, msg:`── Pass ${pass + 1} of ${n - 1} ──`, mt:'info' });
+    for (let j = 0; j < n - 1 - pass; j++) {
+      const i = j, jj = j + 1;
+      const ab = a[i] + a[jj];
+      const ba = a[jj] + a[i];
+      // show comparison
+      S.push({ t:'compare', arr:[...a], pass, i, j:jj, ab, ba,
+        needSwap: ba > ab,
+        msg:`Compare a="${a[i]}" b="${a[jj]}":  a+b="${ab}"  vs  b+a="${ba}"`,
+        mt:'compare' });
+
+      if (ba > ab) {
+        // swap
+        [a[i], a[jj]] = [a[jj], a[i]];
+        S.push({ t:'swap', arr:[...a], pass, i, j:jj, ab, ba,
+          msg:`  "${ba}" > "${ab}" → swap → [${a.map(s=>'"'+s+'"').join(', ')}]`,
+          mt:'swap' });
+      } else {
+        S.push({ t:'no_swap', arr:[...a], pass, i, j:jj, ab, ba,
+          msg:`  "${ab}" ≥ "${ba}" → no swap`,
+          mt:'info' });
+      }
+    }
+    // mark the element that bubbled to its final position
+    S.push({ t:'pass_end', arr:[...a], pass, sorted_from: n - 1 - pass,
+      msg:`Pass ${pass + 1} done — position ${n - 1 - pass} is settled`,
+      mt:'success' });
+  }
+
+  // join
+  const joined = a.join('');
+  const result = joined[0] === '0' ? '0' : joined;
+  S.push({ t:'join', arr:[...a], result, joined,
+    msg:`Join: "${joined}"${joined[0]==='0' ? ' → all zeros → "0"' : ''}`,
+    mt:'action' });
+  S.push({ t:'done', arr:[...a], result,
+    msg:`✓ Answer: "${result}"`, mt:'result' });
+
+  return S;
+}
+
+/* ── render ── */
+function renderArr(step) {
+  const a = step.arr;
+  const n = a.length;
+  const bar = document.getElementById('arrBar');
+  const prow = document.getElementById('ptrRow');
+
+  // sorted positions (everything >= sorted_from for completed passes)
+  let sortedSet = new Set();
+  if (step.pass !== undefined) {
+    // all positions from (n - step.pass) .. n-1 were settled in earlier passes
+    for (let k = n - step.pass; k < n; k++) sortedSet.add(k);
+    if (step.t === 'pass_end') sortedSet.add(step.sorted_from);
+  }
+  if (step.t === 'join' || step.t === 'done') {
+    for (let k = 0; k < n; k++) sortedSet.add(k);
+  }
+
+  bar.innerHTML = a.map((s, idx) => {
+    let cls = 'cell';
+    if (sortedSet.has(idx)) cls += ' sorted';
+    if (step.t === 'compare' || step.t === 'swap' || step.t === 'no_swap') {
+      if (idx === step.i) cls += ' compare-a';
+      if (idx === step.j) cls += ' compare-b';
+    }
+    if (step.t === 'swap' && (idx === step.i || idx === step.j)) cls += ' swapping';
+    if (step.t === 'done') cls = 'cell final';
+    return `<div class="${cls}"><span class="idx">${idx}</span>${s}</div>`;
+  }).join('');
+
+  // pointer row
+  prow.innerHTML = a.map((_, idx) => {
+    let cls = 'ptr-slot';
+    if ((step.t === 'compare' || step.t === 'swap' || step.t === 'no_swap') && idx === step.i) cls += ' ptr-i';
+    if ((step.t === 'compare' || step.t === 'swap' || step.t === 'no_swap') && idx === step.j) cls += ' ptr-j';
+    let lbl = '';
+    if ((step.t === 'compare' || step.t === 'swap' || step.t === 'no_swap') && idx === step.i) lbl = '▲ a';
+    if ((step.t === 'compare' || step.t === 'swap' || step.t === 'no_swap') && idx === step.j) lbl = '▲ b';
+    return `<div class="${cls}">${lbl}</div>`;
+  }).join('');
+}
+
+function renderCmp(step) {
+  const box = document.getElementById('cmpBox');
+  if (step.t === 'compare' || step.t === 'swap' || step.t === 'no_swap') {
+    const abWin = !step.needSwap;
+    box.innerHTML = `
+      <div class="concat-tag a-tag ${abWin ? 'winner' : 'loser'}">${step.ab}</div>
+      <div class="cmp-sym">${abWin ? '≥' : '<'}</div>
+      <div class="concat-tag b-tag ${!abWin ? 'winner' : 'loser'}">${step.ba}</div>
+      <div style="margin-left:8px;font-size:.85rem;color:${step.needSwap ? 'var(--orange)' : 'var(--green)'}">
+        ${step.needSwap
+          ? (step.t === 'swap' ? '→ swapped!' : '→ need swap')
+          : '→ keep order'}
+      </div>`;
+  } else if (step.t === 'done') {
+    box.innerHTML = `<span style="color:var(--green);font-weight:700">Sorting complete</span>`;
+  } else {
+    box.innerHTML = `<span style="color:var(--text-dim)">—</span>`;
+  }
+}
+
+function renderState(step) {
+  document.getElementById('svNums').textContent = `[${arr.join(', ')}]`;
+  document.getElementById('svStr').textContent = `[${step.arr.map(s=>'"'+s+'"').join(', ')}]`;
+  document.getElementById('svPass').textContent = step.pass !== undefined ? step.pass + 1 : '—';
+  document.getElementById('svI').textContent = step.i !== undefined ? `${step.i} ("${step.arr[step.i]}")` : '—';
+  document.getElementById('svJ').textContent = step.j !== undefined ? `${step.j} ("${step.arr[step.j]}")` : '—';
+  document.getElementById('svAB').textContent = step.ab || '—';
+  document.getElementById('svBA').textContent = step.ba || '—';
+  document.getElementById('svAct').textContent = step.t;
+  document.getElementById('svRes').textContent = step.result || '—';
+}
+
+function addLog(step, idx) {
+  const box = document.getElementById('logBox');
+  box.querySelectorAll('.hl').forEach(e => e.classList.remove('hl'));
+  const d = document.createElement('div');
+  d.className = `log-entry ${step.mt} hl`;
+  d.textContent = `[${String(idx+1).padStart(3)}] ${step.msg}`;
+  box.appendChild(d);
+  box.scrollTop = box.scrollHeight;
+}
+
+function renderStep(idx) {
+  if (idx < 0 || idx >= steps.length) return;
+  const s = steps[idx];
+  renderArr(s);
+  renderCmp(s);
+  renderState(s);
+  addLog(s, idx);
+
+  const pct = ((idx + 1) / steps.length) * 100;
+  document.getElementById('progFill').style.width = pct + '%';
+  document.getElementById('stepCtr').textContent = `Step ${idx + 1} / ${steps.length}`;
+
+  if (s.t === 'done') {
+    const b = document.getElementById('resultBanner');
+    b.textContent = `Answer: "${s.result}"`;
+    b.classList.add('show');
+  }
+}
+
+/* ── controls ── */
+function loadInput() {
+  const raw = document.getElementById('inputNums').value.trim();
+  const w = document.getElementById('warning');
+  w.className = 'warning-box'; w.textContent = '';
+
+  const parsed = raw.split(/[\s,]+/).map(s => parseInt(s,10)).filter(n => !isNaN(n) && n >= 0);
+  if (!parsed.length) { w.textContent = 'Enter at least one non-negative integer.'; w.className = 'warning-box show'; return; }
+  if (parsed.length > 20) {
+    w.textContent = `Capping at 20 elements for readability.`;
+    w.className = 'warning-box show';
+    parsed.length = 20;
+  }
+
+  arr = parsed;
+  const strs = arr.map(String);
+  steps = buildSteps(strs);
+  cur = 0; playing = false; clearInterval(timer);
+
+  document.getElementById('logBox').innerHTML = '';
+  document.getElementById('progFill').style.width = '0%';
+  document.getElementById('stepCtr').textContent = `Step 0 / ${steps.length}`;
+  document.getElementById('resultBanner').className = 'result-banner';
+  document.getElementById('cmpBox').innerHTML = '<span style="color:var(--text-dim)">Ready</span>';
+
+  renderArr({ arr: strs, t: 'idle' });
+  document.getElementById('ptrRow').innerHTML = strs.map(() => '<div class="ptr-slot"></div>').join('');
+  document.getElementById('svNums').textContent = `[${arr.join(', ')}]`;
+  document.getElementById('svStr').textContent = `[${strs.map(s=>'"'+s+'"').join(', ')}]`;
+  ['svPass','svI','svJ','svAB','svBA','svRes'].forEach(id => document.getElementById(id).textContent = '—');
+  document.getElementById('svAct').textContent = 'ready';
+
+  enable(true); updatePlayBtn();
+  addLog({ msg: `Loaded: [${arr.join(', ')}] → ${steps.length} animation steps`, mt: 'info' }, -1);
+}
+
+function togglePlay() {
+  if (cur >= steps.length) { cur = 0; document.getElementById('logBox').innerHTML = ''; document.getElementById('resultBanner').className = 'result-banner'; }
+  playing = !playing; updatePlayBtn();
+  playing ? runPlay() : clearInterval(timer);
+}
+function runPlay() {
+  clearInterval(timer);
+  const delay = Math.max(50, 1200 - speed * 110);
+  timer = setInterval(() => {
+    if (cur >= steps.length) { playing = false; updatePlayBtn(); clearInterval(timer); return; }
+    renderStep(cur); cur++;
+  }, delay);
+}
+function stepFwd() {
+  if (cur >= steps.length) return;
+  playing = false; clearInterval(timer); updatePlayBtn();
+  renderStep(cur); cur++;
+}
+function skipEnd() {
+  playing = false; clearInterval(timer); updatePlayBtn();
+  while (cur < steps.length) { renderStep(cur); cur++; }
+}
+function resetAll() {
+  playing = false; clearInterval(timer); cur = 0; arr = []; steps = [];
+  document.getElementById('logBox').innerHTML = '';
+  document.getElementById('arrBar').innerHTML = '';
+  document.getElementById('ptrRow').innerHTML = '';
+  document.getElementById('cmpBox').innerHTML = '<span style="color:var(--text-dim)">—</span>';
+  document.getElementById('resultBanner').className = 'result-banner';
+  document.getElementById('progFill').style.width = '0%';
+  document.getElementById('stepCtr').textContent = 'Step 0 / 0';
+  ['svNums','svStr','svPass','svI','svJ','svAB','svBA','svAct','svRes'].forEach(id => document.getElementById(id).textContent = '—');
+  document.getElementById('warning').className = 'warning-box';
+  enable(false); updatePlayBtn();
+}
+function updateSpeed() {
+  speed = parseInt(document.getElementById('speedSlider').value);
+  document.getElementById('speedVal').textContent = speed + 'x';
+  if (playing) runPlay();
+}
+function enable(on) {
+  document.getElementById('btnPlay').disabled = !on;
+  document.getElementById('btnStep').disabled = !on;
+  document.getElementById('btnSkip').disabled = !on;
+}
+function updatePlayBtn() {
+  const b = document.getElementById('btnPlay');
+  if (playing) { b.textContent = '⏸ Pause'; b.className = 'btn btn-orange'; }
+  else { b.textContent = cur >= steps.length && steps.length ? '⟳ Replay' : '▶ Play'; b.className = 'btn btn-green'; }
+}
+
+window.addEventListener('DOMContentLoaded', loadInput);
+</script>
+</body>
+</html>

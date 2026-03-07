@@ -54,7 +54,7 @@
               "spaceType": "good",
               "pros": ["Very intuitive", "Easy to implement"],
               "cons": ["Requires two passes"],
-              "visualLink": "/legacy/Linked-List/Fast-Slow/Middle/1-count-length-visualization.html",
+              "visualLink": "/DSA-Problems/LinkedList/Fast-&-Slow-Pointers/Middle-Of-Linked-List/Brute.html",
               "notesLink": ""
             },
             {
@@ -73,7 +73,7 @@
               "spaceType": "warning",
               "pros": ["Single pass traversal", "Simple indexing logic"],
               "cons": ["Uses extra memory"],
-              "visualLink": "/legacy/Linked-List/Fast-Slow/Middle/2-array-storage-visualization.html",
+              "visualLink": "/DSA-Problems/LinkedList/Fast-&-Slow-Pointers/Middle-Of-Linked-List/Store-Nodes.html",
               "notesLink": ""
             },
             {
@@ -98,7 +98,7 @@
                 "Interview-standard optimal solution"
               ],
               "cons": ["Requires understanding pointer movement logic"],
-              "visualLink": "/legacy/Linked-List/Fast-Slow/Middle/3-fast-slow-visualization.html",
+              "visualLink": "/DSA-Problems/LinkedList/Fast-&-Slow-Pointers/Middle-Of-Linked-List/Two-pointer.html",
               "notesLink": ""
             }
           ]
@@ -150,7 +150,7 @@
               "spaceType": "good",
               "pros": ["Very straightforward", "Easy to reason about"],
               "cons": ["Too slow for large lists"],
-              "visualLink": "/legacy/Linked-List/Fast-Slow/Intersection/1-bruteforce-visualization.html",
+              "visualLink": "/DSA-Problems/LinkedList/Fast-&-Slow-Pointers/Intersection-Of-Two-Linked-List/BruteForce.html",
               "notesLink": ""
             },
             {
@@ -170,7 +170,7 @@
               "spaceType": "warning",
               "pros": ["Linear time", "Simple logic"],
               "cons": ["Uses extra memory"],
-              "visualLink": "/legacy/Linked-List/Fast-Slow/Intersection/2-hashset-visualization.html",
+              "visualLink": "/DSA-Problems/LinkedList/Fast-&-Slow-Pointers/Intersection-Of-Two-Linked-List/Hashset.html",
               "notesLink": ""
             },
             {
@@ -191,7 +191,7 @@
               "spaceType": "good",
               "pros": ["No extra memory", "Logical alignment approach"],
               "cons": ["Requires two passes for length"],
-              "visualLink": "/legacy/Linked-List/Fast-Slow/Intersection/3-length-difference-visualization.html",
+              "visualLink": "/DSA-Problems/LinkedList/Fast-&-Slow-Pointers/Intersection-Of-Two-Linked-List/LengthDifference.html",
               "notesLink": ""
             },
             {
@@ -217,7 +217,7 @@
                 "Interview-preferred optimal approach"
               ],
               "cons": ["Less intuitive initially"],
-              "visualLink": "/legacy/Linked-List/Fast-Slow/Intersection/4-pointer-switching-visualization.html",
+              "visualLink": "/DSA-Problems/LinkedList/Fast-&-Slow-Pointers/Intersection-Of-Two-Linked-List/TwoPointer.html",
               "notesLink": ""
             }
           ]
@@ -275,7 +275,7 @@
               "spaceType": "warning",
               "pros": ["Very simple logic", "Easy to understand"],
               "cons": ["Uses extra memory"],
-              "visualLink": "/legacy/Linked-List/Fast-Slow/Cycle/1-hashset-visualization.html",
+              "visualLink": "/DSA-Problems/LinkedList/Fast-&-Slow-Pointers/Linked-List-Cycle/141-bruteforce-visualization.html",
               "notesLink": ""
             },
             {
@@ -298,7 +298,7 @@
                 "Modifies the input list",
                 "Not allowed in many interview scenarios"
               ],
-              "visualLink": "/legacy/Linked-List/Fast-Slow/Cycle/2-modify-values-visualization.html",
+              "visualLink": "/DSA-Problems/LinkedList/Fast-&-Slow-Pointers/Linked-List-Cycle/141-improved-visualization.html",
               "notesLink": ""
             },
             {
@@ -323,7 +323,7 @@
                 "Interview-standard solution"
               ],
               "cons": ["Requires understanding pointer speed reasoning"],
-              "visualLink": "/legacy/Linked-List/Fast-Slow/Cycle/3-floyd-visualization.html",
+              "visualLink": "/DSA-Problems/LinkedList/Fast-&-Slow-Pointers/Linked-List-Cycle/141-optimal-visualization.html",
               "notesLink": ""
             }
           ]
@@ -382,7 +382,7 @@
               "spaceType": "good",
               "pros": ["Easy to understand", "Straightforward logic"],
               "cons": ["Requires two passes"],
-              "visualLink": "/legacy/Linked-List/Fast-Slow/Remove-Nth/1-length-visualization.html",
+              "visualLink": "/DSA-Problems/LinkedList/Fast-&-Slow-Pointers/Remove-Nth-Node-From-End/Brute-Force.html",
               "notesLink": ""
             },
             {
@@ -408,7 +408,7 @@
                 "Interview-preferred approach"
               ],
               "cons": ["Requires careful pointer handling"],
-              "visualLink": "/legacy/Linked-List/Fast-Slow/Remove-Nth/2-two-pointer-visualization.html",
+              "visualLink": "/DSA-Problems/LinkedList/Fast-&-Slow-Pointers/Remove-Nth-Node-From-End/Two-Pointer.html",
               "notesLink": ""
             }
           ]
@@ -462,7 +462,7 @@
                 "Uses extra memory",
                 "Does not preserve node structure (modifies values only)"
               ],
-              "visualLink": "/legacy/Linked-List/Fast-Slow/Odd-Even/1-bruteforce-visualization.html",
+              "visualLink": "/DSA-Problems/LinkedList/Fast-&-Slow-Pointers/Odd-Even-Linked-List/BruteForce.html",
               "notesLink": ""
             },
             {
@@ -485,7 +485,7 @@
                 "Conceptually clearer than value rewrite"
               ],
               "cons": ["Still uses extra memory"],
-              "visualLink": "/legacy/Linked-List/Fast-Slow/Odd-Even/2-node-collection-visualization.html",
+              "visualLink": "/DSA-Problems/LinkedList/Fast-&-Slow-Pointers/Odd-Even-Linked-List/Improved.html",
               "notesLink": ""
             },
             {
@@ -511,71 +511,1906 @@
                 "Interview-standard optimal solution"
               ],
               "cons": ["Requires careful pointer rewiring"],
-              "visualLink": "/legacy/Linked-List/Fast-Slow/Odd-Even/3-inplace-visualization.html",
+              "visualLink": "/DSA-Problems/LinkedList/Fast-&-Slow-Pointers/Odd-Even-Linked-List/Optimal.html",
               "notesLink": ""
             }
           ]
         },
-        "palindrome-linked-list": {
-          "title": "Palindrome Linked List",
-          "problemSlug": "palindrome-linked-list",
-          "visualLink": "/legacy/Linked-List/Medium/Palindrom-In-Linked-List/index.html"
+        "linked-list-cycle-ii": {
+          "breadcrumb": [
+            "Linked List",
+            "Fast & Slow Pointers",
+            "Linked List Cycle II"
+          ],
+          "title": "Linked List Cycle II",
+          "difficulty": "Medium",
+          "problemSlug": "linked-list-cycle-ii",
+          "categoryPath": "linked-list/fast-and-slow",
+          "tags": ["Linked List", "Two Pointers", "Cycle Detection"],
+          "description": "Given the head of a linked list, return the node where the cycle begins. If there is no cycle, return null. There is a cycle in the linked list if there is some node that can be reached again by continuously following the next pointer.",
+          "examples": [
+            {
+              "input": "head = [3,2,0,-4], pos = 1",
+              "output": "Node with value 2",
+              "explanation": "The tail connects to the node with index 1, forming a cycle starting at value 2."
+            },
+            {
+              "input": "head = [1,2], pos = 0",
+              "output": "Node with value 1",
+              "explanation": "The tail connects to the head node, forming a cycle starting at value 1."
+            },
+            {
+              "input": "head = [1], pos = -1",
+              "output": "null",
+              "explanation": "There is no cycle in the linked list."
+            }
+          ],
+          "constraints": [
+            "The number of nodes in the list is in the range [0, 10^4].",
+            "-10^5 ≤ Node.val ≤ 10^5",
+            "pos is -1 or a valid index in the linked list."
+          ],
+          "approaches": [
+            {
+              "title": "Brute Force — Nested Traversal",
+              "badge": "Brute Force",
+              "intuition": "For each node, check if it appears again later in the traversal. If a node is revisited, that node is the start of the cycle.",
+              "steps": [
+                "Start from the head node.",
+                "For each node, traverse the rest of the list.",
+                "If a node appears again, return that node.",
+                "If traversal ends without repetition, return null."
+              ],
+              "code": "function detectCycle(head) {\n  let current = head;\n\n  while (current) {\n    let runner = current.next;\n\n    while (runner) {\n      if (runner === current) {\n        return current;\n      }\n      runner = runner.next;\n    }\n\n    current = current.next;\n  }\n\n  return null;\n}",
+              "language": "javascript",
+              "timeComplexity": "O(n²)",
+              "timeType": "bad",
+              "spaceComplexity": "O(1)",
+              "spaceType": "good",
+              "pros": ["No extra memory required", "Conceptually simple"],
+              "cons": [
+                "Very inefficient for large lists",
+                "Repeated traversals"
+              ],
+              "visualLink": "/DSA-Problems/LinkedList/Fast-&-Slow-Pointers/Linked-List-Cycle-II/142-brute-force-visualization.html",
+              "notesLink": ""
+            },
+
+            {
+              "title": "Improved — HashSet of Visited Nodes",
+              "badge": "Improved",
+              "intuition": "Track all visited nodes in a HashSet. If a node is encountered again, that node is the beginning of the cycle.",
+              "steps": [
+                "Initialize an empty HashSet.",
+                "Traverse the linked list.",
+                "If a node already exists in the set, return it.",
+                "Otherwise, add the node to the set.",
+                "If traversal ends, return null."
+              ],
+              "code": "function detectCycle(head) {\n  const visited = new Set();\n  let current = head;\n\n  while (current) {\n    if (visited.has(current)) {\n      return current;\n    }\n\n    visited.add(current);\n    current = current.next;\n  }\n\n  return null;\n}",
+              "language": "javascript",
+              "timeComplexity": "O(n)",
+              "timeType": "good",
+              "spaceComplexity": "O(n)",
+              "spaceType": "warning",
+              "pros": ["Simple implementation", "Linear time complexity"],
+              "cons": ["Uses extra memory"],
+              "visualLink": "/DSA-Problems/LinkedList/Fast-&-Slow-Pointers/Linked-List-Cycle-II/142-hashset-visualization.html",
+              "notesLink": ""
+            },
+
+            {
+              "title": "Optimal — Floyd’s Cycle Detection (Tortoise and Hare)",
+              "badge": "Optimal",
+              "intuition": "Use two pointers moving at different speeds. If they meet, a cycle exists. Reset one pointer to head and move both one step at a time — the meeting point will be the start of the cycle.",
+              "steps": [
+                "Initialize slow and fast pointers.",
+                "Move slow by 1 step and fast by 2 steps.",
+                "If they meet, a cycle exists.",
+                "Reset slow to head.",
+                "Move both pointers one step at a time.",
+                "The node where they meet again is the cycle start."
+              ],
+              "code": "function detectCycle(head) {\n  let slow = head;\n  let fast = head;\n\n  while (fast && fast.next) {\n    slow = slow.next;\n    fast = fast.next.next;\n\n    if (slow === fast) {\n      slow = head;\n\n      while (slow !== fast) {\n        slow = slow.next;\n        fast = fast.next;\n      }\n\n      return slow;\n    }\n  }\n\n  return null;\n}",
+              "language": "javascript",
+              "timeComplexity": "O(n)",
+              "timeType": "good",
+              "spaceComplexity": "O(1)",
+              "spaceType": "good",
+              "pros": [
+                "No extra memory required",
+                "Linear time complexity",
+                "Elegant mathematical solution"
+              ],
+              "cons": ["Requires understanding pointer movement logic"],
+              "visualLink": "/DSA-Problems/LinkedList/Fast-&-Slow-Pointers/Linked-List-Cycle-II/142-floyds-visualization.html",
+              "notesLink": ""
+            }
+          ]
         }
       }
     },
-    "reversal": {
-      "title": "Reversal Techniques",
-      "description": "Reverse all or part of a linked list by rewiring node pointers — the fundamental operation behind dozens of classic problems.",
-      "icon": "🔄",
-      "color": "var(--accent-2)",
+    "dummy-node": {
+      "title": "Dummy Node Technique",
+      "description": "Use a dummy node to simplify edge cases in linked list problems, especially when modifications to the head node are possible.",
+      "icon": "🎭",
+      "color": "var(--accent)",
       "problems": {
-        "reverse-linked-list": {
-          "title": "Reverse Linked List",
-          "problemSlug": "reverse-linked-list",
-          "visualLink": "/legacy/Linked-List/Medium/Reverse-A-Linked-List/index.html"
+        "add-two-numbers": {
+          "breadcrumb": ["Linked List", "Dummy Node", "Add Two Numbers"],
+          "title": "Add Two Numbers",
+          "difficulty": "Medium",
+          "problemSlug": "add-two-numbers",
+          "categoryPath": "linkedlist/dummy-node",
+          "tags": ["Linked List", "Math", "Carry Handling", "Dummy Node"],
+          "description": "You are given two non-empty linked lists representing two non-negative integers. The digits are stored in reverse order, and each of their nodes contains a single digit. Add the two numbers and return the sum as a linked list.",
+          "examples": [
+            {
+              "input": "l1 = [2,4,3], l2 = [5,6,4]",
+              "output": "[7,0,8]",
+              "explanation": "342 + 465 = 807."
+            },
+            {
+              "input": "l1 = [0], l2 = [0]",
+              "output": "[0]",
+              "explanation": "0 + 0 = 0."
+            },
+            {
+              "input": "l1 = [9,9,9,9,9,9,9], l2 = [9,9,9,9]",
+              "output": "[8,9,9,9,0,0,0,1]",
+              "explanation": "9999999 + 9999 = 10009998."
+            }
+          ],
+          "constraints": [
+            "The number of nodes in each linked list is in the range [1, 100].",
+            "0 ≤ Node.val ≤ 9",
+            "It is guaranteed that the list represents a number that does not have leading zeros."
+          ],
+          "approaches": [
+            {
+              "title": "Brute Force — Convert to Numbers",
+              "badge": "Brute Force",
+              "intuition": "Convert both linked lists into full numbers, add them, then convert the result back into a linked list. This works but can overflow for large inputs.",
+              "steps": [
+                "Traverse l1 and compute integer value.",
+                "Traverse l2 and compute integer value.",
+                "Add the two numbers.",
+                "Convert result back into linked list."
+              ],
+              "code": "var addTwoNumbers = function(l1, l2) {\n    let num1 = 0, num2 = 0;\n    let multiplier = 1;\n\n    while (l1) {\n        num1 += l1.val * multiplier;\n        multiplier *= 10;\n        l1 = l1.next;\n    }\n\n    multiplier = 1;\n    while (l2) {\n        num2 += l2.val * multiplier;\n        multiplier *= 10;\n        l2 = l2.next;\n    }\n\n    let sum = num1 + num2;\n\n    if (sum === 0) return new ListNode(0);\n\n    let dummy = new ListNode(0);\n    let current = dummy;\n\n    while (sum > 0) {\n        current.next = new ListNode(sum % 10);\n        sum = Math.floor(sum / 10);\n        current = current.next;\n    }\n\n    return dummy.next;\n};",
+              "language": "javascript",
+              "timeComplexity": "O(n + m)",
+              "timeType": "good",
+              "spaceComplexity": "O(max(n, m))",
+              "spaceType": "warning",
+              "pros": ["Conceptually simple", "Direct arithmetic reasoning"],
+              "cons": ["Can overflow for large numbers", "Not scalable"],
+              "visualLink": "/DSA-Problems/LinkedList/Dummy-Node-Technique/Add-Two-Numbers/BruteForce.html",
+              "notesLink": ""
+            },
+            {
+              "title": "Improved — Direct Digit-by-Digit Addition",
+              "badge": "Improved",
+              "intuition": "Simulate manual addition from least significant digit. Track carry at each step.",
+              "steps": [
+                "Initialize carry = 0.",
+                "Traverse both lists simultaneously.",
+                "Add digits and carry.",
+                "Create new node with sum % 10.",
+                "Update carry = Math.floor(sum / 10)."
+              ],
+              "code": "var addTwoNumbers = function(l1, l2) {\n    let carry = 0;\n    let dummy = new ListNode(0);\n    let current = dummy;\n\n    while (l1 || l2) {\n        const val1 = l1 ? l1.val : 0;\n        const val2 = l2 ? l2.val : 0;\n\n        const sum = val1 + val2 + carry;\n        carry = Math.floor(sum / 10);\n\n        current.next = new ListNode(sum % 10);\n        current = current.next;\n\n        if (l1) l1 = l1.next;\n        if (l2) l2 = l2.next;\n    }\n\n    if (carry > 0) {\n        current.next = new ListNode(carry);\n    }\n\n    return dummy.next;\n};",
+              "language": "javascript",
+              "timeComplexity": "O(max(n, m))",
+              "timeType": "good",
+              "spaceComplexity": "O(max(n, m))",
+              "spaceType": "warning",
+              "pros": [
+                "Handles arbitrary length safely",
+                "Clean manual addition simulation"
+              ],
+              "cons": ["Still requires result list allocation"],
+              "visualLink": "/DSA-Problems/LinkedList/Dummy-Node-Technique/Add-Two-Numbers/Improved.html",
+              "notesLink": ""
+            },
+            {
+              "title": "Optimal — Dummy Node Pattern (Clean Implementation)",
+              "badge": "Optimal",
+              "intuition": "Use a dummy node to simplify pointer handling. Continue while l1, l2, or carry exists. This is the cleanest and interview-standard implementation.",
+              "steps": [
+                "Create dummy node.",
+                "Traverse while l1, l2, or carry exists.",
+                "Add digits and carry.",
+                "Attach new node.",
+                "Return dummy.next."
+              ],
+              "code": "var addTwoNumbers = function(l1, l2) {\n    const dummy = new ListNode(0);\n    let current = dummy;\n    let carry = 0;\n\n    while (l1 !== null || l2 !== null || carry !== 0) {\n        const val1 = l1 ? l1.val : 0;\n        const val2 = l2 ? l2.val : 0;\n\n        const sum = val1 + val2 + carry;\n        carry = Math.floor(sum / 10);\n\n        current.next = new ListNode(sum % 10);\n        current = current.next;\n\n        if (l1) l1 = l1.next;\n        if (l2) l2 = l2.next;\n    }\n\n    return dummy.next;\n};",
+              "language": "javascript",
+              "timeComplexity": "O(max(n, m))",
+              "timeType": "good",
+              "spaceComplexity": "O(max(n, m))",
+              "spaceType": "warning",
+              "pros": [
+                "Single clean pass",
+                "Handles uneven lengths",
+                "Handles final carry naturally",
+                "Interview-standard solution"
+              ],
+              "cons": ["Requires careful carry management"],
+              "visualLink": "/DSA-Problems/LinkedList/Dummy-Node-Technique/Add-Two-Numbers/index.html",
+              "notesLink": ""
+            }
+          ]
         },
-        "reverse-linked-list-ii": {
-          "title": "Reverse Linked List II",
-          "problemSlug": "reverse-linked-list-ii",
-          "visualLink": "/linked-list/visualizer"
+        "merge-two-sorted": {
+          "breadcrumb": ["Linked List", "Dummy Node", "Merge Two Sorted Lists"],
+          "title": "Merge Two Sorted Lists",
+          "difficulty": "Medium",
+          "problemSlug": "merge-two-sorted-lists",
+          "categoryPath": "linkedlist/dummy-node",
+          "tags": ["Linked List", "Recursion", "Two Pointers", "Merge Pattern"],
+          "description": "You are given the heads of two sorted linked lists list1 and list2. Merge the two lists into one sorted list and return the head of the merged list.",
+          "examples": [
+            {
+              "input": "list1 = [1,2,4], list2 = [1,3,4]",
+              "output": "[1,1,2,3,4,4]",
+              "explanation": "Both lists are merged in sorted order."
+            },
+            {
+              "input": "list1 = [], list2 = []",
+              "output": "[]",
+              "explanation": "Both lists are empty."
+            },
+            {
+              "input": "list1 = [], list2 = [0]",
+              "output": "[0]",
+              "explanation": "Merging empty list with [0] gives [0]."
+            }
+          ],
+          "constraints": [
+            "The number of nodes in both lists is in the range [0, 50].",
+            "-100 ≤ Node.val ≤ 100",
+            "Both list1 and list2 are sorted in non-decreasing order."
+          ],
+          "approaches": [
+            {
+              "title": "Brute Force — Collect Values and Sort",
+              "badge": "Brute Force",
+              "intuition": "Extract all node values from both lists into an array, sort the array, then rebuild a new linked list.",
+              "steps": [
+                "Traverse list1 and push values into array.",
+                "Traverse list2 and push values into array.",
+                "Sort the combined array.",
+                "Build a new linked list from sorted values."
+              ],
+              "code": "var mergeTwoLists = function(list1, list2) {\n    const values = [];\n\n    while (list1) {\n        values.push(list1.val);\n        list1 = list1.next;\n    }\n\n    while (list2) {\n        values.push(list2.val);\n        list2 = list2.next;\n    }\n\n    values.sort((a, b) => a - b);\n\n    const dummy = new ListNode(0);\n    let current = dummy;\n\n    for (let val of values) {\n        current.next = new ListNode(val);\n        current = current.next;\n    }\n\n    return dummy.next;\n};",
+              "language": "javascript",
+              "timeComplexity": "O((n+m) log(n+m))",
+              "timeType": "warning",
+              "spaceComplexity": "O(n+m)",
+              "spaceType": "warning",
+              "pros": ["Very easy to understand", "Simple to implement"],
+              "cons": [
+                "Uses extra memory",
+                "Does not leverage sorted property efficiently"
+              ],
+              "visualLink": "/DSA-Problems/LinkedList/Dummy-Node-Technique/Merge-Two-Sorted-Linked-List/BFVisual.html",
+              "notesLink": ""
+            },
+            {
+              "title": "Improved — Iterative Two-Pointer Merge",
+              "badge": "Improved",
+              "intuition": "Traverse both lists simultaneously, always choosing the smaller current node. Use a dummy node to simplify pointer handling.",
+              "steps": [
+                "Create dummy node.",
+                "Compare list1.val and list2.val.",
+                "Attach smaller node to result.",
+                "Advance that pointer.",
+                "Attach remaining nodes after one list ends."
+              ],
+              "code": "var mergeTwoLists = function(list1, list2) {\n    const dummy = new ListNode(0);\n    let current = dummy;\n\n    while (list1 && list2) {\n        if (list1.val <= list2.val) {\n            current.next = list1;\n            list1 = list1.next;\n        } else {\n            current.next = list2;\n            list2 = list2.next;\n        }\n        current = current.next;\n    }\n\n    current.next = list1 ? list1 : list2;\n\n    return dummy.next;\n};",
+              "language": "javascript",
+              "timeComplexity": "O(n + m)",
+              "timeType": "good",
+              "spaceComplexity": "O(1)",
+              "spaceType": "good",
+              "pros": [
+                "Efficient linear time",
+                "Constant extra space",
+                "Leverages sorted property",
+                "Interview-standard iterative approach"
+              ],
+              "cons": ["Requires careful pointer handling"],
+              "visualLink": "/DSA-Problems/LinkedList/Dummy-Node-Technique/Merge-Two-Sorted-Linked-List/IterVisual.html",
+              "notesLink": ""
+            },
+            {
+              "title": "Optimal — Recursive Merge",
+              "badge": "Optimal",
+              "intuition": "At each step, choose the smaller head and recursively merge the remaining lists. Very clean and elegant approach.",
+              "steps": [
+                "Base case: if one list is null, return the other.",
+                "Compare head values.",
+                "Attach smaller node and recursively merge the rest."
+              ],
+              "code": "var mergeTwoLists = function(list1, list2) {\n    if (!list1) return list2;\n    if (!list2) return list1;\n\n    if (list1.val <= list2.val) {\n        list1.next = mergeTwoLists(list1.next, list2);\n        return list1;\n    } else {\n        list2.next = mergeTwoLists(list1, list2.next);\n        return list2;\n    }\n};",
+              "language": "javascript",
+              "timeComplexity": "O(n + m)",
+              "timeType": "good",
+              "spaceComplexity": "O(n + m)",
+              "spaceType": "warning",
+              "pros": [
+                "Very elegant and concise",
+                "Naturally expresses merge logic"
+              ],
+              "cons": [
+                "Uses call stack space",
+                "May cause stack overflow for very large lists"
+              ],
+              "visualLink": "/DSA-Problems/LinkedList/Dummy-Node-Technique/Merge-Two-Sorted-Linked-List/RecursiveVisual.html",
+              "notesLink": ""
+            }
+          ]
         },
-        "swap-nodes-in-pairs": {
+        "partition-list": {
+          "breadcrumb": ["Linked List", "Dummy Node", "Partition List"],
+          "title": "Partition List",
+          "difficulty": "Medium",
+          "problemSlug": "partition-list",
+          "categoryPath": "linkedlist/dummy-node",
+          "tags": [
+            "Linked List",
+            "Dummy Node",
+            "Two Pointers",
+            "Stable Partition"
+          ],
+          "description": "Given the head of a linked list and a value x, partition it such that all nodes less than x come before nodes greater than or equal to x. The relative order of nodes in each partition must be preserved.",
+          "examples": [
+            {
+              "input": "head = [1,4,3,2,5,2], x = 3",
+              "output": "[1,2,2,4,3,5]",
+              "explanation": "All nodes less than 3 appear before nodes greater than or equal to 3, while preserving original relative order."
+            },
+            {
+              "input": "head = [2,1], x = 2",
+              "output": "[1,2]",
+              "explanation": "Node 1 comes before 2 since 1 < 2."
+            }
+          ],
+          "constraints": [
+            "The number of nodes in the list is in the range [0, 200].",
+            "-100 ≤ Node.val ≤ 100",
+            "-200 ≤ x ≤ 200"
+          ],
+          "approaches": [
+            {
+              "title": "Brute Force — Collect, Separate, Rebuild",
+              "badge": "Brute Force",
+              "intuition": "Extract all values into two arrays: one for values < x and one for values ≥ x. Then rebuild the linked list from combined arrays.",
+              "steps": [
+                "Traverse list and collect values < x.",
+                "Collect values ≥ x.",
+                "Rebuild list from concatenated arrays."
+              ],
+              "code": "var partition = function(head, x) {\n    const smaller = [];\n    const greater = [];\n\n    let current = head;\n    while (current) {\n        if (current.val < x) smaller.push(current.val);\n        else greater.push(current.val);\n        current = current.next;\n    }\n\n    const dummy = new ListNode(0);\n    let node = dummy;\n\n    for (let val of smaller.concat(greater)) {\n        node.next = new ListNode(val);\n        node = node.next;\n    }\n\n    return dummy.next;\n};",
+              "language": "javascript",
+              "timeComplexity": "O(n)",
+              "timeType": "good",
+              "spaceComplexity": "O(n)",
+              "spaceType": "warning",
+              "pros": ["Easy to understand", "Straightforward implementation"],
+              "cons": ["Uses extra memory", "Does not reuse original nodes"],
+              "visualLink": "/DSA-Problems/LinkedList/Dummy-Node-Technique/Partition-List/86-bruteforce-visualization.html",
+              "notesLink": ""
+            },
+            {
+              "title": "Improved — Two Auxiliary Lists (Reuse Nodes)",
+              "badge": "Improved",
+              "intuition": "Build two separate linked lists: one for nodes < x and one for nodes ≥ x, using original nodes. Then connect them.",
+              "steps": [
+                "Create two dummy heads: smallDummy and largeDummy.",
+                "Traverse original list once.",
+                "Attach node to appropriate list.",
+                "Connect small list to large list."
+              ],
+              "code": "var partition = function(head, x) {\n    const smallDummy = new ListNode(0);\n    const largeDummy = new ListNode(0);\n\n    let small = smallDummy;\n    let large = largeDummy;\n\n    while (head) {\n        if (head.val < x) {\n            small.next = head;\n            small = small.next;\n        } else {\n            large.next = head;\n            large = large.next;\n        }\n        head = head.next;\n    }\n\n    large.next = null;\n    small.next = largeDummy.next;\n\n    return smallDummy.next;\n};",
+              "language": "javascript",
+              "timeComplexity": "O(n)",
+              "timeType": "good",
+              "spaceComplexity": "O(1)",
+              "spaceType": "good",
+              "pros": [
+                "Single pass",
+                "Reuses original nodes",
+                "Preserves relative order"
+              ],
+              "cons": ["Requires careful pointer rewiring"],
+              "visualLink": "/DSA-Problems/LinkedList/Dummy-Node-Technique/Partition-List/86-optimal-visualization.html",
+              "notesLink": ""
+            },
+            {
+              "title": "Optimal — Clean Dummy Node Pattern",
+              "badge": "Optimal",
+              "intuition": "This is the cleanest version of the two-list approach. Maintain two chains and stitch them together in-place with constant extra space.",
+              "steps": [
+                "Initialize beforeDummy and afterDummy.",
+                "Traverse and attach nodes based on value comparison.",
+                "Terminate after list properly.",
+                "Connect before list to after list."
+              ],
+              "code": "var partition = function(head, x) {\n    const beforeDummy = new ListNode(0);\n    const afterDummy = new ListNode(0);\n\n    let before = beforeDummy;\n    let after = afterDummy;\n\n    while (head !== null) {\n        if (head.val < x) {\n            before.next = head;\n            before = before.next;\n        } else {\n            after.next = head;\n            after = after.next;\n        }\n        head = head.next;\n    }\n\n    after.next = null;\n    before.next = afterDummy.next;\n\n    return beforeDummy.next;\n};",
+              "language": "javascript",
+              "timeComplexity": "O(n)",
+              "timeType": "good",
+              "spaceComplexity": "O(1)",
+              "spaceType": "good",
+              "pros": [
+                "Stable partition",
+                "Single traversal",
+                "Constant extra space",
+                "Interview-standard solution"
+              ],
+              "cons": ["Requires attention to pointer termination"],
+              "visualLink": "/DSA-Problems/LinkedList/Dummy-Node-Technique/Partition-List/86-optimal-visualization.html",
+              "notesLink": ""
+            }
+          ]
+        },
+        "rotate-list": {
+          "breadcrumb": ["Linked List", "Dummy Node", "Rotate List"],
+          "title": "Rotate List",
+          "difficulty": "Medium",
+          "problemSlug": "rotate-list",
+          "categoryPath": "linkedlist/dummy-node",
+          "tags": [
+            "Linked List",
+            "Two Pointers",
+            "Circular List",
+            "Dummy Node"
+          ],
+          "description": "Given the head of a linked list, rotate the list to the right by k places.",
+          "examples": [
+            {
+              "input": "head = [1,2,3,4,5], k = 2",
+              "output": "[4,5,1,2,3]",
+              "explanation": "After rotating 1 step: [5,1,2,3,4]\nAfter rotating 2 steps: [4,5,1,2,3]"
+            },
+            {
+              "input": "head = [0,1,2], k = 4",
+              "output": "[2,0,1]",
+              "explanation": "k = 4 → 4 % 3 = 1, so rotate 1 step."
+            }
+          ],
+          "constraints": [
+            "The number of nodes in the list is in the range [0, 500].",
+            "-100 ≤ Node.val ≤ 100",
+            "0 ≤ k ≤ 2 * 10⁹"
+          ],
+          "approaches": [
+            {
+              "title": "Brute Force — Simulate k Single Rotations",
+              "badge": "Brute Force",
+              "intuition": "Rotate the list one step at a time, repeating k times. Each rotation requires traversing the list to find the last and second-last nodes.",
+              "steps": [
+                "Repeat k times:",
+                "Find last node and its previous node.",
+                "Detach last node and move it to front."
+              ],
+              "code": "var rotateRight = function(head, k) {\n    if (!head || !head.next) return head;\n\n    for (let i = 0; i < k; i++) {\n        let prev = null;\n        let curr = head;\n\n        while (curr.next) {\n            prev = curr;\n            curr = curr.next;\n        }\n\n        prev.next = null;\n        curr.next = head;\n        head = curr;\n    }\n\n    return head;\n};",
+              "language": "javascript",
+              "timeComplexity": "O(n * k)",
+              "timeType": "bad",
+              "spaceComplexity": "O(1)",
+              "spaceType": "good",
+              "pros": ["Very straightforward", "Easy to understand"],
+              "cons": ["Too slow when k is large"],
+              "visualLink": "/DSA-Problems/LinkedList/Dummy-Node-Technique/Rotate-List/61-bruteforce-visualization.html",
+              "notesLink": ""
+            },
+            {
+              "title": "Improved — Reduce k mod n, Then Simulate",
+              "badge": "Improved",
+              "intuition": "Since rotating n times returns the same list, reduce k using k % n. Then simulate only required rotations.",
+              "steps": [
+                "Compute length n.",
+                "Reduce k = k % n.",
+                "Simulate k rotations."
+              ],
+              "code": "var rotateRight = function(head, k) {\n    if (!head || !head.next) return head;\n\n    let length = 0;\n    let temp = head;\n    while (temp) {\n        length++;\n        temp = temp.next;\n    }\n\n    k = k % length;\n\n    for (let i = 0; i < k; i++) {\n        let prev = null;\n        let curr = head;\n\n        while (curr.next) {\n            prev = curr;\n            curr = curr.next;\n        }\n\n        prev.next = null;\n        curr.next = head;\n        head = curr;\n    }\n\n    return head;\n};",
+              "language": "javascript",
+              "timeComplexity": "O(n * (k % n))",
+              "timeType": "warning",
+              "spaceComplexity": "O(1)",
+              "spaceType": "good",
+              "pros": [
+                "Avoids unnecessary full rotations",
+                "Handles large k better"
+              ],
+              "cons": ["Still not optimal for large n"],
+              "visualLink": "/DSA-Problems/LinkedList/Dummy-Node-Technique/Rotate-List/61-improved-visualization.html",
+              "notesLink": ""
+            },
+            {
+              "title": "Optimal — Circular Link & Break",
+              "badge": "Optimal",
+              "intuition": "Make the list circular. Then find the new tail at position (n - k % n - 1), break the circle, and return new head.",
+              "steps": [
+                "Compute length n.",
+                "Reduce k = k % n.",
+                "Connect tail to head (make circular).",
+                "Find new tail at (n - k - 1).",
+                "Set new head and break circle."
+              ],
+              "code": "var rotateRight = function(head, k) {\n    if (!head || !head.next || k === 0) return head;\n\n    let length = 1;\n    let tail = head;\n\n    while (tail.next) {\n        tail = tail.next;\n        length++;\n    }\n\n    k = k % length;\n    if (k === 0) return head;\n\n    tail.next = head; // Make circular\n\n    let stepsToNewTail = length - k;\n    let newTail = head;\n\n    for (let i = 1; i < stepsToNewTail; i++) {\n        newTail = newTail.next;\n    }\n\n    const newHead = newTail.next;\n    newTail.next = null;\n\n    return newHead;\n};",
+              "language": "javascript",
+              "timeComplexity": "O(n)",
+              "timeType": "good",
+              "spaceComplexity": "O(1)",
+              "spaceType": "good",
+              "pros": [
+                "Single traversal (after length computation)",
+                "Constant extra space",
+                "Handles very large k efficiently",
+                "Interview-preferred solution"
+              ],
+              "cons": ["Requires careful circular handling"],
+              "visualLink": "/DSA-Problems/LinkedList/Dummy-Node-Technique/Rotate-List/61-optimal-visualization.html",
+              "notesLink": ""
+            }
+          ]
+        },
+        "delete-a-linked-list": {
+          "breadcrumb": [
+            "Linked List",
+            "Dummy Node",
+            "Delete Node in a Linked List"
+          ],
+          "title": "Delete Node in a Linked List",
+          "difficulty": "Medium",
+          "problemSlug": "delete-node-in-a-linked-list",
+          "categoryPath": "linkedlist/dummy-node",
+          "tags": [
+            "Linked List",
+            "In-Place Modification",
+            "Pointer Manipulation"
+          ],
+          "description": "There is a singly linked list. You are given the node to be deleted. You do not have access to the head of the list. Delete the given node. It is guaranteed that the given node is not the tail node.",
+          "examples": [
+            {
+              "input": "head = [4,5,1,9], node = 5",
+              "output": "[4,1,9]",
+              "explanation": "You are given the node with value 5. After deleting it, the list becomes [4,1,9]."
+            },
+            {
+              "input": "head = [4,5,1,9], node = 1",
+              "output": "[4,5,9]",
+              "explanation": "You are given the node with value 1. After deleting it, the list becomes [4,5,9]."
+            }
+          ],
+          "constraints": [
+            "The number of nodes in the given list is in the range [2, 1000].",
+            "-1000 ≤ Node.val ≤ 1000",
+            "The value of each node in the list is unique.",
+            "The given node is not the tail and is guaranteed to exist in the list."
+          ],
+          "approaches": [
+            {
+              "title": "Brute Force — Shift All Values Left",
+              "badge": "Brute Force",
+              "intuition": "Since we cannot access the previous node, shift values from the next nodes backward until the end, then remove the final node.",
+              "steps": [
+                "Copy next node's value into current node.",
+                "Move to next node.",
+                "Repeat until reaching second-last node.",
+                "Set its next pointer to null."
+              ],
+              "code": "var deleteNode = function(node) {\n    let current = node;\n\n    while (current.next && current.next.next) {\n        current.val = current.next.val;\n        current = current.next;\n    }\n\n    // Copy value from last node\n    current.val = current.next.val;\n    current.next = null;\n};",
+              "language": "javascript",
+              "timeComplexity": "O(n)",
+              "timeType": "warning",
+              "spaceComplexity": "O(1)",
+              "spaceType": "good",
+              "pros": [
+                "Works without head access",
+                "Conceptually understandable"
+              ],
+              "cons": [
+                "Unnecessary repeated copying",
+                "Inefficient compared to optimal trick"
+              ],
+              "visualLink": "/DSA-Problems/LinkedList/Dummy-Node-Technique/Delete-Node-LL/237-bruteforce-visualization.html",
+              "notesLink": ""
+            },
+            {
+              "title": "Optimal — Copy-and-Skip (The Trick)",
+              "badge": "Optimal",
+              "intuition": "Instead of deleting the node directly, copy the next node's value into it, then bypass the next node. This effectively deletes the current node.",
+              "steps": [
+                "Copy node.next.val into node.val.",
+                "Set node.next = node.next.next."
+              ],
+              "code": "var deleteNode = function(node) {\n    node.val = node.next.val;\n    node.next = node.next.next;\n};",
+              "language": "javascript",
+              "timeComplexity": "O(1)",
+              "timeType": "good",
+              "spaceComplexity": "O(1)",
+              "spaceType": "good",
+              "pros": [
+                "Constant time",
+                "Constant space",
+                "Elegant in-place trick",
+                "Interview-famous solution"
+              ],
+              "cons": ["Only works because node is guaranteed not to be tail"],
+              "visualLink": "/DSA-Problems/LinkedList/Dummy-Node-Technique/Delete-Node-LL/237-optimal-visualization.html",
+              "notesLink": ""
+            }
+          ]
+        },
+        "remove-duplicates-from-sorted-list": {
+          "breadcrumb": [
+            "Linked List",
+            "Fast & Slow Pointers",
+            "Remove Duplicates from Sorted List"
+          ],
+          "title": "Remove Duplicates from Sorted List",
+          "difficulty": "Easy",
+          "problemSlug": "remove-duplicates-from-sorted-list",
+          "categoryPath": "linked-list/fast-and-slow",
+          "tags": ["Linked List", "Two Pointers"],
+          "description": "Given the head of a sorted linked list, delete all duplicates such that each element appears only once. Return the linked list sorted as well.",
+          "examples": [
+            {
+              "input": "head = [1,1,2]",
+              "output": "[1,2]",
+              "explanation": "Duplicate value 1 is removed."
+            },
+            {
+              "input": "head = [1,1,2,3,3]",
+              "output": "[1,2,3]",
+              "explanation": "Duplicate values 1 and 3 are removed."
+            }
+          ],
+          "constraints": [
+            "The number of nodes in the list is in the range [0, 300].",
+            "-100 ≤ Node.val ≤ 100",
+            "The list is guaranteed to be sorted in ascending order."
+          ],
+
+          "approaches": [
+            {
+              "title": "Brute Force — Hash Set (Ignore Sorted Property)",
+              "badge": "Brute Force",
+              "intuition": "Store seen values in a HashSet. If a value appears again, skip that node.",
+              "steps": [
+                "Create a HashSet to track seen values.",
+                "Traverse the list.",
+                "If current value exists in set → remove node.",
+                "Otherwise add value to set."
+              ],
+              "code": "function deleteDuplicates(head) {\n  const seen = new Set();\n  let current = head;\n  let prev = null;\n\n  while (current) {\n    if (seen.has(current.val)) {\n      prev.next = current.next;\n    } else {\n      seen.add(current.val);\n      prev = current;\n    }\n\n    current = current.next;\n  }\n\n  return head;\n}",
+              "language": "javascript",
+              "timeComplexity": "O(n)",
+              "timeType": "good",
+              "spaceComplexity": "O(n)",
+              "spaceType": "warning",
+              "pros": ["Works even if the list is not sorted", "Simple logic"],
+              "cons": ["Uses extra memory", "Doesn't leverage sorted property"],
+              "visualLink": "/DSA-Problems/LinkedList/Dummy-Node-Technique/Remove-Duplicates/83-bruteforce-visualization.html",
+              "notesLink": ""
+            },
+
+            {
+              "title": "Improved — Recursive Deduplication",
+              "badge": "Improved",
+              "intuition": "Recursively process the list. If the next node has the same value, skip it.",
+              "steps": [
+                "Base case: if head or head.next is null → return head.",
+                "Recursively deduplicate the rest of the list.",
+                "If head.val equals head.next.val → skip duplicate."
+              ],
+              "code": "function deleteDuplicates(head) {\n  if (!head || !head.next) return head;\n\n  head.next = deleteDuplicates(head.next);\n\n  if (head.val === head.next.val) {\n    return head.next;\n  }\n\n  return head;\n}",
+              "language": "javascript",
+              "timeComplexity": "O(n)",
+              "timeType": "good",
+              "spaceComplexity": "O(n) (recursion stack)",
+              "spaceType": "warning",
+              "pros": ["Elegant recursive logic", "Leverages sorted property"],
+              "cons": ["Extra recursion stack space"],
+              "visualLink": "/DSA-Problems/LinkedList/Dummy-Node-Technique/Remove-Duplicates/83-improved-visualization.html",
+              "notesLink": ""
+            },
+            {
+              "title": "Optimal — Single-Pass In-Place (Two-Pointer)",
+              "badge": "Optimal",
+              "intuition": "Because the list is sorted, duplicates appear next to each other. Traverse once and skip nodes with the same value.",
+              "steps": [
+                "Initialize current pointer at head.",
+                "While current and current.next exist:",
+                "If current.val equals current.next.val → skip next node.",
+                "Otherwise move current forward."
+              ],
+              "code": "function deleteDuplicates(head) {\n  let current = head;\n\n  while (current && current.next) {\n    if (current.val === current.next.val) {\n      current.next = current.next.next;\n    } else {\n      current = current.next;\n    }\n  }\n\n  return head;\n}",
+              "language": "javascript",
+              "timeComplexity": "O(n)",
+              "timeType": "good",
+              "spaceComplexity": "O(1)",
+              "spaceType": "good",
+              "pros": [
+                "Single traversal",
+                "Constant extra space",
+                "Leverages sorted property perfectly"
+              ],
+              "cons": ["Requires sorted input"],
+              "visualLink": "/DSA-Problems/LinkedList/Dummy-Node-Technique/Remove-Duplicates/83-optimal-visualization.html",
+              "notesLink": ""
+            }
+          ]
+        }
+      }
+    },
+    "recursion": {
+      "title": "Recursion Technique",
+      "description": "Use recursion to solve linked list problems by breaking them down into smaller subproblems. This is especially useful for problems that naturally fit a divide-and-conquer approach.",
+      "icon": "🔁",
+      "color": "var(--accent)",
+      "problems": {
+        "swap-nodes-in-pair": {
+          "breadcrumb": ["Linked List", "Dummy Node", "Swap Nodes in Pairs"],
           "title": "Swap Nodes in Pairs",
+          "difficulty": "Medium",
           "problemSlug": "swap-nodes-in-pairs",
-          "visualLink": "/legacy/Linked-List/Medium/Swap-Nodes-In-Pairs/index.html"
+          "categoryPath": "linkedlist/recursion",
+          "tags": [
+            "Linked List",
+            "Recursion",
+            "In-Place Manipulation",
+            "Dummy Node"
+          ],
+          "description": "Given a linked list, swap every two adjacent nodes and return its head. You must solve the problem without modifying the values in the list's nodes (only nodes themselves may be changed).",
+          "examples": [
+            {
+              "input": "head = [1,2,3,4]",
+              "output": "[2,1,4,3]",
+              "explanation": "Nodes 1 and 2 are swapped, and nodes 3 and 4 are swapped."
+            },
+            {
+              "input": "head = []",
+              "output": "[]",
+              "explanation": "Empty list remains empty."
+            },
+            {
+              "input": "head = [1]",
+              "output": "[1]",
+              "explanation": "Single node remains unchanged."
+            }
+          ],
+          "constraints": [
+            "The number of nodes in the list is in the range [0, 100].",
+            "0 ≤ Node.val ≤ 100"
+          ],
+          "approaches": [
+            {
+              "title": "Brute Force — Array-Based Reconstruction",
+              "badge": "Brute Force",
+              "intuition": "Extract node values into an array, swap adjacent values, then rebuild the linked list.",
+              "steps": [
+                "Traverse list and store values in array.",
+                "Swap adjacent elements in array.",
+                "Rebuild linked list from modified array."
+              ],
+              "code": "var swapPairs = function(head) {\n    const values = [];\n    let current = head;\n\n    while (current) {\n        values.push(current.val);\n        current = current.next;\n    }\n\n    for (let i = 0; i < values.length - 1; i += 2) {\n        [values[i], values[i + 1]] = [values[i + 1], values[i]];\n    }\n\n    const dummy = new ListNode(0);\n    let node = dummy;\n\n    for (let val of values) {\n        node.next = new ListNode(val);\n        node = node.next;\n    }\n\n    return dummy.next;\n};",
+              "language": "javascript",
+              "timeComplexity": "O(n)",
+              "timeType": "good",
+              "spaceComplexity": "O(n)",
+              "spaceType": "warning",
+              "pros": [
+                "Very easy to understand",
+                "Straightforward swapping logic"
+              ],
+              "cons": [
+                "Uses extra memory",
+                "Violates constraint of not modifying values directly"
+              ],
+              "visualLink": "/DSA-Problems/LinkedList/Recursion-Technique/Swap-Nodes-In-Pairs/BruteForce.html",
+              "notesLink": ""
+            },
+            {
+              "title": "Improved — Recursive Swapping",
+              "badge": "Improved",
+              "intuition": "Swap first two nodes, then recursively swap the rest of the list.",
+              "steps": [
+                "Base case: if less than two nodes, return head.",
+                "Swap first two nodes.",
+                "Recursively call swap on remaining list."
+              ],
+              "code": "var swapPairs = function(head) {\n    if (!head || !head.next) return head;\n\n    const first = head;\n    const second = head.next;\n\n    first.next = swapPairs(second.next);\n    second.next = first;\n\n    return second;\n};",
+              "language": "javascript",
+              "timeComplexity": "O(n)",
+              "timeType": "good",
+              "spaceComplexity": "O(n)",
+              "spaceType": "warning",
+              "pros": ["Very elegant and clean", "Clear structural recursion"],
+              "cons": [
+                "Uses recursion stack space",
+                "May overflow stack for very long lists"
+              ],
+              "visualLink": "/DSA-Problems/LinkedList/Recursion-Technique/Swap-Nodes-In-Pairs/Improved.html",
+              "notesLink": ""
+            },
+            {
+              "title": "Optimal — Iterative In-Place Swapping",
+              "badge": "Optimal",
+              "intuition": "Use a dummy node to simplify pointer manipulation. Iteratively swap pairs by adjusting next pointers.",
+              "steps": [
+                "Create dummy node pointing to head.",
+                "Use pointer prev to track node before pair.",
+                "Swap two nodes using pointer rewiring.",
+                "Move prev forward by two nodes."
+              ],
+              "code": "var swapPairs = function(head) {\n    const dummy = new ListNode(0);\n    dummy.next = head;\n\n    let prev = dummy;\n\n    while (prev.next && prev.next.next) {\n        const first = prev.next;\n        const second = prev.next.next;\n\n        first.next = second.next;\n        second.next = first;\n        prev.next = second;\n\n        prev = first;\n    }\n\n    return dummy.next;\n};",
+              "language": "javascript",
+              "timeComplexity": "O(n)",
+              "timeType": "good",
+              "spaceComplexity": "O(1)",
+              "spaceType": "good",
+              "pros": [
+                "Single pass",
+                "Constant extra space",
+                "Does not modify node values",
+                "Interview-preferred approach"
+              ],
+              "cons": ["Requires careful pointer handling"],
+              "visualLink": "/DSA-Problems/LinkedList/Recursion-Technique/Swap-Nodes-In-Pairs/Optimal.html",
+              "notesLink": ""
+            }
+          ]
+        },
+        "palindrom-in-linked-list": {
+          "breadcrumb": ["Linked List", "Dummy Node", "Palindrome Linked List"],
+          "title": "Palindrome Linked List",
+          "difficulty": "Medium",
+          "problemSlug": "palindrome-linked-list",
+          "categoryPath": "linkedlist/recursion",
+          "tags": ["Linked List", "Two Pointers", "Reverse List", "Recursion"],
+          "description": "Given the head of a singly linked list, return true if it is a palindrome or false otherwise.",
+          "examples": [
+            {
+              "input": "head = [1,2,2,1]",
+              "output": "true",
+              "explanation": "The list reads the same forward and backward."
+            },
+            {
+              "input": "head = [1,2]",
+              "output": "false",
+              "explanation": "Forward: 1→2, Backward: 2→1."
+            }
+          ],
+          "constraints": [
+            "The number of nodes in the list is in the range [1, 10⁵].",
+            "0 ≤ Node.val ≤ 9"
+          ],
+          "approaches": [
+            {
+              "title": "Brute Force — Convert to Array",
+              "badge": "Brute Force",
+              "intuition": "Store all node values in an array, then use two pointers to check if the array is a palindrome.",
+              "steps": [
+                "Traverse list and push values into array.",
+                "Use left and right pointers to compare values.",
+                "Return false if mismatch found."
+              ],
+              "code": "var isPalindrome = function(head) {\n    const values = [];\n    let current = head;\n\n    while (current) {\n        values.push(current.val);\n        current = current.next;\n    }\n\n    let left = 0;\n    let right = values.length - 1;\n\n    while (left < right) {\n        if (values[left] !== values[right]) return false;\n        left++;\n        right--;\n    }\n\n    return true;\n};",
+              "language": "javascript",
+              "timeComplexity": "O(n)",
+              "timeType": "good",
+              "spaceComplexity": "O(n)",
+              "spaceType": "warning",
+              "pros": ["Simple and clear logic", "Easy to implement"],
+              "cons": ["Uses extra memory"],
+              "visualLink": "/DSA-Problems/LinkedList/Recursion-Technique/Palindrom-In-Linked-List/Brute-Force.html",
+              "notesLink": ""
+            },
+            {
+              "title": "Improved — Recursive Comparison",
+              "badge": "Improved",
+              "intuition": "Use recursion to reach the end of the list, then compare symmetric nodes while unwinding.",
+              "steps": [
+                "Use global/front pointer starting at head.",
+                "Recursively move to end of list.",
+                "Compare current node with front pointer.",
+                "Move front pointer forward."
+              ],
+              "code": "var isPalindrome = function(head) {\n    let front = head;\n\n    function recursivelyCheck(node) {\n        if (!node) return true;\n\n        if (!recursivelyCheck(node.next)) return false;\n\n        const isEqual = (node.val === front.val);\n        front = front.next;\n        return isEqual;\n    }\n\n    return recursivelyCheck(head);\n};",
+              "language": "javascript",
+              "timeComplexity": "O(n)",
+              "timeType": "good",
+              "spaceComplexity": "O(n)",
+              "spaceType": "warning",
+              "pros": [
+                "Elegant recursive symmetry",
+                "No explicit extra data structures"
+              ],
+              "cons": [
+                "Uses recursion stack",
+                "May cause stack overflow for large lists"
+              ],
+              "visualLink": "/DSA-Problems/LinkedList/Recursion-Technique/Palindrom-In-Linked-List/Recursive.html",
+              "notesLink": ""
+            },
+            {
+              "title": "Optimal — Reverse Second Half In-Place",
+              "badge": "Optimal",
+              "intuition": "Use fast and slow pointers to find the middle. Reverse the second half of the list, then compare both halves.",
+              "steps": [
+                "Use slow and fast pointers to find middle.",
+                "Reverse second half of list.",
+                "Compare first half and reversed second half.",
+                "Optionally restore list structure."
+              ],
+              "code": "var isPalindrome = function(head) {\n    if (!head || !head.next) return true;\n\n    let slow = head;\n    let fast = head;\n\n    // Find middle\n    while (fast && fast.next) {\n        slow = slow.next;\n        fast = fast.next.next;\n    }\n\n    // Reverse second half\n    let prev = null;\n    while (slow) {\n        let nextNode = slow.next;\n        slow.next = prev;\n        prev = slow;\n        slow = nextNode;\n    }\n\n    // Compare halves\n    let first = head;\n    let second = prev;\n\n    while (second) {\n        if (first.val !== second.val) return false;\n        first = first.next;\n        second = second.next;\n    }\n\n    return true;\n};",
+              "language": "javascript",
+              "timeComplexity": "O(n)",
+              "timeType": "good",
+              "spaceComplexity": "O(1)",
+              "spaceType": "good",
+              "pros": [
+                "Constant extra space",
+                "Single pass (plus reversal)",
+                "Interview-preferred solution"
+              ],
+              "cons": [
+                "Requires careful pointer handling",
+                "Optionally restoring list adds complexity"
+              ],
+              "visualLink": "/DSA-Problems/LinkedList/Recursion-Technique/Palindrom-In-Linked-List/Optimal.html",
+              "notesLink": ""
+            }
+          ]
+        },
+        "remove-duplicates-from-sorted-list-2": {
+          "breadcrumb": [
+            "Linked List",
+            "Dummy Node",
+            "Remove Duplicates from Sorted List II"
+          ],
+          "title": "Remove Duplicates from Sorted List II",
+          "difficulty": "Medium",
+          "problemSlug": "remove-duplicates-from-sorted-list-ii",
+          "categoryPath": "linkedlist/recursion",
+          "tags": [
+            "Linked List",
+            "Dummy Node",
+            "Two Pointers",
+            "In-Place Manipulation"
+          ],
+          "description": "Given the head of a sorted linked list, delete all nodes that have duplicate numbers, leaving only distinct numbers from the original list. Return the linked list sorted as well.",
+          "examples": [
+            {
+              "input": "head = [1,2,3,3,4,4,5]",
+              "output": "[1,2,5]",
+              "explanation": "Values 3 and 4 appear more than once, so they are removed entirely."
+            },
+            {
+              "input": "head = [1,1,1,2,3]",
+              "output": "[2,3]",
+              "explanation": "Value 1 appears multiple times and is completely removed."
+            },
+            {
+              "input": "head = [1,2,2]",
+              "output": "[1]",
+              "explanation": "Value 2 appears twice and is removed entirely."
+            }
+          ],
+          "constraints": [
+            "The number of nodes in the list is in the range [0, 300].",
+            "-100 ≤ Node.val ≤ 100",
+            "The list is sorted in non-decreasing order."
+          ],
+          "approaches": [
+            {
+              "title": "Brute Force — Collect Frequencies and Rebuild",
+              "badge": "Brute Force",
+              "intuition": "Count occurrences of each value using a map. Then rebuild a new list including only values that appear exactly once.",
+              "steps": [
+                "Traverse list and count frequency of each value.",
+                "Traverse again and build new list with values having frequency 1."
+              ],
+              "code": "var deleteDuplicates = function(head) {\n    const freq = new Map();\n    let current = head;\n\n    while (current) {\n        freq.set(current.val, (freq.get(current.val) || 0) + 1);\n        current = current.next;\n    }\n\n    const dummy = new ListNode(0);\n    let tail = dummy;\n    current = head;\n\n    while (current) {\n        if (freq.get(current.val) === 1) {\n            tail.next = new ListNode(current.val);\n            tail = tail.next;\n        }\n        current = current.next;\n    }\n\n    return dummy.next;\n};",
+              "language": "javascript",
+              "timeComplexity": "O(n)",
+              "timeType": "good",
+              "spaceComplexity": "O(n)",
+              "spaceType": "warning",
+              "pros": [
+                "Very easy to reason about",
+                "Clear separation of counting and rebuilding"
+              ],
+              "cons": ["Uses extra memory", "Does not reuse original nodes"],
+              "visualLink": "/DSA-Problems/LinkedList/Recursion-Technique/Remove-Duplicates-from-Sorted-List-II/BruteForce.html",
+              "notesLink": ""
+            },
+            {
+              "title": "Improved — In-Place with Two Pointers",
+              "badge": "Improved",
+              "intuition": "Use a dummy node and two pointers. When duplicates are detected, skip the entire block. Otherwise, link the node to the result chain.",
+              "steps": [
+                "Create dummy node pointing to head.",
+                "Use prev pointer to track last valid node.",
+                "Use current pointer to scan list.",
+                "If current value repeats, skip entire block.",
+                "Else, move prev forward."
+              ],
+              "code": "var deleteDuplicates = function(head) {\n    const dummy = new ListNode(0);\n    dummy.next = head;\n\n    let prev = dummy;\n    let current = head;\n\n    while (current) {\n        if (current.next && current.val === current.next.val) {\n            const duplicateVal = current.val;\n            while (current && current.val === duplicateVal) {\n                current = current.next;\n            }\n            prev.next = current;\n        } else {\n            prev = prev.next;\n            current = current.next;\n        }\n    }\n\n    return dummy.next;\n};",
+              "language": "javascript",
+              "timeComplexity": "O(n)",
+              "timeType": "good",
+              "spaceComplexity": "O(1)",
+              "spaceType": "good",
+              "pros": [
+                "Single traversal",
+                "Constant extra space",
+                "Reuses original nodes",
+                "Interview-preferred approach"
+              ],
+              "cons": ["Requires careful duplicate skipping logic"],
+              "visualLink": "/DSA-Problems/LinkedList/Recursion-Technique/Remove-Duplicates-from-Sorted-List-II/Improved.html",
+              "notesLink": ""
+            }
+          ]
+        },
+        "flatten-multilevel-doubly-linked-list": {
+          "breadcrumb": [
+            "Linked List",
+            "Recursion",
+            "Flatten a Multilevel Doubly Linked List"
+          ],
+          "title": "Flatten a Multilevel Doubly Linked List",
+          "difficulty": "Medium",
+          "problemSlug": "flatten-a-multilevel-doubly-linked-list",
+          "categoryPath": "linkedlist/recursion",
+          "tags": [
+            "Linked List",
+            "DFS",
+            "Recursion",
+            "Stack",
+            "In-Place Manipulation"
+          ],
+          "description": "You are given a doubly linked list where, in addition to the next and previous pointers, it could have a child pointer, which may point to a separate doubly linked list. These child lists may have one or more children of their own. Flatten the list so that all the nodes appear in a single-level doubly linked list.",
+          "examples": [
+            {
+              "input": "1 - 2 - 3 - 4 - 5 - 6\n            |\n            7 - 8 - 9 - 10\n                |\n                11 - 12",
+              "output": "[1,2,3,7,8,11,12,9,10,4,5,6]",
+              "explanation": "The child list is inserted immediately after the parent node recursively."
+            },
+            {
+              "input": "head = [1,2,3]",
+              "output": "[1,2,3]",
+              "explanation": "No child pointers exist, so list remains unchanged."
+            }
+          ],
+          "constraints": [
+            "The number of nodes will not exceed 1000.",
+            "1 ≤ Node.val ≤ 10⁵",
+            "All Node.val are unique."
+          ],
+          "approaches": [
+            {
+              "title": "Brute Force — Collect & Rebuild",
+              "badge": "Brute Force",
+              "intuition": "Traverse the structure using DFS, collect nodes in an array in flattened order, then rebuild the doubly linked list from scratch.",
+              "steps": [
+                "Perform DFS traversal and collect nodes in order.",
+                "Create new doubly linked list from collected nodes.",
+                "Return rebuilt head."
+              ],
+              "code": "var flatten = function(head) {\n    if (!head) return head;\n\n    const nodes = [];\n\n    function dfs(node) {\n        while (node) {\n            nodes.push(node.val);\n            if (node.child) {\n                dfs(node.child);\n            }\n            node = node.next;\n        }\n    }\n\n    dfs(head);\n\n    const dummy = new Node(0);\n    let prev = dummy;\n\n    for (let val of nodes) {\n        const newNode = new Node(val);\n        prev.next = newNode;\n        newNode.prev = prev;\n        prev = newNode;\n    }\n\n    if (dummy.next) dummy.next.prev = null;\n    return dummy.next;\n};",
+              "language": "javascript",
+              "timeComplexity": "O(n)",
+              "timeType": "good",
+              "spaceComplexity": "O(n)",
+              "spaceType": "warning",
+              "pros": ["Simple DFS reasoning", "Easy to implement"],
+              "cons": ["Uses extra memory", "Does not reuse original nodes"],
+              "visualLink": "/DSA-Problems/LinkedList/Recursion-Technique/Flatten-Multilevel-DLL/430-bruteforce-visualization.html",
+              "notesLink": ""
+            },
+            {
+              "title": "Improved — Recursive DFS (In-Place Rewiring)",
+              "badge": "Improved",
+              "intuition": "Use DFS to flatten child lists recursively. When a node has a child, splice the flattened child list between the node and its next pointer.",
+              "steps": [
+                "Recursively flatten child list.",
+                "Connect node.next to flattened child.",
+                "Find tail of child list and reconnect original next.",
+                "Set child pointer to null."
+              ],
+              "code": "var flatten = function(head) {\n    function dfs(node) {\n        let current = node;\n        let last = null;\n\n        while (current) {\n            let next = current.next;\n\n            if (current.child) {\n                const childTail = dfs(current.child);\n\n                current.next = current.child;\n                current.child.prev = current;\n                current.child = null;\n\n                if (next) {\n                    childTail.next = next;\n                    next.prev = childTail;\n                }\n\n                last = childTail;\n            } else {\n                last = current;\n            }\n\n            current = next;\n        }\n\n        return last;\n    }\n\n    dfs(head);\n    return head;\n};",
+              "language": "javascript",
+              "timeComplexity": "O(n)",
+              "timeType": "good",
+              "spaceComplexity": "O(n) (recursion stack)",
+              "spaceType": "warning",
+              "pros": [
+                "In-place flattening",
+                "Clean DFS structure",
+                "Reuses original nodes"
+              ],
+              "cons": [
+                "Uses recursion stack",
+                "Requires careful pointer handling"
+              ],
+              "visualLink": "/DSA-Problems/LinkedList/Recursion-Technique/Flatten-Multilevel-DLL/430-improved-visualization.html",
+              "notesLink": ""
+            },
+            {
+              "title": "Optimal — Iterative In-Place Flattening",
+              "badge": "Optimal",
+              "intuition": "Iterate through list. When encountering a child, find its tail and splice it between current node and next node. No recursion required.",
+              "steps": [
+                "Traverse list with current pointer.",
+                "If node has child:",
+                "  Find tail of child list.",
+                "  Connect tail to node.next.",
+                "  Insert child between node and next.",
+                "  Remove child pointer."
+              ],
+              "code": "var flatten = function(head) {\n    let current = head;\n\n    while (current) {\n        if (!current.child) {\n            current = current.next;\n            continue;\n        }\n\n        let child = current.child;\n        let tail = child;\n\n        while (tail.next) {\n            tail = tail.next;\n        }\n\n        tail.next = current.next;\n        if (current.next) {\n            current.next.prev = tail;\n        }\n\n        current.next = child;\n        child.prev = current;\n        current.child = null;\n\n        current = current.next;\n    }\n\n    return head;\n};",
+              "language": "javascript",
+              "timeComplexity": "O(n)",
+              "timeType": "good",
+              "spaceComplexity": "O(1)",
+              "spaceType": "good",
+              "pros": [
+                "No recursion",
+                "Constant extra space",
+                "Fully in-place",
+                "Interview-strong solution"
+              ],
+              "cons": ["Requires careful pointer rewiring"],
+              "visualLink": "/DSA-Problems/LinkedList/Recursion-Technique/Flatten-Multilevel-DLL/430-optimal-visualization.html",
+              "notesLink": ""
+            }
+          ]
+        },
+        "remove-linked-list-elements": {
+          "breadcrumb": [
+            "Linked List",
+            "Recursion",
+            "Remove Linked List Elements"
+          ],
+          "title": "Remove Linked List Elements",
+          "difficulty": "Easy",
+          "problemSlug": "remove-linked-list-elements",
+          "categoryPath": "linkedlist/recursion",
+          "tags": ["Linked List", "Dummy Node", "Two Pointers"],
+          "description": "Given the head of a linked list and an integer val, remove all the nodes of the linked list that have Node.val == val, and return the new head.",
+          "examples": [
+            {
+              "input": "head = [1,2,6,3,4,5,6], val = 6",
+              "output": "[1,2,3,4,5]",
+              "explanation": "Both nodes with value 6 are removed."
+            },
+            {
+              "input": "head = [], val = 1",
+              "output": "[]",
+              "explanation": "Empty list remains empty."
+            },
+            {
+              "input": "head = [7,7,7,7], val = 7",
+              "output": "[]",
+              "explanation": "All nodes are removed."
+            }
+          ],
+          "constraints": [
+            "The number of nodes in the list is in the range [0, 10^4].",
+            "1 ≤ Node.val ≤ 50",
+            "0 ≤ val ≤ 50"
+          ],
+          "approaches": [
+            {
+              "title": "Brute Force — Create a New List",
+              "badge": "Brute Force",
+              "intuition": "Traverse the list and copy only nodes that do not equal val into a new list.",
+              "steps": [
+                "Create a dummy node for the new list.",
+                "Traverse the original list.",
+                "If current node value ≠ val → append to new list.",
+                "Return new list head."
+              ],
+              "code": "function removeElements(head, val) {\n  const dummy = new ListNode(0);\n  let tail = dummy;\n\n  let current = head;\n  while (current) {\n    if (current.val !== val) {\n      tail.next = new ListNode(current.val);\n      tail = tail.next;\n    }\n    current = current.next;\n  }\n\n  return dummy.next;\n}",
+              "language": "javascript",
+              "timeComplexity": "O(n)",
+              "timeType": "good",
+              "spaceComplexity": "O(n)",
+              "spaceType": "warning",
+              "pros": ["Simple logic", "Does not modify original list"],
+              "cons": ["Uses extra memory"],
+              "visualLink": "/DSA-Problems/LinkedList/Recursion-Technique/Remove-Elements/203-bruteforce-visualization.html",
+              "notesLink": ""
+            },
+
+            {
+              "title": "Improved — In-Place (Handle Head Separately)",
+              "badge": "Improved",
+              "intuition": "Modify the list directly, but handle the case where the head node itself must be removed.",
+              "steps": [
+                "Remove leading nodes equal to val.",
+                "Traverse remaining list with current pointer.",
+                "Skip nodes whose value equals val."
+              ],
+              "code": "function removeElements(head, val) {\n  while (head && head.val === val) {\n    head = head.next;\n  }\n\n  let current = head;\n\n  while (current && current.next) {\n    if (current.next.val === val) {\n      current.next = current.next.next;\n    } else {\n      current = current.next;\n    }\n  }\n\n  return head;\n}",
+              "language": "javascript",
+              "timeComplexity": "O(n)",
+              "timeType": "good",
+              "spaceComplexity": "O(1)",
+              "spaceType": "good",
+              "pros": ["No extra memory", "In-place modification"],
+              "cons": ["Requires careful handling of head node"],
+              "visualLink": "/DSA-Problems/LinkedList/Recursion-Technique/Remove-Elements/203-improved-visualization.html",
+              "notesLink": ""
+            },
+
+            {
+              "title": "Optimal — Dummy Node Technique",
+              "badge": "Optimal",
+              "intuition": "Use a dummy node before head so that removing the first node becomes identical to removing any other node.",
+              "steps": [
+                "Create dummy node pointing to head.",
+                "Use a current pointer starting at dummy.",
+                "If current.next.val equals val → skip node.",
+                "Otherwise move forward."
+              ],
+              "code": "function removeElements(head, val) {\n  const dummy = new ListNode(0);\n  dummy.next = head;\n\n  let current = dummy;\n\n  while (current.next) {\n    if (current.next.val === val) {\n      current.next = current.next.next;\n    } else {\n      current = current.next;\n    }\n  }\n\n  return dummy.next;\n}",
+              "language": "javascript",
+              "timeComplexity": "O(n)",
+              "timeType": "good",
+              "spaceComplexity": "O(1)",
+              "spaceType": "good",
+              "pros": [
+                "Handles head removal elegantly",
+                "Clean logic",
+                "Standard interview technique"
+              ],
+              "cons": ["Requires understanding of dummy nodes"],
+              "visualLink": "/DSA-Problems/LinkedList/Recursion-Technique/Remove-Elements/203-optimal-visualization.html",
+              "notesLink": ""
+            }
+          ]
+        }
+      }
+    },
+    "in-place-reversal": {
+      "title": "In-Place Reversal Technique",
+      "description": "Reverse linked lists or sublists in-place to solve problems that require reordering nodes. This technique is often used in conjunction with two-pointer approaches.",
+      "icon": "🔄",
+      "color": "var(--accent)",
+      "problems": {
+        "reverse-a-linked-list": {
+          "breadcrumb": [
+            "Linked List",
+            "In-Place Reversal",
+            "Reverse Linked List"
+          ],
+          "title": "Reverse Linked List",
+          "difficulty": "Medium",
+          "problemSlug": "reverse-linked-list",
+          "categoryPath": "linkedlist/in-place-reversal",
+          "tags": ["Linked List", "Two Pointers", "Recursion", "In-Place"],
+          "description": "Given the head of a singly linked list, reverse the list and return its head.",
+          "examples": [
+            {
+              "input": "head = [1,2,3,4,5]",
+              "output": "[5,4,3,2,1]",
+              "explanation": "The list is reversed so that the last node becomes the first."
+            },
+            {
+              "input": "head = [1,2]",
+              "output": "[2,1]",
+              "explanation": "The two nodes are swapped."
+            },
+            {
+              "input": "head = []",
+              "output": "[]",
+              "explanation": "An empty list remains empty."
+            }
+          ],
+          "constraints": [
+            "The number of nodes in the list is in the range [0, 5000].",
+            "-5000 ≤ Node.val ≤ 5000"
+          ],
+          "approaches": [
+            {
+              "title": "Brute Force — Collect & Rebuild",
+              "badge": "Brute Force",
+              "intuition": "Traverse the list, store values in an array, reverse the array, and rebuild a new linked list.",
+              "steps": [
+                "Traverse list and push values into array.",
+                "Reverse the array.",
+                "Rebuild a new linked list from reversed array."
+              ],
+              "code": "var reverseList = function(head) {\n    const values = [];\n    let current = head;\n\n    while (current) {\n        values.push(current.val);\n        current = current.next;\n    }\n\n    values.reverse();\n\n    const dummy = new ListNode(0);\n    let tail = dummy;\n\n    for (let val of values) {\n        tail.next = new ListNode(val);\n        tail = tail.next;\n    }\n\n    return dummy.next;\n};",
+              "language": "javascript",
+              "timeComplexity": "O(n)",
+              "timeType": "good",
+              "spaceComplexity": "O(n)",
+              "spaceType": "warning",
+              "pros": ["Very easy to implement", "Conceptually simple"],
+              "cons": ["Uses extra memory", "Does not reverse in-place"],
+              "visualLink": "/DSA-Problems/LinkedList/In-Place-Reversal /Reverse-A-Linked-List/Brute-Force.html",
+              "notesLink": ""
+            },
+            {
+              "title": "Improved — Iterative In-Place Reversal",
+              "badge": "Improved",
+              "intuition": "Use three pointers: prev, current, next. Reverse the next pointer of each node one by one.",
+              "steps": [
+                "Initialize prev = null.",
+                "Iterate through list with current pointer.",
+                "Store next node.",
+                "Reverse current.next to prev.",
+                "Move prev and current forward."
+              ],
+              "code": "var reverseList = function(head) {\n    let prev = null;\n    let current = head;\n\n    while (current) {\n        let nextNode = current.next;\n        current.next = prev;\n        prev = current;\n        current = nextNode;\n    }\n\n    return prev;\n};",
+              "language": "javascript",
+              "timeComplexity": "O(n)",
+              "timeType": "good",
+              "spaceComplexity": "O(1)",
+              "spaceType": "good",
+              "pros": [
+                "Constant space",
+                "Single pass",
+                "Most commonly expected interview solution"
+              ],
+              "cons": ["Requires careful pointer manipulation"],
+              "visualLink": "/DSA-Problems/LinkedList/In-Place-Reversal /Reverse-A-Linked-List/Iterative-In-Place.html",
+              "notesLink": ""
+            },
+            {
+              "title": "Optimal — Recursive Reversal",
+              "badge": "Optimal",
+              "intuition": "Reverse the rest of the list recursively, then fix the current node's next pointer.",
+              "steps": [
+                "Base case: if head is null or head.next is null, return head.",
+                "Recursively reverse head.next.",
+                "Set head.next.next = head.",
+                "Set head.next = null."
+              ],
+              "code": "var reverseList = function(head) {\n    if (!head || !head.next) return head;\n\n    const newHead = reverseList(head.next);\n\n    head.next.next = head;\n    head.next = null;\n\n    return newHead;\n};",
+              "language": "javascript",
+              "timeComplexity": "O(n)",
+              "timeType": "good",
+              "spaceComplexity": "O(n) (recursion stack)",
+              "spaceType": "warning",
+              "pros": ["Very elegant and concise", "Clear recursive logic"],
+              "cons": [
+                "Uses recursion stack space",
+                "Risk of stack overflow for large lists"
+              ],
+              "visualLink": "/DSA-Problems/LinkedList/In-Place-Reversal /Reverse-A-Linked-List/Recursive-In-Place.html",
+              "notesLink": ""
+            }
+          ]
+        },
+        "reverse-a-linked-list-ii": {
+          "breadcrumb": [
+            "Linked List",
+            "In-Place Reversal",
+            "Reverse Linked List II"
+          ],
+          "title": "Reverse Linked List II",
+          "difficulty": "Medium",
+          "problemSlug": "reverse-linked-list-ii",
+          "categoryPath": "linkedlist/in-place-reversal",
+          "tags": ["Linked List", "Two Pointers", "Dummy Node", "In-Place"],
+          "description": "Given the head of a singly linked list and two integers left and right where left ≤ right, reverse the nodes of the list from position left to position right, and return the reversed list.",
+          "examples": [
+            {
+              "input": "head = [1,2,3,4,5], left = 2, right = 4",
+              "output": "[1,4,3,2,5]",
+              "explanation": "Only the sublist [2,3,4] is reversed."
+            },
+            {
+              "input": "head = [5], left = 1, right = 1",
+              "output": "[5]",
+              "explanation": "Single node list remains unchanged."
+            }
+          ],
+          "constraints": [
+            "The number of nodes in the list is n.",
+            "1 ≤ n ≤ 500",
+            "-500 ≤ Node.val ≤ 500",
+            "1 ≤ left ≤ right ≤ n"
+          ],
+          "approaches": [
+            {
+              "title": "Brute Force — Extract, Reverse, Rebuild",
+              "badge": "Brute Force",
+              "intuition": "Convert the list to an array, reverse the subarray between left and right, then rebuild the list.",
+              "steps": [
+                "Traverse list and store values in array.",
+                "Reverse subarray from left-1 to right-1.",
+                "Rebuild linked list from modified array."
+              ],
+              "code": "var reverseBetween = function(head, left, right) {\n    const values = [];\n    let current = head;\n\n    while (current) {\n        values.push(current.val);\n        current = current.next;\n    }\n\n    let l = left - 1;\n    let r = right - 1;\n    while (l < r) {\n        [values[l], values[r]] = [values[r], values[l]];\n        l++;\n        r--;\n    }\n\n    const dummy = new ListNode(0);\n    let tail = dummy;\n\n    for (let val of values) {\n        tail.next = new ListNode(val);\n        tail = tail.next;\n    }\n\n    return dummy.next;\n};",
+              "language": "javascript",
+              "timeComplexity": "O(n)",
+              "timeType": "good",
+              "spaceComplexity": "O(n)",
+              "spaceType": "warning",
+              "pros": ["Very straightforward", "Easy to reason about"],
+              "cons": ["Uses extra memory", "Does not reverse in-place"],
+              "visualLink": "/DSA-Problems/LinkedList/In-Place-Reversal /Reverse-Linked-List-II/92-bruteforce-visualization.html",
+              "notesLink": ""
+            },
+            {
+              "title": "Improved — Two-Pass In-Place Reversal",
+              "badge": "Improved",
+              "intuition": "First reach the node before 'left'. Then reverse the sublist using standard reversal logic. Finally reconnect both ends.",
+              "steps": [
+                "Use dummy node.",
+                "Move prev pointer to node before left.",
+                "Reverse sublist from left to right.",
+                "Reconnect reversed part."
+              ],
+              "code": "var reverseBetween = function(head, left, right) {\n    if (!head) return null;\n\n    const dummy = new ListNode(0);\n    dummy.next = head;\n\n    let prev = dummy;\n    for (let i = 1; i < left; i++) {\n        prev = prev.next;\n    }\n\n    let current = prev.next;\n    let prevNode = null;\n\n    for (let i = left; i <= right; i++) {\n        let nextNode = current.next;\n        current.next = prevNode;\n        prevNode = current;\n        current = nextNode;\n    }\n\n    prev.next.next = current;\n    prev.next = prevNode;\n\n    return dummy.next;\n};",
+              "language": "javascript",
+              "timeComplexity": "O(n)",
+              "timeType": "good",
+              "spaceComplexity": "O(1)",
+              "spaceType": "good",
+              "pros": [
+                "In-place reversal",
+                "Clear separation of locating and reversing"
+              ],
+              "cons": ["Slightly more pointer handling"],
+              "visualLink": "/DSA-Problems/LinkedList/In-Place-Reversal /Reverse-Linked-List-II/92-improved-visualization.html",
+              "notesLink": ""
+            },
+            {
+              "title": "Optimal — One-Pass Head-Insertion Method",
+              "badge": "Optimal",
+              "intuition": "Instead of fully reversing with separate pointers, repeatedly extract the next node and insert it at the front of the sublist. This achieves reversal in one pass.",
+              "steps": [
+                "Use dummy node.",
+                "Move prev to node before left.",
+                "Let current = prev.next.",
+                "Repeat (right - left) times:",
+                "  Extract next node.",
+                "  Insert it after prev (front of sublist)."
+              ],
+              "code": "var reverseBetween = function(head, left, right) {\n    if (!head) return null;\n\n    const dummy = new ListNode(0);\n    dummy.next = head;\n\n    let prev = dummy;\n    for (let i = 1; i < left; i++) {\n        prev = prev.next;\n    }\n\n    let current = prev.next;\n\n    for (let i = 0; i < right - left; i++) {\n        let nextNode = current.next;\n        current.next = nextNode.next;\n        nextNode.next = prev.next;\n        prev.next = nextNode;\n    }\n\n    return dummy.next;\n};",
+              "language": "javascript",
+              "timeComplexity": "O(n)",
+              "timeType": "good",
+              "spaceComplexity": "O(1)",
+              "spaceType": "good",
+              "pros": [
+                "Single traversal",
+                "Constant space",
+                "Elegant pointer manipulation",
+                "Interview-preferred solution"
+              ],
+              "cons": ["Requires strong pointer understanding"],
+              "visualLink": "/DSA-Problems/LinkedList/In-Place-Reversal /Reverse-Linked-List-II/92-optimal-visualization.html",
+              "notesLink": ""
+            }
+          ]
+        },
+        "reverse-nodes-in-even-length-group": {
+          "breadcrumb": [
+            "Linked List",
+            "In-Place Reversal",
+            "Reverse Nodes in Even Length Groups"
+          ],
+          "title": "Reverse Nodes in Even Length Groups",
+          "difficulty": "Medium",
+          "problemSlug": "reverse-nodes-in-even-length-groups",
+          "categoryPath": "linkedlist/in-place-reversal",
+          "tags": [
+            "Linked List",
+            "Two Pointers",
+            "Group Processing",
+            "In-Place"
+          ],
+          "description": "You are given the head of a linked list. The nodes are grouped in increasing group sizes: the first group has size 1, the second group has size 2, the third group has size 3, and so on. Reverse the nodes in each group that has an even length. Return the head of the modified list.",
+          "examples": [
+            {
+              "input": "head = [5,2,6,3,9,1,7,3,8,4]",
+              "output": "[5,6,2,3,9,1,4,8,3,7]",
+              "explanation": "Group sizes: 1 → [5]\n2 → [2,6] (even, reversed)\n3 → [3,9,1] (odd, unchanged)\n4 → [7,3,8,4] (even, reversed)"
+            },
+            {
+              "input": "head = [1,1,0,6]",
+              "output": "[1,0,1,6]",
+              "explanation": "Group sizes: 1 → [1]\n2 → [1,0] (even, reversed)\nRemaining group has size 1 (odd)."
+            }
+          ],
+          "constraints": [
+            "The number of nodes in the list is in the range [1, 10⁵].",
+            "0 ≤ Node.val ≤ 10⁵"
+          ],
+          "approaches": [
+            {
+              "title": "Brute Force — Extract to Array and Rebuild",
+              "badge": "Brute Force",
+              "intuition": "Extract all values into an array. Process groups by reversing subarrays when group length is even. Then rebuild the linked list.",
+              "steps": [
+                "Traverse list and store values in array.",
+                "Process groups of sizes 1,2,3,...",
+                "Reverse subarray if group length is even.",
+                "Rebuild linked list from modified array."
+              ],
+              "code": "var reverseEvenLengthGroups = function(head) {\n    const values = [];\n    let curr = head;\n\n    while (curr) {\n        values.push(curr.val);\n        curr = curr.next;\n    }\n\n    let index = 0;\n    let groupSize = 1;\n\n    while (index < values.length) {\n        let start = index;\n        let end = Math.min(index + groupSize, values.length);\n        let actualLength = end - start;\n\n        if (actualLength % 2 === 0) {\n            let l = start;\n            let r = end - 1;\n            while (l < r) {\n                [values[l], values[r]] = [values[r], values[l]];\n                l++;\n                r--;\n            }\n        }\n\n        index += groupSize;\n        groupSize++;\n    }\n\n    const dummy = new ListNode(0);\n    let tail = dummy;\n\n    for (let val of values) {\n        tail.next = new ListNode(val);\n        tail = tail.next;\n    }\n\n    return dummy.next;\n};",
+              "language": "javascript",
+              "timeComplexity": "O(n)",
+              "timeType": "good",
+              "spaceComplexity": "O(n)",
+              "spaceType": "warning",
+              "pros": ["Simple and clear logic", "Easy to implement"],
+              "cons": ["Uses extra memory", "Does not modify in-place"],
+              "visualLink": "/DSA-Problems/LinkedList/In-Place-Reversal /Reverse-Even-Length-Groups/2074-bruteforce-visualization.html",
+              "notesLink": ""
+            },
+            {
+              "title": "Improved — Per-Group Node Collection + Value Swap",
+              "badge": "Improved",
+              "intuition": "Traverse per group, collect nodes in an array, and if group length is even, swap node values in-place.",
+              "steps": [
+                "Traverse group by group.",
+                "Collect nodes in temporary array.",
+                "If group length is even, swap node values."
+              ],
+              "code": "var reverseEvenLengthGroups = function(head) {\n    let curr = head;\n    let groupSize = 1;\n\n    while (curr) {\n        const nodes = [];\n        let temp = curr;\n        let count = 0;\n\n        while (temp && count < groupSize) {\n            nodes.push(temp);\n            temp = temp.next;\n            count++;\n        }\n\n        if (nodes.length % 2 === 0) {\n            let l = 0;\n            let r = nodes.length - 1;\n            while (l < r) {\n                [nodes[l].val, nodes[r].val] = [nodes[r].val, nodes[l].val];\n                l++;\n                r--;\n            }\n        }\n\n        curr = temp;\n        groupSize++;\n    }\n\n    return head;\n};",
+              "language": "javascript",
+              "timeComplexity": "O(n)",
+              "timeType": "good",
+              "spaceComplexity": "O(k) per group (worst O(n))",
+              "spaceType": "warning",
+              "pros": [
+                "Keeps structure intact",
+                "Simpler than pointer reversal"
+              ],
+              "cons": [
+                "Uses temporary storage",
+                "Does not fully use in-place pointer manipulation"
+              ],
+              "visualLink": "/DSA-Problems/LinkedList/In-Place-Reversal /Reverse-Even-Length-Groups/2074-improved-visualization.html",
+              "notesLink": ""
+            },
+            {
+              "title": "Optimal — In-Place Pointer Reversal",
+              "badge": "Optimal",
+              "intuition": "Traverse group by group. If group length is even, reverse nodes using pointer manipulation. Carefully reconnect previous and next segments.",
+              "steps": [
+                "Use dummy node for safety.",
+                "Determine actual group length.",
+                "If even, reverse group in-place.",
+                "Reconnect segments."
+              ],
+              "code": "var reverseEvenLengthGroups = function(head) {\n    const dummy = new ListNode(0);\n    dummy.next = head;\n\n    let prevGroupEnd = dummy;\n    let groupSize = 1;\n\n    while (prevGroupEnd.next) {\n        let groupStart = prevGroupEnd.next;\n        let curr = groupStart;\n        let count = 0;\n\n        while (curr && count < groupSize) {\n            curr = curr.next;\n            count++;\n        }\n\n        if (count % 2 === 0) {\n            let prev = curr;\n            let node = groupStart;\n\n            for (let i = 0; i < count; i++) {\n                let nextNode = node.next;\n                node.next = prev;\n                prev = node;\n                node = nextNode;\n            }\n\n            prevGroupEnd.next = prev;\n            prevGroupEnd = groupStart;\n        } else {\n            prevGroupEnd = groupStart;\n            for (let i = 1; i < count; i++) {\n                prevGroupEnd = prevGroupEnd.next;\n            }\n        }\n\n        groupSize++;\n    }\n\n    return dummy.next;\n};",
+              "language": "javascript",
+              "timeComplexity": "O(n)",
+              "timeType": "good",
+              "spaceComplexity": "O(1)",
+              "spaceType": "good",
+              "pros": [
+                "True in-place solution",
+                "Constant extra space",
+                "Efficient and interview-strong"
+              ],
+              "cons": [
+                "Requires careful group length calculation",
+                "Complex pointer reconnection"
+              ],
+              "visualLink": "/DSA-Problems/LinkedList/In-Place-Reversal /Reverse-Even-Length-Groups/2074-optimal-visualization.html",
+              "notesLink": ""
+            }
+          ]
+        },
+        "reorder-list": {
+          "breadcrumb": ["Linked List", "In-Place Reversal", "Reorder List"],
+          "title": "Reorder List",
+          "difficulty": "Medium",
+          "problemSlug": "reorder-list",
+          "categoryPath": "linkedlist/in-place-reversal",
+          "tags": ["Linked List", "Two Pointers", "Reverse List", "Merge"],
+          "description": "You are given the head of a singly linked list. Reorder the list to follow the pattern: L0 → Ln → L1 → Ln-1 → L2 → Ln-2 → ... You must modify the list in-place and not return anything.",
+          "examples": [
+            {
+              "input": "head = [1,2,3,4]",
+              "output": "[1,4,2,3]",
+              "explanation": "Reordered as: 1 → 4 → 2 → 3."
+            },
+            {
+              "input": "head = [1,2,3,4,5]",
+              "output": "[1,5,2,4,3]",
+              "explanation": "Reordered as: 1 → 5 → 2 → 4 → 3."
+            }
+          ],
+          "constraints": [
+            "The number of nodes in the list is in the range [1, 5 * 10⁴].",
+            "1 ≤ Node.val ≤ 1000"
+          ],
+          "approaches": [
+            {
+              "title": "Brute Force — Store Nodes in Array",
+              "badge": "Brute Force",
+              "intuition": "Store all nodes in an array. Use two pointers from both ends to reconnect nodes in required order.",
+              "steps": [
+                "Traverse list and store nodes in array.",
+                "Use left and right pointers.",
+                "Reconnect nodes alternately."
+              ],
+              "code": "var reorderList = function(head) {\n    if (!head) return;\n\n    const nodes = [];\n    let curr = head;\n\n    while (curr) {\n        nodes.push(curr);\n        curr = curr.next;\n    }\n\n    let left = 0;\n    let right = nodes.length - 1;\n\n    while (left < right) {\n        nodes[left].next = nodes[right];\n        left++;\n        if (left === right) break;\n        nodes[right].next = nodes[left];\n        right--;\n    }\n\n    nodes[left].next = null;\n};",
+              "language": "javascript",
+              "timeComplexity": "O(n)",
+              "timeType": "good",
+              "spaceComplexity": "O(n)",
+              "spaceType": "warning",
+              "pros": ["Simple logic", "Easy to implement"],
+              "cons": ["Uses extra memory", "Not fully in-place"],
+              "visualLink": "/DSA-Problems/LinkedList/In-Place-Reversal /Reorder-List/143-bruteforce-visualization.html",
+              "notesLink": ""
+            },
+            {
+              "title": "Improved — Stack for Second Half",
+              "badge": "Improved",
+              "intuition": "Find middle of the list. Push second half nodes onto a stack. Then interleave first half and popped stack nodes.",
+              "steps": [
+                "Find middle using slow-fast pointers.",
+                "Push second half nodes into stack.",
+                "Merge first half with stack nodes alternately."
+              ],
+              "code": "var reorderList = function(head) {\n    if (!head || !head.next) return;\n\n    let slow = head;\n    let fast = head;\n\n    while (fast && fast.next) {\n        slow = slow.next;\n        fast = fast.next.next;\n    }\n\n    const stack = [];\n    let curr = slow.next;\n    slow.next = null;\n\n    while (curr) {\n        stack.push(curr);\n        curr = curr.next;\n    }\n\n    curr = head;\n    while (stack.length) {\n        let node = stack.pop();\n        node.next = curr.next;\n        curr.next = node;\n        curr = node.next;\n    }\n};",
+              "language": "javascript",
+              "timeComplexity": "O(n)",
+              "timeType": "good",
+              "spaceComplexity": "O(n/2)",
+              "spaceType": "warning",
+              "pros": ["Cleaner than full array method", "Clear split logic"],
+              "cons": ["Still uses extra space"],
+              "visualLink": "/DSA-Problems/LinkedList/In-Place-Reversal /Reorder-List/143-improved-visualization.html",
+              "notesLink": ""
+            },
+            {
+              "title": "Optimal — Split + Reverse + Merge",
+              "badge": "Optimal",
+              "intuition": "Find middle of list. Reverse second half in-place. Merge two halves alternately.",
+              "steps": [
+                "Find middle using slow-fast pointers.",
+                "Reverse second half.",
+                "Merge first and reversed second halves alternately."
+              ],
+              "code": "var reorderList = function(head) {\n    if (!head || !head.next) return;\n\n    // Step 1: Find middle\n    let slow = head;\n    let fast = head;\n    while (fast && fast.next) {\n        slow = slow.next;\n        fast = fast.next.next;\n    }\n\n    // Step 2: Reverse second half\n    let prev = null;\n    let curr = slow.next;\n    slow.next = null;\n\n    while (curr) {\n        let nextNode = curr.next;\n        curr.next = prev;\n        prev = curr;\n        curr = nextNode;\n    }\n\n    // Step 3: Merge\n    let first = head;\n    let second = prev;\n\n    while (second) {\n        let temp1 = first.next;\n        let temp2 = second.next;\n\n        first.next = second;\n        second.next = temp1;\n\n        first = temp1;\n        second = temp2;\n    }\n};",
+              "language": "javascript",
+              "timeComplexity": "O(n)",
+              "timeType": "good",
+              "spaceComplexity": "O(1)",
+              "spaceType": "good",
+              "pros": [
+                "True in-place solution",
+                "Constant extra space",
+                "Combines multiple linked list techniques",
+                "Interview-preferred solution"
+              ],
+              "cons": ["Requires precise pointer control"],
+              "visualLink": "/DSA-Problems/LinkedList/In-Place-Reversal /Reorder-List/143-optimal-visualization.html",
+              "notesLink": ""
+            }
+          ]
+        },
+        "split-linked-list-in-parts": {
+          "breadcrumb": [
+            "Linked List",
+            "In-Place Reversal",
+            "Split Linked List in Parts"
+          ],
+          "title": "Split Linked List in Parts",
+          "difficulty": "Medium",
+          "problemSlug": "split-linked-list-in-parts",
+          "categoryPath": "linkedlist/in-place-reversal",
+          "tags": ["Linked List", "Two Pointers", "Simulation", "In-Place"],
+          "description": "Given the head of a singly linked list and an integer k, split the linked list into k consecutive parts. The length of each part should be as equal as possible. No two parts should have a size differing by more than one. Earlier parts should have greater or equal size than later parts.",
+          "examples": [
+            {
+              "input": "head = [1,2,3], k = 5",
+              "output": "[[1],[2],[3],[],[]]",
+              "explanation": "There are 3 nodes and 5 parts. First 3 parts get one node each; remaining parts are empty."
+            },
+            {
+              "input": "head = [1,2,3,4,5,6,7,8,9,10], k = 3",
+              "output": "[[1,2,3,4],[5,6,7],[8,9,10]]",
+              "explanation": "Total nodes = 10, base size = 3, remainder = 1. First part gets 4 nodes, others get 3."
+            }
+          ],
+          "constraints": [
+            "The number of nodes in the list is in the range [0, 1000].",
+            "0 ≤ Node.val ≤ 1000",
+            "1 ≤ k ≤ 50"
+          ],
+          "approaches": [
+            {
+              "title": "Brute Force — Extract, Slice, Rebuild",
+              "badge": "Brute Force",
+              "intuition": "Extract all values into an array. Divide array into k slices, then rebuild linked lists for each slice.",
+              "steps": [
+                "Traverse list and store values in array.",
+                "Compute base size and remainder.",
+                "Slice array into k parts.",
+                "Rebuild linked lists from slices."
+              ],
+              "code": "var splitListToParts = function(head, k) {\n    const values = [];\n    let curr = head;\n\n    while (curr) {\n        values.push(curr.val);\n        curr = curr.next;\n    }\n\n    const n = values.length;\n    const baseSize = Math.floor(n / k);\n    const remainder = n % k;\n\n    const result = [];\n    let index = 0;\n\n    for (let i = 0; i < k; i++) {\n        const size = baseSize + (i < remainder ? 1 : 0);\n        const dummy = new ListNode(0);\n        let tail = dummy;\n\n        for (let j = 0; j < size; j++) {\n            tail.next = new ListNode(values[index++]);\n            tail = tail.next;\n        }\n\n        result.push(dummy.next);\n    }\n\n    return result;\n};",
+              "language": "javascript",
+              "timeComplexity": "O(n)",
+              "timeType": "good",
+              "spaceComplexity": "O(n)",
+              "spaceType": "warning",
+              "pros": ["Very easy to implement", "Clear slicing logic"],
+              "cons": ["Uses extra memory", "Does not split in-place"],
+              "visualLink": "/DSA-Problems/LinkedList/In-Place-Reversal /Split-Linked-List-Parts/725-bruteforce-visualization.html",
+              "notesLink": ""
+            },
+            {
+              "title": "Improved — Two-Pass with Precomputed Sizes",
+              "badge": "Improved",
+              "intuition": "First compute total length. Precompute size of each part in an array. Then iterate through the list and cut links accordingly.",
+              "steps": [
+                "Compute total length n.",
+                "Compute sizes array of length k.",
+                "Traverse list and split according to sizes."
+              ],
+              "code": "var splitListToParts = function(head, k) {\n    let n = 0;\n    let curr = head;\n    while (curr) {\n        n++;\n        curr = curr.next;\n    }\n\n    const baseSize = Math.floor(n / k);\n    const remainder = n % k;\n\n    const sizes = new Array(k).fill(baseSize);\n    for (let i = 0; i < remainder; i++) {\n        sizes[i]++;\n    }\n\n    const result = [];\n    curr = head;\n\n    for (let i = 0; i < k; i++) {\n        result.push(curr);\n        let size = sizes[i];\n\n        for (let j = 1; j < size; j++) {\n            if (curr) curr = curr.next;\n        }\n\n        if (curr) {\n            let nextPart = curr.next;\n            curr.next = null;\n            curr = nextPart;\n        }\n    }\n\n    return result;\n};",
+              "language": "javascript",
+              "timeComplexity": "O(n + k)",
+              "timeType": "good",
+              "spaceComplexity": "O(k)",
+              "spaceType": "warning",
+              "pros": ["Cleaner logic separation", "Avoids rebuilding nodes"],
+              "cons": ["Uses extra sizes array"],
+              "visualLink": "/DSA-Problems/LinkedList/In-Place-Reversal /Split-Linked-List-Parts/725-improved-visualization.html",
+              "notesLink": ""
+            },
+            {
+              "title": "Optimal — Inline Size Computation + In-Place Split",
+              "badge": "Optimal",
+              "intuition": "Compute total length. For each part, calculate its size on the fly and split in-place without storing extra arrays.",
+              "steps": [
+                "Compute total length n.",
+                "Compute baseSize and remainder.",
+                "For each part:",
+                "  Assign head of part.",
+                "  Traverse required nodes.",
+                "  Break link."
+              ],
+              "code": "var splitListToParts = function(head, k) {\n    let n = 0;\n    let curr = head;\n\n    while (curr) {\n        n++;\n        curr = curr.next;\n    }\n\n    const baseSize = Math.floor(n / k);\n    const remainder = n % k;\n\n    const result = new Array(k);\n    curr = head;\n\n    for (let i = 0; i < k; i++) {\n        result[i] = curr;\n        let size = baseSize + (i < remainder ? 1 : 0);\n\n        for (let j = 1; j < size; j++) {\n            if (curr) curr = curr.next;\n        }\n\n        if (curr) {\n            let next = curr.next;\n            curr.next = null;\n            curr = next;\n        }\n    }\n\n    return result;\n};",
+              "language": "javascript",
+              "timeComplexity": "O(n + k)",
+              "timeType": "good",
+              "spaceComplexity": "O(k)",
+              "spaceType": "warning",
+              "pros": [
+                "In-place splitting",
+                "No auxiliary arrays for sizes",
+                "Very clean distribution logic",
+                "Interview-preferred solution"
+              ],
+              "cons": ["Requires careful remainder handling"],
+              "visualLink": "/DSA-Problems/LinkedList/In-Place-Reversal /Split-Linked-List-Parts/725-optimal-visualization.html",
+              "notesLink": ""
+            }
+          ]
         },
         "reverse-nodes-in-k-group": {
+          "breadcrumb": [
+            "Linked List",
+            "In-Place Reversal",
+            "Reverse Nodes in k-Group"
+          ],
           "title": "Reverse Nodes in k-Group",
+          "difficulty": "Medium",
           "problemSlug": "reverse-nodes-in-k-group",
-          "visualLink": "/legacy/Linked-List/Hard/Reverse-Nodes-In-K-groups/index.html"
-        }
-      }
-    },
-    "merge-sort": {
-      "title": "Merge & Sort",
-      "description": "Combine sorted lists or sort in-place using merge sort — exploiting the linked list's O(1) insert to achieve O(n log n) without extra space.",
-      "icon": "🔗",
-      "color": "var(--accent-4)",
-      "problems": {
-        "merge-two-sorted-lists": {
-          "title": "Merge Two Sorted Lists",
-          "problemSlug": "merge-two-sorted-lists",
-          "visualLink": "/legacy/Linked-List/Medium/Merge-Two-Sorted-Linked-List/index.html"
-        },
-        "merge-k-sorted-lists": {
-          "title": "Merge K Sorted Lists",
-          "problemSlug": "merge-k-sorted-lists",
-          "visualLink": "/legacy/Linked-List/Hard/Merge-K-Sorted-Lists/index.html"
-        },
-        "sort-list": {
-          "title": "Sort List",
-          "problemSlug": "sort-list",
-          "visualLink": "/linked-list/visualizer"
-        },
-        "insertion-sort-list": {
-          "title": "Insertion Sort List",
-          "problemSlug": "insertion-sort-list",
-          "visualLink": "/linked-list/visualizer"
+          "categoryPath": "linkedlist/in-place-reversal",
+          "tags": [
+            "Linked List",
+            "Two Pointers",
+            "Recursion",
+            "In-Place Reversal"
+          ],
+          "description": "Given the head of a linked list, reverse the nodes of the list k at a time, and return the modified list. If the number of nodes is not a multiple of k, then left-out nodes should remain as is. You must reverse nodes in-place and may not alter the values in the nodes.",
+          "examples": [
+            {
+              "input": "head = [1,2,3,4,5], k = 2",
+              "output": "[2,1,4,3,5]",
+              "explanation": "Groups of 2 are reversed. The last node remains unchanged."
+            },
+            {
+              "input": "head = [1,2,3,4,5], k = 3",
+              "output": "[3,2,1,4,5]",
+              "explanation": "First 3 nodes are reversed. Remaining 2 nodes remain unchanged."
+            }
+          ],
+          "constraints": [
+            "The number of nodes in the list is n.",
+            "1 ≤ k ≤ n ≤ 5000",
+            "0 ≤ Node.val ≤ 1000"
+          ],
+          "approaches": [
+            {
+              "title": "Brute Force — Array-Based Reconstruction",
+              "badge": "Brute Force",
+              "intuition": "Store all nodes in an array. Reverse every subarray of size k. Then reconnect nodes in new order.",
+              "steps": [
+                "Traverse list and store nodes in array.",
+                "For each chunk of size k, reverse it.",
+                "Reconnect nodes sequentially."
+              ],
+              "code": "var reverseKGroup = function(head, k) {\n    const nodes = [];\n    let curr = head;\n\n    while (curr) {\n        nodes.push(curr);\n        curr = curr.next;\n    }\n\n    for (let i = 0; i < nodes.length; i += k) {\n        if (i + k <= nodes.length) {\n            let l = i;\n            let r = i + k - 1;\n            while (l < r) {\n                [nodes[l], nodes[r]] = [nodes[r], nodes[l]];\n                l++;\n                r--;\n            }\n        }\n    }\n\n    for (let i = 0; i < nodes.length - 1; i++) {\n        nodes[i].next = nodes[i + 1];\n    }\n\n    if (nodes.length > 0) {\n        nodes[nodes.length - 1].next = null;\n        return nodes[0];\n    }\n\n    return null;\n};",
+              "language": "javascript",
+              "timeComplexity": "O(n)",
+              "timeType": "good",
+              "spaceComplexity": "O(n)",
+              "spaceType": "warning",
+              "pros": [
+                "Straightforward logic",
+                "Easy chunk reversal reasoning"
+              ],
+              "cons": ["Uses extra memory", "Not truly in-place"],
+              "visualLink": "/DSA-Problems/LinkedList/In-Place-Reversal /Reverse-K-Group/25-bruteforce-visualization.html",
+              "notesLink": ""
+            },
+            {
+              "title": "Improved — Recursive Solution",
+              "badge": "Improved",
+              "intuition": "Check if at least k nodes exist. Reverse first k nodes, then recursively process the remaining list and connect.",
+              "steps": [
+                "Check if there are k nodes available.",
+                "Reverse first k nodes.",
+                "Recursively call for remaining list.",
+                "Connect reversed group to recursive result."
+              ],
+              "code": "var reverseKGroup = function(head, k) {\n    let count = 0;\n    let curr = head;\n\n    while (curr && count < k) {\n        curr = curr.next;\n        count++;\n    }\n\n    if (count < k) return head;\n\n    let prev = null;\n    curr = head;\n\n    for (let i = 0; i < k; i++) {\n        let nextNode = curr.next;\n        curr.next = prev;\n        prev = curr;\n        curr = nextNode;\n    }\n\n    head.next = reverseKGroup(curr, k);\n\n    return prev;\n};",
+              "language": "javascript",
+              "timeComplexity": "O(n)",
+              "timeType": "good",
+              "spaceComplexity": "O(n/k) recursion stack",
+              "spaceType": "warning",
+              "pros": [
+                "Clean recursive structure",
+                "Clear separation of group processing"
+              ],
+              "cons": ["Uses recursion stack", "May overflow for large lists"],
+              "visualLink": "/DSA-Problems/LinkedList/In-Place-Reversal /Reverse-K-Group/25-improved-visualization.html",
+              "notesLink": ""
+            },
+            {
+              "title": "Optimal — Iterative In-Place Solution",
+              "badge": "Optimal",
+              "intuition": "Use a dummy node. For each group, check if k nodes exist. Reverse them in-place and reconnect segments carefully.",
+              "steps": [
+                "Use dummy node pointing to head.",
+                "For each group, locate kth node.",
+                "Reverse nodes between groupPrev and kth.",
+                "Reconnect reversed group."
+              ],
+              "code": "var reverseKGroup = function(head, k) {\n    const dummy = new ListNode(0);\n    dummy.next = head;\n    let groupPrev = dummy;\n\n    while (true) {\n        let kth = groupPrev;\n        for (let i = 0; i < k && kth; i++) {\n            kth = kth.next;\n        }\n        if (!kth) break;\n\n        let groupNext = kth.next;\n        let prev = groupNext;\n        let curr = groupPrev.next;\n\n        while (curr !== groupNext) {\n            let nextNode = curr.next;\n            curr.next = prev;\n            prev = curr;\n            curr = nextNode;\n        }\n\n        let temp = groupPrev.next;\n        groupPrev.next = kth;\n        groupPrev = temp;\n    }\n\n    return dummy.next;\n};",
+              "language": "javascript",
+              "timeComplexity": "O(n)",
+              "timeType": "good",
+              "spaceComplexity": "O(1)",
+              "spaceType": "good",
+              "pros": [
+                "True in-place solution",
+                "Constant space",
+                "Interview-preferred solution",
+                "Highly reusable group-reversal pattern"
+              ],
+              "cons": ["Requires precise pointer handling"],
+              "visualLink": "/DSA-Problems/LinkedList/In-Place-Reversal /Reverse-K-Group/25-optimal-visualization.html",
+              "notesLink": ""
+            }
+          ]
         }
       }
     }

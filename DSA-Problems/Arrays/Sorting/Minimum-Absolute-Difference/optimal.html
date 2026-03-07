@@ -1,0 +1,1364 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LeetCode 1200 — Optimal: Sort + Single Pass Visualizer</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=Outfit:wght@400;500;600;700&family=Playfair+Display:wght@600;700;800&display=swap');
+
+        :root {
+            --bg-0: #faf8f5;
+            --bg-1: #f2efe9;
+            --bg-2: #e8e4dc;
+            --bg-3: #ddd8ce;
+            --bg-ink: #1c1917;
+            --border: #d4cfc5;
+            --border-hi: #b8b2a6;
+            --text-1: #1c1917;
+            --text-2: #57534e;
+            --text-3: #8c877e;
+            --ink: #292524;
+            --copper: #b45309;
+            --copper-bg: rgba(180, 83, 9, 0.07);
+            --copper-border: rgba(180, 83, 9, 0.22);
+            --copper-glow: rgba(180, 83, 9, 0.14);
+            --forest: #15803d;
+            --forest-bg: rgba(21, 128, 61, 0.06);
+            --forest-border: rgba(21, 128, 61, 0.22);
+            --forest-glow: rgba(21, 128, 61, 0.14);
+            --navy: #1e40af;
+            --navy-bg: rgba(30, 64, 175, 0.06);
+            --navy-border: rgba(30, 64, 175, 0.22);
+            --navy-glow: rgba(30, 64, 175, 0.14);
+            --slate: #475569;
+            --slate-bg: rgba(71, 85, 105, 0.06);
+            --wine: #9f1239;
+            --wine-bg: rgba(159, 18, 57, 0.06);
+            --wine-border: rgba(159, 18, 57, 0.22);
+            --reset-red: #dc2626;
+            --reset-bg: rgba(220, 38, 38, 0.06);
+            --font-display: 'Playfair Display', serif;
+            --font-body: 'Outfit', sans-serif;
+            --font-mono: 'JetBrains Mono', monospace;
+            --r: 8px;
+            --r-sm: 5px;
+            --shadow: 0 1px 3px rgba(28, 25, 23, 0.06), 0 1px 2px rgba(28, 25, 23, 0.04);
+            --shadow-lg: 0 4px 12px rgba(28, 25, 23, 0.08), 0 2px 4px rgba(28, 25, 23, 0.04);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: var(--bg-0);
+            color: var(--text-1);
+            font-family: var(--font-body);
+            min-height: 100vh;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        /* Subtle paper texture */
+        body::before {
+            content: '';
+            position: fixed;
+            inset: 0;
+            z-index: 0;
+            pointer-events: none;
+            opacity: 0.4;
+            background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23a8a29e' fill-opacity='0.05'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+        }
+
+        .app {
+            position: relative;
+            z-index: 1;
+            max-width: 1440px;
+            margin: 0 auto;
+            padding: 28px;
+        }
+
+        /* ── HEADER ── */
+        .header {
+            display: flex;
+            align-items: baseline;
+            gap: 16px;
+            margin-bottom: 24px;
+            padding-bottom: 20px;
+            border-bottom: 2px solid var(--ink);
+        }
+
+        .header-num {
+            font-family: var(--font-display);
+            font-size: 36px;
+            font-weight: 800;
+            color: var(--copper);
+            line-height: 1;
+        }
+
+        .header h1 {
+            font-family: var(--font-display);
+            font-size: 20px;
+            font-weight: 700;
+            color: var(--ink);
+            line-height: 1.3;
+        }
+
+        .header h1 em {
+            font-style: italic;
+            color: var(--copper);
+        }
+
+        .header-tags {
+            margin-left: auto;
+            display: flex;
+            gap: 8px;
+            align-items: center;
+        }
+
+        .tag {
+            font-family: var(--font-mono);
+            font-size: 10px;
+            font-weight: 700;
+            padding: 4px 10px;
+            border-radius: 3px;
+            letter-spacing: 0.8px;
+            text-transform: uppercase;
+        }
+
+        .tag-optimal {
+            background: var(--forest-bg);
+            color: var(--forest);
+            border: 1px solid var(--forest-border);
+        }
+
+        .tag-time {
+            background: var(--navy-bg);
+            color: var(--navy);
+            border: 1px solid var(--navy-border);
+        }
+
+        /* ── INPUT BAR ── */
+        .input-bar {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            margin-bottom: 16px;
+            flex-wrap: wrap;
+        }
+
+        .input-bar label {
+            font-family: var(--font-mono);
+            font-size: 11px;
+            font-weight: 600;
+            color: var(--text-3);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .input-bar input[type="text"] {
+            flex: 1;
+            min-width: 200px;
+            background: white;
+            border: 1.5px solid var(--border);
+            color: var(--text-1);
+            font-family: var(--font-mono);
+            font-size: 13px;
+            padding: 9px 14px;
+            border-radius: var(--r-sm);
+            outline: none;
+            box-shadow: var(--shadow);
+            transition: border-color 0.2s;
+        }
+
+        .input-bar input:focus {
+            border-color: var(--copper);
+        }
+
+        .presets {
+            display: flex;
+            gap: 6px;
+        }
+
+        /* ── BUTTONS ── */
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            padding: 8px 15px;
+            border-radius: var(--r-sm);
+            font-family: var(--font-mono);
+            font-size: 11px;
+            font-weight: 600;
+            cursor: pointer;
+            border: 1.5px solid var(--border);
+            background: white;
+            color: var(--text-2);
+            box-shadow: var(--shadow);
+            transition: all 0.15s;
+            letter-spacing: 0.3px;
+            white-space: nowrap;
+        }
+
+        .btn:hover {
+            background: var(--bg-1);
+            color: var(--text-1);
+            border-color: var(--border-hi);
+        }
+
+        .btn:active {
+            transform: scale(0.97);
+            box-shadow: none;
+        }
+
+        .btn-copper {
+            background: var(--copper-bg);
+            border-color: var(--copper-border);
+            color: var(--copper);
+        }
+
+        .btn-copper:hover {
+            background: var(--copper-glow);
+            color: var(--copper);
+            border-color: var(--copper);
+        }
+
+        .btn-sm {
+            padding: 5px 10px;
+            font-size: 10px;
+        }
+
+        /* ── CONTROLS ── */
+        .controls {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 16px;
+            padding: 11px 16px;
+            background: white;
+            border: 1.5px solid var(--border);
+            border-radius: var(--r);
+            box-shadow: var(--shadow);
+            flex-wrap: wrap;
+        }
+
+        .divider {
+            width: 1px;
+            height: 24px;
+            background: var(--border);
+            margin: 0 4px;
+        }
+
+        .speed-grp {
+            display: flex;
+            align-items: center;
+            gap: 7px;
+        }
+
+        .speed-grp label {
+            font-family: var(--font-mono);
+            font-size: 10px;
+            color: var(--text-3);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        input[type="range"] {
+            width: 90px;
+            accent-color: var(--copper);
+            cursor: pointer;
+        }
+
+        .speed-val {
+            font-family: var(--font-mono);
+            font-size: 12px;
+            color: var(--copper);
+            min-width: 36px;
+            font-weight: 600;
+        }
+
+        .step-info {
+            font-family: var(--font-mono);
+            font-size: 11px;
+            color: var(--text-3);
+            margin-left: auto;
+        }
+
+        .step-info b {
+            color: var(--text-2);
+        }
+
+        /* ── PHASES ── */
+        .phases {
+            display: flex;
+            gap: 0;
+            margin-bottom: 16px;
+            border-radius: var(--r);
+            overflow: hidden;
+            border: 1.5px solid var(--border);
+            box-shadow: var(--shadow);
+        }
+
+        .ph {
+            flex: 1;
+            padding: 10px 10px;
+            text-align: center;
+            font-family: var(--font-mono);
+            font-size: 10.5px;
+            font-weight: 600;
+            background: white;
+            color: var(--text-3);
+            border-right: 1px solid var(--border);
+            transition: all 0.3s;
+            letter-spacing: 0.2px;
+        }
+
+        .ph:last-child {
+            border-right: none;
+        }
+
+        .ph.active {
+            background: var(--copper-bg);
+            color: var(--copper);
+            font-weight: 700;
+        }
+
+        .ph.done {
+            background: var(--forest-bg);
+            color: var(--forest);
+        }
+
+        /* ── BANNER ── */
+        .banner {
+            display: none;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            padding: 14px 20px;
+            margin-bottom: 16px;
+            background: var(--forest-bg);
+            border: 1.5px solid var(--forest-border);
+            border-radius: var(--r);
+            box-shadow: var(--shadow);
+            animation: slideIn 0.4s ease;
+        }
+
+        .banner.show {
+            display: flex;
+        }
+
+        .banner p {
+            font-family: var(--font-mono);
+            font-size: 12px;
+            color: var(--forest);
+            font-weight: 600;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-8px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* ── KEY INSIGHT STRIP ── */
+        .insight-strip {
+            display: none;
+            align-items: center;
+            gap: 12px;
+            padding: 10px 16px;
+            margin-bottom: 16px;
+            background: var(--copper-bg);
+            border: 1.5px solid var(--copper-border);
+            border-radius: var(--r);
+            box-shadow: var(--shadow);
+            animation: slideIn 0.3s ease;
+        }
+
+        .insight-strip.show {
+            display: flex;
+        }
+
+        .insight-strip .icon {
+            font-size: 16px;
+        }
+
+        .insight-strip p {
+            font-family: var(--font-mono);
+            font-size: 11px;
+            color: var(--copper);
+            font-weight: 600;
+            line-height: 1.5;
+        }
+
+        /* ── MAIN GRID ── */
+        .grid {
+            display: grid;
+            grid-template-columns: 1fr 320px;
+            gap: 16px;
+        }
+
+        /* ── PANELS ── */
+        .panel {
+            background: white;
+            border: 1.5px solid var(--border);
+            border-radius: var(--r);
+            overflow: hidden;
+            box-shadow: var(--shadow);
+        }
+
+        .panel-hdr {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 16px;
+            border-bottom: 1.5px solid var(--border);
+            background: var(--bg-1);
+        }
+
+        .panel-hdr .dot {
+            width: 7px;
+            height: 7px;
+            border-radius: 50%;
+        }
+
+        .dot-copper {
+            background: var(--copper);
+        }
+
+        .dot-forest {
+            background: var(--forest);
+        }
+
+        .dot-navy {
+            background: var(--navy);
+        }
+
+        .panel-hdr h3 {
+            font-family: var(--font-mono);
+            font-size: 10.5px;
+            font-weight: 700;
+            color: var(--text-2);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .panel-body {
+            padding: 18px;
+        }
+
+        /* ── ARRAY VIZ ── */
+        .arr-label {
+            font-family: var(--font-mono);
+            font-size: 10px;
+            color: var(--text-3);
+            text-transform: uppercase;
+            letter-spacing: 1.2px;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .arr-label .rule {
+            flex: 1;
+            height: 1px;
+            background: var(--border);
+        }
+
+        .arr-row {
+            display: flex;
+            gap: 5px;
+            flex-wrap: wrap;
+            align-items: flex-end;
+            min-height: 80px;
+        }
+
+        .cw {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 3px;
+        }
+
+        .ptr {
+            font-family: var(--font-mono);
+            font-size: 9px;
+            font-weight: 700;
+            padding: 2px 6px;
+            border-radius: 3px;
+            min-height: 16px;
+            letter-spacing: 0.5px;
+            transition: all 0.2s;
+        }
+
+        .ptr-i {
+            background: var(--navy-bg);
+            color: var(--navy);
+            border: 1px solid var(--navy-border);
+        }
+
+        .ptr-j {
+            background: var(--copper-bg);
+            color: var(--copper);
+            border: 1px solid var(--copper-border);
+        }
+
+        .cell {
+            width: 52px;
+            height: 44px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: white;
+            border: 2px solid var(--border);
+            border-radius: var(--r-sm);
+            font-family: var(--font-mono);
+            font-size: 14px;
+            font-weight: 700;
+            color: var(--ink);
+            transition: all 0.25s;
+            box-shadow: var(--shadow);
+        }
+
+        .cell.hi-i {
+            border-color: var(--navy);
+            background: var(--navy-bg);
+            box-shadow: 0 0 0 3px var(--navy-glow), var(--shadow);
+        }
+
+        .cell.hi-j {
+            border-color: var(--copper);
+            background: var(--copper-bg);
+            box-shadow: 0 0 0 3px var(--copper-glow), var(--shadow);
+        }
+
+        .cell.hi-pair {
+            border-color: var(--forest);
+            background: var(--forest-bg);
+            box-shadow: 0 0 0 3px var(--forest-glow), var(--shadow);
+        }
+
+        .cell.hi-reset {
+            border-color: var(--wine);
+            background: var(--wine-bg);
+            box-shadow: 0 0 0 3px rgba(159, 18, 57, 0.1), var(--shadow);
+        }
+
+        .cell.in-result {
+            border-color: var(--forest);
+            background: var(--forest-bg);
+            border-style: solid;
+        }
+
+        .cell.sorted-mark {
+            border-style: dashed;
+            border-color: var(--text-3);
+        }
+
+        .ix {
+            font-family: var(--font-mono);
+            font-size: 8px;
+            color: var(--text-3);
+        }
+
+        /* ── COMPARISON STRIP ── */
+        .comp {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            padding: 14px;
+            margin-top: 18px;
+            background: var(--bg-1);
+            border: 1.5px solid var(--border);
+            border-radius: var(--r);
+            min-height: 64px;
+            transition: all 0.3s;
+        }
+
+        .cv {
+            font-family: var(--font-mono);
+            font-size: 22px;
+            font-weight: 700;
+            padding: 6px 14px;
+            border-radius: var(--r-sm);
+            min-width: 52px;
+            text-align: center;
+            border: 1.5px solid transparent;
+        }
+
+        .cv-i {
+            background: var(--navy-bg);
+            color: var(--navy);
+            border-color: var(--navy-border);
+        }
+
+        .cv-j {
+            background: var(--copper-bg);
+            color: var(--copper);
+            border-color: var(--copper-border);
+        }
+
+        .cop {
+            font-family: var(--font-mono);
+            font-size: 13px;
+            color: var(--text-3);
+            font-weight: 600;
+        }
+
+        .cr {
+            font-family: var(--font-mono);
+            font-size: 17px;
+            font-weight: 700;
+            padding: 6px 14px;
+            border-radius: var(--r-sm);
+            border: 1.5px solid transparent;
+        }
+
+        .cr.new-min {
+            background: var(--copper-glow);
+            color: var(--copper);
+            border-color: var(--copper-border);
+            animation: bump 0.35s ease;
+        }
+
+        .cr.match {
+            background: var(--forest-glow);
+            color: var(--forest);
+            border-color: var(--forest-border);
+            animation: bump 0.35s ease;
+        }
+
+        .cr.reset-r {
+            background: var(--reset-bg);
+            color: var(--reset-red);
+            border-color: rgba(220, 38, 38, 0.22);
+            animation: bump 0.35s ease;
+        }
+
+        .cr.skip {
+            background: var(--bg-2);
+            color: var(--text-3);
+        }
+
+        .badge {
+            font-family: var(--font-mono);
+            font-size: 9px;
+            font-weight: 700;
+            letter-spacing: 0.5px;
+            padding: 3px 8px;
+            border-radius: 3px;
+            text-transform: uppercase;
+        }
+
+        .badge-newmin {
+            background: var(--copper-bg);
+            color: var(--copper);
+            border: 1px solid var(--copper-border);
+        }
+
+        .badge-reset {
+            background: var(--reset-bg);
+            color: var(--reset-red);
+            border: 1px solid rgba(220, 38, 38, 0.22);
+        }
+
+        .badge-match {
+            background: var(--forest-bg);
+            color: var(--forest);
+            border: 1px solid var(--forest-border);
+        }
+
+        .badge-accum {
+            background: var(--forest-bg);
+            color: var(--forest);
+            border: 1px solid var(--forest-border);
+        }
+
+        .badge-skip {
+            background: var(--bg-2);
+            color: var(--text-3);
+            border: 1px solid var(--border);
+        }
+
+        @keyframes bump {
+            0% {
+                transform: scale(1)
+            }
+
+            50% {
+                transform: scale(1.12)
+            }
+
+            100% {
+                transform: scale(1)
+            }
+        }
+
+        /* ── RESULT ── */
+        .result-area {
+            margin-top: 18px;
+        }
+
+        .result-row {
+            display: flex;
+            gap: 6px;
+            flex-wrap: wrap;
+            min-height: 36px;
+            padding: 10px;
+            background: var(--bg-1);
+            border: 1.5px solid var(--border);
+            border-radius: var(--r-sm);
+        }
+
+        .rpair {
+            font-family: var(--font-mono);
+            font-size: 12px;
+            font-weight: 700;
+            padding: 4px 10px;
+            border-radius: 4px;
+            background: var(--forest-bg);
+            color: var(--forest);
+            border: 1px solid var(--forest-border);
+            animation: slideIn 0.3s ease;
+        }
+
+        .rpair.faded {
+            opacity: 0.35;
+            text-decoration: line-through;
+            background: var(--bg-2);
+            color: var(--text-3);
+            border-color: var(--border);
+        }
+
+        .rempty {
+            font-family: var(--font-mono);
+            font-size: 11px;
+            color: var(--text-3);
+            font-style: italic;
+        }
+
+        .cbadge-row {
+            display: flex;
+            gap: 7px;
+            margin-top: 14px;
+        }
+
+        .cbadge {
+            font-family: var(--font-mono);
+            font-size: 10px;
+            font-weight: 700;
+            padding: 4px 10px;
+            border-radius: 3px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .cbadge-ok {
+            background: var(--forest-bg);
+            color: var(--forest);
+            border: 1px solid var(--forest-border);
+        }
+
+        /* ── VARIABLES ── */
+        .vgrid {
+            display: grid;
+            gap: 7px;
+        }
+
+        .vrow {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 7px 12px;
+            background: var(--bg-1);
+            border-radius: var(--r-sm);
+            border: 1.5px solid transparent;
+            transition: all 0.3s;
+        }
+
+        .vrow.flash {
+            border-color: var(--copper-border);
+            background: var(--copper-bg);
+        }
+
+        .vrow.flash-reset {
+            border-color: rgba(220, 38, 38, 0.3);
+            background: var(--reset-bg);
+        }
+
+        .vname {
+            font-family: var(--font-mono);
+            font-size: 11px;
+            font-weight: 600;
+            color: var(--text-3);
+            min-width: 80px;
+        }
+
+        .vval {
+            font-family: var(--font-mono);
+            font-size: 13px;
+            font-weight: 700;
+            color: var(--text-1);
+        }
+
+        .vval.copper {
+            color: var(--copper);
+        }
+
+        .vval.forest {
+            color: var(--forest);
+        }
+
+        .vval.navy {
+            color: var(--navy);
+        }
+
+        .vval.wine {
+            color: var(--wine);
+        }
+
+        /* ── LOG ── */
+        .log-panel .panel-body {
+            padding: 0;
+            max-height: 560px;
+            overflow-y: auto;
+        }
+
+        .log-panel .panel-body::-webkit-scrollbar {
+            width: 5px;
+        }
+
+        .log-panel .panel-body::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        .log-panel .panel-body::-webkit-scrollbar-thumb {
+            background: var(--border);
+            border-radius: 3px;
+        }
+
+        .le {
+            padding: 8px 14px;
+            font-family: var(--font-mono);
+            font-size: 11px;
+            line-height: 1.55;
+            color: var(--text-2);
+            border-bottom: 1px solid var(--bg-2);
+            transition: background 0.2s;
+        }
+
+        .le:last-child {
+            border-bottom: none;
+        }
+
+        .le.active {
+            background: var(--copper-bg);
+        }
+
+        .le .sn {
+            color: var(--text-3);
+            margin-right: 6px;
+            font-size: 9px;
+        }
+
+        .le .v {
+            color: var(--copper);
+            font-weight: 700;
+        }
+
+        .le .nm {
+            color: var(--copper);
+            font-weight: 700;
+        }
+
+        .le .mt {
+            color: var(--forest);
+            font-weight: 700;
+        }
+
+        .le .rs {
+            color: var(--wine);
+            font-weight: 700;
+        }
+
+        .le .sk {
+            color: var(--text-3);
+        }
+
+        .le .pl {
+            color: var(--navy);
+            font-weight: 700;
+            text-transform: uppercase;
+            font-size: 9px;
+            letter-spacing: 0.5px;
+        }
+
+        @media (max-width:900px) {
+            .grid {
+                grid-template-columns: 1fr;
+            }
+
+            .app {
+                padding: 14px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="app">
+
+        <div class="header">
+            <span class="header-num">§3</span>
+            <h1>Minimum Absolute Difference — <em>Sort + Single Pass</em></h1>
+            <div class="header-tags">
+                <span class="tag tag-optimal">Optimal</span>
+                <span class="tag tag-time">O(n log n)</span>
+            </div>
+        </div>
+
+        <div class="input-bar">
+            <label>Array</label>
+            <input type="text" id="inp" value="3, 8, -10, 23, 19, -4, -14, 27" />
+            <div class="presets">
+                <button class="btn btn-sm" onclick="preset(0)">Ex 1</button>
+                <button class="btn btn-sm" onclick="preset(1)">Ex 2</button>
+                <button class="btn btn-sm" onclick="preset(2)">Ex 3</button>
+            </div>
+            <button class="btn btn-copper" onclick="load()">▶ Load &amp; Reset</button>
+        </div>
+
+        <div class="controls">
+            <button class="btn btn-copper" id="playBtn" onclick="togglePlay()">▶ Play</button>
+            <button class="btn" onclick="stepFwd()">⏭ Step</button>
+            <button class="btn" onclick="doReset()">↺ Reset</button>
+            <div class="divider"></div>
+            <div class="speed-grp">
+                <label>Speed</label>
+                <input type="range" id="speedR" min="1" max="10" value="5" oninput="updSpeed()" />
+                <span class="speed-val" id="speedV">1.0×</span>
+            </div>
+            <div class="step-info">Step <b id="curS">0</b> / <b id="totS">0</b></div>
+        </div>
+
+        <div class="phases">
+            <div class="ph" id="ph0">① Original</div>
+            <div class="ph" id="ph1">② Sort</div>
+            <div class="ph" id="ph2">③ Single Pass — Scan &amp; Collect</div>
+            <div class="ph" id="ph3">④ Done</div>
+        </div>
+
+        <div class="insight-strip" id="insightStrip">
+            <span class="icon">💡</span>
+            <p id="insightText">Key insight: when diff &lt; minDiff → RESET result (old pairs invalidated). When diff ==
+                minDiff → APPEND.</p>
+        </div>
+
+        <div class="banner" id="doneB">
+            <span>✓</span>
+            <p id="doneT">Complete!</p>
+        </div>
+
+        <div class="grid">
+            <div class="viz-col">
+                <div class="panel" style="margin-bottom:14px;">
+                    <div class="panel-hdr">
+                        <div class="dot dot-copper"></div>
+                        <h3>Array Visualization</h3>
+                    </div>
+                    <div class="panel-body">
+                        <div class="arr-label">arr[] <span class="rule"></span></div>
+                        <div class="arr-row" id="arrRow"></div>
+
+                        <div class="arr-label" style="margin-top:18px">Comparison — arr[i] → arr[i+1] <span
+                                class="rule"></span></div>
+                        <div class="comp" id="compEl">
+                            <span style="font-family:var(--font-mono);font-size:12px;color:var(--text-3)">Press Play or
+                                Step to begin</span>
+                        </div>
+
+                        <div class="result-area">
+                            <div class="arr-label">result[] <span class="rule"></span></div>
+                            <div class="result-row" id="resRow"><span class="rempty">Empty — will be built in one
+                                    pass</span></div>
+                        </div>
+
+                        <div class="cbadge-row">
+                            <span class="cbadge cbadge-ok">Time: O(n log n)</span>
+                            <span class="cbadge cbadge-ok">Space: O(1) aux</span>
+                            <span class="cbadge cbadge-ok">Single Pass</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="panel">
+                    <div class="panel-hdr">
+                        <div class="dot dot-navy"></div>
+                        <h3>Variables</h3>
+                    </div>
+                    <div class="panel-body">
+                        <div class="vgrid" id="vgrid">
+                            <div class="vrow" id="vr-n"><span class="vname">n</span><span class="vval"
+                                    id="vv-n">—</span></div>
+                            <div class="vrow" id="vr-i"><span class="vname">i</span><span class="vval"
+                                    id="vv-i">—</span></div>
+                            <div class="vrow" id="vr-diff"><span class="vname">diff</span><span class="vval"
+                                    id="vv-diff">—</span></div>
+                            <div class="vrow" id="vr-minDiff"><span class="vname">minDiff</span><span
+                                    class="vval copper" id="vv-minDiff">—</span></div>
+                            <div class="vrow" id="vr-action"><span class="vname">action</span><span class="vval"
+                                    id="vv-action">—</span></div>
+                            <div class="vrow" id="vr-resultLen"><span class="vname">result.len</span><span
+                                    class="vval forest" id="vv-resultLen">—</span></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="panel log-panel">
+                <div class="panel-hdr">
+                    <div class="dot dot-forest"></div>
+                    <h3>Execution Log</h3>
+                </div>
+                <div class="panel-body" id="logBody"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const PRESETS = [
+            [4, 2, 1, 3],
+            [1, 3, 6, 10, 15],
+            [3, 8, -10, 23, 19, -4, -14, 27]
+        ];
+
+        let origArr = [], sortedArr = [], steps = [], cur = -1;
+        let playing = false, timer = null, speedMs = 600;
+
+        function preset(i) { document.getElementById('inp').value = PRESETS[i].join(', '); load(); }
+        function parseArr() { return document.getElementById('inp').value.trim().split(/[,\s]+/).map(s => parseInt(s, 10)).filter(n => !isNaN(n)); }
+
+        function load() {
+            stopPlay();
+            origArr = parseArr();
+            if (origArr.length < 2) { alert('Need ≥ 2 numbers'); return; }
+            sortedArr = [...origArr].sort((a, b) => a - b);
+            steps = genSteps();
+            cur = -1;
+            document.getElementById('totS').textContent = steps.length;
+            document.getElementById('curS').textContent = '0';
+            clearLog(); renderArr(origArr); clearHi();
+            document.getElementById('doneB').classList.remove('show');
+            document.getElementById('insightStrip').classList.remove('show');
+            setPhase(-1);
+            setVars({ n: '—', i: '—', diff: '—', minDiff: '—', action: '—', resultLen: '—' }, []);
+            setComp(null); setRes(null);
+        }
+
+        function doReset() {
+            stopPlay(); cur = -1;
+            document.getElementById('curS').textContent = '0';
+            clearLog(); renderArr(origArr); clearHi();
+            document.getElementById('doneB').classList.remove('show');
+            document.getElementById('insightStrip').classList.remove('show');
+            setPhase(-1);
+            setVars({ n: '—', i: '—', diff: '—', minDiff: '—', action: '—', resultLen: '—' }, []);
+            setComp(null); setRes(null);
+        }
+
+        /* ── STEP GENERATION ── */
+        function genSteps() {
+            const a = origArr, s = sortedArr, n = s.length;
+            const st = [];
+
+            // Init
+            st.push({
+                phase: 0, arr: [...a], hi: -1, hj: -1, htype: null,
+                vars: { n, i: '—', diff: '—', minDiff: '∞', action: 'init', resultLen: 0 },
+                changed: ['n', 'minDiff', 'action', 'resultLen'],
+                comp: null, pairs: null, insight: null,
+                log: `<span class="pl">Init</span> Original array, n=<span class="v">${n}</span>, minDiff=∞`
+            });
+
+            // Sort
+            st.push({
+                phase: 1, arr: [...s], hi: -1, hj: -1, htype: 'sorted',
+                vars: { n, i: '—', diff: '—', minDiff: '∞', action: 'sort', resultLen: 0 },
+                changed: ['action'],
+                comp: null, pairs: null, insight: null,
+                log: `<span class="pl">Sort</span> O(n log n) → [${s.join(', ')}]`
+            });
+
+            // Single pass
+            let minDiff = Infinity;
+            let result = [];
+            // We'll also track "previous result" to show reset animation
+            for (let i = 0; i < n - 1; i++) {
+                const diff = s[i + 1] - s[i];
+                let action, compType, insightMsg = null;
+                let prevPairs = [...result.map(p => [...p])];
+                let resetHappened = false;
+
+                if (diff < minDiff) {
+                    minDiff = diff;
+                    result = [[s[i], s[i + 1]]];
+                    action = 'RESET → new min';
+                    compType = 'reset';
+                    resetHappened = prevPairs.length > 0;
+                    if (resetHappened) {
+                        insightMsg = `diff=${diff} < old minDiff → RESET result! Old ${prevPairs.length} pair(s) discarded.`;
+                    } else if (i === 0) {
+                        insightMsg = `First comparison: minDiff set to ${diff}, result initialized with [${s[i]}, ${s[i + 1]}].`;
+                    } else {
+                        insightMsg = `diff=${diff} < minDiff → RESET result and start fresh.`;
+                    }
+                } else if (diff === minDiff) {
+                    result.push([s[i], s[i + 1]]);
+                    action = 'APPEND → equal';
+                    compType = 'match';
+                    insightMsg = `diff=${diff} == minDiff → APPEND [${s[i]}, ${s[i + 1]}] to result. Now ${result.length} pair(s).`;
+                } else {
+                    action = 'skip → larger';
+                    compType = 'skip';
+                }
+
+                st.push({
+                    phase: 2, arr: [...s], hi: i, hj: i + 1,
+                    htype: compType === 'reset' ? 'reset' : compType === 'match' ? 'match' : 'scan',
+                    vars: { n, i, diff, minDiff: minDiff === Infinity ? '∞' : minDiff, action, resultLen: result.length },
+                    changed: compType === 'reset' ? ['i', 'diff', 'minDiff', 'action', 'resultLen'] :
+                        compType === 'match' ? ['i', 'diff', 'action', 'resultLen'] : ['i', 'diff', 'action'],
+                    comp: { a: s[i], b: s[i + 1], diff, type: compType },
+                    pairs: result.map(p => [...p]),
+                    fadedPairs: resetHappened ? prevPairs : null,
+                    insight: insightMsg,
+                    log: compType === 'reset'
+                        ? `i=${i}: ${s[i + 1]}−${s[i]} = <span class="v">${diff}</span> < ${minDiff === diff ? '∞' : minDiff} → <span class="rs">RESET</span> minDiff=<span class="v">${diff}</span>, result=[[${s[i]},${s[i + 1]}]]`
+                        : compType === 'match'
+                            ? `i=${i}: ${s[i + 1]}−${s[i]} = <span class="v">${diff}</span> == ${minDiff} → <span class="mt">APPEND</span> [${s[i]},${s[i + 1]}]`
+                            : `i=${i}: ${s[i + 1]}−${s[i]} = <span class="v">${diff}</span> <span class="sk">> ${minDiff}, skip</span>`
+                });
+            }
+
+            // Done
+            st.push({
+                phase: 3, arr: [...s], hi: -1, hj: -1, htype: null,
+                vars: { n, i: '—', diff: '—', minDiff, action: 'done ✓', resultLen: result.length },
+                changed: ['action'],
+                comp: null, pairs: result.map(p => [...p]), fadedPairs: null, insight: null,
+                log: `<span class="pl">Done!</span> minDiff=<span class="v">${minDiff}</span>, result=[${result.map(p => '[' + p + ']').join(', ')}]`
+            });
+
+            return st;
+        }
+
+        /* ── RENDER ── */
+        function renderArr(a) {
+            const row = document.getElementById('arrRow');
+            row.innerHTML = '';
+            a.forEach((v, i) => {
+                const w = document.createElement('div');
+                w.className = 'cw'; w.id = 'cw-' + i;
+                w.innerHTML = `<div class="ptr" id="pt-${i}">&nbsp;</div><div class="cell" id="cl-${i}">${v}</div><span class="ix">${i}</span>`;
+                row.appendChild(w);
+            });
+        }
+
+        function clearHi() {
+            document.querySelectorAll('.cell').forEach(c => c.className = 'cell');
+            document.querySelectorAll('.ptr').forEach(p => { p.className = 'ptr'; p.innerHTML = '&nbsp;'; });
+        }
+
+        function applyStep(s) {
+            renderArr(s.arr); clearHi();
+
+            // Sorted marks
+            if (s.htype === 'sorted') {
+                s.arr.forEach((_, i) => document.getElementById('cl-' + i).classList.add('sorted-mark'));
+            }
+
+            // Pointer highlights
+            if (s.hi >= 0 && s.hj >= 0) {
+                const ci = document.getElementById('cl-' + s.hi);
+                const cj = document.getElementById('cl-' + s.hj);
+                const pi = document.getElementById('pt-' + s.hi);
+                const pj = document.getElementById('pt-' + s.hj);
+
+                if (s.htype === 'reset') {
+                    ci.classList.add('hi-reset'); cj.classList.add('hi-reset');
+                } else if (s.htype === 'match') {
+                    ci.classList.add('hi-pair'); cj.classList.add('hi-pair');
+                } else {
+                    ci.classList.add('hi-i'); cj.classList.add('hi-j');
+                }
+                pi.className = 'ptr ptr-i'; pi.textContent = 'i';
+                pj.className = 'ptr ptr-j'; pj.textContent = 'i+1';
+            }
+
+            // Mark result cells
+            if (s.pairs && s.pairs.length > 0) {
+                const vs = new Set(); s.pairs.forEach(p => { vs.add(p[0]); vs.add(p[1]); });
+                s.arr.forEach((val, idx) => {
+                    const c = document.getElementById('cl-' + idx);
+                    if (vs.has(val) && !c.classList.contains('hi-i') && !c.classList.contains('hi-j') && !c.classList.contains('hi-pair') && !c.classList.contains('hi-reset'))
+                        c.classList.add('in-result');
+                });
+            }
+
+            setVars(s.vars, s.changed, s.comp && s.comp.type === 'reset');
+            setComp(s.comp);
+            setRes(s.pairs, s.fadedPairs);
+            setPhase(s.phase);
+
+            // Insight strip
+            const strip = document.getElementById('insightStrip');
+            if (s.insight) {
+                document.getElementById('insightText').textContent = s.insight;
+                strip.classList.add('show');
+            } else {
+                strip.classList.remove('show');
+            }
+
+            addLog(s.log, cur + 1);
+
+            if (s.phase === 3) {
+                document.getElementById('doneB').classList.add('show');
+                document.getElementById('doneT').textContent =
+                    `Complete! minDiff = ${s.vars.minDiff}, ${s.pairs.length} pair(s) found — single pass, no second scan needed.`;
+                stopPlay();
+            }
+        }
+
+        function setVars(v, ch, isReset) {
+            const ids = ['n', 'i', 'diff', 'minDiff', 'action', 'resultLen'];
+            ids.forEach(k => {
+                const el = document.getElementById('vv-' + k);
+                if (el) el.textContent = v[k] !== undefined ? v[k] : '—';
+                // Color the action field
+                if (k === 'action') {
+                    el.className = 'vval';
+                    if (String(v[k]).includes('RESET')) el.classList.add('wine');
+                    else if (String(v[k]).includes('APPEND')) el.classList.add('forest');
+                    else if (String(v[k]).includes('skip')) el.classList.add('navy');
+                    else el.classList.add('copper');
+                }
+                const row = document.getElementById('vr-' + k);
+                if (row) {
+                    row.className = 'vrow';
+                    if (ch && ch.includes(k)) {
+                        void row.offsetWidth;
+                        row.classList.add(isReset && (k === 'minDiff' || k === 'resultLen' || k === 'action') ? 'flash-reset' : 'flash');
+                    }
+                }
+            });
+        }
+
+        function setComp(c) {
+            const el = document.getElementById('compEl');
+            if (!c) { el.innerHTML = '<span style="font-family:var(--font-mono);font-size:12px;color:var(--text-3)">—</span>'; return; }
+            const cls = c.type === 'reset' ? 'reset-r' : c.type === 'match' ? 'match' : 'skip';
+            const bcls = c.type === 'reset' ? 'badge-reset' : c.type === 'match' ? 'badge-match' : 'badge-skip';
+            const btxt = c.type === 'reset' ? '⟲ RESET' : c.type === 'match' ? '+ APPEND' : 'SKIP';
+            el.innerHTML = `
+    <span class="cv cv-i">${c.a}</span>
+    <span class="cop">→</span>
+    <span class="cv cv-j">${c.b}</span>
+    <span class="cop">=</span>
+    <span class="cr ${cls}">${c.diff}</span>
+    <span class="badge ${bcls}">${btxt}</span>`;
+        }
+
+        function setRes(pairs, faded) {
+            const el = document.getElementById('resRow');
+            if (!pairs || pairs.length === 0) {
+                // Show faded pairs if reset happened
+                if (faded && faded.length > 0) {
+                    el.innerHTML = faded.map(p => `<span class="rpair faded">[${p[0]}, ${p[1]}]</span>`).join('') +
+                        '<span style="font-family:var(--font-mono);font-size:11px;color:var(--wine);margin-left:6px;font-weight:600">← discarded</span>';
+                } else {
+                    el.innerHTML = '<span class="rempty">Empty</span>';
+                }
+                return;
+            }
+            let html = '';
+            if (faded && faded.length > 0) {
+                html += faded.map(p => `<span class="rpair faded">[${p[0]}, ${p[1]}]</span>`).join('');
+                html += '<span style="font-family:var(--font-mono);font-size:11px;color:var(--text-3);margin:0 4px">→</span>';
+            }
+            html += pairs.map(p => `<span class="rpair">[${p[0]}, ${p[1]}]</span>`).join('');
+            el.innerHTML = html;
+        }
+
+        function setPhase(p) {
+            for (let i = 0; i < 4; i++) {
+                const t = document.getElementById('ph' + i);
+                t.className = 'ph';
+                if (i < p) t.classList.add('done');
+                if (i === p) t.classList.add('active');
+            }
+        }
+
+        function addLog(html, num) {
+            const body = document.getElementById('logBody');
+            const prev = body.querySelector('.le.active');
+            if (prev) prev.classList.remove('active');
+            const e = document.createElement('div');
+            e.className = 'le active';
+            e.innerHTML = `<span class="sn">#${num}</span>${html}`;
+            body.appendChild(e);
+            body.scrollTop = body.scrollHeight;
+        }
+
+        function clearLog() { document.getElementById('logBody').innerHTML = ''; }
+
+        /* ── CONTROLS ── */
+        function stepFwd() {
+            if (cur >= steps.length - 1) return;
+            cur++;
+            document.getElementById('curS').textContent = cur + 1;
+            applyStep(steps[cur]);
+        }
+
+        function togglePlay() { playing ? stopPlay() : startPlay(); }
+
+        function startPlay() {
+            if (cur >= steps.length - 1) doReset();
+            playing = true;
+            document.getElementById('playBtn').textContent = '⏸ Pause';
+            tick();
+        }
+
+        function stopPlay() {
+            playing = false;
+            if (timer) { clearTimeout(timer); timer = null; }
+            document.getElementById('playBtn').textContent = '▶ Play';
+        }
+
+        function tick() {
+            if (!playing) return;
+            stepFwd();
+            if (cur >= steps.length - 1) { stopPlay(); return; }
+            timer = setTimeout(tick, speedMs);
+        }
+
+        function updSpeed() {
+            const v = parseInt(document.getElementById('speedR').value);
+            const m = v / 5; speedMs = Math.max(50, 600 / m);
+            document.getElementById('speedV').textContent = m.toFixed(1) + '×';
+        }
+
+        updSpeed(); load();
+    </script>
+</body>
+
+</html>

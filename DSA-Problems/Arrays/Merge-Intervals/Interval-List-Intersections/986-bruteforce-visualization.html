@@ -1,0 +1,467 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Interval List Intersections - Brute Force</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #fdfbfb 0%, #ebedee 100%);
+            min-height: 100vh;
+            padding: 20px;
+            color: #333;
+        }
+        .container {
+            max-width: 1100px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            overflow: hidden;
+        }
+        header {
+            background: linear-gradient(135deg, #d4fc79 0%, #96e6a1 100%);
+            color: #333;
+            padding: 25px;
+            text-align: center;
+        }
+        h1 { font-size: 1.5em; margin-bottom: 8px; }
+        .subtitle { font-size: 1em; opacity: 0.8; }
+        .complexity-badge {
+            display: inline-block;
+            background: rgba(255,255,255,0.6);
+            padding: 6px 14px;
+            border-radius: 15px;
+            margin-top: 8px;
+            font-size: 0.85em;
+        }
+        .main-content {
+            display: grid;
+            grid-template-columns: 1fr 260px;
+            gap: 20px;
+            padding: 20px;
+        }
+        .card {
+            background: #f8f9fa;
+            border-radius: 12px;
+            padding: 16px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            margin-bottom: 16px;
+        }
+        .card-title {
+            font-size: 0.95em;
+            font-weight: 600;
+            margin-bottom: 12px;
+            color: #2e7d32;
+        }
+        .controls { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+        button {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 8px;
+            font-size: 0.85em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        button:hover { transform: translateY(-2px); }
+        button:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+        .btn-primary { background: linear-gradient(135deg, #d4fc79 0%, #96e6a1 100%); color: #333; }
+        .btn-success { background: linear-gradient(135deg, #28a745 0%, #20c997 100%); color: white; }
+        .btn-warning { background: linear-gradient(135deg, #ffc107 0%, #ff9800 100%); color: white; }
+        .btn-secondary { background: #6c757d; color: white; }
+        .speed-control { display: flex; align-items: center; gap: 6px; flex: 1; min-width: 140px; }
+        .speed-control input[type="range"] { flex: 1; height: 5px; }
+        .intervals-section { margin-bottom: 15px; }
+        .section-label { font-size: 0.85em; font-weight: 600; color: #666; margin-bottom: 5px; }
+        .intervals-display {
+            display: flex;
+            gap: 8px;
+            padding: 12px;
+            background: white;
+            border-radius: 8px;
+            flex-wrap: wrap;
+            min-height: 50px;
+            align-items: center;
+        }
+        .interval-wrapper {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        .interval {
+            padding: 8px 12px;
+            border-radius: 8px;
+            font-weight: 700;
+            font-size: 0.85em;
+            transition: all 0.3s;
+            border: 2px solid;
+            min-width: 45px;
+            text-align: center;
+        }
+        .interval-idx { font-size: 0.65em; color: #666; margin-top: 2px; }
+        
+        /* List A styles */
+        .interval.list-a { background: #e3f2fd; border-color: #2196f3; }
+        .interval.list-a.current { background: #bbdefb; border-color: #1565c0; transform: scale(1.05); box-shadow: 0 4px 8px rgba(33,150,243,0.3); }
+        
+        /* List B styles */
+        .interval.list-b { background: #f3e5f5; border-color: #9c27b0; }
+        .interval.list-b.current { background: #e1bee7; border-color: #7b1fa2; transform: scale(1.05); box-shadow: 0 4px 8px rgba(156,39,176,0.3); }
+        
+        /* Intersection Result styles */
+        .interval.result { background: #c8e6c9; border-color: #43a047; }
+        .interval.result.new { animation: pulse 0.5s; background: #a5d6a7; }
+        
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.15); }
+        }
+        
+        .comparison-display {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 15px;
+            padding: 15px;
+            background: white;
+            border-radius: 8px;
+            font-size: 0.9em;
+            min-height: 70px;
+        }
+        .comp-group { display: flex; flex-direction: column; align-items: center; gap: 4px; }
+        .comp-val { font-weight: 700; padding: 4px 8px; border-radius: 4px; }
+        .comp-val.a { background: #e3f2fd; color: #1565c0; }
+        .comp-val.b { background: #f3e5f5; color: #7b1fa2; }
+        .comp-op { font-weight: 700; color: #666; }
+        .comp-res { font-weight: 700; padding: 4px 8px; border-radius: 4px; background: #fff9c4; color: #e65100; }
+        
+        .result-msg { font-weight: 700; padding: 6px 12px; border-radius: 6px; }
+        .result-msg.success { background: #c8e6c9; color: #2e7d32; }
+        .result-msg.fail { background: #ffcdd2; color: #c62828; }
+        
+        .state-display { background: white; border-radius: 8px; padding: 10px; font-family: 'Courier New', monospace; font-size: 0.75em; }
+        .state-row { display: flex; justify-content: space-between; padding: 4px 0; border-bottom: 1px solid #e0e0e0; }
+        .state-row:last-child { border-bottom: none; }
+        .state-label { font-weight: 600; color: #2e7d32; }
+        .log-container { background: white; border-radius: 8px; padding: 10px; max-height: 150px; overflow-y: auto; font-family: 'Courier New', monospace; font-size: 0.55em; }
+        .log-entry { padding: 3px 6px; margin: 2px 0; border-radius: 4px; border-left: 3px solid #2e7d32; background: #f8f9fa; }
+        .log-entry.success { border-left-color: #28a745; background: #d4edda; }
+        .log-entry.warning { border-left-color: #ffc107; background: #fff3cd; }
+        .log-entry.info { border-left-color: #17a2b8; background: #d1ecf1; }
+        @media (max-width: 900px) { .main-content { grid-template-columns: 1fr; } }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>⚡ Interval List Intersections</h1>
+            <div class="subtitle">Brute Force - Compare Every Pair</div>
+            <div class="complexity-badge">Time: O(N×M) | Space: O(1)</div>
+        </header>
+        <div class="main-content">
+            <div class="left-panel">
+                <div class="card">
+                    <div class="card-title">⚙️ Controls</div>
+                    <div class="controls">
+                        <button class="btn-primary" id="playBtn">▶️ Play</button>
+                        <button class="btn-warning" id="pauseBtn" disabled>⏸️ Pause</button>
+                        <button class="btn-success" id="stepBtn">⏭️ Step</button>
+                        <button class="btn-secondary" id="resetBtn">🔄 Reset</button>
+                        <div class="speed-control">
+                            <label>Speed:</label>
+                            <input type="range" id="speedSlider" min="1" max="10" value="5">
+                            <span id="speedValue">5x</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="card">
+                    <div class="intervals-section">
+                        <div class="section-label">First List (A)</div>
+                        <div class="intervals-display" id="listADisplay"></div>
+                    </div>
+                    <div class="intervals-section">
+                        <div class="section-label">Second List (B)</div>
+                        <div class="intervals-display" id="listBDisplay"></div>
+                    </div>
+                </div>
+                
+                <div class="card">
+                    <div class="card-title">🔍 Comparison</div>
+                    <div class="comparison-display" id="comparisonDisplay">
+                        <span style="color:#888">Ready to start comparing pairs...</span>
+                    </div>
+                </div>
+                
+                <div class="card">
+                    <div class="card-title">✅ Result List</div>
+                    <div class="intervals-display" id="resultDisplay">
+                        <span style="color:#888; font-size:0.9em; padding:5px;">Empty</span>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="right-panel">
+                <div class="card">
+                    <div class="card-title">📋 Current State</div>
+                    <div class="state-display">
+                        <div class="state-row"><span class="state-label">i (A):</span><span id="iState">0</span></div>
+                        <div class="state-row"><span class="state-label">j (B):</span><span id="jState">0</span></div>
+                        <div class="state-row"><span class="state-label">Pairs Checked:</span><span id="pairsState">0</span></div>
+                        <div class="state-row"><span class="state-label">Found:</span><span id="foundState">0</span></div>
+                    </div>
+                </div>
+                <div class="card" style="flex: 1;">
+                    <div class="card-title">📝 Execution Log</div>
+                    <div class="log-container" id="logContainer">
+                        <div class="log-entry info">Ready. Will check all N×M pairs.</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Data
+        const listA = [[0,2],[5,10],[13,23],[24,25]];
+        const listB = [[1,5],[8,12],[15,24],[25,26]];
+        const result = [];
+        
+        // State
+        let i = 0;
+        let j = 0;
+        let pairsChecked = 0;
+        let isRunning = false;
+        let speed = 5;
+        let stepCount = 0;
+        let done = false;
+        let lastResultIndex = -1;
+
+        function init() {
+            i = 0;
+            j = 0;
+            pairsChecked = 0;
+            stepCount = 0;
+            done = false;
+            lastResultIndex = -1;
+            result.length = 0;
+            
+            clearLog();
+            addLog(`List A (N=${listA.length}): ${JSON.stringify(listA)}`, 'info');
+            addLog(`List B (M=${listB.length}): ${JSON.stringify(listB)}`, 'info');
+            updateState();
+            render();
+            document.getElementById('comparisonDisplay').innerHTML = '<span style="color:#888">Ready to start comparing pairs...</span>';
+        }
+
+        function render() {
+            // Render List A
+            const listADisp = document.getElementById('listADisplay');
+            listADisp.innerHTML = listA.map((int, idx) => {
+                let cls = 'interval list-a';
+                if (idx === i) cls += ' current';
+                return `
+                    <div class="interval-wrapper">
+                        <div class="${cls}">[${int[0]},${int[1]}]</div>
+                        <div class="interval-idx">${idx}</div>
+                    </div>
+                `;
+            }).join('');
+            
+            // Render List B
+            const listBDisp = document.getElementById('listBDisplay');
+            listBDisp.innerHTML = listB.map((int, idx) => {
+                let cls = 'interval list-b';
+                if (idx === j) cls += ' current';
+                return `
+                    <div class="interval-wrapper">
+                        <div class="${cls}">[${int[0]},${int[1]}]</div>
+                        <div class="interval-idx">${idx}</div>
+                    </div>
+                `;
+            }).join('');
+            
+            // Render Result
+            const resultDisp = document.getElementById('resultDisplay');
+            if (result.length === 0) {
+                resultDisp.innerHTML = '<span style="color:#888; font-size:0.9em; padding:5px;">Empty</span>';
+            } else {
+                resultDisp.innerHTML = result.map((int, idx) => {
+                    let cls = 'interval result';
+                    if (idx === lastResultIndex) cls += ' new';
+                    return `
+                        <div class="interval-wrapper">
+                            <div class="${cls}">[${int[0]},${int[1]}]</div>
+                        </div>
+                    `;
+                }).join('');
+            }
+        }
+        
+        function updateComparison(startResult, endResult, hasOverlap) {
+            const compDisp = document.getElementById('comparisonDisplay');
+            const [s1, e1] = listA[i];
+            const [s2, e2] = listB[j];
+            
+            let html = `
+                <div class="comp-group">
+                    <span style="font-size:0.7em;color:#666">lo = max(start)</span>
+                    <div style="display:flex;align-items:center;gap:4px">
+                        <span class="comp-val a">${s1}</span>
+                        <span class="comp-val b">${s2}</span>
+                        <span>→</span>
+                        <span class="comp-res">${Math.max(s1,s2)}</span>
+                    </div>
+                </div>
+                
+                <div class="comp-group">
+                    <span style="font-size:0.7em;color:#666">hi = min(end)</span>
+                    <div style="display:flex;align-items:center;gap:4px">
+                        <span class="comp-val a">${e1}</span>
+                        <span class="comp-val b">${e2}</span>
+                        <span>→</span>
+                        <span class="comp-res">${Math.min(e1,e2)}</span>
+                    </div>
+                </div>
+            `;
+            
+            if (hasOverlap) {
+                html += `
+                    <div class="result-msg success">
+                        Overlap! [${startResult}, ${endResult}]
+                    </div>
+                `;
+            } else {
+                html += `
+                    <div class="result-msg fail">
+                        No Overlap (lo > hi)
+                    </div>
+                `;
+            }
+            
+            compDisp.innerHTML = html;
+        }
+
+        function updateState() {
+            document.getElementById('iState').textContent = i < listA.length ? i : '-';
+            document.getElementById('jState').textContent = j < listB.length ? j : '-';
+            document.getElementById('pairsState').textContent = pairsChecked;
+            document.getElementById('foundState').textContent = result.length;
+        }
+
+        function addLog(msg, type = 'info') {
+            const log = document.getElementById('logContainer');
+            log.innerHTML += `<div class="log-entry ${type}">[${stepCount}] ${msg}</div>`;
+            log.scrollTop = log.scrollHeight;
+        }
+
+        function clearLog() { document.getElementById('logContainer').innerHTML = ''; }
+
+        function step() {
+            if (done) { stopExecution(); return; }
+            stepCount++;
+            lastResultIndex = -1;
+            
+            if (i >= listA.length) {
+                done = true;
+                addLog(`Done! Checked ${pairsChecked} pairs. Found ${result.length} intersections.`, 'success');
+                document.getElementById('comparisonDisplay').innerHTML = '<span style="color:#2e7d32;font-weight:700">✓ Execution Complete</span>';
+                updateState();
+                render();
+                return;
+            }
+            
+            const [start1, end1] = listA[i];
+            const [start2, end2] = listB[j];
+            
+            const lo = Math.max(start1, start2);
+            const hi = Math.min(end1, end2);
+            
+            pairsChecked++;
+            
+            if (lo <= hi) {
+                result.push([lo, hi]);
+                lastResultIndex = result.length - 1;
+                addLog(`A[${i}] & B[${j}]: Overlap [${lo}, ${hi}]`, 'success');
+                updateComparison(lo, hi, true);
+            } else {
+                addLog(`A[${i}] & B[${j}]: No overlap`, 'warning');
+                updateComparison(lo, hi, false);
+            }
+            
+            // Advance pointers
+            j++;
+            if (j >= listB.length) {
+                j = 0;
+                i++;
+                if (i >= listA.length) {
+                    done = true;
+                    addLog(`Done! Checked ${pairsChecked} pairs. Found ${result.length} intersections.`, 'success');
+                }
+            }
+            
+            updateState();
+            render();
+        }
+
+        function play() {
+            if (isRunning) return;
+            isRunning = true;
+            document.getElementById('playBtn').disabled = true;
+            document.getElementById('pauseBtn').disabled = false;
+            document.getElementById('stepBtn').disabled = true;
+            runLoop();
+        }
+
+        function pause() {
+            isRunning = false;
+            document.getElementById('playBtn').disabled = false;
+            document.getElementById('pauseBtn').disabled = true;
+            document.getElementById('stepBtn').disabled = false;
+        }
+
+        function stopExecution() {
+            isRunning = false;
+            document.getElementById('playBtn').disabled = true;
+            document.getElementById('pauseBtn').disabled = true;
+            document.getElementById('stepBtn').disabled = true;
+        }
+
+        function runLoop() {
+            if (!isRunning) return;
+            step();
+            if (isRunning && !done) {
+                const delay = 1000 / speed; 
+                // Since brute force has many steps, we might want faster speeds
+                setTimeout(runLoop, delay);
+            } else {
+                stopExecution();
+            }
+        }
+
+        function reset() {
+            isRunning = false;
+            document.getElementById('playBtn').disabled = false;
+            document.getElementById('pauseBtn').disabled = true;
+            document.getElementById('stepBtn').disabled = false;
+            init();
+        }
+
+        // Event Listeners
+        document.getElementById('playBtn').addEventListener('click', play);
+        document.getElementById('pauseBtn').addEventListener('click', pause);
+        document.getElementById('stepBtn').addEventListener('click', step);
+        document.getElementById('resetBtn').addEventListener('click', reset);
+        document.getElementById('speedSlider').addEventListener('input', (e) => {
+            speed = parseInt(e.target.value);
+            document.getElementById('speedValue').textContent = speed + 'x';
+        });
+
+        // Initialize
+        init();
+    </script>
+</body>
+</html>

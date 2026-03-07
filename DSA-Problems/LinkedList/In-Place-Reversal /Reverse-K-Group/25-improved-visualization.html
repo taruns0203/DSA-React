@@ -1,0 +1,961 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>25 - Improved: Recursive k-Group Reversal</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #0f0c29 0%, #302b63 50%, #24243e 100%);
+            min-height: 100vh;
+            padding: 18px;
+            color: #e0e0e0
+        }
+
+        .container {
+            max-width: 1360px;
+            margin: 0 auto;
+            background: rgba(25, 25, 50, .95);
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, .5), 0 0 40px rgba(243, 156, 18, .07);
+            overflow: hidden;
+            border: 1px solid rgba(255, 255, 255, .06)
+        }
+
+        header {
+            background: linear-gradient(135deg, #d35400, #e67e22);
+            color: #fff;
+            padding: 22px;
+            text-align: center
+        }
+
+        h1 {
+            font-size: 1.15em;
+            margin-bottom: 5px
+        }
+
+        .subtitle {
+            font-size: .84em;
+            opacity: .92
+        }
+
+        .badge {
+            display: inline-block;
+            background: rgba(255, 255, 255, .2);
+            padding: 5px 14px;
+            border-radius: 15px;
+            margin-top: 7px;
+            font-size: .78em
+        }
+
+        .main-content {
+            display: grid;
+            grid-template-columns: 1fr 280px;
+            gap: 16px;
+            padding: 18px
+        }
+
+        .card {
+            background: rgba(40, 40, 75, .8);
+            border-radius: 14px;
+            padding: 15px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, .2);
+            margin-bottom: 14px;
+            border: 1px solid rgba(255, 255, 255, .05)
+        }
+
+        .card-title {
+            font-size: .88em;
+            font-weight: 600;
+            margin-bottom: 10px;
+            color: #e67e22
+        }
+
+        button {
+            padding: 7px 14px;
+            border: none;
+            border-radius: 8px;
+            font-size: .82em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all .3s
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, .3)
+        }
+
+        button:disabled {
+            opacity: .4;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #d35400, #e67e22);
+            color: #fff
+        }
+
+        .btn-success {
+            background: linear-gradient(135deg, #27ae60, #2ecc71);
+            color: #fff
+        }
+
+        .btn-warning {
+            background: linear-gradient(135deg, #f39c12, #e67e22);
+            color: #fff
+        }
+
+        .btn-secondary {
+            background: rgba(100, 100, 140, .7);
+            color: #fff
+        }
+
+        .btn-info {
+            background: linear-gradient(135deg, #3498db, #2980b9);
+            color: #fff
+        }
+
+        .controls {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            align-items: center
+        }
+
+        .speed-control {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            flex: 1;
+            min-width: 140px
+        }
+
+        .speed-control label {
+            font-size: .8em;
+            color: #aaa
+        }
+
+        .speed-control input[type="range"] {
+            flex: 1;
+            height: 5px;
+            accent-color: #e67e22
+        }
+
+        .speed-control span {
+            font-size: .8em;
+            color: #e67e22;
+            min-width: 24px
+        }
+
+        .input-section {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+            flex-wrap: wrap
+        }
+
+        .input-section input {
+            padding: 7px 10px;
+            border-radius: 8px;
+            border: 1px solid rgba(255, 255, 255, .15);
+            background: rgba(20, 20, 45, .8);
+            color: #e0e0e0;
+            font-size: .85em;
+            font-family: 'Courier New', monospace;
+            min-width: 100px
+        }
+
+        .input-section input:focus {
+            outline: none;
+            border-color: #e67e22
+        }
+
+        .input-section label {
+            font-size: .82em;
+            color: #aaa
+        }
+
+        /* Linked list */
+        .ll-area {
+            padding: 10px;
+            background: rgba(20, 20, 50, .4);
+            border-radius: 10px;
+            min-height: 56px
+        }
+
+        .ptr-row {
+            display: flex;
+            gap: 0;
+            min-height: 16px;
+            align-items: center;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin-bottom: 2px
+        }
+
+        .ptr-cell {
+            width: 44px;
+            text-align: center;
+            font-size: .46em;
+            font-weight: 700;
+            margin: 0 1px
+        }
+
+        .ptr-spacer {
+            width: 14px;
+            margin: 0 1px
+        }
+
+        .ll-row {
+            display: flex;
+            gap: 0;
+            align-items: center;
+            justify-content: center;
+            flex-wrap: wrap
+        }
+
+        .grp-row {
+            display: flex;
+            gap: 0;
+            min-height: 14px;
+            align-items: center;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin-top: 2px
+        }
+
+        .grp-cell {
+            width: 44px;
+            text-align: center;
+            font-size: .42em;
+            font-weight: 700;
+            margin: 0 1px
+        }
+
+        .grp-spacer {
+            width: 14px;
+            margin: 0 1px
+        }
+
+        .nd {
+            width: 44px;
+            height: 44px;
+            border-radius: 10px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 1.05em;
+            border: 2.5px solid rgba(150, 150, 200, .12);
+            background: rgba(60, 60, 100, .12);
+            font-family: 'Courier New', monospace;
+            color: #666;
+            transition: all .35s
+        }
+
+        .nd-sub {
+            font-size: .38em;
+            color: #555;
+            margin-top: 1px
+        }
+
+        .nd.check-nd {
+            border-color: #f1c40f;
+            background: rgba(241, 196, 15, .08);
+            color: #f1c40f
+        }
+
+        .nd.rev-nd {
+            border-color: #e67e22;
+            background: rgba(230, 126, 34, .12);
+            color: #e67e22;
+            box-shadow: 0 0 10px rgba(230, 126, 34, .1)
+        }
+
+        .nd.prev-nd {
+            border-color: #9b59b6;
+            background: rgba(155, 89, 182, .08);
+            color: #bb6bd9
+        }
+
+        .nd.curr-nd {
+            border-color: #e67e22;
+            background: rgba(230, 126, 34, .1);
+            color: #e67e22;
+            box-shadow: 0 0 8px rgba(230, 126, 34, .1)
+        }
+
+        .nd.tail-nd {
+            border-color: #3498db;
+            background: rgba(52, 152, 219, .08);
+            color: #3498db
+        }
+
+        .nd.skip-nd {
+            border-color: #95a5a6;
+            background: rgba(149, 165, 166, .05);
+            color: #95a5a6
+        }
+
+        .nd.done-nd {
+            border-color: #2ecc71;
+            background: rgba(46, 204, 113, .06);
+            color: #2ecc71
+        }
+
+        .arrow {
+            color: #555;
+            font-size: .78em;
+            margin: 0 1px;
+            transition: all .3s
+        }
+
+        .arrow.rev-a {
+            color: #e67e22;
+            font-weight: 700
+        }
+
+        .arrow.done-a {
+            color: #2ecc71
+        }
+
+        /* Call stack */
+        .stack-area {
+            padding: 10px;
+            background: rgba(20, 20, 50, .5);
+            border-radius: 10px;
+            min-height: 40px
+        }
+
+        .stack-frame {
+            padding: 8px 12px;
+            margin: 4px 0;
+            border-radius: 8px;
+            font-family: 'Courier New', monospace;
+            font-size: .7em;
+            border-left: 3px solid;
+            transition: all .3s
+        }
+
+        .sf-active {
+            border-left-color: #e67e22;
+            background: rgba(230, 126, 34, .06);
+            color: #e67e22
+        }
+
+        .sf-waiting {
+            border-left-color: #3498db;
+            background: rgba(52, 152, 219, .04);
+            color: #3498db
+        }
+
+        .sf-returned {
+            border-left-color: #2ecc71;
+            background: rgba(46, 204, 113, .04);
+            color: #2ecc71
+        }
+
+        .sf-base {
+            border-left-color: #95a5a6;
+            background: rgba(149, 165, 166, .04);
+            color: #95a5a6
+        }
+
+        .sf-label {
+            font-weight: 700;
+            margin-bottom: 2px
+        }
+
+        .sf-detail {
+            font-size: .9em;
+            opacity: .85
+        }
+
+        .status-ind {
+            text-align: center;
+            padding: 11px;
+            border-radius: 10px;
+            font-weight: 700;
+            font-size: .85em;
+            transition: all .3s
+        }
+
+        .si-neutral {
+            background: rgba(100, 100, 140, .12);
+            color: #888
+        }
+
+        .si-run {
+            background: rgba(230, 126, 34, .06);
+            color: #e67e22;
+            border: 1px solid rgba(230, 126, 34, .12)
+        }
+
+        .si-done {
+            background: rgba(46, 204, 113, .12);
+            color: #2ecc71;
+            border: 1px solid rgba(46, 204, 113, .25)
+        }
+
+        .state-display {
+            background: rgba(20, 20, 50, .5);
+            border-radius: 8px;
+            padding: 10px;
+            font-family: 'Courier New', monospace;
+            font-size: .68em
+        }
+
+        .state-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 4px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, .05)
+        }
+
+        .state-row:last-child {
+            border-bottom: none
+        }
+
+        .state-label {
+            font-weight: 600;
+            color: #e67e22
+        }
+
+        .state-val {
+            color: #ccc;
+            text-align: right;
+            max-width: 150px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap
+        }
+
+        .log-container {
+            background: rgba(20, 20, 50, .5);
+            border-radius: 8px;
+            padding: 10px;
+            max-height: 210px;
+            overflow-y: auto;
+            font-family: 'Courier New', monospace;
+            font-size: .54em
+        }
+
+        .log-entry {
+            padding: 3px 7px;
+            margin: 2px 0;
+            border-radius: 4px;
+            border-left: 3px solid #555;
+            background: rgba(40, 40, 70, .5);
+            line-height: 1.5
+        }
+
+        .log-entry.success {
+            border-left-color: #2ecc71;
+            background: rgba(46, 204, 113, .08);
+            color: #2ecc71
+        }
+
+        .log-entry.warning {
+            border-left-color: #f39c12;
+            background: rgba(243, 156, 18, .08);
+            color: #f39c12
+        }
+
+        .log-entry.info {
+            border-left-color: #3498db;
+            background: rgba(52, 152, 219, .08);
+            color: #8ec8f0
+        }
+
+        .log-entry.purple {
+            border-left-color: #9b59b6;
+            background: rgba(155, 89, 182, .08);
+            color: #bb6bd9
+        }
+
+        .log-entry.orange {
+            border-left-color: #e67e22;
+            background: rgba(230, 126, 34, .08);
+            color: #e67e22
+        }
+
+        .log-entry.error {
+            border-left-color: #e74c3c;
+            background: rgba(231, 76, 60, .08);
+            color: #e74c3c
+        }
+
+        .log-entry.teal {
+            border-left-color: #1abc9c;
+            background: rgba(26, 188, 156, .08);
+            color: #1abc9c
+        }
+
+        .log-container::-webkit-scrollbar {
+            width: 5px
+        }
+
+        .log-container::-webkit-scrollbar-track {
+            background: transparent
+        }
+
+        .log-container::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, .15);
+            border-radius: 3px
+        }
+
+        @media(max-width:960px) {
+            .main-content {
+                grid-template-columns: 1fr
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <header>
+            <h1>🔄 Reverse Nodes in k-Group</h1>
+            <div class="subtitle">Improved — Recursive In-Place Reversal</div>
+            <div class="badge">Time: O(n) | Space: O(n/k) — recursion stack depth</div>
+        </header>
+        <div class="main-content">
+            <div class="left-panel">
+                <div class="card">
+                    <div class="card-title">⚙️ Controls</div>
+                    <div class="controls">
+                        <button class="btn-primary" id="playBtn">▶️ Play</button>
+                        <button class="btn-warning" id="pauseBtn" disabled>⏸️ Pause</button>
+                        <button class="btn-success" id="stepBtn">⏭️ Step</button>
+                        <button class="btn-secondary" id="resetBtn">🔄 Reset</button>
+                        <div class="speed-control">
+                            <label>Speed:</label>
+                            <input type="range" id="speedSlider" min="1" max="10" value="5">
+                            <span id="speedValue">5x</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="card">
+                    <div class="card-title">✏️ Custom Input</div>
+                    <div class="input-section">
+                        <label>List:</label>
+                        <input type="text" id="listInput" value="1,2,3,4,5" placeholder="values" style="flex:1">
+                        <label>k:</label>
+                        <input type="text" id="kInput" value="2" placeholder="k" style="width:40px">
+                        <button class="btn-info" id="applyBtn">Apply</button>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-title">🔗 Linked List</div>
+                    <div class="ll-area">
+                        <div class="ptr-row" id="ptrRow"></div>
+                        <div class="ll-row" id="llDisplay"></div>
+                        <div class="grp-row" id="grpRow"></div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-title">📚 Recursion Call Stack (depth: <span id="depthDisp">0</span>)</div>
+                    <div class="stack-area" id="stackDisplay"><span style="color:#555">— empty —</span></div>
+                </div>
+
+                <div class="card">
+                    <div class="status-ind si-neutral" id="statusInd">Ready — press Play or Step</div>
+                </div>
+            </div>
+
+            <div class="right-panel">
+                <div class="card">
+                    <div class="card-title">📋 Current State</div>
+                    <div class="state-display">
+                        <div class="state-row"><span class="state-label">Phase:</span><span class="state-val"
+                                id="stPhase">init</span></div>
+                        <div class="state-row"><span class="state-label">Depth:</span><span class="state-val"
+                                id="stDepth">0</span></div>
+                        <div class="state-row"><span class="state-label">head:</span><span class="state-val"
+                                id="stHead">—</span></div>
+                        <div class="state-row"><span class="state-label">check cnt:</span><span class="state-val"
+                                id="stCheck">—</span></div>
+                        <div class="state-row"><span class="state-label">prev:</span><span class="state-val"
+                                id="stPrev">—</span></div>
+                        <div class="state-row"><span class="state-label">curr:</span><span class="state-val"
+                                id="stCurr">—</span></div>
+                        <div class="state-row"><span class="state-label">rev step:</span><span class="state-val"
+                                id="stRev">—</span></div>
+                        <div class="state-row"><span class="state-label">newHead:</span><span class="state-val"
+                                id="stNew">—</span></div>
+                    </div>
+                </div>
+                <div class="card" style="flex:1">
+                    <div class="card-title">📝 Execution Log</div>
+                    <div class="log-container" id="logContainer">
+                        <div class="log-entry info">Recursive: check k → reverse → recurse rest → link tail.</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let initVals = [1, 2, 3, 4, 5];
+        let K = 2;
+
+        // Linked list
+        let nodes = [];
+        let nodeOrder = []; // current traversal order for display
+
+        const GCOLORS = ['#e74c3c', '#3498db', '#2ecc71', '#f39c12', '#9b59b6', '#1abc9c', '#e67e22', '#c0392b', '#2980b9'];
+
+        // State
+        let callStack = [];
+        // Each frame: { headIdx, depth, phase, checkCount, prevIdx, currIdx, revStep, newHead, tailIdx, groupNodes }
+        // frame phases: check | not-enough | reverse | recurse | link-tail | returned
+
+        let highlightSet = {};  // nodeIdx -> class
+        let groupAssign = {};   // nodeIdx -> groupIndex
+        let arrowOverrides = {}; // "fromIdx" -> style
+
+        let stepCount = 0, isRunning = false, speed = 5, isDone = false;
+        let globalPhase = 'init'; // init | running | done
+
+        const $ = id => document.getElementById(id);
+        const logC = $('logContainer');
+        function addLog(m, t = 'info') { const indent = '  '.repeat(callStack.length); logC.innerHTML += `<div class="log-entry ${t}">[${stepCount}] ${indent}${m}</div>`; logC.scrollTop = logC.scrollHeight }
+        function clearLog() { logC.innerHTML = '' }
+
+        function buildList() {
+            nodes = [];
+            for (let i = 0; i < initVals.length; i++)
+                nodes.push({ val: initVals[i], next: i + 1 < initVals.length ? i + 1 : -1 });
+        }
+
+        function nv(i) { return i >= 0 && i < nodes.length ? nodes[i].val : 'null'; }
+
+        function getChain(start) {
+            const r = [], seen = new Set();
+            let idx = start;
+            while (idx >= 0 && !seen.has(idx)) { seen.add(idx); r.push(idx); idx = nodes[idx].next; }
+            return r;
+        }
+
+        function render() {
+            const chain = getChain(0);
+            // If list head changed, find the new head
+            let headIdx = 0;
+            // Find actual head from the top of callstack returns or just follow links
+            // For simplicity, render the full node array in order, showing current links
+            const allNodes = [];
+            const visited = new Set();
+            // Start from the "real" head — which might have changed
+            let realHead = findRealHead();
+            let idx = realHead;
+            while (idx >= 0 && !visited.has(idx)) { visited.add(idx); allNodes.push(idx); idx = nodes[idx].next; }
+            // Add any unvisited nodes
+            for (let i = 0; i < nodes.length; i++) { if (!visited.has(i)) allNodes.push(i); }
+
+            // Pointer row
+            let pH = '';
+            for (let oi = 0; oi < allNodes.length; oi++) {
+                const ni = allNodes[oi];
+                let labels = [];
+                const frame = callStack.length > 0 ? callStack[callStack.length - 1] : null;
+                if (frame) {
+                    if (ni === frame.headIdx && (frame.phase === 'check' || frame.phase === 'reverse'))
+                        labels.push('<span style="color:#f1c40f">head</span>');
+                    if (ni === frame.prevIdx && frame.phase === 'reverse')
+                        labels.push('<span style="color:#9b59b6">prev</span>');
+                    if (ni === frame.currIdx && frame.phase === 'reverse')
+                        labels.push('<span style="color:#e67e22">curr</span>');
+                    if (ni === frame.tailIdx && (frame.phase === 'link-tail' || frame.phase === 'returned'))
+                        labels.push('<span style="color:#3498db">tail</span>');
+                }
+                pH += `<div class="ptr-cell">${labels.join(' ')}</div>`;
+                if (oi < allNodes.length - 1) pH += `<div class="ptr-spacer"></div>`;
+            }
+            $('ptrRow').innerHTML = pH;
+
+            // Nodes
+            let llH = '';
+            for (let oi = 0; oi < allNodes.length; oi++) {
+                const ni = allNodes[oi];
+                let cls = 'nd';
+                if (highlightSet[ni]) cls += ' ' + highlightSet[ni];
+                else if (globalPhase === 'done') cls += ' done-nd';
+
+                const gi = groupAssign[ni];
+                const color = gi >= 0 ? GCOLORS[gi % GCOLORS.length] : null;
+                const style = (gi >= 0 && !highlightSet[ni]) ? `border-color:${color};color:${color}` : '';
+
+                llH += `<div class="${cls}" style="${style}">${nodes[ni].val}<span class="nd-sub">${ni}</span></div>`;
+                if (oi < allNodes.length - 1) {
+                    const aCls = arrowOverrides[ni] || (globalPhase === 'done' ? 'arrow done-a' : 'arrow');
+                    llH += `<span class="${aCls}"> → </span>`;
+                }
+            }
+            $('llDisplay').innerHTML = llH;
+
+            // Group labels
+            let gH = '';
+            for (let oi = 0; oi < allNodes.length; oi++) {
+                const ni = allNodes[oi];
+                const gi = groupAssign[ni];
+                const color = gi >= 0 ? GCOLORS[gi % GCOLORS.length] : 'transparent';
+                gH += `<div class="grp-cell" style="color:${color}">${gi >= 0 ? 'G' + gi : ''}</div>`;
+                if (oi < allNodes.length - 1) gH += `<div class="grp-spacer"></div>`;
+            }
+            $('grpRow').innerHTML = gH;
+
+            // Call stack
+            $('depthDisp').textContent = callStack.length;
+            if (callStack.length > 0) {
+                let sH = '';
+                for (let i = callStack.length - 1; i >= 0; i--) {
+                    const f = callStack[i];
+                    let cls = 'stack-frame ';
+                    if (i === callStack.length - 1) {
+                        if (f.phase === 'not-enough') cls += 'sf-base';
+                        else if (f.phase === 'returned') cls += 'sf-returned';
+                        else cls += 'sf-active';
+                    } else {
+                        cls += f.phase === 'returned' ? 'sf-returned' : 'sf-waiting';
+                    }
+                    let detail = `phase: ${f.phase}`;
+                    if (f.phase === 'reverse') detail += `, step ${f.revStep}/${K}`;
+                    if (f.newHead >= 0) detail += `, newHead: ${nv(f.newHead)}`;
+                    sH += `<div class="${cls}"><div class="sf-label">Call ${i} — head=node(${nv(f.headIdx)})</div><div class="sf-detail">${detail}</div></div>`;
+                }
+                $('stackDisplay').innerHTML = sH;
+            } else {
+                $('stackDisplay').innerHTML = '<span style="color:#555">— empty —</span>';
+            }
+
+            // State
+            const frame = callStack.length > 0 ? callStack[callStack.length - 1] : null;
+            $('stPhase').textContent = frame ? frame.phase : globalPhase;
+            $('stDepth').textContent = callStack.length;
+            $('stHead').textContent = frame ? `node(${nv(frame.headIdx)})` : '—';
+            $('stCheck').textContent = frame && frame.phase === 'check' ? `${frame.checkCount}/${K}` : '—';
+            $('stPrev').textContent = frame && frame.prevIdx >= 0 ? `node(${nv(frame.prevIdx)})` : (frame && frame.phase === 'reverse' ? 'null' : '—');
+            $('stCurr').textContent = frame && frame.currIdx >= 0 ? `node(${nv(frame.currIdx)})` : '—';
+            $('stRev').textContent = frame && frame.phase === 'reverse' ? `${frame.revStep}/${K}` : '—';
+            $('stNew').textContent = frame && frame.newHead >= 0 ? `node(${nv(frame.newHead)})` : '—';
+        }
+
+        let realHeadIdx = 0;
+        function findRealHead() { return realHeadIdx; }
+
+        let groupCounter = 0;
+
+        function doStep() {
+            if (isDone) { stopExec(); return; }
+            stepCount++;
+
+            if (globalPhase === 'init') {
+                buildList();
+                realHeadIdx = 0;
+                highlightSet = {}; groupAssign = {}; arrowOverrides = {};
+                groupCounter = 0;
+                addLog(`List: [${initVals.join(',')}], k=${K}`, 'info');
+                // Push first call
+                callStack.push({
+                    headIdx: 0, depth: 0, phase: 'check', checkCount: 0,
+                    prevIdx: -1, currIdx: -1, revStep: 0, newHead: -1, tailIdx: -1,
+                    checkNode: 0, groupNodes: []
+                });
+                addLog(`Call 0: reverseKGroup(head=node(${nv(0)}), k=${K})`, 'orange');
+                globalPhase = 'running';
+                $('statusInd').className = 'status-ind si-run';
+                $('statusInd').textContent = 'Running recursive reversal...';
+                render();
+                return;
+            }
+
+            if (callStack.length === 0) {
+                // All done
+                addLog(`✅ Done! Result: [${getChain(realHeadIdx).map(i => nv(i)).join(',')}]`, 'success');
+                globalPhase = 'done'; isDone = true;
+                highlightSet = {};
+                $('statusInd').className = 'status-ind si-done';
+                $('statusInd').textContent = `✅ Done! [${getChain(realHeadIdx).map(i => nv(i)).join(' → ')}]`;
+                render(); stopExec();
+                return;
+            }
+
+            const frame = callStack[callStack.length - 1];
+
+            switch (frame.phase) {
+                case 'check': {
+                    highlightSet = {};
+                    if (frame.checkCount >= K) {
+                        // Enough nodes — proceed to reverse
+                        addLog(`  ✓ ${K} nodes found — reversing group`, 'success');
+                        frame.phase = 'reverse';
+                        frame.prevIdx = -1;
+                        frame.currIdx = frame.headIdx;
+                        frame.revStep = 0;
+                        frame.groupNodes = [];
+                        render();
+                        return;
+                    }
+                    if (frame.checkNode < 0) {
+                        // Not enough nodes
+                        addLog(`  ✗ Only ${frame.checkCount} nodes (< ${K}) — return unchanged`, 'warning');
+                        frame.phase = 'not-enough';
+                        // Mark remaining nodes as skip
+                        let idx = frame.headIdx;
+                        while (idx >= 0) { highlightSet[idx] = 'skip-nd'; idx = nodes[idx].next; }
+                        frame.newHead = frame.headIdx;
+                        render();
+                        return;
+                    }
+                    highlightSet[frame.checkNode] = 'check-nd';
+                    frame.checkCount++;
+                    addLog(`  Check: node(${nv(frame.checkNode)}), count=${frame.checkCount}/${K}`, 'info');
+                    frame.checkNode = nodes[frame.checkNode].next;
+                    if (frame.checkNode < 0 && frame.checkCount < K) {
+                        // Will discover not enough on next step
+                    }
+                    render();
+                    break;
+                }
+                case 'not-enough': {
+                    // Pop this frame, returning head unchanged
+                    const returned = frame.newHead;
+                    callStack.pop();
+                    highlightSet = {};
+                    if (callStack.length > 0) {
+                        // Parent was waiting for recurse result
+                        const parent = callStack[callStack.length - 1];
+                        parent.phase = 'link-tail';
+                        parent.recurseResult = returned;
+                        addLog(`↩ Returned node(${nv(returned)}) (unchanged)`, 'teal');
+                    } else {
+                        realHeadIdx = returned;
+                    }
+                    render();
+                    break;
+                }
+                case 'reverse': {
+                    if (frame.revStep >= K) {
+                        // Reversal done — prevIdx is new head, currIdx is start of next group
+                        frame.newHead = frame.prevIdx;
+                        frame.tailIdx = frame.headIdx; // old head is now the tail
+                        const gi = groupCounter++;
+                        frame.groupNodes.forEach(ni => groupAssign[ni] = gi);
+                        addLog(`  Reversed! newHead=node(${nv(frame.prevIdx)}), tail=node(${nv(frame.headIdx)})`, 'success');
+                        addLog(`  Recurse for rest starting at node(${nv(frame.currIdx)})`, 'orange');
+                        // Push recursive call
+                        if (frame.currIdx >= 0) {
+                            callStack.push({
+                                headIdx: frame.currIdx, depth: frame.depth + 1, phase: 'check', checkCount: 0,
+                                prevIdx: -1, currIdx: -1, revStep: 0, newHead: -1, tailIdx: -1,
+                                checkNode: frame.currIdx, groupNodes: []
+                            });
+                            addLog(`Call ${callStack.length - 1}: reverseKGroup(head=node(${nv(frame.currIdx)}), k=${K})`, 'orange');
+                        } else {
+                            // No more nodes — link tail to null
+                            frame.phase = 'link-tail';
+                            frame.recurseResult = -1;
+                            addLog(`  No more nodes after this group`, 'info');
+                        }
+                        highlightSet = {};
+                        render();
+                        return;
+                    }
+                    // One reversal step
+                    const next = nodes[frame.currIdx].next;
+                    nodes[frame.currIdx].next = frame.prevIdx;
+                    frame.groupNodes.push(frame.currIdx);
+                    highlightSet = {};
+                    highlightSet[frame.currIdx] = 'curr-nd';
+                    if (frame.prevIdx >= 0) highlightSet[frame.prevIdx] = 'prev-nd';
+                    addLog(`  Rev step ${frame.revStep + 1}: node(${nv(frame.currIdx)}).next → ${frame.prevIdx >= 0 ? 'node(' + nv(frame.prevIdx) + ')' : 'null'}`, 'orange');
+                    frame.prevIdx = frame.currIdx;
+                    frame.currIdx = next;
+                    frame.revStep++;
+                    render();
+                    break;
+                }
+                case 'link-tail': {
+                    // Link tail.next = recurse result
+                    const tailIdx = frame.tailIdx;
+                    const result = frame.recurseResult;
+                    if (tailIdx >= 0) {
+                        nodes[tailIdx].next = result >= 0 ? result : -1;
+                        addLog(`  Link: tail(${nv(tailIdx)}).next → ${result >= 0 ? 'node(' + nv(result) + ')' : 'null'}`, 'purple');
+                    }
+                    highlightSet = {};
+                    if (tailIdx >= 0) highlightSet[tailIdx] = 'tail-nd';
+                    frame.phase = 'returned';
+                    render();
+                    break;
+                }
+                case 'returned': {
+                    const returned = frame.newHead;
+                    callStack.pop();
+                    highlightSet = {};
+                    if (callStack.length > 0) {
+                        const parent = callStack[callStack.length - 1];
+                        parent.phase = 'link-tail';
+                        parent.recurseResult = returned;
+                        addLog(`↩ Returned node(${nv(returned)}) to parent`, 'teal');
+                    } else {
+                        realHeadIdx = returned;
+                        addLog(`↩ Final return: head = node(${nv(returned)})`, 'success');
+                    }
+                    render();
+                    break;
+                }
+            }
+        }
+
+        function play() { if (isRunning || isDone) return; isRunning = true; $('playBtn').disabled = true; $('pauseBtn').disabled = false; $('stepBtn').disabled = true; runLoop() }
+        function pause() { isRunning = false; $('playBtn').disabled = false; $('pauseBtn').disabled = true; $('stepBtn').disabled = false }
+        function stopExec() { isRunning = false; $('playBtn').disabled = true; $('pauseBtn').disabled = true; $('stepBtn').disabled = true }
+        function runLoop() { if (!isRunning) return; doStep(); if (isRunning && !isDone) setTimeout(runLoop, 420 / speed) }
+
+        function init() {
+            buildList(); realHeadIdx = 0;
+            callStack = []; highlightSet = {}; groupAssign = {}; arrowOverrides = {};
+            groupCounter = 0;
+            globalPhase = 'init'; stepCount = 0; isDone = false;
+            $('statusInd').className = 'status-ind si-neutral';
+            $('statusInd').textContent = 'Ready — press Play or Step';
+            $('playBtn').disabled = false; $('pauseBtn').disabled = true; $('stepBtn').disabled = false;
+            clearLog(); addLog('Recursive: check k → reverse → recurse rest → link tail.', 'info');
+            render();
+        }
+
+        $('playBtn').addEventListener('click', play);
+        $('pauseBtn').addEventListener('click', pause);
+        $('stepBtn').addEventListener('click', () => { if (!isDone) doStep() });
+        $('resetBtn').addEventListener('click', () => { isRunning = false; init() });
+        $('speedSlider').addEventListener('input', e => { speed = parseInt(e.target.value); $('speedValue').textContent = speed + 'x' });
+        $('applyBtn').addEventListener('click', () => {
+            const lv = $('listInput').value.trim();
+            const kv = $('kInput').value.trim();
+            const vs = lv ? lv.split(',').map(x => parseInt(x.trim())).filter(x => !isNaN(x)) : [];
+            const kn = parseInt(kv);
+            if (!vs.length) { alert('Need at least one value.'); return }
+            if (isNaN(kn) || kn < 1) { alert('k must be ≥ 1'); return }
+            initVals = [...vs]; K = kn; isRunning = false; init();
+        });
+
+        init();
+    </script>
+</body>
+
+</html>

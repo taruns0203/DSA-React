@@ -1,0 +1,867 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>643. Max Average Subarray I - Prefix Sum</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 50%, #90caf9 100%);
+            min-height: 100vh;
+            padding: 20px;
+            color: #333;
+        }
+
+        .container {
+            max-width: 1150px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.25);
+            overflow: hidden;
+        }
+
+        header {
+            background: linear-gradient(135deg, #0d47a1 0%, #1565c0 50%, #1e88e5 100%);
+            color: white;
+            padding: 25px;
+            text-align: center;
+        }
+
+        h1 {
+            font-size: 1.5em;
+            margin-bottom: 6px;
+        }
+
+        .subtitle {
+            font-size: 1em;
+            opacity: 0.9;
+        }
+
+        .complexity-badge {
+            display: inline-block;
+            background: rgba(255, 255, 255, 0.2);
+            padding: 6px 14px;
+            border-radius: 15px;
+            margin-top: 8px;
+            font-size: 0.85em;
+        }
+
+        .main-content {
+            display: grid;
+            grid-template-columns: 1fr 290px;
+            gap: 20px;
+            padding: 20px;
+        }
+
+        .card {
+            background: #f8f9fa;
+            border-radius: 12px;
+            padding: 16px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+            margin-bottom: 16px;
+        }
+
+        .card-title {
+            font-size: 0.95em;
+            font-weight: 600;
+            margin-bottom: 12px;
+            color: #0d47a1;
+        }
+
+        /* Controls */
+        .controls {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            align-items: center;
+        }
+
+        button {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 8px;
+            font-size: 0.85em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+        }
+
+        button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #0d47a1 0%, #1e88e5 100%);
+            color: white;
+        }
+
+        .btn-success {
+            background: linear-gradient(135deg, #2e7d32 0%, #66bb6a 100%);
+            color: white;
+        }
+
+        .btn-warning {
+            background: linear-gradient(135deg, #f9a825 0%, #ffca28 100%);
+            color: #333;
+        }
+
+        .btn-secondary {
+            background: #6c757d;
+            color: white;
+        }
+
+        .speed-control {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            flex: 1;
+            min-width: 140px;
+        }
+
+        .speed-control input[type="range"] {
+            flex: 1;
+            height: 5px;
+            accent-color: #1e88e5;
+        }
+
+        /* Custom input */
+        .input-row {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+            flex-wrap: wrap;
+            margin-bottom: 8px;
+        }
+
+        .input-row:last-child {
+            margin-bottom: 0;
+        }
+
+        .input-row label {
+            font-size: 0.85em;
+            font-weight: 600;
+            color: #555;
+            min-width: 25px;
+        }
+
+        .input-row input {
+            flex: 1;
+            min-width: 100px;
+            padding: 8px 12px;
+            border: 2px solid #bbdefb;
+            border-radius: 8px;
+            font-size: 0.9em;
+            font-family: 'Courier New', monospace;
+            outline: none;
+            transition: border-color 0.3s;
+        }
+
+        .input-row input:focus {
+            border-color: #1e88e5;
+        }
+
+        /* Array rows */
+        .array-row {
+            display: flex;
+            gap: 5px;
+            padding: 8px 10px;
+            background: #fff;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            flex-wrap: wrap;
+            justify-content: center;
+            align-items: center;
+            min-height: 60px;
+            position: relative;
+        }
+
+        .array-row+.array-row {
+            margin-top: 8px;
+        }
+
+        .row-label {
+            position: absolute;
+            left: 8px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 0.7em;
+            font-weight: 700;
+            color: #888;
+            writing-mode: vertical-lr;
+            text-orientation: mixed;
+        }
+
+        .array-item {
+            width: 56px;
+            height: 46px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            position: relative;
+            transition: all 0.25s ease;
+            box-shadow: 0 3px 6px rgba(0, 0, 0, 0.1);
+            font-size: 0.95em;
+            z-index: 1;
+        }
+
+        .array-item .idx-label {
+            position: absolute;
+            top: -15px;
+            font-size: 0.5em;
+            color: #888;
+            width: 100%;
+            text-align: center;
+        }
+
+        /* nums items */
+        .item-nums {
+            background: #455a64;
+            color: white;
+        }
+
+        .item-nums.reading {
+            background: linear-gradient(135deg, #43a047, #66bb6a);
+            color: white;
+            transform: scale(1.1);
+            z-index: 2;
+            animation: pulse-read 0.4s ease;
+        }
+
+        .item-nums.in-window {
+            background: linear-gradient(135deg, #1e88e5, #1565c0);
+            color: white;
+            transform: scale(1.08);
+            z-index: 2;
+            box-shadow: 0 4px 12px rgba(21, 101, 192, 0.35);
+        }
+
+        .item-nums.best-window {
+            background: linear-gradient(135deg, #ffd600, #ffab00);
+            color: #333;
+            transform: scale(1.1);
+            z-index: 2;
+            box-shadow: 0 4px 14px rgba(255, 171, 0, 0.5);
+        }
+
+        /* prefix items */
+        .item-prefix {
+            background: #e0e0e0;
+            color: #555;
+            font-size: 0.85em;
+        }
+
+        .item-prefix.building {
+            background: linear-gradient(135deg, #7e57c2, #ab47bc);
+            color: white;
+            transform: scale(1.1);
+            z-index: 2;
+            animation: pulse-build 0.4s ease;
+        }
+
+        .item-prefix.built {
+            background: linear-gradient(135deg, #5c6bc0, #7986cb);
+            color: white;
+        }
+
+        .item-prefix.queried {
+            background: linear-gradient(135deg, #ef6c00, #fb8c00);
+            color: white;
+            transform: scale(1.12);
+            z-index: 3;
+            animation: pulse-query 0.35s ease;
+        }
+
+        .item-prefix.best-prefix {
+            background: linear-gradient(135deg, #ffd600, #ffab00);
+            color: #333;
+            transform: scale(1.1);
+            z-index: 2;
+        }
+
+        .pointer-label {
+            position: absolute;
+            font-size: 0.45em;
+            font-weight: 700;
+            padding: 1px 4px;
+            border-radius: 4px;
+            color: white;
+            white-space: nowrap;
+            bottom: -18px;
+            left: 50%;
+            transform: translateX(-50%);
+        }
+
+        .ptr-build {
+            background: #7e57c2;
+        }
+
+        .ptr-i {
+            background: #1565c0;
+        }
+
+        .ptr-ik {
+            background: #e65100;
+        }
+
+        @keyframes pulse-read {
+
+            0%,
+            100% {
+                box-shadow: 0 3px 6px rgba(0, 0, 0, 0.1);
+            }
+
+            50% {
+                box-shadow: 0 0 18px rgba(67, 160, 71, 0.6);
+            }
+        }
+
+        @keyframes pulse-build {
+
+            0%,
+            100% {
+                box-shadow: 0 3px 6px rgba(0, 0, 0, 0.1);
+            }
+
+            50% {
+                box-shadow: 0 0 18px rgba(126, 87, 194, 0.6);
+            }
+        }
+
+        @keyframes pulse-query {
+
+            0%,
+            100% {
+                box-shadow: 0 3px 6px rgba(0, 0, 0, 0.1);
+            }
+
+            50% {
+                box-shadow: 0 0 18px rgba(239, 108, 0, 0.6);
+            }
+        }
+
+        /* Info */
+        .info-bar {
+            display: flex;
+            justify-content: center;
+            gap: 12px;
+            margin-top: 10px;
+            flex-wrap: wrap;
+        }
+
+        .info-chip {
+            padding: 5px 12px;
+            border-radius: 16px;
+            font-size: 0.82em;
+            font-weight: 600;
+        }
+
+        .chip-phase-build {
+            background: #ede7f6;
+            color: #4527a0;
+            border: 2px solid #b39ddb;
+        }
+
+        .chip-phase-scan {
+            background: #e3f2fd;
+            color: #0d47a1;
+            border: 2px solid #90caf9;
+        }
+
+        .chip-phase-done {
+            background: #e8f5e9;
+            color: #2e7d32;
+            border: 2px solid #a5d6a7;
+        }
+
+        .chip-formula {
+            background: #fff3e0;
+            color: #e65100;
+            font-family: 'Courier New', monospace;
+        }
+
+        /* State & Log */
+        .state-display {
+            background: white;
+            border-radius: 8px;
+            padding: 10px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.85em;
+        }
+
+        .state-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 5px 0;
+            border-bottom: 1px solid #eee;
+        }
+
+        .state-row:last-child {
+            border-bottom: none;
+        }
+
+        .highlight-val {
+            color: #0d47a1;
+            font-weight: bold;
+        }
+
+        .highlight-best {
+            color: #e65100;
+            font-weight: bold;
+        }
+
+        .log-container {
+            background: white;
+            border-radius: 8px;
+            padding: 10px;
+            max-height: 240px;
+            overflow-y: auto;
+            font-family: 'Courier New', monospace;
+            font-size: 0.63em;
+        }
+
+        .log-entry {
+            padding: 3px 6px;
+            margin: 2px 0;
+            border-radius: 4px;
+            border-left: 3px solid #ccc;
+            background: #f9f9f9;
+        }
+
+        .log-entry.build {
+            border-left-color: #7e57c2;
+            background: #ede7f6;
+        }
+
+        .log-entry.scan {
+            border-left-color: #1565c0;
+            background: #e3f2fd;
+        }
+
+        .log-entry.info {
+            border-left-color: #78909c;
+            background: #eceff1;
+        }
+
+        .log-entry.best {
+            border-left-color: #e65100;
+            background: #fff3e0;
+        }
+
+        .log-entry.found {
+            border-left-color: #2e7d32;
+            background: #e8f5e9;
+        }
+
+        .result-display {
+            text-align: center;
+            padding: 12px;
+            background: linear-gradient(135deg, #0d47a1 0%, #1e88e5 100%);
+            color: white;
+            border-radius: 10px;
+            margin-top: 12px;
+            font-size: 1.15em;
+            font-weight: bold;
+        }
+
+        .strategy-text {
+            font-size: 0.86em;
+            color: #555;
+            line-height: 1.6;
+        }
+
+        .strategy-text code {
+            background: #e3f2fd;
+            padding: 1px 5px;
+            border-radius: 3px;
+            font-size: 0.9em;
+            color: #0d47a1;
+        }
+
+        @media (max-width: 800px) {
+            .main-content {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <header>
+            <h1>643. Maximum Average Subarray I</h1>
+            <div class="subtitle">Prefix Sum: Build Once, Query O(1) Per Window</div>
+            <div class="complexity-badge">Time: O(n) | Space: O(n)</div>
+        </header>
+
+        <div class="main-content">
+            <div class="left-panel">
+                <div class="card">
+                    <div class="card-title">⚙️ Controls</div>
+                    <div class="controls">
+                        <button class="btn-primary" id="playBtn">▶️ Play</button>
+                        <button class="btn-warning" id="pauseBtn" disabled>⏸️ Pause</button>
+                        <button class="btn-success" id="stepBtn">⏭️ Step</button>
+                        <button class="btn-secondary" id="resetBtn">🔄 Reset</button>
+                        <div class="speed-control">
+                            <label>Speed:</label>
+                            <input type="range" id="speedSlider" min="1" max="10" value="5">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-title">🎯 Custom Input</div>
+                    <div class="input-row">
+                        <label>arr:</label>
+                        <input type="text" id="customInput" placeholder="e.g. 1,12,-5,-6,50,3" value="1,12,-5,-6,50,3">
+                    </div>
+                    <div class="input-row">
+                        <label>k:</label>
+                        <input type="number" id="kInput" value="4" min="1" style="max-width:80px">
+                        <button class="btn-primary" id="loadBtn">Load</button>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-title">🔢 nums[] & prefix[]</div>
+                    <div class="array-row" id="numsRow"></div>
+                    <div class="array-row" id="prefixRow" style="margin-top:8px"></div>
+                    <div class="info-bar">
+                        <span class="info-chip" id="phaseChip">Ready</span>
+                        <span class="info-chip chip-formula" id="formulaChip">—</span>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-title">ℹ️ Strategy</div>
+                    <div class="strategy-text">
+                        <strong>Phase 1 — Build:</strong> <code>prefix[i+1] = prefix[i] + nums[i]</code><br>
+                        <strong>Phase 2 — Scan:</strong> For each window start <code>i</code>,
+                        sum = <code>prefix[i+k] − prefix[i]</code> in O(1). Track max.
+                    </div>
+                </div>
+            </div>
+
+            <div class="right-panel">
+                <div class="card">
+                    <div class="card-title">📊 Current State</div>
+                    <div class="state-display">
+                        <div class="state-row"><span>Phase:</span><span id="phaseVal">—</span></div>
+                        <div class="state-row"><span>Index:</span><span id="idxVal">—</span></div>
+                        <div class="state-row"><span>Formula:</span><span id="fmtVal" style="font-size:0.8em">—</span>
+                        </div>
+                        <div class="state-row"><span>windowSum:</span><span id="wsVal" class="highlight-val">—</span>
+                        </div>
+                        <div class="state-row"><span>maxSum:</span><span id="maxVal" class="highlight-best">−∞</span>
+                        </div>
+                        <div class="state-row"><span>maxAvg:</span><span id="avgVal" class="highlight-best">−∞</span>
+                        </div>
+                    </div>
+                    <div class="result-display">
+                        Max Average: <span id="resultVal">—</span>
+                    </div>
+                </div>
+
+                <div class="card" style="flex-grow:1; display:flex; flex-direction:column;">
+                    <div class="card-title">📝 Execution Log</div>
+                    <div class="log-container" id="logContainer"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ─── State ───
+        let nums = [1, 12, -5, -6, 50, 3];
+        let k = 4;
+        let n = nums.length;
+        let prefix = [];
+
+        let buildIdx = 0;      // current index being built in prefix
+        let scanIdx = 0;       // current window start being scanned
+        let windowSum = 0;
+        let maxSum = -Infinity;
+        let bestStart = -1;
+
+        // phase: idle | building | scan_start | scanning | done
+        let phase = 'idle';
+        let highlightBuildIdx = -1;
+        let highlightPrefixIdx = -1;
+        let queryIdxA = -1, queryIdxB = -1; // prefix indices being queried
+
+        let isRunning = false;
+        let timer = null;
+        let speed = 5;
+        let stepNum = 0;
+
+        // ─── Init ───
+        function init() {
+            n = nums.length;
+            prefix = new Array(n + 1).fill(0);
+            buildIdx = 0;
+            scanIdx = 0;
+            windowSum = 0;
+            maxSum = -Infinity;
+            bestStart = -1;
+            phase = 'idle';
+            highlightBuildIdx = -1;
+            highlightPrefixIdx = -1;
+            queryIdxA = -1; queryIdxB = -1;
+            stepNum = 0;
+            isRunning = false;
+            if (timer) clearTimeout(timer);
+            timer = null;
+
+            clearLog();
+            addLog(`Array: [${nums.join(', ')}], k=${k}, n=${n}`, 'info');
+            addLog(`Phase 1: Build prefix[]. Phase 2: Scan windows.`, 'info');
+            render();
+            updateControls();
+        }
+
+        // ─── Render ───
+        function render() {
+            renderNums();
+            renderPrefix();
+            renderState();
+            renderInfoBar();
+        }
+
+        function renderNums() {
+            const c = document.getElementById('numsRow');
+            c.innerHTML = '<span class="row-label">nums</span>';
+
+            nums.forEach((val, idx) => {
+                const el = document.createElement('div');
+                let cls = 'array-item item-nums';
+
+                if (phase === 'done' && idx >= bestStart && idx < bestStart + k) {
+                    cls = 'array-item item-nums best-window';
+                } else if (phase === 'building' && idx === buildIdx) {
+                    cls = 'array-item item-nums reading';
+                } else if (phase === 'scanning' && idx >= scanIdx && idx < scanIdx + k) {
+                    cls = 'array-item item-nums in-window';
+                }
+
+                el.className = cls;
+                el.innerHTML = `<span class="idx-label">${idx}</span>${val}`;
+                c.appendChild(el);
+            });
+        }
+
+        function renderPrefix() {
+            const c = document.getElementById('prefixRow');
+            c.innerHTML = '<span class="row-label">prefix</span>';
+
+            for (let idx = 0; idx <= n; idx++) {
+                const el = document.createElement('div');
+                let cls = 'array-item item-prefix';
+
+                const isBuilt = (phase === 'building' && idx <= buildIdx) ||
+                    (phase !== 'idle' && phase !== 'building');
+
+                if (phase === 'done' && (idx === bestStart || idx === bestStart + k)) {
+                    cls = 'array-item item-prefix best-prefix';
+                } else if (phase === 'scanning' && (idx === queryIdxA || idx === queryIdxB)) {
+                    cls = 'array-item item-prefix queried';
+                } else if (phase === 'building' && idx === buildIdx + 1) {
+                    cls = 'array-item item-prefix building';
+                } else if (isBuilt) {
+                    cls = 'array-item item-prefix built';
+                }
+
+                const showVal = (phase === 'idle') ? '·' :
+                    (phase === 'building' && idx > buildIdx + 1) ? '·' :
+                        prefix[idx];
+
+                el.className = cls;
+                el.innerHTML = `<span class="idx-label">${idx}</span>${showVal}`;
+
+                // Pointer labels during scan
+                if (phase === 'scanning') {
+                    if (idx === scanIdx) {
+                        el.innerHTML += `<span class="pointer-label ptr-i">p[i=${scanIdx}]</span>`;
+                    } else if (idx === scanIdx + k) {
+                        el.innerHTML += `<span class="pointer-label ptr-ik">p[i+k=${scanIdx + k}]</span>`;
+                    }
+                }
+
+                c.appendChild(el);
+            });
+        }
+
+        function renderState() {
+            document.getElementById('phaseVal').textContent =
+                phase === 'idle' ? '—' :
+                    phase === 'building' ? '🔨 Building prefix[]' :
+                        phase === 'scan_start' ? '🔍 Scan starting' :
+                            phase === 'scanning' ? '🔍 Scanning windows' :
+                                '✅ Done';
+
+            document.getElementById('idxVal').textContent =
+                phase === 'building' ? `buildIdx = ${buildIdx}` :
+                    phase === 'scanning' ? `i = ${scanIdx}` : '—';
+
+            document.getElementById('fmtVal').textContent =
+                phase === 'scanning' ? `p[${scanIdx + k}] − p[${scanIdx}] = ${prefix[scanIdx + k]} − ${prefix[scanIdx]}` : '—';
+
+            document.getElementById('wsVal').textContent =
+                phase === 'scanning' ? windowSum : '—';
+
+            document.getElementById('maxVal').textContent = maxSum === -Infinity ? '−∞' : maxSum;
+            document.getElementById('avgVal').textContent = maxSum === -Infinity ? '−∞' : (maxSum / k).toFixed(5);
+            document.getElementById('resultVal').textContent = phase === 'done' ? (maxSum / k).toFixed(5) : '—';
+        }
+
+        function renderInfoBar() {
+            const pc = document.getElementById('phaseChip');
+            if (phase === 'idle') { pc.textContent = '⏳ Ready'; pc.className = 'info-chip'; }
+            else if (phase === 'building') { pc.textContent = '🔨 Phase 1: Build'; pc.className = 'info-chip chip-phase-build'; }
+            else if (phase === 'scanning' || phase === 'scan_start') { pc.textContent = '🔍 Phase 2: Scan'; pc.className = 'info-chip chip-phase-scan'; }
+            else { pc.textContent = '✅ Done'; pc.className = 'info-chip chip-phase-done'; }
+
+            const fc = document.getElementById('formulaChip');
+            if (phase === 'building') {
+                fc.textContent = `p[${buildIdx + 1}] = p[${buildIdx}] + nums[${buildIdx}]`;
+            } else if (phase === 'scanning') {
+                fc.textContent = `p[${scanIdx + k}] − p[${scanIdx}] = ${windowSum}`;
+            } else {
+                fc.textContent = '—';
+            }
+        }
+
+        // ─── Step Logic ───
+        function step() {
+            if (phase === 'done') return;
+            stepNum++;
+
+            switch (phase) {
+                case 'idle':
+                    // Start building: prefix[0] = 0 already set, build prefix[1]
+                    phase = 'building';
+                    buildIdx = 0;
+                    prefix[1] = prefix[0] + nums[0];
+                    addLog(`🔨 Build: prefix[1] = prefix[0] + nums[0] = ${prefix[0]} + ${nums[0]} = ${prefix[1]}`, 'build');
+                    break;
+
+                case 'building':
+                    buildIdx++;
+                    if (buildIdx >= n) {
+                        // Done building — move to scan
+                        phase = 'scan_start';
+                        addLog(`✓ prefix[] complete: [${prefix.join(', ')}]`, 'info');
+                    } else {
+                        prefix[buildIdx + 1] = prefix[buildIdx] + nums[buildIdx];
+                        addLog(`🔨 Build: prefix[${buildIdx + 1}] = prefix[${buildIdx}] + nums[${buildIdx}] = ${prefix[buildIdx]} + ${nums[buildIdx]} = ${prefix[buildIdx + 1]}`, 'build');
+                    }
+                    break;
+
+                case 'scan_start':
+                    phase = 'scanning';
+                    scanIdx = 0;
+                    windowSum = prefix[k] - prefix[0];
+                    queryIdxA = 0; queryIdxB = k;
+
+                    if (windowSum > maxSum) { maxSum = windowSum; bestStart = 0; }
+                    addLog(`🔍 i=${scanIdx}: prefix[${k}] − prefix[0] = ${prefix[k]} − ${prefix[0]} = ${windowSum}. avg=${(windowSum / k).toFixed(5)}${windowSum >= maxSum ? ' → BEST!' : ''}`, windowSum >= maxSum ? 'best' : 'scan');
+                    break;
+
+                case 'scanning':
+                    scanIdx++;
+                    if (scanIdx > n - k) {
+                        phase = 'done';
+                        queryIdxA = -1; queryIdxB = -1;
+                        addLog(`✅ All windows scanned. maxSum=${maxSum}. Answer = ${maxSum}/${k} = ${(maxSum / k).toFixed(5)}`, 'found');
+                    } else {
+                        windowSum = prefix[scanIdx + k] - prefix[scanIdx];
+                        queryIdxA = scanIdx; queryIdxB = scanIdx + k;
+
+                        const isBest = windowSum > maxSum;
+                        if (isBest) { maxSum = windowSum; bestStart = scanIdx; }
+                        addLog(`🔍 i=${scanIdx}: prefix[${scanIdx + k}] − prefix[${scanIdx}] = ${prefix[scanIdx + k]} − ${prefix[scanIdx]} = ${windowSum}. avg=${(windowSum / k).toFixed(5)}${isBest ? ' → NEW BEST!' : ''}`, isBest ? 'best' : 'scan');
+                    }
+                    break;
+            }
+
+            render();
+            updateControls();
+        }
+
+        // ─── Log ───
+        function addLog(msg, type = 'info') {
+            const log = document.getElementById('logContainer');
+            const entry = document.createElement('div');
+            entry.className = `log-entry ${type}`;
+            entry.textContent = `[${stepNum}] ${msg}`;
+            log.appendChild(entry);
+            log.scrollTop = log.scrollHeight;
+        }
+        function clearLog() { document.getElementById('logContainer').innerHTML = ''; }
+
+        // ─── Playback ───
+        function play() {
+            if (isRunning || phase === 'done') return;
+            isRunning = true; updateControls(); runLoop();
+        }
+        function runLoop() {
+            if (!isRunning || phase === 'done') { isRunning = false; updateControls(); return; }
+            step();
+            if (phase !== 'done') {
+                const delay = 1100 - (speed * 100);
+                timer = setTimeout(runLoop, Math.max(50, delay));
+            } else { isRunning = false; updateControls(); }
+        }
+        function pause() { isRunning = false; if (timer) clearTimeout(timer); updateControls(); }
+        function resetViz() { pause(); init(); }
+
+        function updateControls() {
+            document.getElementById('playBtn').disabled = isRunning || phase === 'done';
+            document.getElementById('pauseBtn').disabled = !isRunning;
+            document.getElementById('stepBtn').disabled = isRunning || phase === 'done';
+            document.getElementById('resetBtn').disabled = isRunning;
+            document.getElementById('loadBtn').disabled = isRunning;
+        }
+
+        // ─── Custom Input ───
+        function loadCustomInput() {
+            const raw = document.getElementById('customInput').value.trim();
+            const parsed = raw.split(',').map(s => parseInt(s.trim(), 10)).filter(v => !isNaN(v));
+            const newK = parseInt(document.getElementById('kInput').value, 10);
+            if (parsed.length === 0) { alert('Enter a valid array, e.g. 1,12,-5,-6,50,3'); return; }
+            if (isNaN(newK) || newK < 1 || newK > parsed.length) { alert(`k must be between 1 and ${parsed.length}`); return; }
+            nums = parsed; k = newK; resetViz();
+        }
+
+        // ─── Events ───
+        document.getElementById('playBtn').addEventListener('click', play);
+        document.getElementById('pauseBtn').addEventListener('click', pause);
+        document.getElementById('stepBtn').addEventListener('click', step);
+        document.getElementById('resetBtn').addEventListener('click', resetViz);
+        document.getElementById('loadBtn').addEventListener('click', loadCustomInput);
+        document.getElementById('speedSlider').addEventListener('input', e => speed = parseInt(e.target.value));
+        document.getElementById('customInput').addEventListener('keydown', e => { if (e.key === 'Enter') loadCustomInput(); });
+        document.getElementById('kInput').addEventListener('keydown', e => { if (e.key === 'Enter') loadCustomInput(); });
+
+        // ─── Start ───
+        init();
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,1001 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>61 - Optimal: Circular Link & Break (Rotate List)</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #0a1628 0%, #1a3a4a 50%, #0d2137 100%);
+            min-height: 100vh;
+            padding: 18px;
+            color: #e0e0e0
+        }
+
+        .container {
+            max-width: 1440px;
+            margin: 0 auto;
+            background: rgba(20, 30, 50, .95);
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, .5), 0 0 40px rgba(26, 188, 156, .07);
+            overflow: hidden;
+            border: 1px solid rgba(255, 255, 255, .06)
+        }
+
+        header {
+            background: linear-gradient(135deg, #16a085, #1abc9c);
+            color: #fff;
+            padding: 22px;
+            text-align: center
+        }
+
+        h1 {
+            font-size: 1.15em;
+            margin-bottom: 5px
+        }
+
+        .subtitle {
+            font-size: .84em;
+            opacity: .92
+        }
+
+        .badge {
+            display: inline-block;
+            background: rgba(255, 255, 255, .2);
+            padding: 5px 14px;
+            border-radius: 15px;
+            margin-top: 7px;
+            font-size: .78em
+        }
+
+        .main-content {
+            display: grid;
+            grid-template-columns: 1fr 290px;
+            gap: 16px;
+            padding: 18px
+        }
+
+        .card {
+            background: rgba(30, 45, 65, .85);
+            border-radius: 14px;
+            padding: 15px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, .2);
+            margin-bottom: 14px;
+            border: 1px solid rgba(255, 255, 255, .05)
+        }
+
+        .card-title {
+            font-size: .88em;
+            font-weight: 600;
+            margin-bottom: 10px;
+            color: #1abc9c
+        }
+
+        button {
+            padding: 7px 14px;
+            border: none;
+            border-radius: 8px;
+            font-size: .82em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all .3s
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, .3)
+        }
+
+        button:disabled {
+            opacity: .4;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #16a085, #1abc9c);
+            color: #fff
+        }
+
+        .btn-success {
+            background: linear-gradient(135deg, #27ae60, #2ecc71);
+            color: #fff
+        }
+
+        .btn-warning {
+            background: linear-gradient(135deg, #f39c12, #e67e22);
+            color: #fff
+        }
+
+        .btn-secondary {
+            background: rgba(100, 100, 140, .7);
+            color: #fff
+        }
+
+        .btn-info {
+            background: linear-gradient(135deg, #3498db, #2980b9);
+            color: #fff
+        }
+
+        .controls {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            align-items: center
+        }
+
+        .speed-control {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            flex: 1;
+            min-width: 140px
+        }
+
+        .speed-control label {
+            font-size: .8em;
+            color: #aaa
+        }
+
+        .speed-control input[type="range"] {
+            flex: 1;
+            height: 5px;
+            accent-color: #1abc9c
+        }
+
+        .speed-control span {
+            font-size: .8em;
+            color: #1abc9c;
+            min-width: 24px
+        }
+
+        .input-section {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+            flex-wrap: wrap
+        }
+
+        .input-section input {
+            padding: 7px 10px;
+            border-radius: 8px;
+            border: 1px solid rgba(255, 255, 255, .15);
+            background: rgba(15, 25, 40, .8);
+            color: #e0e0e0;
+            font-size: .82em;
+            font-family: 'Courier New', monospace;
+        }
+
+        .input-section input:focus {
+            outline: none;
+            border-color: #1abc9c
+        }
+
+        .input-section label {
+            font-size: .82em;
+            color: #aaa
+        }
+
+        /* Circular ring display */
+        .ring-container {
+            position: relative;
+            width: 100%;
+            min-height: 260px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .ring-svg {
+            overflow: visible
+        }
+
+        /* Linear list */
+        .ll-row {
+            display: flex;
+            gap: 0;
+            padding: 12px;
+            background: rgba(15, 25, 40, .4);
+            border-radius: 10px;
+            min-height: 60px;
+            align-items: center;
+            justify-content: center;
+            flex-wrap: wrap;
+            overflow-x: auto
+        }
+
+        .nd {
+            width: 50px;
+            height: 50px;
+            border-radius: 11px;
+            display: inline-flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 1.15em;
+            border: 2.5px solid rgba(150, 150, 200, .12);
+            background: rgba(50, 70, 100, .06);
+            font-family: 'Courier New', monospace;
+            color: #777;
+            transition: all .4s;
+        }
+
+        .nd-sub {
+            font-size: .36em;
+            color: #555;
+            margin-top: 1px
+        }
+
+        .nd.counting {
+            border-color: #1abc9c;
+            background: rgba(26, 188, 156, .1);
+            color: #1abc9c
+        }
+
+        .nd.tail-nd {
+            border-color: #e74c3c;
+            background: rgba(231, 76, 60, .12);
+            color: #e74c3c;
+            box-shadow: 0 0 10px rgba(231, 76, 60, .2)
+        }
+
+        .nd.walking {
+            border-color: #f39c12;
+            background: rgba(243, 156, 18, .12);
+            color: #f39c12;
+            box-shadow: 0 0 10px rgba(243, 156, 18, .15)
+        }
+
+        .nd.new-tail {
+            border-color: #e67e22;
+            background: rgba(230, 126, 34, .14);
+            color: #e67e22;
+            box-shadow: 0 0 12px rgba(230, 126, 34, .2)
+        }
+
+        .nd.new-head {
+            border-color: #2ecc71;
+            background: rgba(46, 204, 113, .14);
+            color: #2ecc71;
+            box-shadow: 0 0 14px rgba(46, 204, 113, .25);
+            transform: scale(1.1)
+        }
+
+        .nd.done-nd {
+            border-color: #1abc9c;
+            background: rgba(26, 188, 156, .08);
+            color: #1abc9c
+        }
+
+        .arrow {
+            color: #555;
+            font-size: .72em;
+            margin: 0 2px;
+            display: inline-block;
+            vertical-align: middle
+        }
+
+        .arrow.done-a {
+            color: #1abc9c
+        }
+
+        .arrow.circ-a {
+            color: #e74c3c;
+            font-weight: 700
+        }
+
+        .k-badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 8px;
+            background: rgba(26, 188, 156, .15);
+            border: 1px solid rgba(26, 188, 156, .3);
+            color: #1abc9c;
+            font-weight: 700;
+            font-size: .85em;
+            font-family: 'Courier New', monospace;
+            margin-left: 8px
+        }
+
+        .op-panel {
+            padding: 12px;
+            background: rgba(15, 25, 40, .5);
+            border-radius: 8px;
+            text-align: center;
+            min-height: 55px;
+            font-family: 'Courier New', monospace;
+            font-size: .82em;
+            line-height: 1.8
+        }
+
+        .op-panel .plbl {
+            color: #1abc9c;
+            font-weight: 700
+        }
+
+        .op-panel .pval {
+            color: #ccc
+        }
+
+        .op-panel .pwarn {
+            color: #f39c12
+        }
+
+        .status-ind {
+            text-align: center;
+            padding: 11px;
+            border-radius: 10px;
+            font-weight: 700;
+            font-size: .85em;
+            transition: all .3s
+        }
+
+        .si-neutral {
+            background: rgba(100, 100, 140, .12);
+            color: #888
+        }
+
+        .si-run {
+            background: rgba(26, 188, 156, .06);
+            color: #1abc9c;
+            border: 1px solid rgba(26, 188, 156, .12)
+        }
+
+        .si-done {
+            background: rgba(46, 204, 113, .12);
+            color: #2ecc71;
+            border: 1px solid rgba(46, 204, 113, .25)
+        }
+
+        .state-display {
+            background: rgba(15, 25, 40, .5);
+            border-radius: 8px;
+            padding: 10px;
+            font-family: 'Courier New', monospace;
+            font-size: .68em
+        }
+
+        .state-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 4px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, .05)
+        }
+
+        .state-row:last-child {
+            border-bottom: none
+        }
+
+        .state-label {
+            font-weight: 600;
+            color: #1abc9c
+        }
+
+        .state-val {
+            color: #ccc;
+            text-align: right;
+            max-width: 155px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap
+        }
+
+        .algo-box {
+            padding: 10px;
+            background: rgba(15, 25, 40, .5);
+            border-radius: 8px;
+            font-family: 'Courier New', monospace;
+            font-size: .58em;
+            line-height: 1.7
+        }
+
+        .algo-line {
+            padding: 1px 6px;
+            border-radius: 3px;
+            transition: background .3s
+        }
+
+        .algo-line.active {
+            background: rgba(26, 188, 156, .15);
+            color: #1abc9c
+        }
+
+        .algo-line .kw {
+            color: #c678dd
+        }
+
+        .algo-line .cm {
+            color: #5c6370;
+            font-style: italic
+        }
+
+        .log-container {
+            background: rgba(15, 25, 40, .5);
+            border-radius: 8px;
+            padding: 10px;
+            max-height: 200px;
+            overflow-y: auto;
+            font-family: 'Courier New', monospace;
+            font-size: .54em
+        }
+
+        .log-entry {
+            padding: 3px 7px;
+            margin: 2px 0;
+            border-radius: 4px;
+            border-left: 3px solid #555;
+            background: rgba(30, 45, 65, .5);
+            line-height: 1.5
+        }
+
+        .log-entry.success {
+            border-left-color: #2ecc71;
+            background: rgba(46, 204, 113, .08);
+            color: #2ecc71
+        }
+
+        .log-entry.warning {
+            border-left-color: #f39c12;
+            background: rgba(243, 156, 18, .08);
+            color: #f39c12
+        }
+
+        .log-entry.info {
+            border-left-color: #3498db;
+            background: rgba(52, 152, 219, .08);
+            color: #8ec8f0
+        }
+
+        .log-entry.error {
+            border-left-color: #e74c3c;
+            background: rgba(231, 76, 60, .08);
+            color: #e74c3c
+        }
+
+        .log-entry.teal {
+            border-left-color: #1abc9c;
+            background: rgba(26, 188, 156, .08);
+            color: #1abc9c
+        }
+
+        .log-entry.orange {
+            border-left-color: #e67e22;
+            background: rgba(230, 126, 34, .08);
+            color: #e67e22
+        }
+
+        .log-container::-webkit-scrollbar {
+            width: 5px
+        }
+
+        .log-container::-webkit-scrollbar-track {
+            background: transparent
+        }
+
+        .log-container::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, .15);
+            border-radius: 3px
+        }
+
+        @media(max-width:960px) {
+            .main-content {
+                grid-template-columns: 1fr
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <header>
+            <h1>🔄 Rotate List</h1>
+            <div class="subtitle">Optimal — Circular Link & Break (Single O(n) Pass)</div>
+            <div class="badge">Time: O(n) | Space: O(1) — make circular, walk n-k, break</div>
+        </header>
+        <div class="main-content">
+            <div class="left-panel">
+                <div class="card">
+                    <div class="card-title">⚙️ Controls</div>
+                    <div class="controls">
+                        <button class="btn-primary" id="playBtn">▶️ Play</button>
+                        <button class="btn-warning" id="pauseBtn" disabled>⏸️ Pause</button>
+                        <button class="btn-success" id="stepBtn">⏭️ Step</button>
+                        <button class="btn-secondary" id="resetBtn">🔄 Reset</button>
+                        <div class="speed-control">
+                            <label>Speed:</label>
+                            <input type="range" id="speedSlider" min="1" max="10" value="5">
+                            <span id="speedValue">5x</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="card">
+                    <div class="card-title">✏️ Custom Input</div>
+                    <div class="input-section">
+                        <label>List:</label>
+                        <input type="text" id="listInput" value="1,2,3,4,5" placeholder="values" style="flex:1">
+                        <label>k:</label>
+                        <input type="text" id="kInput" value="2" placeholder="k" style="width:65px">
+                        <button class="btn-info" id="applyBtn">Apply</button>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-title">🔗 Linked List <span class="k-badge">k = <span id="kDisp">2</span> | n-k =
+                            <span id="nkDisp">?</span></span></div>
+                    <div class="ll-row" id="listDisplay"></div>
+                </div>
+
+                <div class="card">
+                    <div class="card-title">⭕ Circular View</div>
+                    <div class="ring-container" id="ringContainer">
+                        <svg class="ring-svg" id="ringSvg" viewBox="0 0 400 280"></svg>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-title">🔀 Current Operation</div>
+                    <div class="op-panel" id="opPanel"><span style="color:#555">— press Play or Step —</span></div>
+                </div>
+
+                <div class="card">
+                    <div class="card-title">✅ Final Result</div>
+                    <div class="ll-row" id="resultDisplay"><span style="color:#555">—</span></div>
+                </div>
+
+                <div class="card">
+                    <div class="status-ind si-neutral" id="statusInd">Ready — press Play or Step</div>
+                </div>
+            </div>
+
+            <div class="right-panel">
+                <div class="card">
+                    <div class="card-title">📋 Current State</div>
+                    <div class="state-display">
+                        <div class="state-row"><span class="state-label">Phase:</span><span class="state-val"
+                                id="stPhase">init</span></div>
+                        <div class="state-row"><span class="state-label">k (original):</span><span class="state-val"
+                                id="stKOrig">—</span></div>
+                        <div class="state-row"><span class="state-label">n:</span><span class="state-val"
+                                id="stN">—</span></div>
+                        <div class="state-row"><span class="state-label">k % n:</span><span class="state-val"
+                                id="stKMod">—</span></div>
+                        <div class="state-row"><span class="state-label">n - k:</span><span class="state-val"
+                                id="stNK">—</span></div>
+                        <div class="state-row"><span class="state-label">tail:</span><span class="state-val"
+                                id="stTail">—</span></div>
+                        <div class="state-row"><span class="state-label">newTail:</span><span class="state-val"
+                                id="stNewTail">—</span></div>
+                        <div class="state-row"><span class="state-label">newHead:</span><span class="state-val"
+                                id="stNewHead">—</span></div>
+                    </div>
+                </div>
+                <div class="card">
+                    <div class="card-title">📖 Algorithm</div>
+                    <div class="algo-box" id="algoBox">
+                        <div class="algo-line" id="aL0"><span class="cm">// Find tail & length</span></div>
+                        <div class="algo-line" id="aL1">n=1; tail=head</div>
+                        <div class="algo-line" id="aL2"><span class="kw">while</span>(tail.next) n++,tail=tail.next
+                        </div>
+                        <div class="algo-line" id="aL3">k = k % n</div>
+                        <div class="algo-line" id="aL4"><span class="kw">if</span>(k===0) <span class="kw">return</span>
+                            head</div>
+                        <div class="algo-line" id="aL5"><span class="cm">// Make circular</span></div>
+                        <div class="algo-line" id="aL6">tail.next = head</div>
+                        <div class="algo-line" id="aL7"><span class="cm">// Walk n-k to newTail</span></div>
+                        <div class="algo-line" id="aL8">newTail = head</div>
+                        <div class="algo-line" id="aL9"><span class="kw">for</span>(i=1;i&lt;n-k;i++) newTail=.next
+                        </div>
+                        <div class="algo-line" id="aL10">newHead = newTail.next</div>
+                        <div class="algo-line" id="aL11"><span class="cm">// Break circle</span></div>
+                        <div class="algo-line" id="aL12">newTail.next = <span style="color:#666">null</span></div>
+                        <div class="algo-line" id="aL13"><span class="kw">return</span> newHead</div>
+                    </div>
+                </div>
+                <div class="card" style="flex:1">
+                    <div class="card-title">📝 Execution Log</div>
+                    <div class="log-container" id="logContainer">
+                        <div class="log-entry teal">Make circular → walk n-k → break. O(n), O(1).</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let initVals = [1, 2, 3, 4, 5];
+        let K_ORIG = 2;
+
+        let list = [];
+        let nodeStates = {};  // idx → CSS class
+        let N = 0, effK = 0, nk = 0;
+        let isCircular = false, breakIdx = -1;
+        let walkPos = -1;
+
+        let steps = [], stepIdx = 0, stepCount = 0;
+        let isRunning = false, speed = 5, isDone = false, phase = 'init';
+
+        const $ = id => document.getElementById(id);
+        const logC = $('logContainer');
+        function addLog(m, t = 'info') { logC.innerHTML += `<div class="log-entry ${t}">[${stepCount}] ${m}</div>`; logC.scrollTop = logC.scrollHeight }
+        function clearLog() { logC.innerHTML = '' }
+
+        function setAlgoLine(line) {
+            for (let i = 0; i <= 13; i++) { const el = $('aL' + i); if (el) el.classList.toggle('active', i === line) }
+        }
+
+        /* ── Build steps ──────────────────────────── */
+        function buildSteps() {
+            steps = [];
+            const n = initVals.length;
+            if (n === 0 || K_ORIG === 0) { steps.push({ type: 'done-trivial' }); return; }
+
+            steps.push({ type: 'start' });
+
+            // Phase 1: Find tail & length
+            for (let i = 0; i < n; i++) {
+                steps.push({ type: 'find-tail', idx: i, val: initVals[i] });
+            }
+            steps.push({ type: 'tail-found', tailIdx: n - 1, n });
+
+            // Phase 2: Reduce k
+            const ek = K_ORIG % n;
+            steps.push({ type: 'reduce-k', kOrig: K_ORIG, n, kMod: ek });
+
+            if (ek === 0) { steps.push({ type: 'done-no-rotate' }); return; }
+
+            // Phase 3: Make circular
+            steps.push({ type: 'make-circular', tailIdx: n - 1 });
+
+            // Phase 4: Walk n-k steps to newTail
+            const stepsToWalk = n - ek;
+            steps.push({ type: 'walk-start', nk: stepsToWalk });
+            // newTail starts at head (idx 0), walks stepsToWalk-1 hops
+            for (let i = 1; i < stepsToWalk; i++) {
+                steps.push({ type: 'walk', idx: i, val: initVals[i] });
+            }
+            const newTailIdx = stepsToWalk - 1;
+            const newHeadIdx = stepsToWalk;
+            steps.push({ type: 'walk-done', newTailIdx, newHeadIdx, newTailVal: initVals[newTailIdx], newHeadVal: initVals[newHeadIdx] });
+
+            // Phase 5: Break circle
+            steps.push({ type: 'break-circle', newTailIdx, newHeadIdx });
+
+            // Done
+            steps.push({ type: 'done', newHeadIdx });
+        }
+
+        /* ── Render linear list ───────────────────── */
+        function renderLinear() {
+            let h = '';
+            for (let i = 0; i < list.length; i++) {
+                let cls = 'nd';
+                if (nodeStates[i]) cls += ' ' + nodeStates[i];
+                if (isDone) cls = 'nd done-nd';
+                let lbl = '';
+                if (!isDone) {
+                    if (nodeStates[i] === 'tail-nd') lbl = 'tail';
+                    else if (nodeStates[i] === 'new-tail') lbl = 'newTail';
+                    else if (nodeStates[i] === 'new-head') lbl = 'newHead';
+                    else if (i === 0) lbl = 'head';
+                } else { lbl = i === 0 ? 'head' : '' }
+                h += `<div class="${cls}">${list[i]}<span class="nd-sub">${lbl}</span></div>`;
+                if (i < list.length - 1) h += `<span class="arrow${isDone ? ' done-a' : ''}">→</span>`;
+            }
+            if (isCircular && !isDone) {
+                h += `<span class="arrow circ-a">⟲ head</span>`;
+            } else if (list.length > 0) {
+                h += `<span class="arrow" style="opacity:.4">→∅</span>`;
+            }
+            $('listDisplay').innerHTML = h;
+        }
+
+        /* ── Render ring SVG ──────────────────────── */
+        function renderRing() {
+            const svg = $('ringSvg');
+            const n = list.length;
+            if (n === 0) { svg.innerHTML = ''; return; }
+
+            const cx = 200, cy = 140, r = 100;
+            let html = '';
+
+            // Draw edges
+            for (let i = 0; i < n; i++) {
+                const nextI = (i + 1) % n;
+                const showEdge = isCircular || i < n - 1;
+                if (!showEdge) continue;
+                if (!isCircular && breakIdx >= 0 && i === breakIdx) continue;
+
+                const a1 = (2 * Math.PI * i / n) - Math.PI / 2;
+                const a2 = (2 * Math.PI * nextI / n) - Math.PI / 2;
+                const x1 = cx + r * Math.cos(a1), y1 = cy + r * Math.sin(a1);
+                const x2 = cx + r * Math.cos(a2), y2 = cy + r * Math.sin(a2);
+
+                let col = 'rgba(100,120,150,.3)';
+                if (isDone) col = 'rgba(26,188,156,.4)';
+                else if (isCircular && i === n - 1) col = 'rgba(231,76,60,.6)';
+
+                // Arrow line
+                const dx = x2 - x1, dy = y2 - y1;
+                const len = Math.sqrt(dx * dx + dy * dy);
+                const ux = dx / len, uy = dy / len;
+                const sx = x1 + ux * 22, sy = y1 + uy * 22;
+                const ex = x2 - ux * 22, ey = y2 - uy * 22;
+
+                html += `<line x1="${sx}" y1="${sy}" x2="${ex}" y2="${ey}" stroke="${col}" stroke-width="2" marker-end="url(#ah${isDone ? 'd' : isCircular && i === n - 1 ? 'r' : ''})"/>`;
+            }
+
+            // Arrowhead defs
+            html = `<defs>
+            <marker id="ah" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="rgba(100,120,150,.4)"/></marker>
+            <marker id="ahr" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="rgba(231,76,60,.7)"/></marker>
+            <marker id="ahd" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="rgba(26,188,156,.5)"/></marker>
+        </defs>` + html;
+
+            // Draw nodes
+            for (let i = 0; i < n; i++) {
+                const a = (2 * Math.PI * i / n) - Math.PI / 2;
+                const x = cx + r * Math.cos(a), y = cy + r * Math.sin(a);
+
+                let fill = 'rgba(50,70,100,.3)', stroke = 'rgba(100,120,150,.3)', textFill = '#777';
+                const st = nodeStates[i];
+                if (isDone) { fill = 'rgba(26,188,156,.15)'; stroke = '#1abc9c'; textFill = '#1abc9c' }
+                else if (st === 'counting') { fill = 'rgba(26,188,156,.15)'; stroke = '#1abc9c'; textFill = '#1abc9c' }
+                else if (st === 'tail-nd') { fill = 'rgba(231,76,60,.15)'; stroke = '#e74c3c'; textFill = '#e74c3c' }
+                else if (st === 'walking') { fill = 'rgba(243,156,18,.15)'; stroke = '#f39c12'; textFill = '#f39c12' }
+                else if (st === 'new-tail') { fill = 'rgba(230,126,34,.18)'; stroke = '#e67e22'; textFill = '#e67e22' }
+                else if (st === 'new-head') { fill = 'rgba(46,204,113,.18)'; stroke = '#2ecc71'; textFill = '#2ecc71' }
+
+                html += `<circle cx="${x}" cy="${y}" r="20" fill="${fill}" stroke="${stroke}" stroke-width="2.5"/>`;
+                html += `<text x="${x}" y="${y + 1}" text-anchor="middle" dominant-baseline="middle" fill="${textFill}" font-weight="700" font-size="14" font-family="Courier New">${list[i]}</text>`;
+
+                // Label below
+                let lbl = '';
+                if (!isDone) {
+                    if (st === 'tail-nd') lbl = 'tail';
+                    else if (st === 'new-tail') lbl = 'newTail';
+                    else if (st === 'new-head') lbl = 'newHead';
+                    else if (i === 0 && !isDone) lbl = 'head';
+                }
+                if (lbl) {
+                    html += `<text x="${x}" y="${y + 32}" text-anchor="middle" fill="${textFill}" font-size="9" font-weight="600" font-family="Courier New">${lbl}</text>`;
+                }
+            }
+
+            // Break indicator
+            if (breakIdx >= 0 && !isDone) {
+                const i = breakIdx;
+                const nextI = (i + 1) % n;
+                const a1 = (2 * Math.PI * i / n) - Math.PI / 2;
+                const a2 = (2 * Math.PI * nextI / n) - Math.PI / 2;
+                const mx = cx + r * Math.cos((a1 + a2) / 2) * 1.1;
+                const my = cy + r * Math.sin((a1 + a2) / 2) * 1.1;
+                html += `<text x="${mx}" y="${my}" text-anchor="middle" fill="#e74c3c" font-size="16">✂️</text>`;
+            }
+
+            svg.innerHTML = html;
+        }
+
+        function renderResult() {
+            if (!isDone) { $('resultDisplay').innerHTML = '<span style="color:#555">—</span>'; return; }
+            let h = '';
+            for (let i = 0; i < list.length; i++) {
+                h += `<div class="nd done-nd">${list[i]}<span class="nd-sub">${i === 0 ? 'head' : ''}</span></div>`;
+                if (i < list.length - 1) h += `<span class="arrow done-a">→</span>`;
+            }
+            h += `<span class="arrow" style="opacity:.4">→∅</span>`;
+            $('resultDisplay').innerHTML = h;
+        }
+
+        function renderState() {
+            $('stPhase').textContent = phase;
+            $('stKOrig').textContent = K_ORIG;
+            $('stN').textContent = N || '—';
+            $('stKMod').textContent = effK || '—';
+            $('stNK').textContent = nk || '—';
+        }
+
+        function render() { renderLinear(); renderRing(); renderResult(); renderState(); }
+
+        /* ── Execute step ──────────────────────────── */
+        function doStep() {
+            if (isDone || stepIdx >= steps.length) { stopExec(); return; }
+            stepCount++;
+            const s = steps[stepIdx++];
+
+            // Clear transient
+            for (const k in nodeStates) {
+                if (nodeStates[k] === 'counting' || nodeStates[k] === 'walking') nodeStates[k] = '';
+            }
+
+            switch (s.type) {
+                case 'start':
+                    list = [...initVals]; phase = 'find-tail';
+                    addLog('━━ Step 1: Find tail & length ━━', 'teal');
+                    $('statusInd').className = 'status-ind si-run';
+                    $('statusInd').textContent = 'Step 1: Finding tail & counting nodes...';
+                    setAlgoLine(1);
+                    $('opPanel').innerHTML = '<span class="plbl">Walking to find tail and count n...</span>';
+                    break;
+
+                case 'find-tail':
+                    nodeStates[s.idx] = 'counting';
+                    N = s.idx + 1;
+                    $('stN').textContent = N;
+                    $('stTail').textContent = `node(${s.val})`;
+                    addLog(`  tail→node(${s.val}), n=${N}`, 'teal');
+                    setAlgoLine(2);
+                    break;
+
+                case 'tail-found':
+                    N = s.n;
+                    nodeStates[s.tailIdx] = 'tail-nd';
+                    $('stTail').textContent = `node(${list[s.tailIdx]})`;
+                    addLog(`✅ tail=node(${list[s.tailIdx]}), n=${N}`, 'success');
+                    addLog('━━ Step 2: Reduce k ━━', 'teal');
+                    setAlgoLine(3);
+                    $('opPanel').innerHTML = `<span class="plbl">tail</span> = <span class="pval">node(${list[s.tailIdx]})</span>, <span class="plbl">n</span> = <span class="pval">${N}</span>`;
+                    break;
+
+                case 'reduce-k':
+                    effK = s.kMod;
+                    nk = s.n - s.kMod;
+                    $('stKMod').textContent = effK;
+                    $('stNK').textContent = nk;
+                    $('kDisp').textContent = effK;
+                    $('nkDisp').textContent = nk;
+                    addLog(`  k = ${s.kOrig} % ${s.n} = ${s.kMod}`, 'warning');
+                    if (s.kOrig !== s.kMod) addLog(`  💡 Reduced from ${s.kOrig} → ${s.kMod}`, 'success');
+                    setAlgoLine(3);
+                    $('opPanel').innerHTML = `<span class="plbl">k</span> = ${s.kOrig} % ${s.n} = <span class="pval" style="color:#2ecc71;font-size:1.1em">${s.kMod}</span> → walk <span class="pval" style="color:#f39c12">${nk}</span> steps to newTail`;
+                    break;
+
+                case 'done-no-rotate':
+                    isDone = true; phase = 'done';
+                    addLog('🎉 k%n = 0 → no rotation needed!', 'success');
+                    $('statusInd').className = 'status-ind si-done';
+                    $('statusInd').textContent = '✅ k%n = 0, no change.';
+                    setAlgoLine(4);
+                    stopExec();
+                    break;
+
+                case 'make-circular':
+                    isCircular = true;
+                    nodeStates[s.tailIdx] = 'tail-nd';
+                    addLog('━━ Step 3: Make circular ━━', 'teal');
+                    addLog(`  🔴 tail.next = head → circular!`, 'error');
+                    setAlgoLine(6);
+                    $('opPanel').innerHTML = `<span class="plbl">⭕ CIRCULAR:</span> <span class="pval">tail(${list[s.tailIdx]}).next = head(${list[0]})</span><br><span class="pwarn">List is now a ring!</span>`;
+                    break;
+
+                case 'walk-start':
+                    phase = 'walking';
+                    nodeStates[0] = 'walking';
+                    walkPos = 0;
+                    addLog('━━ Step 4: Walk n-k steps to find newTail ━━', 'teal');
+                    addLog(`  Need ${s.nk} steps. Start: newTail=head=node(${list[0]})`, 'orange');
+                    setAlgoLine(8);
+                    $('stNewTail').textContent = `node(${list[0]})`;
+                    $('opPanel').innerHTML = `<span class="plbl">Walking ${s.nk} steps from head...</span><br><span class="pval">newTail = node(${list[0]}) [step 0]</span>`;
+                    break;
+
+                case 'walk':
+                    nodeStates[s.idx] = 'walking';
+                    walkPos = s.idx;
+                    $('stNewTail').textContent = `node(${s.val})`;
+                    addLog(`  newTail = newTail.next = node(${s.val}) [step ${s.idx}]`, 'orange');
+                    setAlgoLine(9);
+                    $('opPanel').innerHTML = `<span class="plbl">Walking...</span> <span class="pval">newTail → node(${s.val}) [step ${s.idx}/${nk - 1}]</span>`;
+                    break;
+
+                case 'walk-done': {
+                    // Clear all walking
+                    for (const k in nodeStates) nodeStates[k] = '';
+                    nodeStates[s.newTailIdx] = 'new-tail';
+                    nodeStates[s.newHeadIdx] = 'new-head';
+                    $('stNewTail').textContent = `node(${s.newTailVal})`;
+                    $('stNewHead').textContent = `node(${s.newHeadVal})`;
+                    addLog(`  ★ newTail=node(${s.newTailVal}), newHead=node(${s.newHeadVal})`, 'success');
+                    setAlgoLine(10);
+                    $('opPanel').innerHTML =
+                        `<span class="plbl">Found!</span><br>` +
+                        `<span style="color:#e67e22">newTail = node(${s.newTailVal})</span> → ` +
+                        `<span style="color:#2ecc71">newHead = node(${s.newHeadVal})</span>`;
+                    break;
+                }
+
+                case 'break-circle':
+                    isCircular = false;
+                    breakIdx = s.newTailIdx;
+                    nodeStates[s.newTailIdx] = 'new-tail';
+                    nodeStates[s.newHeadIdx] = 'new-head';
+                    addLog('━━ Step 5: Break circle ━━', 'teal');
+                    addLog(`  ✂️ newTail(${list[s.newTailIdx]}).next = null`, 'error');
+                    setAlgoLine(12);
+                    $('opPanel').innerHTML =
+                        `<span class="plbl">✂️ BREAK:</span> <span class="pval">newTail(${list[s.newTailIdx]}).next = null</span><br>` +
+                        `<span class="pval">Circle broken! Linear list restored.</span>`;
+                    break;
+
+                case 'done': {
+                    // Rearrange list array to reflect rotation
+                    const nh = s.newHeadIdx;
+                    const rotated = [...list.slice(nh), ...list.slice(0, nh)];
+                    list = rotated;
+                    isDone = true; phase = 'done'; isCircular = false; breakIdx = -1;
+                    nodeStates = {};
+                    addLog(`🎉 Done! [${list.join(' → ')}]`, 'success');
+                    $('statusInd').className = 'status-ind si-done';
+                    $('statusInd').textContent = `✅ Done! [${list.join(' → ')}]`;
+                    setAlgoLine(13);
+                    $('opPanel').innerHTML = `<span class="plbl" style="color:#2ecc71">🎉 Result: ${list.join(' ⇄ ')}</span><br><span class="pval">O(n) time, O(1) space ✓</span>`;
+                    stopExec();
+                    break;
+                }
+
+                case 'done-trivial':
+                    list = [...initVals]; isDone = true; phase = 'done';
+                    addLog('🎉 Empty/k=0 → no rotation.', 'success');
+                    $('statusInd').className = 'status-ind si-done';
+                    $('statusInd').textContent = '✅ No rotation needed.';
+                    stopExec();
+                    break;
+            }
+
+            render();
+        }
+
+        /* ── Playback ──────────────────────────────── */
+        function play() { if (isRunning || isDone) return; isRunning = true; $('playBtn').disabled = true; $('pauseBtn').disabled = false; $('stepBtn').disabled = true; runLoop() }
+        function pause() { isRunning = false; $('playBtn').disabled = false; $('pauseBtn').disabled = true; $('stepBtn').disabled = false }
+        function stopExec() { isRunning = false; $('playBtn').disabled = true; $('pauseBtn').disabled = true; $('stepBtn').disabled = true }
+        function runLoop() { if (!isRunning) return; doStep(); if (isRunning && !isDone) setTimeout(runLoop, 400 / speed) }
+
+        /* ── Init ──────────────────────────────────── */
+        function init() {
+            list = [...initVals]; nodeStates = {}; N = 0; effK = 0; nk = 0;
+            isCircular = false; breakIdx = -1; walkPos = -1; phase = 'init';
+            stepIdx = 0; stepCount = 0; isDone = false; isRunning = false;
+            buildSteps();
+            $('kDisp').textContent = K_ORIG; $('nkDisp').textContent = '?';
+            $('stTail').textContent = '—'; $('stNewTail').textContent = '—'; $('stNewHead').textContent = '—';
+            $('statusInd').className = 'status-ind si-neutral';
+            $('statusInd').textContent = 'Ready — press Play or Step';
+            $('playBtn').disabled = false; $('pauseBtn').disabled = true; $('stepBtn').disabled = false;
+            setAlgoLine(-1);
+            clearLog(); addLog('Make circular → walk n-k → break. O(n), O(1).', 'teal');
+            $('opPanel').innerHTML = '<span style="color:#555">— press Play or Step —</span>';
+            $('resultDisplay').innerHTML = '<span style="color:#555">—</span>';
+            render();
+        }
+
+        /* ── Events ────────────────────────────────── */
+        $('playBtn').addEventListener('click', play);
+        $('pauseBtn').addEventListener('click', pause);
+        $('stepBtn').addEventListener('click', () => { if (!isDone) doStep() });
+        $('resetBtn').addEventListener('click', () => { isRunning = false; init() });
+        $('speedSlider').addEventListener('input', e => { speed = parseInt(e.target.value); $('speedValue').textContent = speed + 'x' });
+        $('applyBtn').addEventListener('click', () => {
+            const lv = $('listInput').value.trim();
+            const kv = $('kInput').value.trim();
+            const vs = lv ? lv.split(',').map(s => parseInt(s.trim())).filter(v => !isNaN(v)) : [];
+            const kn = parseInt(kv);
+            if (isNaN(kn) || kn < 0) { alert('k must be non-negative.'); return }
+            initVals = [...vs]; K_ORIG = kn;
+            isRunning = false; init();
+        });
+
+        init();
+    </script>
+</body>
+
+</html>

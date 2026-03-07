@@ -1,0 +1,599 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>
+      Intersection of Two Linked List - Solutions | DSA Learning Hub
+    </title>
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+        background: linear-gradient(
+          135deg,
+          #1a1a2e 0%,
+          #16213e 50%,
+          #0f3460 100%
+        );
+        min-height: 100vh;
+        padding: 40px 20px;
+        color: #e0e0e0;
+      }
+
+      .back-btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 12px 24px;
+        background: rgba(255, 255, 255, 0.05);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 12px;
+        color: #a0a0a0;
+        text-decoration: none;
+        font-weight: 500;
+        transition: all 0.3s ease;
+        margin-bottom: 30px;
+      }
+
+      .back-btn:hover {
+        background: rgba(255, 255, 255, 0.1);
+        color: #fff;
+        transform: translateX(-5px);
+      }
+
+      .header {
+        text-align: center;
+        margin-bottom: 50px;
+      }
+
+      .header h1 {
+        font-size: 2.8rem;
+        color: #fff;
+        text-shadow: 0 0 20px rgba(255, 217, 61, 0.5);
+        margin-bottom: 15px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 15px;
+      }
+
+      .header .subtitle {
+        color: #a0a0a0;
+        font-size: 1.1rem;
+        margin-bottom: 20px;
+      }
+
+      .tags {
+        display: flex;
+        justify-content: center;
+        gap: 12px;
+        flex-wrap: wrap;
+      }
+
+      .tag {
+        padding: 6px 16px;
+        border-radius: 20px;
+        font-size: 0.85rem;
+        font-weight: 600;
+      }
+
+      .tag.easy {
+        background: rgba(0, 255, 127, 0.2);
+        color: #00ff7f;
+      }
+
+      .tag.medium {
+        background: rgba(255, 165, 0, 0.2);
+        color: #ffa500;
+      }
+
+      .tag.hard {
+        background: rgba(255, 69, 58, 0.2);
+        color: #ff453a;
+      }
+
+      .tag.category {
+        background: rgba(0, 217, 255, 0.2);
+        color: #00d9ff;
+      }
+
+      .solutions-container {
+        max-width: 1400px;
+        margin: 0 auto;
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+        gap: 30px;
+      }
+
+      .solution-card {
+        background: rgba(255, 255, 255, 0.03);
+        border-radius: 24px;
+        padding: 30px;
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        transition: all 0.3s ease;
+        position: relative;
+        overflow: hidden;
+      }
+
+      .solution-card::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 4px;
+      }
+
+      .solution-card:hover {
+        transform: translateY(-8px);
+        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+      }
+
+      /* Brute Force Card */
+      .solution-card.brute::before {
+        background: linear-gradient(90deg, #ff6b6b, #ff8e8e);
+      }
+      .solution-card.brute {
+        box-shadow: 0 10px 40px rgba(255, 107, 107, 0.15);
+      }
+      .solution-card.brute:hover {
+        box-shadow: 0 20px 60px rgba(255, 107, 107, 0.25);
+      }
+
+      /* Better Card */
+      .solution-card.better::before {
+        background: linear-gradient(90deg, #ffd93d, #ffe066);
+      }
+      .solution-card.better {
+        box-shadow: 0 10px 40px rgba(255, 217, 61, 0.15);
+      }
+      .solution-card.better:hover {
+        box-shadow: 0 20px 60px rgba(255, 217, 61, 0.25);
+      }
+
+      /* Optimal Card */
+      .solution-card.optimal::before {
+        background: linear-gradient(90deg, #00ff7f, #50fa7b);
+      }
+      .solution-card.optimal {
+        box-shadow: 0 10px 40px rgba(0, 255, 127, 0.15);
+      }
+      .solution-card.optimal:hover {
+        box-shadow: 0 20px 60px rgba(0, 255, 127, 0.25);
+      }
+
+      .card-header {
+        display: flex;
+        align-items: center;
+        gap: 15px;
+        margin-bottom: 25px;
+        padding-bottom: 20px;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+      }
+
+      .card-header .icon {
+        font-size: 2.5rem;
+      }
+
+      .card-header .title-section h2 {
+        font-size: 1.6rem;
+        margin-bottom: 5px;
+      }
+
+      .brute .card-header h2 {
+        color: #ff6b6b;
+      }
+      .better .card-header h2 {
+        color: #ffd93d;
+      }
+      .optimal .card-header h2 {
+        color: #00ff7f;
+      }
+
+      .card-header .title-section .approach {
+        color: #a0a0a0;
+        font-size: 0.9rem;
+      }
+
+      .complexity-box {
+        display: flex;
+        gap: 20px;
+        margin-bottom: 25px;
+        flex-wrap: wrap;
+      }
+
+      .complexity {
+        background: rgba(255, 255, 255, 0.05);
+        padding: 12px 20px;
+        border-radius: 12px;
+        flex: 1;
+        min-width: 120px;
+      }
+
+      .complexity .label {
+        font-size: 0.8rem;
+        color: #a0a0a0;
+        margin-bottom: 5px;
+      }
+
+      .complexity .value {
+        font-size: 1.2rem;
+        font-weight: 700;
+        font-family: "Courier New", monospace;
+      }
+
+      .brute .complexity .value {
+        color: #ff6b6b;
+      }
+      .better .complexity .value {
+        color: #ffd93d;
+      }
+      .optimal .complexity .value {
+        color: #00ff7f;
+      }
+
+      .description {
+        margin-bottom: 25px;
+        line-height: 1.7;
+        color: #c0c0c0;
+      }
+
+      .code-section {
+        background: #0d1117;
+        border-radius: 12px;
+        overflow: hidden;
+      }
+
+      .code-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 12px 20px;
+        background: rgba(255, 255, 255, 0.05);
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+      }
+
+      .code-header .lang {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        color: #a0a0a0;
+        font-size: 0.9rem;
+      }
+
+      .copy-btn {
+        padding: 6px 14px;
+        background: rgba(255, 255, 255, 0.1);
+        border: none;
+        border-radius: 6px;
+        color: #a0a0a0;
+        cursor: pointer;
+        font-size: 0.85rem;
+        transition: all 0.3s ease;
+      }
+
+      .copy-btn:hover {
+        background: rgba(255, 255, 255, 0.2);
+        color: #fff;
+      }
+
+      .code-block {
+        padding: 20px;
+        overflow-x: auto;
+      }
+
+      .code-block pre {
+        margin: 0;
+        font-family: "Fira Code", "Courier New", monospace;
+        font-size: 0.9rem;
+        line-height: 1.6;
+        color: #c9d1d9;
+      }
+
+      .code-block .keyword {
+        color: #ff7b72;
+      }
+      .code-block .function {
+        color: #d2a8ff;
+      }
+      .code-block .string {
+        color: #a5d6ff;
+      }
+      .code-block .number {
+        color: #79c0ff;
+      }
+      .code-block .comment {
+        color: #8b949e;
+      }
+
+      .view-btn {
+        display: block;
+        width: 100%;
+        padding: 16px;
+        margin-top: 25px;
+        border: none;
+        border-radius: 12px;
+        font-size: 1rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        text-decoration: none;
+        text-align: center;
+      }
+
+      .brute .view-btn {
+        background: linear-gradient(90deg, #ff6b6b, #ff8e8e);
+        color: #1a1a2e;
+      }
+      .brute .view-btn:hover {
+        box-shadow: 0 5px 20px rgba(255, 107, 107, 0.4);
+        transform: translateY(-2px);
+      }
+
+      .better .view-btn {
+        background: linear-gradient(90deg, #ffd93d, #ffe066);
+        color: #1a1a2e;
+      }
+      .better .view-btn:hover {
+        box-shadow: 0 5px 20px rgba(255, 217, 61, 0.4);
+        transform: translateY(-2px);
+      }
+
+      .optimal .view-btn {
+        background: linear-gradient(90deg, #00ff7f, #50fa7b);
+        color: #1a1a2e;
+      }
+      .optimal .view-btn:hover {
+        box-shadow: 0 5px 20px rgba(0, 255, 127, 0.4);
+        transform: translateY(-2px);
+      }
+
+      .progress-section {
+        max-width: 800px;
+        margin: 50px auto 0;
+        background: rgba(255, 255, 255, 0.03);
+        border-radius: 20px;
+        padding: 30px;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+      }
+
+      .progress-section h3 {
+        text-align: center;
+        margin-bottom: 25px;
+        color: #fff;
+        font-size: 1.3rem;
+      }
+
+      .progress-bar {
+        display: flex;
+        gap: 10px;
+        justify-content: center;
+        align-items: center;
+      }
+
+      .progress-step {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 10px;
+      }
+
+      .step-circle {
+        width: 50px;
+        height: 50px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.5rem;
+        border: 3px solid;
+      }
+
+      .step-circle.brute {
+        border-color: #ff6b6b;
+        background: rgba(255, 107, 107, 0.2);
+      }
+      .step-circle.better {
+        border-color: #ffd93d;
+        background: rgba(255, 217, 61, 0.2);
+      }
+      .step-circle.optimal {
+        border-color: #00ff7f;
+        background: rgba(0, 255, 127, 0.2);
+      }
+
+      .step-label {
+        font-size: 0.85rem;
+        color: #a0a0a0;
+      }
+
+      .progress-line {
+        width: 80px;
+        height: 3px;
+        background: linear-gradient(90deg, #ff6b6b, #ffd93d);
+        border-radius: 2px;
+        margin-bottom: 30px;
+      }
+
+      .progress-line.second {
+        background: linear-gradient(90deg, #ffd93d, #00ff7f);
+      }
+
+      .footer {
+        text-align: center;
+        margin-top: 60px;
+        color: #a0a0a0;
+        font-size: 1rem;
+      }
+
+      @media (max-width: 500px) {
+        .solutions-container {
+          grid-template-columns: 1fr;
+        }
+
+        .header h1 {
+          font-size: 2rem;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <a href="../../../Linked-List/index.html" class="back-btn">
+      ⬅️ Back to DSA Hub
+    </a>
+
+    <div class="header">
+      <h1>➕ Intersection of Two Linked List</h1>
+      <p class="subtitle">Find the node where two linked lists intersect</p>
+      <div class="tags">
+        <span class="tag medium">Medium</span>
+        <span class="tag category">Linked List</span>
+        <span class="tag category">Two Pointer Alignment</span>
+      </div>
+    </div>
+
+    <div class="solutions-container">
+      <!-- Brute Force Solution -->
+      <div class="solution-card brute">
+        <div class="card-header">
+          <span class="icon">🐢</span>
+          <div class="title-section">
+            <h2>Brute Force</h2>
+            <span class="approach">Brute Force</span>
+          </div>
+        </div>
+
+        <div class="complexity-box">
+          <div class="complexity">
+            <div class="label">⏱️ Time</div>
+            <div class="value">O(m × n)</div>
+          </div>
+          <div class="complexity">
+            <div class="label">💾 Space</div>
+            <div class="value">O(1)</div>
+          </div>
+        </div>
+        <a href="./BruteForce.html" class="view-btn">
+          📖 View Full Explanation
+        </a>
+      </div>
+
+      <!-- Better Solution -->
+      <div class="solution-card better">
+        <div class="card-header">
+          <span class="icon">🐇</span>
+          <div class="title-section">
+            <h2>Improved Approach</h2>
+            <span class="approach">Hash Set</span>
+          </div>
+        </div>
+
+        <div class="complexity-box">
+          <div class="complexity">
+            <div class="label">⏱️ Time</div>
+            <div class="value">O(m + n)</div>
+          </div>
+          <div class="complexity">
+            <div class="label">💾 Space</div>
+            <div class="value">O(m)</div>
+          </div>
+        </div>
+        <a href="./Hashset.html" class="view-btn"> 📖 View Full Explanation </a>
+      </div>
+
+      <div class="solution-card better">
+        <div class="card-header">
+          <span class="icon">🐇</span>
+          <div class="title-section">
+            <h2>Improved Approach 2</h2>
+            <span class="approach">Length Difference Technique</span>
+          </div>
+        </div>
+
+        <div class="complexity-box">
+          <div class="complexity">
+            <div class="label">⏱️ Time</div>
+            <div class="value">O(m + n)</div>
+          </div>
+          <div class="complexity">
+            <div class="label">💾 Space</div>
+            <div class="value">O(1)</div>
+          </div>
+        </div>
+        <a href="./LengthDifference.html" class="view-btn">
+          📖 View Full Explanation
+        </a>
+      </div>
+
+      <!-- Optimal Solution -->
+      <div class="solution-card optimal">
+        <div class="card-header">
+          <span class="icon">🚀</span>
+          <div class="title-section">
+            <h2>Optimal Solution</h2>
+            <span class="approach">Two-Pointer Technique</span>
+          </div>
+        </div>
+
+        <div class="complexity-box">
+          <div class="complexity">
+            <div class="label">⏱️ Time</div>
+            <div class="value">O(m + n)</div>
+          </div>
+          <div class="complexity">
+            <div class="label">💾 Space</div>
+            <div class="value">O(1)</div>
+          </div>
+        </div>
+        <a href="./TwoPointer.html" class="view-btn">
+          📖 View Full Explanation
+        </a>
+      </div>
+    </div>
+
+    <!-- Progress Section -->
+    <div class="progress-section">
+      <h3>🎯 Solution Progression</h3>
+      <div class="progress-bar">
+        <div class="progress-step">
+          <div class="step-circle brute">🐢</div>
+          <span class="step-label">Brute</span>
+        </div>
+        <div class="progress-line"></div>
+        <div class="progress-step">
+          <div class="step-circle better">🐇</div>
+          <span class="step-label">Better</span>
+        </div>
+        <div class="progress-line second"></div>
+        <div class="progress-step">
+          <div class="step-circle optimal">🚀</div>
+          <span class="step-label">Optimal</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="footer">
+      💡 Pro Tip: Always start with brute force, then optimize! 💪
+    </div>
+
+    <script>
+      // Copy button functionality
+      document.querySelectorAll(".copy-btn").forEach((btn) => {
+        btn.addEventListener("click", () => {
+          const code = btn
+            .closest(".code-section")
+            .querySelector("pre").textContent;
+          navigator.clipboard.writeText(code);
+          btn.textContent = "✅ Copied!";
+          setTimeout(() => (btn.textContent = "📋 Copy"), 2000);
+        });
+      });
+    </script>
+  </body>
+</html>

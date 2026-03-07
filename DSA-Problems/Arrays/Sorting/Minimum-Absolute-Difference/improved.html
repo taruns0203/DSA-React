@@ -1,0 +1,1269 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LeetCode 1200 — Sort + Two Passes Visualizer</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=DM+Sans:wght@400;500;600;700&family=Fraunces:opsz,wght@9..144,400;9..144,600;9..144,700&display=swap');
+
+        :root {
+            --bg-0: #08090c;
+            --bg-1: #10121a;
+            --bg-2: #181b27;
+            --bg-3: #1f2336;
+            --bg-4: #282d44;
+            --border: #2a2f48;
+            --border-hi: #3d4468;
+            --text-1: #e2e0f0;
+            --text-2: #9a98b8;
+            --text-3: #65637e;
+            --accent: #7eb8f7;
+            --accent-dim: #4a7ab8;
+            --accent-glow: rgba(126, 184, 247, 0.10);
+            --accent-glow2: rgba(126, 184, 247, 0.22);
+            --teal: #5ec4b6;
+            --teal-dim: rgba(94, 196, 182, 0.14);
+            --teal-glow: rgba(94, 196, 182, 0.25);
+            --orange: #e8a855;
+            --orange-dim: rgba(232, 168, 85, 0.13);
+            --orange-glow: rgba(232, 168, 85, 0.25);
+            --rose: #e47188;
+            --rose-dim: rgba(228, 113, 136, 0.13);
+            --green: #6dd476;
+            --green-dim: rgba(109, 212, 118, 0.13);
+            --green-glow: rgba(109, 212, 118, 0.25);
+            --purple: #a78bfa;
+            --purple-dim: rgba(167, 139, 250, 0.14);
+            --font-display: 'Fraunces', serif;
+            --font-body: 'DM Sans', sans-serif;
+            --font-mono: 'JetBrains Mono', monospace;
+            --r: 10px;
+            --r-sm: 6px;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: var(--bg-0);
+            color: var(--text-1);
+            font-family: var(--font-body);
+            min-height: 100vh;
+        }
+
+        /* Subtle grid background */
+        body::before {
+            content: '';
+            position: fixed;
+            inset: 0;
+            z-index: 0;
+            pointer-events: none;
+            background-image:
+                linear-gradient(rgba(126, 184, 247, 0.03) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(126, 184, 247, 0.03) 1px, transparent 1px);
+            background-size: 48px 48px;
+        }
+
+        .app {
+            position: relative;
+            z-index: 1;
+            max-width: 1440px;
+            margin: 0 auto;
+            padding: 24px;
+        }
+
+        /* ── HEADER ── */
+        .header {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            margin-bottom: 24px;
+            padding-bottom: 18px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .tag {
+            font-family: var(--font-mono);
+            font-size: 10px;
+            font-weight: 700;
+            padding: 4px 10px;
+            border-radius: 4px;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            white-space: nowrap;
+        }
+
+        .tag-improved {
+            background: var(--teal-dim);
+            color: var(--teal);
+            border: 1px solid rgba(94, 196, 182, 0.3);
+        }
+
+        .tag-complexity {
+            background: var(--green-dim);
+            color: var(--green);
+            border: 1px solid rgba(109, 212, 118, 0.3);
+        }
+
+        .header h1 {
+            font-family: var(--font-display);
+            font-size: 21px;
+            font-weight: 700;
+            color: var(--text-1);
+            line-height: 1.2;
+        }
+
+        .header h1 em {
+            font-style: normal;
+            color: var(--accent);
+        }
+
+        .header-right {
+            margin-left: auto;
+            display: flex;
+            gap: 8px;
+        }
+
+        /* ── INPUT BAR ── */
+        .input-bar {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            margin-bottom: 18px;
+            flex-wrap: wrap;
+        }
+
+        .input-bar label {
+            font-family: var(--font-mono);
+            font-size: 11px;
+            font-weight: 600;
+            color: var(--text-3);
+            text-transform: uppercase;
+            letter-spacing: 0.8px;
+        }
+
+        .input-bar input[type="text"] {
+            flex: 1;
+            min-width: 200px;
+            background: var(--bg-1);
+            border: 1px solid var(--border);
+            color: var(--text-1);
+            font-family: var(--font-mono);
+            font-size: 13px;
+            padding: 9px 14px;
+            border-radius: var(--r-sm);
+            outline: none;
+            transition: border-color 0.2s;
+        }
+
+        .input-bar input:focus {
+            border-color: var(--accent-dim);
+        }
+
+        .presets {
+            display: flex;
+            gap: 6px;
+        }
+
+        /* ── BUTTONS ── */
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            padding: 8px 15px;
+            border-radius: var(--r-sm);
+            font-family: var(--font-mono);
+            font-size: 11.5px;
+            font-weight: 600;
+            cursor: pointer;
+            border: 1px solid var(--border);
+            background: var(--bg-2);
+            color: var(--text-2);
+            transition: all 0.15s;
+            letter-spacing: 0.3px;
+            white-space: nowrap;
+        }
+
+        .btn:hover {
+            background: var(--bg-3);
+            color: var(--text-1);
+            border-color: var(--border-hi);
+        }
+
+        .btn:active {
+            transform: scale(0.97);
+        }
+
+        .btn-accent {
+            background: var(--accent-glow);
+            border-color: var(--accent-dim);
+            color: var(--accent);
+        }
+
+        .btn-accent:hover {
+            background: var(--accent-glow2);
+            color: var(--accent);
+            border-color: var(--accent);
+        }
+
+        .btn-sm {
+            padding: 6px 11px;
+            font-size: 11px;
+        }
+
+        /* ── CONTROLS BAR ── */
+        .controls {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 18px;
+            padding: 11px 16px;
+            background: var(--bg-1);
+            border: 1px solid var(--border);
+            border-radius: var(--r);
+            flex-wrap: wrap;
+        }
+
+        .divider {
+            width: 1px;
+            height: 26px;
+            background: var(--border);
+            margin: 0 2px;
+        }
+
+        .speed-grp {
+            display: flex;
+            align-items: center;
+            gap: 7px;
+        }
+
+        .speed-grp label {
+            font-family: var(--font-mono);
+            font-size: 10px;
+            color: var(--text-3);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        input[type="range"] {
+            width: 90px;
+            accent-color: var(--accent);
+            cursor: pointer;
+        }
+
+        .speed-val {
+            font-family: var(--font-mono);
+            font-size: 12px;
+            color: var(--accent);
+            min-width: 36px;
+        }
+
+        .step-info {
+            font-family: var(--font-mono);
+            font-size: 11px;
+            color: var(--text-3);
+            margin-left: auto;
+        }
+
+        .step-info b {
+            color: var(--text-2);
+        }
+
+        /* ── PHASE TABS ── */
+        .phases {
+            display: flex;
+            gap: 0;
+            margin-bottom: 18px;
+            border-radius: var(--r);
+            overflow: hidden;
+            border: 1px solid var(--border);
+        }
+
+        .phase {
+            flex: 1;
+            padding: 10px 12px;
+            text-align: center;
+            font-family: var(--font-mono);
+            font-size: 11px;
+            font-weight: 600;
+            background: var(--bg-1);
+            color: var(--text-3);
+            border-right: 1px solid var(--border);
+            transition: all 0.3s;
+            letter-spacing: 0.2px;
+        }
+
+        .phase:last-child {
+            border-right: none;
+        }
+
+        .phase.active {
+            background: var(--accent-glow);
+            color: var(--accent);
+        }
+
+        .phase.done {
+            background: var(--green-dim);
+            color: var(--green);
+        }
+
+        /* ── DONE BANNER ── */
+        .done-banner {
+            display: none;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            padding: 13px 20px;
+            margin-bottom: 18px;
+            background: var(--green-dim);
+            border: 1px solid rgba(109, 212, 118, 0.35);
+            border-radius: var(--r);
+            animation: fadeSlide 0.4s ease;
+        }
+
+        .done-banner.show {
+            display: flex;
+        }
+
+        .done-banner span {
+            font-size: 18px;
+        }
+
+        .done-banner p {
+            font-family: var(--font-mono);
+            font-size: 12px;
+            color: var(--green);
+            font-weight: 600;
+        }
+
+        @keyframes fadeSlide {
+            from {
+                opacity: 0;
+                transform: translateY(-6px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* ── MAIN GRID ── */
+        .grid {
+            display: grid;
+            grid-template-columns: 1fr 330px;
+            gap: 18px;
+        }
+
+        /* ── PANELS ── */
+        .panel {
+            background: var(--bg-1);
+            border: 1px solid var(--border);
+            border-radius: var(--r);
+            overflow: hidden;
+        }
+
+        .panel-hdr {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 11px 16px;
+            border-bottom: 1px solid var(--border);
+            background: var(--bg-2);
+        }
+
+        .panel-hdr .ico {
+            width: 8px;
+            height: 8px;
+            border-radius: 2px;
+            background: var(--accent);
+        }
+
+        .panel-hdr h3 {
+            font-family: var(--font-mono);
+            font-size: 11px;
+            font-weight: 600;
+            color: var(--text-2);
+            text-transform: uppercase;
+            letter-spacing: 0.8px;
+        }
+
+        .panel-body {
+            padding: 18px;
+        }
+
+        /* ── ARRAY VIZ ── */
+        .arr-label {
+            font-family: var(--font-mono);
+            font-size: 10px;
+            color: var(--text-3);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .arr-label .line {
+            flex: 1;
+            height: 1px;
+            background: var(--border);
+        }
+
+        .arr-row {
+            display: flex;
+            gap: 5px;
+            flex-wrap: wrap;
+            align-items: flex-end;
+            min-height: 74px;
+        }
+
+        .cell-wrap {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 3px;
+            transition: transform 0.4s cubic-bezier(.4, 0, .2, 1);
+        }
+
+        .ptr-tag {
+            font-family: var(--font-mono);
+            font-size: 9px;
+            font-weight: 700;
+            padding: 1px 6px;
+            border-radius: 3px;
+            min-height: 16px;
+            letter-spacing: 0.5px;
+            transition: all 0.2s;
+        }
+
+        .ptr-i {
+            background: var(--accent-glow2);
+            color: var(--accent);
+        }
+
+        .ptr-j {
+            background: var(--orange-glow);
+            color: var(--orange);
+        }
+
+        .cell {
+            width: 50px;
+            height: 42px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: var(--bg-2);
+            border: 2px solid var(--border);
+            border-radius: var(--r-sm);
+            font-family: var(--font-mono);
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--text-1);
+            transition: all 0.25s;
+            position: relative;
+        }
+
+        .cell.hi-i {
+            border-color: var(--accent);
+            background: var(--accent-glow);
+            box-shadow: 0 0 14px rgba(126, 184, 247, 0.15);
+        }
+
+        .cell.hi-j {
+            border-color: var(--orange);
+            background: var(--orange-dim);
+            box-shadow: 0 0 14px rgba(232, 168, 85, 0.15);
+        }
+
+        .cell.hi-pair {
+            border-color: var(--teal);
+            background: var(--teal-dim);
+            box-shadow: 0 0 14px rgba(94, 196, 182, 0.15);
+        }
+
+        .cell.hi-swap {
+            border-color: var(--rose);
+            background: var(--rose-dim);
+        }
+
+        .cell.in-result {
+            border-color: var(--green);
+            background: var(--green-dim);
+        }
+
+        .cell.sorted-done {
+            border-color: var(--teal);
+            border-style: dashed;
+        }
+
+        .idx {
+            font-family: var(--font-mono);
+            font-size: 8px;
+            color: var(--text-3);
+        }
+
+        /* ── COMPARISON STRIP ── */
+        .comp-strip {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            padding: 14px;
+            margin-top: 18px;
+            background: var(--bg-0);
+            border: 1px solid var(--border);
+            border-radius: var(--r);
+            min-height: 66px;
+            transition: all 0.3s;
+        }
+
+        .cv {
+            font-family: var(--font-mono);
+            font-size: 22px;
+            font-weight: 700;
+            padding: 5px 14px;
+            border-radius: var(--r-sm);
+            min-width: 54px;
+            text-align: center;
+        }
+
+        .cv-i {
+            background: var(--accent-glow2);
+            color: var(--accent);
+        }
+
+        .cv-j {
+            background: var(--orange-glow);
+            color: var(--orange);
+        }
+
+        .cop {
+            font-family: var(--font-mono);
+            font-size: 13px;
+            color: var(--text-3);
+        }
+
+        .cr {
+            font-family: var(--font-mono);
+            font-size: 16px;
+            font-weight: 700;
+            padding: 5px 12px;
+            border-radius: var(--r-sm);
+        }
+
+        .cr.new-min {
+            background: var(--teal-glow);
+            color: var(--teal);
+            animation: pop 0.35s ease;
+        }
+
+        .cr.match {
+            background: var(--green-glow);
+            color: var(--green);
+            animation: pop 0.35s ease;
+        }
+
+        .cr.skip {
+            background: var(--bg-2);
+            color: var(--text-3);
+        }
+
+        .badge-label {
+            font-family: var(--font-mono);
+            font-size: 10px;
+            font-weight: 700;
+            letter-spacing: 0.5px;
+            padding: 2px 8px;
+            border-radius: 3px;
+        }
+
+        .badge-newmin {
+            background: var(--teal-dim);
+            color: var(--teal);
+        }
+
+        .badge-match {
+            background: var(--green-dim);
+            color: var(--green);
+        }
+
+        .badge-skip {
+            background: var(--bg-3);
+            color: var(--text-3);
+        }
+
+        @keyframes pop {
+            0% {
+                transform: scale(1);
+            }
+
+            50% {
+                transform: scale(1.12);
+            }
+
+            100% {
+                transform: scale(1);
+            }
+        }
+
+        /* ── RESULT PAIRS ── */
+        .result-area {
+            margin-top: 18px;
+        }
+
+        .result-row {
+            display: flex;
+            gap: 6px;
+            flex-wrap: wrap;
+            min-height: 34px;
+            padding: 10px;
+            background: var(--bg-0);
+            border: 1px solid var(--border);
+            border-radius: var(--r-sm);
+        }
+
+        .rpair {
+            font-family: var(--font-mono);
+            font-size: 12px;
+            font-weight: 600;
+            padding: 4px 10px;
+            border-radius: 4px;
+            background: var(--green-dim);
+            color: var(--green);
+            border: 1px solid rgba(109, 212, 118, 0.25);
+            animation: fadeSlide 0.3s ease;
+        }
+
+        .result-empty {
+            font-family: var(--font-mono);
+            font-size: 11px;
+            color: var(--text-3);
+            font-style: italic;
+        }
+
+        .cbadge-row {
+            display: flex;
+            gap: 7px;
+            margin-top: 14px;
+        }
+
+        .cbadge {
+            font-family: var(--font-mono);
+            font-size: 10px;
+            font-weight: 600;
+            padding: 4px 10px;
+            border-radius: 4px;
+        }
+
+        .cbadge-good {
+            background: var(--green-dim);
+            color: var(--green);
+            border: 1px solid rgba(109, 212, 118, 0.25);
+        }
+
+        /* ── VARIABLES ── */
+        .vgrid {
+            display: grid;
+            gap: 8px;
+        }
+
+        .vrow {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 7px 12px;
+            background: var(--bg-0);
+            border-radius: var(--r-sm);
+            border: 1px solid transparent;
+            transition: all 0.3s;
+        }
+
+        .vrow.flash {
+            border-color: var(--accent-dim);
+            background: var(--accent-glow);
+        }
+
+        .vname {
+            font-family: var(--font-mono);
+            font-size: 11px;
+            font-weight: 600;
+            color: var(--text-3);
+            min-width: 75px;
+        }
+
+        .vval {
+            font-family: var(--font-mono);
+            font-size: 13px;
+            font-weight: 700;
+            color: var(--text-1);
+        }
+
+        .vval.accent {
+            color: var(--accent);
+        }
+
+        .vval.teal {
+            color: var(--teal);
+        }
+
+        .vval.green {
+            color: var(--green);
+        }
+
+        /* ── LOG ── */
+        .log-panel .panel-body {
+            padding: 0;
+            max-height: 540px;
+            overflow-y: auto;
+        }
+
+        .log-panel .panel-body::-webkit-scrollbar {
+            width: 5px;
+        }
+
+        .log-panel .panel-body::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        .log-panel .panel-body::-webkit-scrollbar-thumb {
+            background: var(--border);
+            border-radius: 3px;
+        }
+
+        .log-e {
+            padding: 7px 14px;
+            font-family: var(--font-mono);
+            font-size: 11px;
+            line-height: 1.55;
+            color: var(--text-2);
+            border-bottom: 1px solid rgba(42, 47, 72, 0.5);
+            transition: background 0.2s;
+        }
+
+        .log-e:last-child {
+            border-bottom: none;
+        }
+
+        .log-e.active {
+            background: var(--accent-glow);
+        }
+
+        .log-e .sn {
+            color: var(--text-3);
+            margin-right: 7px;
+            font-size: 10px;
+        }
+
+        .log-e .v {
+            color: var(--accent);
+            font-weight: 600;
+        }
+
+        .log-e .nm {
+            color: var(--teal);
+            font-weight: 700;
+        }
+
+        .log-e .mt {
+            color: var(--green);
+            font-weight: 700;
+        }
+
+        .log-e .sk {
+            color: var(--text-3);
+        }
+
+        .log-e .ph {
+            color: var(--orange);
+            font-weight: 700;
+            text-transform: uppercase;
+            font-size: 10px;
+            letter-spacing: 0.5px;
+        }
+
+        /* ── SORT ANIMATION ── */
+        .sort-overlay {
+            display: none;
+            align-items: center;
+            justify-content: center;
+            padding: 10px 18px;
+            margin-bottom: 10px;
+            background: var(--purple-dim);
+            border: 1px solid rgba(167, 139, 250, 0.3);
+            border-radius: var(--r);
+            font-family: var(--font-mono);
+            font-size: 12px;
+            color: var(--purple);
+            font-weight: 600;
+        }
+
+        .sort-overlay.show {
+            display: flex;
+        }
+
+        @media (max-width: 900px) {
+            .grid {
+                grid-template-columns: 1fr;
+            }
+
+            .app {
+                padding: 14px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="app">
+
+        <div class="header">
+            <span class="tag tag-improved">Improved</span>
+            <h1>1200. Minimum Absolute Difference — <em>Sort + Two Passes</em></h1>
+            <div class="header-right">
+                <span class="tag tag-complexity">O(n log n)</span>
+            </div>
+        </div>
+
+        <div class="input-bar">
+            <label>Array</label>
+            <input type="text" id="inp" value="4, 2, 1, 3" placeholder="e.g. 4, 2, 1, 3" />
+            <div class="presets">
+                <button class="btn btn-sm" onclick="preset(0)">Ex 1</button>
+                <button class="btn btn-sm" onclick="preset(1)">Ex 2</button>
+                <button class="btn btn-sm" onclick="preset(2)">Ex 3</button>
+            </div>
+            <button class="btn btn-accent" onclick="load()">▶ Load &amp; Reset</button>
+        </div>
+
+        <div class="controls">
+            <button class="btn btn-accent" id="playBtn" onclick="togglePlay()">▶ Play</button>
+            <button class="btn" onclick="stepFwd()">⏭ Step</button>
+            <button class="btn" onclick="reset()">↺ Reset</button>
+            <div class="divider"></div>
+            <div class="speed-grp">
+                <label>Speed</label>
+                <input type="range" id="speedR" min="1" max="10" value="5" oninput="updSpeed()" />
+                <span class="speed-val" id="speedV">1.0×</span>
+            </div>
+            <div class="step-info">Step <b id="curS">0</b> / <b id="totS">0</b></div>
+        </div>
+
+        <div class="phases">
+            <div class="phase" id="ph0">① Original</div>
+            <div class="phase" id="ph1">② Sort</div>
+            <div class="phase" id="ph2">③ Pass 1 — Find minDiff</div>
+            <div class="phase" id="ph3">④ Pass 2 — Collect Pairs</div>
+            <div class="phase" id="ph4">⑤ Done</div>
+        </div>
+
+        <div class="done-banner" id="doneB">
+            <span>✓</span>
+            <p id="doneT">Complete!</p>
+        </div>
+
+        <div class="sort-overlay" id="sortOv">Sorting array…</div>
+
+        <div class="grid">
+            <div class="viz-col">
+                <div class="panel" style="margin-bottom:16px;">
+                    <div class="panel-hdr">
+                        <div class="ico"></div>
+                        <h3>Array Visualization</h3>
+                    </div>
+                    <div class="panel-body">
+                        <div class="arr-label">arr[] <span class="line"></span></div>
+                        <div class="arr-row" id="arrRow"></div>
+
+                        <div class="arr-label" style="margin-top:18px">Current Comparison <span class="line"></span>
+                        </div>
+                        <div class="comp-strip" id="comp">
+                            <span style="font-family:var(--font-mono);font-size:12px;color:var(--text-3)">Press Play or
+                                Step to begin</span>
+                        </div>
+
+                        <div class="result-area">
+                            <div class="arr-label">Result Pairs <span class="line"></span></div>
+                            <div class="result-row" id="resPairs"><span class="result-empty">—</span></div>
+                        </div>
+
+                        <div class="cbadge-row">
+                            <span class="cbadge cbadge-good">Time: O(n log n)</span>
+                            <span class="cbadge cbadge-good">Space: O(1) aux</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="panel">
+                    <div class="panel-hdr">
+                        <div class="ico"></div>
+                        <h3>Variables</h3>
+                    </div>
+                    <div class="panel-body">
+                        <div class="vgrid" id="vgrid">
+                            <div class="vrow" id="vr-n"><span class="vname">n</span><span class="vval"
+                                    id="vv-n">—</span></div>
+                            <div class="vrow" id="vr-i"><span class="vname">i</span><span class="vval"
+                                    id="vv-i">—</span></div>
+                            <div class="vrow" id="vr-diff"><span class="vname">diff</span><span class="vval"
+                                    id="vv-diff">—</span></div>
+                            <div class="vrow" id="vr-minDiff"><span class="vname">minDiff</span><span class="vval teal"
+                                    id="vv-minDiff">—</span></div>
+                            <div class="vrow" id="vr-phase"><span class="vname">phase</span><span class="vval accent"
+                                    id="vv-phase">—</span></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="panel log-panel">
+                <div class="panel-hdr">
+                    <div class="ico"></div>
+                    <h3>Execution Log</h3>
+                </div>
+                <div class="panel-body" id="logBody"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const PRESETS = [
+            [4, 2, 1, 3],
+            [1, 3, 6, 10, 15],
+            [3, 8, -10, 23, 19, -4, -14, 27]
+        ];
+
+        let origArr = [], sortedArr = [], steps = [], cur = -1;
+        let playing = false, timer = null, speedMs = 600;
+
+        function preset(i) { document.getElementById('inp').value = PRESETS[i].join(', '); load(); }
+
+        function parseArr() {
+            return document.getElementById('inp').value.trim()
+                .split(/[,\s]+/).map(s => parseInt(s, 10)).filter(n => !isNaN(n));
+        }
+
+        function load() {
+            stopPlay();
+            origArr = parseArr();
+            if (origArr.length < 2) { alert('Need ≥ 2 numbers'); return; }
+            sortedArr = [...origArr].sort((a, b) => a - b);
+            steps = genSteps();
+            cur = -1;
+            document.getElementById('totS').textContent = steps.length;
+            document.getElementById('curS').textContent = '0';
+            clearLog();
+            renderArr(origArr);
+            clearHi();
+            document.getElementById('doneB').classList.remove('show');
+            document.getElementById('sortOv').classList.remove('show');
+            setPhase(-1);
+            setVars({ n: '—', i: '—', diff: '—', minDiff: '—', phase: '—' }, []);
+            setComp(null);
+            setRes([]);
+        }
+
+        function reset() {
+            stopPlay();
+            cur = -1;
+            document.getElementById('curS').textContent = '0';
+            clearLog();
+            renderArr(origArr);
+            clearHi();
+            document.getElementById('doneB').classList.remove('show');
+            document.getElementById('sortOv').classList.remove('show');
+            setPhase(-1);
+            setVars({ n: '—', i: '—', diff: '—', minDiff: '—', phase: '—' }, []);
+            setComp(null);
+            setRes([]);
+        }
+
+        /* ── STEP GENERATION ── */
+        function genSteps() {
+            const a = origArr, s = sortedArr, n = s.length;
+            const st = [];
+
+            // Show original
+            st.push({
+                phase: 0, arr: [...a], display: 'orig',
+                hi: -1, hj: -1, hiType: null,
+                vars: { n, i: '—', diff: '—', minDiff: '∞', phase: 'Original' },
+                changed: ['n', 'minDiff', 'phase'],
+                comp: null, pairs: [],
+                log: `<span class="ph">Init</span> Original array, n=<span class="v">${n}</span>`
+            });
+
+            // Sort step
+            st.push({
+                phase: 1, arr: [...s], display: 'sorted',
+                hi: -1, hj: -1, hiType: null,
+                vars: { n, i: '—', diff: '—', minDiff: '∞', phase: 'Sorting' },
+                changed: ['phase'],
+                comp: null, pairs: [], sortAnim: true,
+                log: `<span class="ph">Sort</span> Array sorted in O(n log n): [${s.join(', ')}]`
+            });
+
+            // Mark all sorted
+            st.push({
+                phase: 1, arr: [...s], display: 'sorted-done',
+                hi: -1, hj: -1, hiType: null,
+                vars: { n, i: '—', diff: '—', minDiff: '∞', phase: 'Sorted ✓' },
+                changed: ['phase'],
+                comp: null, pairs: [],
+                log: `Sort complete. Adjacent pairs now contain the minimum difference.`
+            });
+
+            // PASS 1
+            let minDiff = Infinity;
+            for (let i = 0; i < n - 1; i++) {
+                const diff = s[i + 1] - s[i];
+                const isNew = diff < minDiff;
+                if (isNew) minDiff = diff;
+
+                st.push({
+                    phase: 2, arr: [...s], display: 'sorted',
+                    hi: i, hj: i + 1, hiType: 'adjacent',
+                    vars: { n, i, diff, minDiff: minDiff === Infinity ? '∞' : minDiff, phase: 'Pass 1' },
+                    changed: isNew ? ['i', 'diff', 'minDiff'] : ['i', 'diff'],
+                    comp: { a: s[i], b: s[i + 1], diff, type: isNew ? 'new-min' : 'skip' },
+                    pairs: [],
+                    log: isNew
+                        ? `arr[${i + 1}]−arr[${i}] = ${s[i + 1]}−${s[i]} = <span class="v">${diff}</span> → <span class="nm">New minDiff = ${diff}</span>`
+                        : `arr[${i + 1}]−arr[${i}] = ${s[i + 1]}−${s[i]} = <span class="v">${diff}</span> <span class="sk">≥ ${minDiff}, skip</span>`
+                });
+            }
+
+            // Transition
+            st.push({
+                phase: 3, arr: [...s], display: 'sorted',
+                hi: -1, hj: -1, hiType: null,
+                vars: { n, i: '—', diff: '—', minDiff, phase: 'Pass 2' },
+                changed: ['phase'],
+                comp: null, pairs: [],
+                log: `<span class="ph">Pass 2</span> Scan for all adjacent pairs with diff = <span class="v">${minDiff}</span>`
+            });
+
+            // PASS 2
+            const pairs = [];
+            for (let i = 0; i < n - 1; i++) {
+                const diff = s[i + 1] - s[i];
+                const isMatch = diff === minDiff;
+                if (isMatch) pairs.push([s[i], s[i + 1]]);
+
+                st.push({
+                    phase: 3, arr: [...s], display: 'sorted',
+                    hi: i, hj: i + 1, hiType: isMatch ? 'match' : 'adjacent',
+                    vars: { n, i, diff, minDiff, phase: 'Pass 2' },
+                    changed: ['i', 'diff'],
+                    comp: { a: s[i], b: s[i + 1], diff, type: isMatch ? 'match' : 'skip' },
+                    pairs: pairs.map(p => [...p]),
+                    log: isMatch
+                        ? `${s[i + 1]}−${s[i]} = <span class="v">${diff}</span> == ${minDiff} → <span class="mt">Collect [${s[i]}, ${s[i + 1]}]</span>`
+                        : `${s[i + 1]}−${s[i]} = <span class="v">${diff}</span> <span class="sk">≠ ${minDiff}, skip</span>`
+                });
+            }
+
+            // Done
+            st.push({
+                phase: 4, arr: [...s], display: 'sorted',
+                hi: -1, hj: -1, hiType: null,
+                vars: { n, i: '—', diff: '—', minDiff, phase: 'Done ✓' },
+                changed: ['phase'],
+                comp: null,
+                pairs: pairs.map(p => [...p]),
+                log: `<span class="ph">Done!</span> Result: [${pairs.map(p => '[' + p + ']').join(', ')}]`
+            });
+
+            return st;
+        }
+
+        /* ── RENDER ── */
+        function renderArr(a) {
+            const row = document.getElementById('arrRow');
+            row.innerHTML = '';
+            a.forEach((v, i) => {
+                const w = document.createElement('div');
+                w.className = 'cell-wrap';
+                w.id = 'cw-' + i;
+                w.innerHTML = `<div class="ptr-tag" id="pt-${i}">&nbsp;</div>
+      <div class="cell" id="cl-${i}">${v}</div><span class="idx">${i}</span>`;
+                row.appendChild(w);
+            });
+        }
+
+        function clearHi() {
+            const n = document.querySelectorAll('.cell');
+            n.forEach(c => c.className = 'cell');
+            document.querySelectorAll('.ptr-tag').forEach(p => { p.className = 'ptr-tag'; p.innerHTML = '&nbsp;'; });
+        }
+
+        function applyStep(s) {
+            // Render array
+            renderArr(s.arr);
+            clearHi();
+
+            // Sort overlay
+            const ov = document.getElementById('sortOv');
+            if (s.sortAnim) ov.classList.add('show');
+            else ov.classList.remove('show');
+
+            // Sorted-done dashed borders
+            if (s.display === 'sorted-done') {
+                s.arr.forEach((_, i) => document.getElementById('cl-' + i).classList.add('sorted-done'));
+            }
+
+            // Highlights
+            if (s.hi >= 0 && s.hj >= 0) {
+                const ci = document.getElementById('cl-' + s.hi);
+                const cj = document.getElementById('cl-' + s.hj);
+                const pi = document.getElementById('pt-' + s.hi);
+                const pj = document.getElementById('pt-' + s.hj);
+
+                if (s.hiType === 'match') {
+                    ci.classList.add('hi-pair'); cj.classList.add('hi-pair');
+                    pi.className = 'ptr-tag ptr-i'; pi.textContent = 'i';
+                    pj.className = 'ptr-tag ptr-j'; pj.textContent = 'i+1';
+                } else {
+                    ci.classList.add('hi-i'); cj.classList.add('hi-j');
+                    pi.className = 'ptr-tag ptr-i'; pi.textContent = 'i';
+                    pj.className = 'ptr-tag ptr-j'; pj.textContent = 'i+1';
+                }
+            }
+
+            // Mark result cells
+            if (s.pairs.length > 0) {
+                const vs = new Set();
+                s.pairs.forEach(p => { vs.add(p[0]); vs.add(p[1]); });
+                s.arr.forEach((val, idx) => {
+                    const c = document.getElementById('cl-' + idx);
+                    if (vs.has(val) && !c.classList.contains('hi-i') && !c.classList.contains('hi-j') && !c.classList.contains('hi-pair'))
+                        c.classList.add('in-result');
+                });
+            }
+
+            setVars(s.vars, s.changed);
+            setComp(s.comp);
+            setRes(s.pairs);
+            setPhase(s.phase);
+            addLog(s.log, cur + 1);
+
+            if (s.phase === 4) {
+                const b = document.getElementById('doneB');
+                b.classList.add('show');
+                document.getElementById('doneT').textContent =
+                    `Complete! minDiff = ${s.vars.minDiff}, ${s.pairs.length} pair(s) found in O(n log n).`;
+                stopPlay();
+            }
+        }
+
+        function setVars(v, ch) {
+            const ids = ['n', 'i', 'diff', 'minDiff', 'phase'];
+            ids.forEach(k => {
+                const el = document.getElementById('vv-' + k);
+                if (el) el.textContent = v[k] !== undefined ? v[k] : '—';
+                const row = document.getElementById('vr-' + k);
+                if (row) {
+                    row.classList.remove('flash');
+                    if (ch && ch.includes(k)) { void row.offsetWidth; row.classList.add('flash'); }
+                }
+            });
+        }
+
+        function setComp(c) {
+            const el = document.getElementById('comp');
+            if (!c) {
+                el.innerHTML = '<span style="font-family:var(--font-mono);font-size:12px;color:var(--text-3)">—</span>';
+                return;
+            }
+            const cls = c.type === 'new-min' ? 'new-min' : c.type === 'match' ? 'match' : 'skip';
+            const bcls = c.type === 'new-min' ? 'badge-newmin' : c.type === 'match' ? 'badge-match' : 'badge-skip';
+            const btext = c.type === 'new-min' ? '★ NEW MIN' : c.type === 'match' ? '✓ MATCH' : 'SKIP';
+            el.innerHTML = `
+    <span class="cv cv-i">${c.a}</span>
+    <span class="cop">→</span>
+    <span class="cv cv-j">${c.b}</span>
+    <span class="cop">=</span>
+    <span class="cr ${cls}">${c.diff}</span>
+    <span class="badge-label ${bcls}">${btext}</span>`;
+        }
+
+        function setRes(pairs) {
+            const el = document.getElementById('resPairs');
+            if (!pairs || pairs.length === 0) {
+                el.innerHTML = '<span class="result-empty">—</span>';
+                return;
+            }
+            el.innerHTML = pairs.map(p => `<span class="rpair">[${p[0]}, ${p[1]}]</span>`).join('');
+        }
+
+        function setPhase(p) {
+            for (let i = 0; i < 5; i++) {
+                const t = document.getElementById('ph' + i);
+                t.className = 'phase';
+                if (i < p) t.classList.add('done');
+                if (i === p) t.classList.add('active');
+            }
+        }
+
+        function addLog(html, num) {
+            const body = document.getElementById('logBody');
+            const prev = body.querySelector('.log-e.active');
+            if (prev) prev.classList.remove('active');
+            const e = document.createElement('div');
+            e.className = 'log-e active';
+            e.innerHTML = `<span class="sn">#${num}</span>${html}`;
+            body.appendChild(e);
+            body.scrollTop = body.scrollHeight;
+        }
+
+        function clearLog() { document.getElementById('logBody').innerHTML = ''; }
+
+        /* ── CONTROLS ── */
+        function stepFwd() {
+            if (cur >= steps.length - 1) return;
+            cur++;
+            document.getElementById('curS').textContent = cur + 1;
+            applyStep(steps[cur]);
+        }
+
+        function togglePlay() { playing ? stopPlay() : startPlay(); }
+
+        function startPlay() {
+            if (cur >= steps.length - 1) reset();
+            playing = true;
+            document.getElementById('playBtn').textContent = '⏸ Pause';
+            tick();
+        }
+
+        function stopPlay() {
+            playing = false;
+            if (timer) { clearTimeout(timer); timer = null; }
+            document.getElementById('playBtn').textContent = '▶ Play';
+        }
+
+        function tick() {
+            if (!playing) return;
+            stepFwd();
+            if (cur >= steps.length - 1) { stopPlay(); return; }
+            timer = setTimeout(tick, speedMs);
+        }
+
+        function updSpeed() {
+            const v = parseInt(document.getElementById('speedR').value);
+            const m = v / 5;
+            speedMs = Math.max(50, 600 / m);
+            document.getElementById('speedV').textContent = m.toFixed(1) + '×';
+        }
+
+        updSpeed();
+        load();
+    </script>
+</body>
+
+</html>

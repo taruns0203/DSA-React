@@ -1,0 +1,878 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>2074 - Brute-Force: Array Extraction</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #0f0c29 0%, #302b63 50%, #24243e 100%);
+            min-height: 100vh;
+            padding: 18px;
+            color: #e0e0e0
+        }
+
+        .container {
+            max-width: 1360px;
+            margin: 0 auto;
+            background: rgba(25, 25, 50, .95);
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, .5), 0 0 40px rgba(192, 57, 43, .07);
+            overflow: hidden;
+            border: 1px solid rgba(255, 255, 255, .06)
+        }
+
+        header {
+            background: linear-gradient(135deg, #c0392b, #e74c3c);
+            color: #fff;
+            padding: 22px;
+            text-align: center
+        }
+
+        h1 {
+            font-size: 1.15em;
+            margin-bottom: 5px
+        }
+
+        .subtitle {
+            font-size: .84em;
+            opacity: .92
+        }
+
+        .badge {
+            display: inline-block;
+            background: rgba(255, 255, 255, .2);
+            padding: 5px 14px;
+            border-radius: 15px;
+            margin-top: 7px;
+            font-size: .78em
+        }
+
+        .main-content {
+            display: grid;
+            grid-template-columns: 1fr 280px;
+            gap: 16px;
+            padding: 18px
+        }
+
+        .card {
+            background: rgba(40, 40, 75, .8);
+            border-radius: 14px;
+            padding: 15px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, .2);
+            margin-bottom: 14px;
+            border: 1px solid rgba(255, 255, 255, .05)
+        }
+
+        .card-title {
+            font-size: .88em;
+            font-weight: 600;
+            margin-bottom: 10px;
+            color: #e74c3c
+        }
+
+        button {
+            padding: 7px 14px;
+            border: none;
+            border-radius: 8px;
+            font-size: .82em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all .3s
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, .3)
+        }
+
+        button:disabled {
+            opacity: .4;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #c0392b, #e74c3c);
+            color: #fff
+        }
+
+        .btn-success {
+            background: linear-gradient(135deg, #27ae60, #2ecc71);
+            color: #fff
+        }
+
+        .btn-warning {
+            background: linear-gradient(135deg, #f39c12, #e67e22);
+            color: #fff
+        }
+
+        .btn-secondary {
+            background: rgba(100, 100, 140, .7);
+            color: #fff
+        }
+
+        .btn-info {
+            background: linear-gradient(135deg, #3498db, #2980b9);
+            color: #fff
+        }
+
+        .controls {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            align-items: center
+        }
+
+        .speed-control {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            flex: 1;
+            min-width: 140px
+        }
+
+        .speed-control label {
+            font-size: .8em;
+            color: #aaa
+        }
+
+        .speed-control input[type="range"] {
+            flex: 1;
+            height: 5px;
+            accent-color: #e74c3c
+        }
+
+        .speed-control span {
+            font-size: .8em;
+            color: #e74c3c;
+            min-width: 24px
+        }
+
+        .input-section {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+            flex-wrap: wrap
+        }
+
+        .input-section input {
+            padding: 7px 10px;
+            border-radius: 8px;
+            border: 1px solid rgba(255, 255, 255, .15);
+            background: rgba(20, 20, 45, .8);
+            color: #e0e0e0;
+            font-size: .85em;
+            font-family: 'Courier New', monospace;
+            flex: 1;
+            min-width: 180px
+        }
+
+        .input-section input:focus {
+            outline: none;
+            border-color: #e74c3c
+        }
+
+        /* Linked list */
+        .ll-row {
+            display: flex;
+            gap: 0;
+            padding: 10px;
+            background: rgba(20, 20, 50, .4);
+            border-radius: 10px;
+            min-height: 62px;
+            align-items: center;
+            justify-content: center;
+            flex-wrap: wrap
+        }
+
+        .ll-node {
+            display: flex;
+            align-items: center
+        }
+
+        .nd {
+            width: 44px;
+            height: 44px;
+            border-radius: 9px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 1.05em;
+            border: 2px solid rgba(150, 150, 200, .12);
+            background: rgba(60, 60, 100, .15);
+            font-family: 'Courier New', monospace;
+            color: #666;
+            transition: all .35s;
+            position: relative
+        }
+
+        .nd-pos {
+            font-size: .4em;
+            color: #555;
+            margin-top: 1px
+        }
+
+        .nd.active {
+            border-color: #f1c40f;
+            background: rgba(241, 196, 15, .12);
+            color: #f1c40f;
+            box-shadow: 0 0 8px rgba(241, 196, 15, .12)
+        }
+
+        .nd.writing {
+            border-color: #3498db;
+            background: rgba(52, 152, 219, .1);
+            color: #3498db;
+            box-shadow: 0 0 8px rgba(52, 152, 219, .12)
+        }
+
+        .nd.done-nd {
+            border-color: #2ecc71;
+            background: rgba(46, 204, 113, .08);
+            color: #2ecc71
+        }
+
+        .arrow {
+            color: #555;
+            font-size: .8em;
+            margin: 0 1px
+        }
+
+        /* Group brackets */
+        .group-row {
+            display: flex;
+            gap: 0;
+            padding: 2px 10px;
+            min-height: 22px;
+            align-items: flex-start;
+            justify-content: center;
+            flex-wrap: wrap
+        }
+
+        .grp-cell {
+            width: 44px;
+            text-align: center;
+            font-size: .48em;
+            font-weight: 700;
+            margin: 0 1px;
+            padding: 2px 0;
+            border-radius: 3px
+        }
+
+        .grp-spacer {
+            width: 16px;
+            margin: 0 1px
+        }
+
+        .grp-even {
+            background: rgba(231, 76, 60, .08);
+            color: #e74c3c;
+            border: 1px solid rgba(231, 76, 60, .12)
+        }
+
+        .grp-odd {
+            background: rgba(100, 100, 140, .08);
+            color: #666;
+            border: 1px solid rgba(100, 100, 140, .1)
+        }
+
+        /* Array */
+        .arr-row {
+            display: flex;
+            gap: 3px;
+            padding: 10px;
+            background: rgba(20, 20, 50, .4);
+            border-radius: 10px;
+            min-height: 52px;
+            align-items: center;
+            justify-content: center;
+            flex-wrap: wrap
+        }
+
+        .ac {
+            width: 40px;
+            height: 40px;
+            border-radius: 7px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 1em;
+            border: 2px solid rgba(150, 150, 200, .1);
+            background: rgba(60, 60, 100, .12);
+            font-family: 'Courier New', monospace;
+            color: #666;
+            transition: all .35s
+        }
+
+        .ac-idx {
+            font-size: .4em;
+            color: #555;
+            margin-top: 1px
+        }
+
+        .ac.extracted {
+            border-color: #f1c40f;
+            background: rgba(241, 196, 15, .08);
+            color: #f1c40f;
+            animation: popIn .3s ease
+        }
+
+        .ac.in-grp-even {
+            border-color: #e74c3c;
+            background: rgba(231, 76, 60, .06);
+            color: #e74c3c
+        }
+
+        .ac.swapping {
+            border-color: #bb6bd9;
+            background: rgba(155, 89, 182, .15);
+            color: #bb6bd9;
+            box-shadow: 0 0 10px rgba(155, 89, 182, .2);
+            transform: scale(1.08)
+        }
+
+        .ac.swapped {
+            border-color: #2ecc71;
+            background: rgba(46, 204, 113, .08);
+            color: #2ecc71
+        }
+
+        .ac.grp-skip {
+            border-color: rgba(100, 100, 140, .15);
+            color: #555
+        }
+
+        .ac.write-src {
+            border-color: #3498db;
+            background: rgba(52, 152, 219, .08);
+            color: #3498db
+        }
+
+        @keyframes popIn {
+            0% {
+                transform: scale(.7);
+                opacity: .5
+            }
+
+            100% {
+                transform: scale(1);
+                opacity: 1
+            }
+        }
+
+        /* Swap info */
+        .swap-info {
+            padding: 10px;
+            background: rgba(20, 20, 50, .4);
+            border-radius: 8px;
+            text-align: center;
+            font-family: 'Courier New', monospace;
+            font-size: .82em;
+            min-height: 36px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            flex-wrap: wrap
+        }
+
+        .status-ind {
+            text-align: center;
+            padding: 11px;
+            border-radius: 10px;
+            font-weight: 700;
+            font-size: .85em;
+            transition: all .3s
+        }
+
+        .si-neutral {
+            background: rgba(100, 100, 140, .12);
+            color: #888
+        }
+
+        .si-extract {
+            background: rgba(241, 196, 15, .08);
+            color: #f1c40f;
+            border: 1px solid rgba(241, 196, 15, .15)
+        }
+
+        .si-group {
+            background: rgba(231, 76, 60, .08);
+            color: #e74c3c;
+            border: 1px solid rgba(231, 76, 60, .15)
+        }
+
+        .si-write {
+            background: rgba(52, 152, 219, .08);
+            color: #3498db;
+            border: 1px solid rgba(52, 152, 219, .15)
+        }
+
+        .si-done {
+            background: rgba(46, 204, 113, .12);
+            color: #2ecc71;
+            border: 1px solid rgba(46, 204, 113, .25)
+        }
+
+        .state-display {
+            background: rgba(20, 20, 50, .5);
+            border-radius: 8px;
+            padding: 10px;
+            font-family: 'Courier New', monospace;
+            font-size: .68em
+        }
+
+        .state-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 4px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, .05)
+        }
+
+        .state-row:last-child {
+            border-bottom: none
+        }
+
+        .state-label {
+            font-weight: 600;
+            color: #e74c3c
+        }
+
+        .state-val {
+            color: #ccc;
+            text-align: right;
+            max-width: 150px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap
+        }
+
+        .log-container {
+            background: rgba(20, 20, 50, .5);
+            border-radius: 8px;
+            padding: 10px;
+            max-height: 240px;
+            overflow-y: auto;
+            font-family: 'Courier New', monospace;
+            font-size: .54em
+        }
+
+        .log-entry {
+            padding: 3px 7px;
+            margin: 2px 0;
+            border-radius: 4px;
+            border-left: 3px solid #555;
+            background: rgba(40, 40, 70, .5);
+            line-height: 1.5
+        }
+
+        .log-entry.success {
+            border-left-color: #2ecc71;
+            background: rgba(46, 204, 113, .08);
+            color: #2ecc71
+        }
+
+        .log-entry.warning {
+            border-left-color: #f39c12;
+            background: rgba(243, 156, 18, .08);
+            color: #f39c12
+        }
+
+        .log-entry.info {
+            border-left-color: #3498db;
+            background: rgba(52, 152, 219, .08);
+            color: #8ec8f0
+        }
+
+        .log-entry.error {
+            border-left-color: #e74c3c;
+            background: rgba(231, 76, 60, .08);
+            color: #e74c3c
+        }
+
+        .log-entry.purple {
+            border-left-color: #9b59b6;
+            background: rgba(155, 89, 182, .08);
+            color: #bb6bd9
+        }
+
+        .log-container::-webkit-scrollbar {
+            width: 5px
+        }
+
+        .log-container::-webkit-scrollbar-track {
+            background: transparent
+        }
+
+        .log-container::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, .15);
+            border-radius: 3px
+        }
+
+        @media(max-width:960px) {
+            .main-content {
+                grid-template-columns: 1fr
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <header>
+            <h1>🔗 Reverse Nodes in Even Length Groups</h1>
+            <div class="subtitle">Brute-Force — Extract to Array, Reverse Even Groups, Write Back</div>
+            <div class="badge">Time: O(n) | Space: O(n) — copies all values to array</div>
+        </header>
+        <div class="main-content">
+            <div class="left-panel">
+                <div class="card">
+                    <div class="card-title">⚙️ Controls</div>
+                    <div class="controls">
+                        <button class="btn-primary" id="playBtn">▶️ Play</button>
+                        <button class="btn-warning" id="pauseBtn" disabled>⏸️ Pause</button>
+                        <button class="btn-success" id="stepBtn">⏭️ Step</button>
+                        <button class="btn-secondary" id="resetBtn">🔄 Reset</button>
+                        <div class="speed-control">
+                            <label>Speed:</label>
+                            <input type="range" id="speedSlider" min="1" max="10" value="5">
+                            <span id="speedValue">5x</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="card">
+                    <div class="card-title">✏️ Custom Input</div>
+                    <div class="input-section">
+                        <input type="text" id="listInput" value="5,2,6,3,9,1,7,3,8,4"
+                            placeholder="values (comma-separated)">
+                        <button class="btn-info" id="applyBtn">Apply</button>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-title">🔗 Linked List (n=<span id="nDisp">10</span>)</div>
+                    <div class="group-row" id="groupRow"></div>
+                    <div class="ll-row" id="llDisplay"></div>
+                </div>
+
+                <div class="card">
+                    <div class="card-title">📦 vals[] Array</div>
+                    <div class="arr-row" id="arrDisplay"><span style="color:#555">—</span></div>
+                </div>
+
+                <div class="card">
+                    <div class="card-title">🔄 Group Processing</div>
+                    <div class="swap-info" id="swapInfo"><span style="color:#555">—</span></div>
+                </div>
+
+                <div class="card">
+                    <div class="status-ind si-neutral" id="statusInd">Ready — press Play or Step</div>
+                </div>
+            </div>
+
+            <div class="right-panel">
+                <div class="card">
+                    <div class="card-title">📋 Current State</div>
+                    <div class="state-display">
+                        <div class="state-row"><span class="state-label">Phase:</span><span class="state-val"
+                                id="stPhase">init</span></div>
+                        <div class="state-row"><span class="state-label">groupNum:</span><span class="state-val"
+                                id="stGrp">—</span></div>
+                        <div class="state-row"><span class="state-label">groupLen:</span><span class="state-val"
+                                id="stGLen">—</span></div>
+                        <div class="state-row"><span class="state-label">even?:</span><span class="state-val"
+                                id="stEven">—</span></div>
+                        <div class="state-row"><span class="state-label">idx:</span><span class="state-val"
+                                id="stIdx">—</span></div>
+                        <div class="state-row"><span class="state-label">swap i,j:</span><span class="state-val"
+                                id="stSwap">—</span></div>
+                        <div class="state-row"><span class="state-label">writeIdx:</span><span class="state-val"
+                                id="stWrite">—</span></div>
+                    </div>
+                </div>
+                <div class="card" style="flex:1">
+                    <div class="card-title">📝 Execution Log</div>
+                    <div class="log-container" id="logContainer">
+                        <div class="log-entry info">Extract → identify groups → reverse even → write back.</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let initVals = [5, 2, 6, 3, 9, 1, 7, 3, 8, 4];
+        let n;
+        let vals = [];
+        let extractIdx = -1;
+        let groups = [];     // [{start, len, even}]
+        let curGroupIdx = -1;
+        let swapI = -1, swapJ = -1;
+        let swappedSet = new Set();
+        let writeIdx = -1;
+        let groupsDone = new Set();
+
+        // phases: init | extract | group-scan | group-reverse | group-skip | write-back | done
+        let phase = 'init';
+        let stepCount = 0, isRunning = false, speed = 5, isDone = false;
+
+        const $ = id => document.getElementById(id);
+        const logC = $('logContainer');
+        function addLog(m, t = 'info') { logC.innerHTML += `<div class="log-entry ${t}">[${stepCount}] ${m}</div>`; logC.scrollTop = logC.scrollHeight }
+        function clearLog() { logC.innerHTML = '' }
+
+        function computeGroups() {
+            groups = [];
+            let idx = 0, g = 1;
+            while (idx < n) {
+                const len = Math.min(g, n - idx);
+                groups.push({ start: idx, len, even: len % 2 === 0, groupNum: g });
+                idx += len;
+                g++;
+            }
+        }
+
+        function nodeGroupInfo(nodeIdx) {
+            for (const gr of groups) {
+                if (nodeIdx >= gr.start && nodeIdx < gr.start + gr.len) return gr;
+            }
+            return null;
+        }
+
+        function render() {
+            $('nDisp').textContent = n || initVals.length;
+
+            // Group bracket row
+            if (groups.length > 0) {
+                let gH = '';
+                for (let gi = 0; gi < groups.length; gi++) {
+                    const gr = groups[gi];
+                    const cls = gr.even ? 'grp-even' : 'grp-odd';
+                    for (let k = 0; k < gr.len; k++) {
+                        const label = k === 0 ? `G${gr.groupNum}(${gr.len})` : '';
+                        gH += `<div class="grp-cell ${cls}">${label}</div>`;
+                        if (k < gr.len - 1) gH += ''; // no spacer within group
+                    }
+                    if (gi < groups.length - 1) gH += `<div class="grp-spacer"></div>`;
+                }
+                $('groupRow').innerHTML = gH;
+            } else {
+                $('groupRow').innerHTML = '';
+            }
+
+            // Linked list
+            const displayVals = phase === 'done' ? vals : (phase === 'write-back' ? vals : initVals);
+            let llH = '';
+            for (let i = 0; i < initVals.length; i++) {
+                let cls = 'nd';
+                const v = (phase === 'write-back' && i < writeIdx) ? vals[i] :
+                    (phase === 'done') ? vals[i] : initVals[i];
+
+                if (phase === 'extract' && i === extractIdx) cls += ' active';
+                else if (phase === 'write-back' && i === writeIdx) cls += ' writing';
+                else if (phase === 'done') cls += ' done-nd';
+
+                llH += `<div class="ll-node"><div class="${cls}">${v}<span class="nd-pos">${i}</span></div>`;
+                if (i < initVals.length - 1) llH += `<span class="arrow"> → </span>`;
+                llH += '</div>';
+            }
+            $('llDisplay').innerHTML = llH;
+
+            // Array
+            if (vals.length > 0) {
+                let aH = '';
+                for (let i = 0; i < vals.length; i++) {
+                    let cls = 'ac';
+                    if (phase === 'extract' && i === extractIdx) cls += ' extracted';
+                    else if ((phase === 'group-reverse') && (i === swapI || i === swapJ)) cls += ' swapping';
+                    else if (swappedSet.has(i)) cls += ' swapped';
+                    else if (phase === 'group-scan' && curGroupIdx >= 0) {
+                        const cg = groups[curGroupIdx];
+                        if (i >= cg.start && i < cg.start + cg.len) {
+                            cls += cg.even ? ' in-grp-even' : ' grp-skip';
+                        }
+                    } else if (phase === 'group-skip' && curGroupIdx >= 0) {
+                        const cg = groups[curGroupIdx];
+                        if (i >= cg.start && i < cg.start + cg.len) cls += ' grp-skip';
+                    } else if (phase === 'write-back' && i === writeIdx) cls += ' write-src';
+                    aH += `<div class="${cls}">${vals[i]}<span class="ac-idx">[${i}]</span></div>`;
+                }
+                $('arrDisplay').innerHTML = aH;
+            } else {
+                $('arrDisplay').innerHTML = '<span style="color:#555">—</span>';
+            }
+
+            // State
+            $('stPhase').textContent = phase;
+            const cg = curGroupIdx >= 0 && curGroupIdx < groups.length ? groups[curGroupIdx] : null;
+            $('stGrp').textContent = cg ? cg.groupNum : '—';
+            $('stGLen').textContent = cg ? cg.len : '—';
+            $('stEven').textContent = cg ? (cg.even ? 'YES ✓' : 'no') : '—';
+            $('stIdx').textContent = extractIdx >= 0 ? extractIdx : '—';
+            $('stSwap').textContent = swapI >= 0 ? `${swapI}, ${swapJ}` : '—';
+            $('stWrite').textContent = writeIdx >= 0 ? writeIdx : '—';
+        }
+
+        function doStep() {
+            if (isDone) { stopExec(); return; }
+            stepCount++;
+
+            switch (phase) {
+                case 'init': {
+                    n = initVals.length;
+                    vals = []; extractIdx = -1; groups = []; curGroupIdx = -1;
+                    swapI = -1; swapJ = -1; swappedSet = new Set(); writeIdx = -1;
+                    groupsDone = new Set();
+                    addLog(`List: [${initVals.join(',')}], n=${n}`, 'info');
+                    addLog(`Phase 1: Extract values to array...`, 'purple');
+                    phase = 'extract';
+                    extractIdx = 0;
+                    $('statusInd').className = 'status-ind si-extract';
+                    $('statusInd').textContent = 'Phase 1: Extracting values...';
+                    render();
+                    break;
+                }
+                case 'extract': {
+                    if (extractIdx >= n) {
+                        addLog(`vals = [${vals.join(',')}]`, 'success');
+                        computeGroups();
+                        addLog(`Groups: ${groups.map(g => `G${g.groupNum}(${g.len}${g.even ? ' even' : ''})`).join(', ')}`, 'info');
+                        addLog(`Phase 2: Process groups...`, 'purple');
+                        phase = 'group-scan';
+                        curGroupIdx = 0;
+                        extractIdx = -1;
+                        $('statusInd').className = 'status-ind si-group';
+                        $('statusInd').textContent = 'Phase 2: Processing groups...';
+                        render();
+                        return;
+                    }
+                    vals.push(initVals[extractIdx]);
+                    addLog(`  Extract node[${extractIdx}] = ${initVals[extractIdx]}`, 'info');
+                    render();
+                    extractIdx++;
+                    break;
+                }
+                case 'group-scan': {
+                    if (curGroupIdx >= groups.length) {
+                        addLog(`All groups processed.`, 'success');
+                        addLog(`vals = [${vals.join(',')}]`, 'success');
+                        addLog(`Phase 3: Write back to list...`, 'purple');
+                        phase = 'write-back';
+                        writeIdx = 0;
+                        curGroupIdx = -1;
+                        $('statusInd').className = 'status-ind si-write';
+                        $('statusInd').textContent = 'Phase 3: Writing values back...';
+                        render();
+                        return;
+                    }
+                    const cg = groups[curGroupIdx];
+                    addLog(`Group ${cg.groupNum}: indices [${cg.start}..${cg.start + cg.len - 1}], len=${cg.len} → ${cg.even ? 'EVEN ✓ reverse' : 'odd → skip'}`, cg.even ? 'error' : 'info');
+                    $('swapInfo').innerHTML = `<span style="color:${cg.even ? '#e74c3c' : '#666'}">G${cg.groupNum}: len=${cg.len} → ${cg.even ? 'EVEN → reverse!' : 'odd → skip'}</span>`;
+
+                    if (cg.even) {
+                        swapI = cg.start;
+                        swapJ = cg.start + cg.len - 1;
+                        phase = 'group-reverse';
+                    } else {
+                        phase = 'group-skip';
+                    }
+                    render();
+                    break;
+                }
+                case 'group-skip': {
+                    groupsDone.add(curGroupIdx);
+                    curGroupIdx++;
+                    phase = 'group-scan';
+                    render();
+                    doStep();
+                    return;
+                }
+                case 'group-reverse': {
+                    if (swapI >= swapJ) {
+                        const cg = groups[curGroupIdx];
+                        addLog(`  Group ${cg.groupNum} reversed: [${vals.slice(cg.start, cg.start + cg.len).join(',')}]`, 'success');
+                        groupsDone.add(curGroupIdx);
+                        swapI = -1; swapJ = -1;
+                        curGroupIdx++;
+                        phase = 'group-scan';
+                        render();
+                        return;
+                    }
+                    addLog(`  swap(vals[${swapI}]=${vals[swapI]}, vals[${swapJ}]=${vals[swapJ]})`, 'purple');
+                    [vals[swapI], vals[swapJ]] = [vals[swapJ], vals[swapI]];
+                    swappedSet.add(swapI);
+                    swappedSet.add(swapJ);
+                    render();
+                    swapI++; swapJ--;
+                    break;
+                }
+                case 'write-back': {
+                    if (writeIdx >= n) {
+                        addLog(`✅ Write-back complete!`, 'success');
+                        addLog(`Final list: [${vals.join(' → ')}]`, 'success');
+                        phase = 'done';
+                        isDone = true;
+                        writeIdx = -1;
+                        $('statusInd').className = 'status-ind si-done';
+                        $('statusInd').textContent = `✅ Done! [${vals.join(', ')}]`;
+                        $('swapInfo').innerHTML = `<span style="color:#2ecc71">✅ [${vals.join(', ')}]</span>`;
+                        render(); stopExec();
+                        return;
+                    }
+                    addLog(`  node[${writeIdx}].val = vals[${writeIdx}] = ${vals[writeIdx]}`, 'info');
+                    render();
+                    writeIdx++;
+                    break;
+                }
+            }
+        }
+
+        function play() { if (isRunning || isDone) return; isRunning = true; $('playBtn').disabled = true; $('pauseBtn').disabled = false; $('stepBtn').disabled = true; runLoop() }
+        function pause() { isRunning = false; $('playBtn').disabled = false; $('pauseBtn').disabled = true; $('stepBtn').disabled = false }
+        function stopExec() { isRunning = false; $('playBtn').disabled = true; $('pauseBtn').disabled = true; $('stepBtn').disabled = true }
+        function runLoop() { if (!isRunning) return; doStep(); if (isRunning && !isDone) setTimeout(runLoop, 400 / speed) }
+
+        function init() {
+            n = initVals.length; vals = []; extractIdx = -1; groups = []; curGroupIdx = -1;
+            swapI = -1; swapJ = -1; swappedSet = new Set(); writeIdx = -1; groupsDone = new Set();
+            phase = 'init'; stepCount = 0; isDone = false;
+            $('statusInd').className = 'status-ind si-neutral';
+            $('statusInd').textContent = 'Ready — press Play or Step';
+            $('swapInfo').innerHTML = '<span style="color:#555">—</span>';
+            $('playBtn').disabled = false; $('pauseBtn').disabled = true; $('stepBtn').disabled = false;
+            clearLog(); addLog('Extract → identify groups → reverse even → write back.', 'info');
+            render();
+        }
+
+        $('playBtn').addEventListener('click', play);
+        $('pauseBtn').addEventListener('click', pause);
+        $('stepBtn').addEventListener('click', () => { if (!isDone) doStep() });
+        $('resetBtn').addEventListener('click', () => { isRunning = false; init() });
+        $('speedSlider').addEventListener('input', e => { speed = parseInt(e.target.value); $('speedValue').textContent = speed + 'x' });
+        $('applyBtn').addEventListener('click', () => {
+            const lv = $('listInput').value.trim();
+            if (!lv) { alert('Values required.'); return }
+            const vs = lv.split(',').map(x => parseInt(x.trim())).filter(x => !isNaN(x));
+            if (!vs.length) { alert('Need at least one value.'); return }
+            initVals = vs; isRunning = false; init();
+        });
+
+        init();
+    </script>
+</body>
+
+</html>

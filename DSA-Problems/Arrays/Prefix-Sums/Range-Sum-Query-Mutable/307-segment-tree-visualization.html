@@ -1,0 +1,658 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Range Sum Query Mutable - Segment Tree</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #0f0c29 0%, #1a1a2e 50%, #16213e 100%);
+            min-height: 100vh;
+            padding: 20px;
+            color: #e0e0e0;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: #1a1a2e;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.6);
+            overflow: hidden;
+        }
+        header {
+            background: linear-gradient(135deg, #e84393 0%, #fd79a8 50%, #6c5ce7 100%);
+            color: white; padding: 22px; text-align: center;
+        }
+        h1 { font-size: 1.35em; margin-bottom: 6px; }
+        .subtitle { font-size: 0.95em; opacity: 0.9; }
+        .complexity-badge {
+            display: inline-block; background: rgba(255,255,255,0.18);
+            padding: 5px 14px; border-radius: 15px; margin-top: 6px; font-size: 0.82em;
+        }
+        .main-content {
+            display: grid; grid-template-columns: 1fr 270px;
+            gap: 16px; padding: 16px;
+        }
+        .card {
+            background: #16213e; border-radius: 12px; padding: 14px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.4); margin-bottom: 14px;
+        }
+        .card-title { font-size: 0.9em; font-weight: 600; margin-bottom: 10px; color: #fd79a8; }
+
+        /* Controls */
+        .controls { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+        button {
+            padding: 7px 14px; border: none; border-radius: 8px;
+            font-size: 0.82em; font-weight: 600; cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        button:hover { transform: translateY(-2px); filter: brightness(1.15); }
+        button:disabled { opacity: 0.4; cursor: not-allowed; transform: none; }
+        .btn-primary { background: linear-gradient(135deg, #e84393, #fd79a8); color: white; }
+        .btn-success { background: linear-gradient(135deg, #00b894, #55efc4); color: white; }
+        .btn-warning { background: linear-gradient(135deg, #fdcb6e, #e17055); color: white; }
+        .btn-secondary { background: #636e72; color: white; }
+        .speed-control { display: flex; align-items: center; gap: 6px; flex: 1; min-width: 130px; font-size: 0.82em; }
+        .speed-control input[type="range"] { flex: 1; height: 4px; accent-color: #e84393; }
+        .input-row { display: flex; gap: 8px; align-items: center; margin-top: 10px; }
+        .input-row input {
+            flex: 1; padding: 7px 10px; border-radius: 8px;
+            border: 1px solid #3d4f7c; background: #0f0c29;
+            color: #e0e0e0; font-family: 'Courier New', monospace; font-size: 0.85em;
+        }
+        .input-row input:focus { outline: none; border-color: #e84393; }
+
+        /* Tree visualization */
+        .tree-area {
+            padding: 16px 6px;
+            background: #0a0e1a;
+            border: 1px solid #2d3a56;
+            border-radius: 10px;
+            overflow-x: auto;
+        }
+        .tree-level {
+            display: flex; justify-content: center;
+            align-items: center;
+            margin-bottom: 6px;
+            position: relative;
+        }
+        .tree-node {
+            display: flex; flex-direction: column;
+            align-items: center; justify-content: center;
+            border-radius: 10px;
+            font-weight: 700; font-size: 0.85em;
+            font-family: 'Courier New', monospace;
+            transition: all 0.35s ease;
+            position: relative;
+            box-shadow: 0 3px 8px rgba(0,0,0,0.3);
+            cursor: default;
+        }
+        .node-val { font-size: 1.1em; }
+        .node-range { font-size: 0.5em; opacity: 0.7; margin-top: 1px; }
+        .node-id { font-size: 0.4em; opacity: 0.5; }
+
+        .tn-default { background: linear-gradient(145deg, #2d3a56, #3d4f7c); color: #b2bec3; border: 1px solid #4a5568; }
+        .tn-build { background: linear-gradient(145deg, #fdcb6e, #f39c12); color: #2d3436; border: 1px solid #fdcb6e; box-shadow: 0 0 12px rgba(253,203,110,0.4); }
+        .tn-query-full { background: linear-gradient(145deg, #00b894, #55efc4); color: #2d3436; border: 1px solid #00b894; box-shadow: 0 0 12px rgba(85,239,196,0.4); }
+        .tn-query-partial { background: linear-gradient(145deg, #6c5ce7, #a29bfe); color: white; border: 1px solid #6c5ce7; box-shadow: 0 0 12px rgba(162,155,254,0.4); }
+        .tn-query-none { background: linear-gradient(145deg, #2d3a56, #3d4f7c); color: #636e72; border: 1px dashed #636e72; }
+        .tn-update { background: linear-gradient(145deg, #e17055, #d63031); color: white; border: 1px solid #e17055; box-shadow: 0 0 12px rgba(225,112,85,0.4); }
+
+        /* Edge lines via SVG */
+        .tree-svg {
+            position: absolute; top: 0; left: 0;
+            width: 100%; height: 100%;
+            pointer-events: none;
+        }
+
+        /* Formula bar */
+        .formula-bar {
+            text-align: center; padding: 10px;
+            background: #16213e; border-radius: 8px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.82em; min-height: 38px;
+            display: flex; align-items: center; justify-content: center;
+        }
+
+        /* Operation chips */
+        .ops-queue { display: flex; flex-wrap: wrap; gap: 6px; padding: 8px; background: #0f0c29; border-radius: 8px; }
+        .op-chip {
+            padding: 5px 10px; border-radius: 6px;
+            font-family: 'Courier New', monospace; font-size: 0.72em; font-weight: 600;
+        }
+        .op-pending { background: #2d3a56; color: #636e72; border: 1px solid #3d4f7c; }
+        .op-active { background: #e8439333; color: #fd79a8; border: 1px solid #e84393; box-shadow: 0 0 8px rgba(232,67,147,0.3); }
+        .op-done { background: #00b89422; color: #00b894; border: 1px solid #00b89466; }
+
+        /* State & Log */
+        .state-display { background: #0f0c29; border-radius: 8px; padding: 10px; font-family: 'Courier New', monospace; font-size: 0.78em; }
+        .state-row { display: flex; justify-content: space-between; padding: 3px 0; border-bottom: 1px solid #2d3a56; }
+        .state-val { font-weight: bold; }
+        .log-container {
+            background: #0f0c29; border-radius: 8px; padding: 8px;
+            max-height: 200px; overflow-y: auto;
+            font-family: 'Courier New', monospace; font-size: 0.55em;
+        }
+        .log-entry { padding: 3px 6px; margin: 2px 0; border-radius: 4px; border-left: 3px solid #4a5568; background: #16213e; }
+        .log-entry.build { border-left-color: #fdcb6e; }
+        .log-entry.query { border-left-color: #00b894; }
+        .log-entry.update { border-left-color: #e17055; }
+        .log-entry.result { border-left-color: #a29bfe; }
+        .log-entry.done { border-left-color: #55efc4; }
+
+        .result-display {
+            text-align: center; padding: 12px;
+            background: linear-gradient(135deg, #16213e, #0f0c29);
+            border: 1px solid #e84393;
+            color: white; border-radius: 8px;
+            margin-top: 10px; font-size: 0.95em; font-weight: bold;
+            font-family: 'Courier New', monospace;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Range Sum Query – Mutable</h1>
+            <div class="subtitle">Optimal: Segment Tree</div>
+            <div class="complexity-badge">Build: O(N) | update: O(log N) | sumRange: O(log N)</div>
+        </header>
+
+        <div class="main-content">
+            <div class="left-panel">
+                <div class="card">
+                    <div class="card-title">⚙️ Controls</div>
+                    <div class="controls">
+                        <button class="btn-primary" id="playBtn">▶ Play</button>
+                        <button class="btn-warning" id="pauseBtn" disabled>⏸ Pause</button>
+                        <button class="btn-success" id="stepBtn">⏭ Step</button>
+                        <button class="btn-secondary" id="resetBtn">↺ Reset</button>
+                        <div class="speed-control">
+                            <label>Speed:</label>
+                            <input type="range" id="speedSlider" min="1" max="10" value="5">
+                        </div>
+                    </div>
+                    <div class="input-row">
+                        <input type="text" id="customInput" placeholder="nums, e.g. 1,3,5" value="1,3,5">
+                        <button class="btn-secondary" id="loadBtn">Load</button>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-title">🌳 Segment Tree</div>
+                    <div class="tree-area" id="treeArea"></div>
+                </div>
+
+                <div class="card">
+                    <div class="card-title">📐 Operation Detail</div>
+                    <div class="formula-bar" id="formulaBar">
+                        <span style="color:#4a5568">Press Step to begin</span>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-title">📋 Operation Queue</div>
+                    <div class="ops-queue" id="opsQueue"></div>
+                </div>
+            </div>
+
+            <div class="right-panel">
+                <div class="card">
+                    <div class="card-title">📊 State</div>
+                    <div class="state-display">
+                        <div class="state-row"><span>Phase:</span><span class="state-val" style="color:#fd79a8" id="phaseVal">Ready</span></div>
+                        <div class="state-row"><span>Operation:</span><span class="state-val" style="color:#74b9ff" id="opVal">-</span></div>
+                        <div class="state-row"><span>Node:</span><span class="state-val" style="color:#fdcb6e" id="nodeVal">-</span></div>
+                        <div class="state-row"><span>Node Range:</span><span class="state-val" style="color:#a29bfe" id="rangeVal">-</span></div>
+                        <div class="state-row"><span>Accumulator:</span><span class="state-val" style="color:#55efc4" id="accumVal">-</span></div>
+                        <div class="state-row"><span>Last Result:</span><span class="state-val" style="color:#fdcb6e" id="resVal">-</span></div>
+                    </div>
+                    <div class="result-display" id="resultDisplay">Output: [...]</div>
+                </div>
+
+                <div class="card" style="flex-grow:1;display:flex;flex-direction:column;">
+                    <div class="card-title">📝 Execution Log</div>
+                    <div class="log-container" id="logContainer"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let initNums = [1, 3, 5];
+        let ops = [
+            { type: 'sumRange', args: [0, 2] },
+            { type: 'update',   args: [1, 2] },
+            { type: 'sumRange', args: [0, 2] },
+        ];
+
+        let N;
+        let treeSize;
+        let events = [];
+
+        // Seg tree node info: nodeRanges[node] = [start, end]
+        let nodeRanges = {};
+
+        function buildTrace() {
+            N = initNums.length;
+            treeSize = 4 * N;
+            events = [];
+            nodeRanges = {};
+            const tree = new Array(treeSize).fill(0);
+            const results = [];
+
+            // Build
+            function build(node, s, e) {
+                nodeRanges[node] = [s, e];
+                if (s === e) {
+                    tree[node] = initNums[s];
+                    events.push({ type: 'build', node, s, e, val: tree[node], tree: [...tree] });
+                    return;
+                }
+                const mid = (s + e) >> 1;
+                build(2 * node, s, mid);
+                build(2 * node + 1, mid + 1, e);
+                tree[node] = tree[2 * node] + tree[2 * node + 1];
+                events.push({ type: 'build', node, s, e, val: tree[node], leftVal: tree[2*node], rightVal: tree[2*node+1], tree: [...tree] });
+            }
+
+            events.push({ type: 'build-start' });
+            build(1, 0, N - 1);
+            events.push({ type: 'build-done', tree: [...tree] });
+
+            // Ops
+            for (let opIdx = 0; opIdx < ops.length; opIdx++) {
+                const op = ops[opIdx];
+                if (op.type === 'sumRange') {
+                    const [l, r] = op.args;
+                    events.push({ type: 'query-start', opIdx, l, r, tree: [...tree] });
+
+                    let queryResult = 0;
+                    function query(node, s, e, ql, qr) {
+                        if (qr < s || e < ql) {
+                            events.push({ type: 'query-node', opIdx, node, s, e, overlap: 'none', contribution: 0, runningSum: queryResult, tree: [...tree] });
+                            return;
+                        }
+                        if (ql <= s && e <= qr) {
+                            queryResult += tree[node];
+                            events.push({ type: 'query-node', opIdx, node, s, e, overlap: 'full', contribution: tree[node], runningSum: queryResult, tree: [...tree] });
+                            return;
+                        }
+                        events.push({ type: 'query-node', opIdx, node, s, e, overlap: 'partial', contribution: null, runningSum: queryResult, tree: [...tree] });
+                        const mid = (s + e) >> 1;
+                        query(2 * node, s, mid, ql, qr);
+                        query(2 * node + 1, mid + 1, e, ql, qr);
+                    }
+                    query(1, 0, N - 1, l, r);
+                    results.push(queryResult);
+                    events.push({ type: 'query-end', opIdx, l, r, result: queryResult, results: [...results], tree: [...tree] });
+
+                } else {
+                    const [idx, val] = op.args;
+                    const oldVal = initNums[idx]; // track from current state
+                    events.push({ type: 'update-start', opIdx, idx, val, tree: [...tree] });
+
+                    function update(node, s, e, idx, val) {
+                        if (s === e) {
+                            tree[node] = val;
+                            events.push({ type: 'update-node', opIdx, node, s, e, phase: 'leaf', val: tree[node], tree: [...tree] });
+                            return;
+                        }
+                        const mid = (s + e) >> 1;
+                        if (idx <= mid) {
+                            events.push({ type: 'update-node', opIdx, node, s, e, phase: 'descend-left', tree: [...tree] });
+                            update(2 * node, s, mid, idx, val);
+                        } else {
+                            events.push({ type: 'update-node', opIdx, node, s, e, phase: 'descend-right', tree: [...tree] });
+                            update(2 * node + 1, mid + 1, e, idx, val);
+                        }
+                        tree[node] = tree[2 * node] + tree[2 * node + 1];
+                        events.push({ type: 'update-node', opIdx, node, s, e, phase: 'recompute', val: tree[node], leftVal: tree[2*node], rightVal: tree[2*node+1], tree: [...tree] });
+                    }
+                    update(1, 0, N - 1, idx, val);
+                    // Update our tracking copy
+                    initNums[idx] = val;
+                    results.push(null);
+                    events.push({ type: 'update-end', opIdx, results: [...results], tree: [...tree] });
+                }
+            }
+            // Restore initNums
+            events.push({ type: 'done', results: [...results] });
+        }
+
+        // Animation state
+        let eventIdx = 0;
+        let curTree = [];
+        let hlNodes = {};  // node -> class
+        let curPhase = 'Ready';
+        let curOp = '';
+        let curNode = '';
+        let curRangeStr = '';
+        let curAccum = '';
+        let lastResult = null;
+        let results = [];
+        let curOpIdx = -1;
+        let isDone = false;
+        let formulaHtml = '<span style="color:#4a5568">Press Step to begin</span>';
+
+        let isRunning = false, timer = null, speed = 5, stepCount = 0;
+        let savedInitNums = [];
+
+        function init() {
+            savedInitNums = [...initNums];
+            buildTrace();
+            initNums = [...savedInitNums]; // restore after trace
+            N = initNums.length;
+            treeSize = 4 * N;
+            eventIdx = 0;
+            curTree = new Array(treeSize).fill(0);
+            hlNodes = {};
+            curPhase = 'Ready'; curOp = ''; curNode = ''; curRangeStr = ''; curAccum = '';
+            lastResult = null; results = []; curOpIdx = -1;
+            isDone = false; stepCount = 0;
+            formulaHtml = '<span style="color:#4a5568">Press Step to begin</span>';
+
+            clearLog();
+            addLog(`NumArray([${initNums.join(', ')}])`, 'info');
+            render();
+            updateControls();
+        }
+
+        function step() {
+            if (eventIdx >= events.length) return;
+            stepCount++;
+            hlNodes = {};
+
+            const ev = events[eventIdx++];
+            if (ev.tree) curTree = [...ev.tree];
+
+            switch (ev.type) {
+                case 'build-start':
+                    curPhase = 'Build';
+                    addLog('Building segment tree…', 'build');
+                    formulaHtml = '<span style="color:#fdcb6e">Building segment tree recursively</span>';
+                    break;
+
+                case 'build':
+                    hlNodes[ev.node] = 'tn-build';
+                    curNode = `node ${ev.node}`;
+                    curRangeStr = `[${ev.s}..${ev.e}]`;
+                    if (ev.s === ev.e) {
+                        addLog(`Leaf node ${ev.node} [${ev.s}..${ev.e}] = ${ev.val}`, 'build');
+                        formulaHtml = `<span style="color:#fdcb6e">node ${ev.node} [${ev.s}..${ev.e}] = nums[${ev.s}] = <b>${ev.val}</b></span>`;
+                    } else {
+                        addLog(`node ${ev.node} [${ev.s}..${ev.e}] = ${ev.leftVal} + ${ev.rightVal} = ${ev.val}`, 'build');
+                        formulaHtml = `<span style="color:#fdcb6e">node ${ev.node} = ${ev.leftVal} + ${ev.rightVal} = <b>${ev.val}</b></span>`;
+                    }
+                    break;
+
+                case 'build-done':
+                    curPhase = 'Ready';
+                    addLog('✔ Segment tree built', 'build');
+                    formulaHtml = '<span style="color:#55efc4">Build complete</span>';
+                    break;
+
+                case 'query-start':
+                    curOpIdx = ev.opIdx;
+                    curPhase = 'Query';
+                    curOp = `sumRange(${ev.l},${ev.r})`;
+                    curAccum = '0';
+                    addLog(`→ sumRange(${ev.l},${ev.r})`, 'query');
+                    formulaHtml = `<span style="color:#55efc4">sumRange(${ev.l}, ${ev.r}): traverse tree</span>`;
+                    break;
+
+                case 'query-node':
+                    curNode = `node ${ev.node}`;
+                    curRangeStr = `[${ev.s}..${ev.e}]`;
+                    curAccum = String(ev.runningSum);
+                    if (ev.overlap === 'full') {
+                        hlNodes[ev.node] = 'tn-query-full';
+                        addLog(`  node ${ev.node} [${ev.s}..${ev.e}]: FULL overlap → +${ev.contribution}, sum=${ev.runningSum}`, 'query');
+                        formulaHtml = `<span style="color:#55efc4">node ${ev.node} [${ev.s}..${ev.e}] fully inside → sum += ${ev.contribution} = <b>${ev.runningSum}</b></span>`;
+                    } else if (ev.overlap === 'partial') {
+                        hlNodes[ev.node] = 'tn-query-partial';
+                        addLog(`  node ${ev.node} [${ev.s}..${ev.e}]: PARTIAL → recurse children`, 'query');
+                        formulaHtml = `<span style="color:#a29bfe">node ${ev.node} [${ev.s}..${ev.e}] partial overlap → split</span>`;
+                    } else {
+                        hlNodes[ev.node] = 'tn-query-none';
+                        addLog(`  node ${ev.node} [${ev.s}..${ev.e}]: NO overlap → skip`, 'query');
+                        formulaHtml = `<span style="color:#636e72">node ${ev.node} [${ev.s}..${ev.e}] no overlap → 0</span>`;
+                    }
+                    break;
+
+                case 'query-end':
+                    lastResult = ev.result;
+                    results = [...ev.results];
+                    curPhase = 'Ready'; curAccum = '';
+                    addLog(`  ✔ sumRange = ${ev.result}`, 'result');
+                    formulaHtml = `<span style="color:#55efc4">sumRange(${ev.l},${ev.r}) = <b>${ev.result}</b></span>`;
+                    break;
+
+                case 'update-start':
+                    curOpIdx = ev.opIdx;
+                    curPhase = 'Update';
+                    curOp = `update(${ev.idx},${ev.val})`;
+                    addLog(`→ update(${ev.idx},${ev.val})`, 'update');
+                    formulaHtml = `<span style="color:#e17055">update(${ev.idx}, ${ev.val}): descend to leaf</span>`;
+                    break;
+
+                case 'update-node':
+                    hlNodes[ev.node] = 'tn-update';
+                    curNode = `node ${ev.node}`;
+                    curRangeStr = `[${ev.s}..${ev.e}]`;
+                    if (ev.phase === 'leaf') {
+                        addLog(`  node ${ev.node} [${ev.s}..${ev.e}]: LEAF → set to ${ev.val}`, 'update');
+                        formulaHtml = `<span style="color:#e17055">Leaf node ${ev.node} → <b>${ev.val}</b></span>`;
+                    } else if (ev.phase === 'descend-left') {
+                        addLog(`  node ${ev.node} [${ev.s}..${ev.e}]: go LEFT`, 'update');
+                        formulaHtml = `<span style="color:#e17055">node ${ev.node} [${ev.s}..${ev.e}] → descend left</span>`;
+                    } else if (ev.phase === 'descend-right') {
+                        addLog(`  node ${ev.node} [${ev.s}..${ev.e}]: go RIGHT`, 'update');
+                        formulaHtml = `<span style="color:#e17055">node ${ev.node} [${ev.s}..${ev.e}] → descend right</span>`;
+                    } else if (ev.phase === 'recompute') {
+                        addLog(`  node ${ev.node} [${ev.s}..${ev.e}]: recompute ${ev.leftVal}+${ev.rightVal}=${ev.val}`, 'update');
+                        formulaHtml = `<span style="color:#e17055">node ${ev.node} = ${ev.leftVal} + ${ev.rightVal} = <b>${ev.val}</b></span>`;
+                    }
+                    break;
+
+                case 'update-end':
+                    results = [...ev.results];
+                    curPhase = 'Ready';
+                    addLog('  ✔ Update complete', 'result');
+                    formulaHtml = '<span style="color:#55efc4">Update propagation complete</span>';
+                    break;
+
+                case 'done':
+                    isDone = true;
+                    results = [...ev.results];
+                    const resStr = ev.results.map(r => r === null ? 'null' : r).join(', ');
+                    addLog(`✅ All done. Output: [${resStr}]`, 'done');
+                    formulaHtml = '<span style="color:#55efc4">✅ Complete</span>';
+                    stop();
+                    break;
+            }
+            render();
+        }
+
+        // ── Tree rendering ────────────────────────────────────
+        function getTreeDepth() {
+            let d = 0;
+            let n = 1;
+            while (n <= treeSize) { d++; n *= 2; }
+            return d;
+        }
+
+        function getActiveNodes() {
+            const active = new Set();
+            function walk(node, s, e) {
+                if (node >= treeSize || s > e || s >= N) return;
+                active.add(node);
+                if (s === e) return;
+                const mid = (s + e) >> 1;
+                walk(2 * node, s, mid);
+                walk(2 * node + 1, mid + 1, e);
+            }
+            walk(1, 0, N - 1);
+            return active;
+        }
+
+        function render() {
+            renderTree();
+            renderFormula();
+            renderOps();
+            renderState();
+        }
+
+        function renderTree() {
+            const area = document.getElementById('treeArea');
+            area.innerHTML = '';
+
+            const active = getActiveNodes();
+            const depth = Math.ceil(Math.log2(N + 1)) + 1;
+            const nodeW = Math.min(72, Math.max(48, 600 / Math.pow(2, depth - 1)));
+            const nodeH = 44;
+            const gapY = 14;
+
+            // Calculate positions for each node
+            const pos = {};
+            function calcPos(node, s, e, level, lx, rx) {
+                if (!active.has(node)) return;
+                const cx = (lx + rx) / 2;
+                const cy = level * (nodeH + gapY) + nodeH / 2;
+                pos[node] = { cx, cy, s, e };
+                if (s === e) return;
+                const mid = (s + e) >> 1;
+                calcPos(2 * node, s, mid, level + 1, lx, cx);
+                calcPos(2 * node + 1, mid + 1, e, level + 1, cx, rx);
+            }
+
+            const totalW = Math.max(500, Math.pow(2, depth - 1) * (nodeW + 8));
+            calcPos(1, 0, N - 1, 0, 0, totalW);
+            const totalH = depth * (nodeH + gapY) + 10;
+
+            // SVG for edges
+            let svgLines = '';
+            for (const nStr of Object.keys(pos)) {
+                const n = parseInt(nStr);
+                const p = pos[n];
+                if (pos[2 * n]) {
+                    const c = pos[2 * n];
+                    svgLines += `<line x1="${p.cx}" y1="${p.cy + nodeH/2}" x2="${c.cx}" y2="${c.cy - nodeH/2}" stroke="#3d4f7c" stroke-width="1.5"/>`;
+                }
+                if (pos[2 * n + 1]) {
+                    const c = pos[2 * n + 1];
+                    svgLines += `<line x1="${p.cx}" y1="${p.cy + nodeH/2}" x2="${c.cx}" y2="${c.cy - nodeH/2}" stroke="#3d4f7c" stroke-width="1.5"/>`;
+                }
+            }
+
+            let html = `<div style="position:relative;width:${totalW}px;height:${totalH}px;margin:0 auto;">`;
+            html += `<svg class="tree-svg" width="${totalW}" height="${totalH}">${svgLines}</svg>`;
+
+            for (const nStr of Object.keys(pos)) {
+                const n = parseInt(nStr);
+                const p = pos[n];
+                let cls = 'tree-node ';
+                cls += hlNodes[n] || 'tn-default';
+
+                html += `<div class="${cls}" style="position:absolute;left:${p.cx - nodeW/2}px;top:${p.cy - nodeH/2}px;width:${nodeW}px;height:${nodeH}px;">`;
+                html += `<div class="node-val">${curTree[n]}</div>`;
+                html += `<div class="node-range">[${p.s}..${p.e}]</div>`;
+                html += `</div>`;
+            }
+            html += '</div>';
+            area.innerHTML = html;
+        }
+
+        function renderFormula() {
+            document.getElementById('formulaBar').innerHTML = formulaHtml;
+        }
+
+        function renderOps() {
+            const queue = document.getElementById('opsQueue');
+            queue.innerHTML = '';
+            for (let i = 0; i < ops.length; i++) {
+                const op = ops[i];
+                const chip = document.createElement('span');
+                chip.className = 'op-chip';
+                let label = op.type === 'sumRange'
+                    ? `sumRange(${op.args[0]},${op.args[1]})`
+                    : `update(${op.args[0]},${op.args[1]})`;
+                if (i < results.length) {
+                    const r = results[i];
+                    if (r !== null) label += ` → ${r}`;
+                    else if (op.type === 'update') label += ' ✔';
+                    chip.className += ' op-done';
+                } else if (i === curOpIdx) {
+                    chip.className += ' op-active';
+                } else {
+                    chip.className += ' op-pending';
+                }
+                chip.textContent = label;
+                queue.appendChild(chip);
+            }
+        }
+
+        function renderState() {
+            document.getElementById('phaseVal').textContent = curPhase;
+            document.getElementById('opVal').textContent = curOp || '-';
+            document.getElementById('nodeVal').textContent = curNode || '-';
+            document.getElementById('rangeVal').textContent = curRangeStr || '-';
+            document.getElementById('accumVal').textContent = curAccum || '-';
+            document.getElementById('resVal').textContent = lastResult !== null ? lastResult : '-';
+            const resStr = results.map(r => r === null ? 'null' : r).join(', ');
+            document.getElementById('resultDisplay').textContent = `Output: [${resStr || '...'}]`;
+        }
+
+        function addLog(msg, type = 'info') {
+            const log = document.getElementById('logContainer');
+            log.innerHTML += `<div class="log-entry ${type}">[${stepCount}] ${msg}</div>`;
+            log.scrollTop = log.scrollHeight;
+        }
+        function clearLog() { document.getElementById('logContainer').innerHTML = ''; }
+
+        function play() { if (isRunning) return; isRunning = true; updateControls(); runLoop(); }
+        function runLoop() {
+            if (!isRunning || eventIdx >= events.length) { stop(); return; }
+            step();
+            timer = setTimeout(runLoop, Math.max(60, 1200 - speed * 110));
+        }
+        function stop() { isRunning = false; if (timer) clearTimeout(timer); updateControls(); }
+        function reset() { initNums = [...savedInitNums]; stop(); init(); }
+        function updateControls() {
+            const done = eventIdx >= events.length;
+            document.getElementById('playBtn').disabled = isRunning || done;
+            document.getElementById('pauseBtn').disabled = !isRunning;
+            document.getElementById('stepBtn').disabled = isRunning || done;
+            document.getElementById('resetBtn').disabled = isRunning;
+        }
+
+        function loadCustom() {
+            const raw = document.getElementById('customInput').value.trim();
+            const arr = raw.split(',').map(s => parseInt(s.trim())).filter(v => !isNaN(v));
+            if (arr.length === 0) return;
+            initNums = arr;
+            savedInitNums = [...arr];
+            const n = arr.length;
+            ops = [
+                { type: 'sumRange', args: [0, n - 1] },
+                { type: 'update',   args: [Math.min(1, n - 1), 2] },
+                { type: 'sumRange', args: [0, n - 1] },
+            ];
+            stop(); init();
+        }
+
+        document.getElementById('playBtn').addEventListener('click', play);
+        document.getElementById('pauseBtn').addEventListener('click', stop);
+        document.getElementById('stepBtn').addEventListener('click', step);
+        document.getElementById('resetBtn').addEventListener('click', reset);
+        document.getElementById('loadBtn').addEventListener('click', loadCustom);
+        document.getElementById('speedSlider').addEventListener('input', e => speed = parseInt(e.target.value));
+        document.getElementById('customInput').addEventListener('keydown', e => { if (e.key === 'Enter') loadCustom(); });
+
+        savedInitNums = [...initNums];
+        init();
+    </script>
+</body>
+</html>

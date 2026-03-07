@@ -1,0 +1,805 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>237 - Brute-Force: Shift All Values Left (Delete Node)</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #0f0c29 0%, #302b63 50%, #24243e 100%);
+            min-height: 100vh;
+            padding: 18px;
+            color: #e0e0e0
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: rgba(25, 25, 50, .95);
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, .5), 0 0 40px rgba(192, 57, 43, .07);
+            overflow: hidden;
+            border: 1px solid rgba(255, 255, 255, .06)
+        }
+
+        header {
+            background: linear-gradient(135deg, #c0392b, #e74c3c);
+            color: #fff;
+            padding: 22px;
+            text-align: center
+        }
+
+        h1 {
+            font-size: 1.15em;
+            margin-bottom: 5px
+        }
+
+        .subtitle {
+            font-size: .84em;
+            opacity: .92
+        }
+
+        .badge {
+            display: inline-block;
+            background: rgba(255, 255, 255, .2);
+            padding: 5px 14px;
+            border-radius: 15px;
+            margin-top: 7px;
+            font-size: .78em
+        }
+
+        .main-content {
+            display: grid;
+            grid-template-columns: 1fr 280px;
+            gap: 16px;
+            padding: 18px
+        }
+
+        .card {
+            background: rgba(40, 40, 75, .8);
+            border-radius: 14px;
+            padding: 15px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, .2);
+            margin-bottom: 14px;
+            border: 1px solid rgba(255, 255, 255, .05)
+        }
+
+        .card-title {
+            font-size: .88em;
+            font-weight: 600;
+            margin-bottom: 10px;
+            color: #e74c3c
+        }
+
+        button {
+            padding: 7px 14px;
+            border: none;
+            border-radius: 8px;
+            font-size: .82em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all .3s
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, .3)
+        }
+
+        button:disabled {
+            opacity: .4;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #c0392b, #e74c3c);
+            color: #fff
+        }
+
+        .btn-success {
+            background: linear-gradient(135deg, #27ae60, #2ecc71);
+            color: #fff
+        }
+
+        .btn-warning {
+            background: linear-gradient(135deg, #f39c12, #e67e22);
+            color: #fff
+        }
+
+        .btn-secondary {
+            background: rgba(100, 100, 140, .7);
+            color: #fff
+        }
+
+        .btn-info {
+            background: linear-gradient(135deg, #3498db, #2980b9);
+            color: #fff
+        }
+
+        .controls {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            align-items: center
+        }
+
+        .speed-control {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            flex: 1;
+            min-width: 140px
+        }
+
+        .speed-control label {
+            font-size: .8em;
+            color: #aaa
+        }
+
+        .speed-control input[type="range"] {
+            flex: 1;
+            height: 5px;
+            accent-color: #e74c3c
+        }
+
+        .speed-control span {
+            font-size: .8em;
+            color: #e74c3c;
+            min-width: 24px
+        }
+
+        .input-section {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+            flex-wrap: wrap
+        }
+
+        .input-section input {
+            padding: 7px 10px;
+            border-radius: 8px;
+            border: 1px solid rgba(255, 255, 255, .15);
+            background: rgba(20, 20, 45, .8);
+            color: #e0e0e0;
+            font-size: .82em;
+            font-family: 'Courier New', monospace;
+        }
+
+        .input-section input:focus {
+            outline: none;
+            border-color: #e74c3c
+        }
+
+        .input-section label {
+            font-size: .82em;
+            color: #aaa
+        }
+
+        .ll-row {
+            display: flex;
+            gap: 0;
+            padding: 14px;
+            background: rgba(20, 20, 50, .4);
+            border-radius: 10px;
+            min-height: 65px;
+            align-items: center;
+            justify-content: center;
+            flex-wrap: wrap;
+            overflow-x: auto
+        }
+
+        .nd {
+            width: 54px;
+            height: 54px;
+            border-radius: 12px;
+            display: inline-flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 1.2em;
+            border: 2.5px solid rgba(150, 150, 200, .12);
+            background: rgba(60, 60, 100, .08);
+            font-family: 'Courier New', monospace;
+            color: #777;
+            transition: all .4s;
+            position: relative;
+        }
+
+        .nd-sub {
+            font-size: .34em;
+            color: #555;
+            margin-top: 1px;
+            font-weight: 600
+        }
+
+        .nd.target {
+            border-color: #e74c3c;
+            background: rgba(231, 76, 60, .15);
+            color: #e74c3c;
+            box-shadow: 0 0 16px rgba(231, 76, 60, .3);
+            transform: scale(1.1)
+        }
+
+        .nd.curr {
+            border-color: #f1c40f;
+            background: rgba(241, 196, 15, .12);
+            color: #f1c40f;
+            box-shadow: 0 0 12px rgba(241, 196, 15, .2)
+        }
+
+        .nd.source {
+            border-color: #3498db;
+            background: rgba(52, 152, 219, .12);
+            color: #3498db;
+            box-shadow: 0 0 12px rgba(52, 152, 219, .2)
+        }
+
+        .nd.writing {
+            border-color: #e67e22;
+            background: rgba(230, 126, 34, .14);
+            color: #e67e22;
+            box-shadow: 0 0 12px rgba(230, 126, 34, .2);
+            transform: scale(1.05)
+        }
+
+        .nd.removing {
+            border-color: #e74c3c;
+            background: rgba(231, 76, 60, .2);
+            color: #e74c3c;
+            opacity: .5;
+            transform: scale(.85);
+            border-style: dashed
+        }
+
+        .nd.done-nd {
+            border-color: #2ecc71;
+            background: rgba(46, 204, 113, .06);
+            color: #2ecc71
+        }
+
+        .nd.no-access {
+            border-style: dashed;
+            border-color: rgba(150, 150, 200, .08);
+            color: #444;
+            opacity: .5
+        }
+
+        .arrow {
+            color: #555;
+            font-size: .72em;
+            margin: 0 2px;
+            display: inline-block;
+            vertical-align: middle;
+            transition: all .4s
+        }
+
+        .arrow.done-a {
+            color: #2ecc71
+        }
+
+        .arrow.hide-a {
+            opacity: 0
+        }
+
+        .shift-arrow {
+            position: absolute;
+            top: -18px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: .7em;
+            color: #3498db;
+            font-weight: 700;
+            white-space: nowrap;
+            animation: bounce .5s infinite alternate;
+        }
+
+        @keyframes bounce {
+            from {
+                transform: translateX(-50%) translateY(0)
+            }
+
+            to {
+                transform: translateX(-50%) translateY(-3px)
+            }
+        }
+
+        .del-badge {
+            display: inline-block;
+            padding: 5px 14px;
+            border-radius: 8px;
+            background: rgba(231, 76, 60, .15);
+            border: 1px solid rgba(231, 76, 60, .3);
+            color: #e74c3c;
+            font-weight: 700;
+            font-size: .85em;
+            font-family: 'Courier New', monospace;
+            margin-left: 8px
+        }
+
+        .op-panel {
+            padding: 12px;
+            background: rgba(20, 20, 50, .5);
+            border-radius: 8px;
+            text-align: center;
+            min-height: 55px;
+            font-size: .82em;
+            line-height: 1.8;
+            font-family: 'Courier New', monospace;
+        }
+
+        .status-ind {
+            text-align: center;
+            padding: 11px;
+            border-radius: 10px;
+            font-weight: 700;
+            font-size: .85em;
+            transition: all .3s
+        }
+
+        .si-neutral {
+            background: rgba(100, 100, 140, .12);
+            color: #888
+        }
+
+        .si-run {
+            background: rgba(231, 76, 60, .06);
+            color: #e74c3c;
+            border: 1px solid rgba(231, 76, 60, .12)
+        }
+
+        .si-done {
+            background: rgba(46, 204, 113, .12);
+            color: #2ecc71;
+            border: 1px solid rgba(46, 204, 113, .25)
+        }
+
+        .state-display {
+            background: rgba(20, 20, 50, .5);
+            border-radius: 8px;
+            padding: 10px;
+            font-family: 'Courier New', monospace;
+            font-size: .68em
+        }
+
+        .state-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 4px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, .05)
+        }
+
+        .state-row:last-child {
+            border-bottom: none
+        }
+
+        .state-label {
+            font-weight: 600;
+            color: #e74c3c
+        }
+
+        .state-val {
+            color: #ccc;
+            text-align: right;
+            max-width: 155px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap
+        }
+
+        .log-container {
+            background: rgba(20, 20, 50, .5);
+            border-radius: 8px;
+            padding: 10px;
+            max-height: 280px;
+            overflow-y: auto;
+            font-family: 'Courier New', monospace;
+            font-size: .54em
+        }
+
+        .log-entry {
+            padding: 3px 7px;
+            margin: 2px 0;
+            border-radius: 4px;
+            border-left: 3px solid #555;
+            background: rgba(40, 40, 70, .5);
+            line-height: 1.5
+        }
+
+        .log-entry.success {
+            border-left-color: #2ecc71;
+            background: rgba(46, 204, 113, .08);
+            color: #2ecc71
+        }
+
+        .log-entry.warning {
+            border-left-color: #f39c12;
+            background: rgba(243, 156, 18, .08);
+            color: #f39c12
+        }
+
+        .log-entry.info {
+            border-left-color: #3498db;
+            background: rgba(52, 152, 219, .08);
+            color: #8ec8f0
+        }
+
+        .log-entry.error {
+            border-left-color: #e74c3c;
+            background: rgba(231, 76, 60, .08);
+            color: #e74c3c
+        }
+
+        .log-entry.orange {
+            border-left-color: #e67e22;
+            background: rgba(230, 126, 34, .08);
+            color: #e67e22
+        }
+
+        .log-container::-webkit-scrollbar {
+            width: 5px
+        }
+
+        .log-container::-webkit-scrollbar-track {
+            background: transparent
+        }
+
+        .log-container::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, .15);
+            border-radius: 3px
+        }
+
+        @media(max-width:960px) {
+            .main-content {
+                grid-template-columns: 1fr
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <header>
+            <h1>🗑️ Delete Node in a Linked List</h1>
+            <div class="subtitle">Brute-Force — Shift All Values Left, Remove Tail</div>
+            <div class="badge">Time: O(n) | Space: O(1) — shifts every value after the node</div>
+        </header>
+        <div class="main-content">
+            <div class="left-panel">
+                <div class="card">
+                    <div class="card-title">⚙️ Controls</div>
+                    <div class="controls">
+                        <button class="btn-primary" id="playBtn">▶️ Play</button>
+                        <button class="btn-warning" id="pauseBtn" disabled>⏸️ Pause</button>
+                        <button class="btn-success" id="stepBtn">⏭️ Step</button>
+                        <button class="btn-secondary" id="resetBtn">🔄 Reset</button>
+                        <div class="speed-control">
+                            <label>Speed:</label>
+                            <input type="range" id="speedSlider" min="1" max="10" value="5">
+                            <span id="speedValue">5x</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="card">
+                    <div class="card-title">✏️ Custom Input</div>
+                    <div class="input-section">
+                        <label>List:</label>
+                        <input type="text" id="listInput" value="4,5,1,9" placeholder="values" style="flex:1">
+                        <label>Delete val:</label>
+                        <input type="text" id="delInput" value="5" placeholder="val" style="width:50px">
+                        <button class="btn-info" id="applyBtn">Apply</button>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-title">🔗 Linked List <span class="del-badge">delete node(<span
+                                id="delDisp">5</span>)</span></div>
+                    <div class="ll-row" id="listDisplay"></div>
+                </div>
+
+                <div class="card">
+                    <div class="card-title">🔀 Current Operation</div>
+                    <div class="op-panel" id="opPanel"><span style="color:#555">— press Play or Step —</span></div>
+                </div>
+
+                <div class="card">
+                    <div class="card-title">✅ Final Result</div>
+                    <div class="ll-row" id="resultDisplay"><span style="color:#555">—</span></div>
+                </div>
+
+                <div class="card">
+                    <div class="status-ind si-neutral" id="statusInd">Ready — press Play or Step</div>
+                </div>
+            </div>
+
+            <div class="right-panel">
+                <div class="card">
+                    <div class="card-title">📋 Current State</div>
+                    <div class="state-display">
+                        <div class="state-row"><span class="state-label">Phase:</span><span class="state-val"
+                                id="stPhase">init</span></div>
+                        <div class="state-row"><span class="state-label">Delete val:</span><span class="state-val"
+                                id="stDelVal">—</span></div>
+                        <div class="state-row"><span class="state-label">curr:</span><span class="state-val"
+                                id="stCurr">—</span></div>
+                        <div class="state-row"><span class="state-label">curr.val:</span><span class="state-val"
+                                id="stCurrVal">—</span></div>
+                        <div class="state-row"><span class="state-label">curr.next.val:</span><span class="state-val"
+                                id="stNextVal">—</span></div>
+                        <div class="state-row"><span class="state-label">Shifts done:</span><span class="state-val"
+                                id="stShifts">0</span></div>
+                        <div class="state-row"><span class="state-label">List:</span><span class="state-val"
+                                id="stList">—</span></div>
+                    </div>
+                </div>
+                <div class="card" style="flex:1">
+                    <div class="card-title">📝 Execution Log</div>
+                    <div class="log-container" id="logContainer">
+                        <div class="log-entry info">Shift values left from deleted node to end, then remove tail.</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let initVals = [4, 5, 1, 9];
+        let DEL_VAL = 5;
+
+        let list = [];
+        let nodeStates = {};
+        let shiftArrows = {};
+        let delIdx = -1;
+        let shifts = 0;
+        let removedTail = false;
+
+        let steps = [], stepIdx = 0, stepCount = 0;
+        let isRunning = false, speed = 5, isDone = false, phase = 'init';
+
+        const $ = id => document.getElementById(id);
+        const logC = $('logContainer');
+        function addLog(m, t = 'info') { logC.innerHTML += `<div class="log-entry ${t}">[${stepCount}] ${m}</div>`; logC.scrollTop = logC.scrollHeight }
+        function clearLog() { logC.innerHTML = '' }
+
+        /* ── Build steps ─────────────────────────── */
+        function buildSteps() {
+            steps = [];
+            const n = initVals.length;
+            const di = initVals.indexOf(DEL_VAL);
+            if (di === -1 || n < 2) { steps.push({ type: 'error' }); return; }
+            if (di === n - 1) { steps.push({ type: 'error-tail' }); return; }
+
+            steps.push({ type: 'start', delIdx: di, delVal: DEL_VAL });
+            steps.push({ type: 'no-access', delIdx: di });
+
+            // Shift phase: for each position from di to n-2
+            for (let i = di; i < n - 1; i++) {
+                steps.push({ type: 'highlight-pair', currIdx: i, srcIdx: i + 1 });
+                steps.push({ type: 'shift', currIdx: i, srcIdx: i + 1, newVal: initVals[i + 1] });
+            }
+
+            steps.push({ type: 'shift-done' });
+            steps.push({ type: 'remove-tail', tailIdx: n - 1 });
+            steps.push({ type: 'done' });
+        }
+
+        /* ── Render ───────────────────────────────── */
+        function renderList() {
+            let h = '';
+            const n = list.length;
+            for (let i = 0; i < n; i++) {
+                if (removedTail && i === n - 1) continue;
+
+                let cls = 'nd';
+                if (nodeStates[i]) cls += ' ' + nodeStates[i];
+                if (isDone) cls = 'nd done-nd';
+
+                let lbl = '';
+                if (i < delIdx && !isDone) lbl = '🔒';
+                if (nodeStates[i] === 'target') lbl = '❌ delete';
+                else if (nodeStates[i] === 'curr' || nodeStates[i] === 'writing') lbl = 'curr';
+                else if (nodeStates[i] === 'source') lbl = 'next';
+                else if (nodeStates[i] === 'removing') lbl = '✂️ cut';
+
+                let arrowHtml = '';
+                if (shiftArrows[i]) arrowHtml = `<div class="shift-arrow">← ${shiftArrows[i]}</div>`;
+
+                h += `<div class="${cls}" style="position:relative">${arrowHtml}${list[i]}<span class="nd-sub">${lbl}</span></div>`;
+
+                const showArrow = removedTail ? i < n - 2 : i < n - 1;
+                if (showArrow) {
+                    let ac = 'arrow';
+                    if (isDone) ac += ' done-a';
+                    h += `<span class="${ac}">→</span>`;
+                }
+            }
+            const visLen = removedTail ? n - 1 : n;
+            if (visLen > 0) h += `<span class="arrow" style="opacity:.4">→∅</span>`;
+            $('listDisplay').innerHTML = h;
+        }
+
+        function renderResult() {
+            if (!isDone) { $('resultDisplay').innerHTML = '<span style="color:#555">—</span>'; return; }
+            const res = removedTail ? list.slice(0, -1) : list;
+            let h = '';
+            for (let i = 0; i < res.length; i++) {
+                h += `<div class="nd done-nd">${res[i]}</div>`;
+                if (i < res.length - 1) h += `<span class="arrow done-a">→</span>`;
+            }
+            h += `<span class="arrow" style="opacity:.4">→∅</span>`;
+            $('resultDisplay').innerHTML = h;
+        }
+
+        function renderState() {
+            $('stPhase').textContent = phase;
+            $('stDelVal').textContent = DEL_VAL;
+            $('stShifts').textContent = shifts;
+            const vis = removedTail ? list.slice(0, -1) : list;
+            $('stList').textContent = '[' + vis.join(',') + ']';
+        }
+
+        function render() { renderList(); renderResult(); renderState(); }
+
+        /* ── Execute step ─────────────────────────── */
+        function doStep() {
+            if (isDone || stepIdx >= steps.length) { stopExec(); return; }
+            stepCount++;
+            const s = steps[stepIdx++];
+
+            nodeStates = {};
+            shiftArrows = {};
+
+            switch (s.type) {
+                case 'start':
+                    list = [...initVals];
+                    delIdx = s.delIdx;
+                    phase = 'identify';
+                    nodeStates[s.delIdx] = 'target';
+                    addLog(`━━ Delete node(${s.delVal}) at index ${s.delIdx} ━━`, 'error');
+                    addLog(`List: [${list.join(',')}]`, 'info');
+                    $('statusInd').className = 'status-ind si-run';
+                    $('statusInd').textContent = 'Shifting values left...';
+                    $('opPanel').innerHTML = `<span style="color:#e74c3c;font-weight:700">Target: node(${s.delVal})</span><br><span style="color:#aaa">No access to previous nodes! Must shift values left.</span>`;
+                    break;
+
+                case 'no-access':
+                    nodeStates[s.delIdx] = 'target';
+                    for (let i = 0; i < s.delIdx; i++) nodeStates[i] = 'no-access';
+                    addLog(`⚠️ No head pointer! Nodes before index ${s.delIdx} are inaccessible.`, 'warning');
+                    addLog(`Strategy: shift all values left from node onward.`, 'info');
+                    $('opPanel').innerHTML = `<span style="color:#f39c12">🔒 No access to nodes before node(${DEL_VAL})</span><br><span style="color:#aaa">Will shift values ← from here to end</span>`;
+                    break;
+
+                case 'highlight-pair':
+                    nodeStates[s.currIdx] = 'curr';
+                    nodeStates[s.srcIdx] = 'source';
+                    $('stCurr').textContent = `node[${s.currIdx}] (val=${list[s.currIdx]})`;
+                    $('stCurrVal').textContent = list[s.currIdx];
+                    $('stNextVal').textContent = list[s.srcIdx];
+                    addLog(`  👁 curr=node[${s.currIdx}](${list[s.currIdx]}), next=node[${s.srcIdx}](${list[s.srcIdx]})`, 'info');
+                    $('opPanel').innerHTML =
+                        `<span style="color:#f1c40f">curr[${s.currIdx}] = ${list[s.currIdx]}</span>` +
+                        `<span style="color:#aaa"> ← </span>` +
+                        `<span style="color:#3498db">next[${s.srcIdx}] = ${list[s.srcIdx]}</span>`;
+                    break;
+
+                case 'shift':
+                    const oldVal = list[s.currIdx];
+                    list[s.currIdx] = s.newVal;
+                    shifts++;
+                    nodeStates[s.currIdx] = 'writing';
+                    shiftArrows[s.currIdx] = s.newVal;
+                    addLog(`  ⬅️ node[${s.currIdx}].val = ${oldVal} → ${s.newVal}`, 'orange');
+                    $('stCurrVal').textContent = s.newVal;
+                    $('opPanel').innerHTML =
+                        `<span style="color:#e67e22;font-weight:700">SHIFT:</span> ` +
+                        `<span style="color:#aaa">node[${s.currIdx}].val = </span>` +
+                        `<span style="color:#e67e22">${oldVal}</span>` +
+                        `<span style="color:#f39c12"> → </span>` +
+                        `<span style="color:#2ecc71;font-weight:700">${s.newVal}</span>`;
+                    break;
+
+                case 'shift-done':
+                    addLog(`✅ All ${shifts} shift(s) complete. List: [${list.join(',')}]`, 'success');
+                    addLog(`  Last value is now duplicated — need to remove tail.`, 'warning');
+                    $('opPanel').innerHTML = `<span style="color:#2ecc71">All shifts done!</span><br><span style="color:#aaa">Now removing the duplicate tail...</span>`;
+                    break;
+
+                case 'remove-tail':
+                    nodeStates[s.tailIdx] = 'removing';
+                    addLog(`  ✂️ Remove tail: node[${s.tailIdx}](${list[s.tailIdx]}) — set prev.next = null`, 'error');
+                    removedTail = true;
+                    $('opPanel').innerHTML =
+                        `<span style="color:#e74c3c;font-weight:700">✂️ REMOVE TAIL:</span> ` +
+                        `<span style="color:#aaa">node[${s.tailIdx - 1}].next = null</span><br>` +
+                        `<span style="color:#aaa">Orphan node[${s.tailIdx}](${list[s.tailIdx]})</span>`;
+                    break;
+
+                case 'done': {
+                    isDone = true; phase = 'done';
+                    const res = list.slice(0, -1);
+                    addLog(`🎉 Done! Result: [${res.join(',')}]`, 'success');
+                    $('statusInd').className = 'status-ind si-done';
+                    $('statusInd').textContent = `✅ Done! [${res.join(' → ')}]`;
+                    $('opPanel').innerHTML = `<span style="color:#2ecc71;font-weight:700">🎉 Result: [${res.join(' → ')}]</span><br><span style="color:#aaa">O(n) time — shifted ${shifts} value(s)</span>`;
+                    stopExec();
+                    break;
+                }
+
+                case 'error':
+                    isDone = true; phase = 'error';
+                    addLog('❌ Value not found in list or list too small.', 'error');
+                    $('statusInd').className = 'status-ind si-done';
+                    $('statusInd').textContent = '❌ Error: value not in list.';
+                    stopExec();
+                    break;
+
+                case 'error-tail':
+                    isDone = true; phase = 'error';
+                    addLog('❌ Cannot delete the tail node (problem constraint).', 'error');
+                    $('statusInd').className = 'status-ind si-done';
+                    $('statusInd').textContent = '❌ Error: cannot delete tail.';
+                    stopExec();
+                    break;
+            }
+
+            render();
+        }
+
+        /* ── Playback ──────────────────────────────── */
+        function play() { if (isRunning || isDone) return; isRunning = true; $('playBtn').disabled = true; $('pauseBtn').disabled = false; $('stepBtn').disabled = true; runLoop() }
+        function pause() { isRunning = false; $('playBtn').disabled = false; $('pauseBtn').disabled = true; $('stepBtn').disabled = false }
+        function stopExec() { isRunning = false; $('playBtn').disabled = true; $('pauseBtn').disabled = true; $('stepBtn').disabled = true }
+        function runLoop() { if (!isRunning) return; doStep(); if (isRunning && !isDone) setTimeout(runLoop, 400 / speed) }
+
+        /* ── Init ──────────────────────────────────── */
+        function init() {
+            list = [...initVals]; nodeStates = {}; shiftArrows = {};
+            delIdx = -1; shifts = 0; removedTail = false;
+            phase = 'init';
+            stepIdx = 0; stepCount = 0; isDone = false; isRunning = false;
+            buildSteps();
+            $('delDisp').textContent = DEL_VAL;
+            $('stCurr').textContent = '—'; $('stCurrVal').textContent = '—'; $('stNextVal').textContent = '—';
+            $('statusInd').className = 'status-ind si-neutral';
+            $('statusInd').textContent = 'Ready — press Play or Step';
+            $('playBtn').disabled = false; $('pauseBtn').disabled = true; $('stepBtn').disabled = false;
+            clearLog(); addLog('Shift values left from deleted node to end, then remove tail.', 'info');
+            $('opPanel').innerHTML = '<span style="color:#555">— press Play or Step —</span>';
+            $('resultDisplay').innerHTML = '<span style="color:#555">—</span>';
+            render();
+        }
+
+        /* ── Events ────────────────────────────────── */
+        $('playBtn').addEventListener('click', play);
+        $('pauseBtn').addEventListener('click', pause);
+        $('stepBtn').addEventListener('click', () => { if (!isDone) doStep() });
+        $('resetBtn').addEventListener('click', () => { isRunning = false; init() });
+        $('speedSlider').addEventListener('input', e => { speed = parseInt(e.target.value); $('speedValue').textContent = speed + 'x' });
+        $('applyBtn').addEventListener('click', () => {
+            const lv = $('listInput').value.trim();
+            const dv = $('delInput').value.trim();
+            const vs = lv ? lv.split(',').map(s => parseInt(s.trim())).filter(v => !isNaN(v)) : [];
+            const dn = parseInt(dv);
+            if (isNaN(dn)) { alert('Delete value must be a number.'); return; }
+            if (!vs.includes(dn)) { alert(`Value ${dn} not found in the list.`); return; }
+            if (vs.indexOf(dn) === vs.length - 1) { alert(`Cannot delete tail node (problem constraint).`); return; }
+            initVals = [...vs]; DEL_VAL = dn;
+            isRunning = false; init();
+        });
+
+        init();
+    </script>
+</body>
+
+</html>

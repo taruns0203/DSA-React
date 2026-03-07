@@ -1,0 +1,858 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LeetCode 1984 - Brute Force Visualization</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 20px;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2em;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            opacity: 0.9;
+            font-size: 1.1em;
+        }
+
+        .main-content {
+            display: grid;
+            grid-template-columns: 1fr 400px;
+            gap: 20px;
+            padding: 30px;
+        }
+
+        .left-panel {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .right-panel {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .card {
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 20px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+
+        .card h2 {
+            color: #667eea;
+            margin-bottom: 15px;
+            font-size: 1.3em;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .icon {
+            font-size: 1.2em;
+        }
+
+        /* Input Section */
+        .input-group {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 15px;
+            flex-wrap: wrap;
+        }
+
+        .input-group label {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+            flex: 1;
+            min-width: 200px;
+        }
+
+        .input-group input {
+            padding: 10px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 1em;
+            transition: border-color 0.3s;
+        }
+
+        .input-group input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        /* Controls */
+        .controls {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+
+        button {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            font-size: 1em;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .btn-success {
+            background: #28a745;
+            color: white;
+        }
+
+        .btn-warning {
+            background: #ffc107;
+            color: #333;
+        }
+
+        .btn-danger {
+            background: #dc3545;
+            color: white;
+        }
+
+        .btn-secondary {
+            background: #6c757d;
+            color: white;
+        }
+
+        button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        /* Speed Control */
+        .speed-control {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            flex: 1;
+            min-width: 200px;
+        }
+
+        .speed-control input[type="range"] {
+            width: 100%;
+        }
+
+        .speed-value {
+            color: #667eea;
+            font-weight: 600;
+        }
+
+        /* Array Visualization */
+        .array-container {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            justify-content: center;
+            margin: 20px 0;
+        }
+
+        .array-element {
+            width: 60px;
+            height: 60px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #e9ecef;
+            border: 3px solid #ddd;
+            border-radius: 10px;
+            font-size: 1.2em;
+            font-weight: bold;
+            transition: all 0.3s;
+            position: relative;
+        }
+
+        .array-element .index {
+            position: absolute;
+            top: -20px;
+            font-size: 0.8em;
+            color: #666;
+        }
+
+        .array-element.selected {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-color: #764ba2;
+            transform: scale(1.1);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+        }
+
+        .array-element.checking {
+            background: #ffc107;
+            border-color: #ff9800;
+            animation: pulse 1s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+
+        /* Current Combination */
+        .combination-display {
+            background: white;
+            padding: 15px;
+            border-radius: 10px;
+            border: 2px solid #667eea;
+            margin: 15px 0;
+        }
+
+        .combination-display h3 {
+            color: #667eea;
+            margin-bottom: 10px;
+            font-size: 1.1em;
+        }
+
+        .combination-values {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .combo-value {
+            padding: 8px 16px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-radius: 8px;
+            font-weight: bold;
+        }
+
+        /* Variables Display */
+        .variables {
+            display: grid;
+            gap: 10px;
+        }
+
+        .variable-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px;
+            background: white;
+            border-radius: 8px;
+            border-left: 4px solid #667eea;
+        }
+
+        .variable-name {
+            font-weight: 600;
+            color: #333;
+        }
+
+        .variable-value {
+            font-family: 'Courier New', monospace;
+            color: #667eea;
+            font-weight: bold;
+            font-size: 1.1em;
+        }
+
+        .variable-value.highlight {
+            animation: highlight-flash 0.5s;
+        }
+
+        @keyframes highlight-flash {
+            0%, 100% { background: transparent; }
+            50% { background: #ffc107; padding: 4px 8px; border-radius: 4px; }
+        }
+
+        /* Execution Log */
+        .log-container {
+            background: #1e1e1e;
+            color: #d4d4d4;
+            border-radius: 10px;
+            padding: 15px;
+            height: 400px;
+            overflow-y: auto;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9em;
+        }
+
+        .log-entry {
+            padding: 4px 0;
+            border-bottom: 1px solid #333;
+            animation: slideIn 0.3s;
+        }
+
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateX(-10px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+
+        .log-entry.info { color: #4ec9b0; }
+        .log-entry.warning { color: #ffc107; }
+        .log-entry.success { color: #28a745; }
+        .log-entry.error { color: #dc3545; }
+        .log-entry.step { color: #9cdcfe; }
+
+        /* Result Display */
+        .result-box {
+            background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+            font-size: 1.5em;
+            font-weight: bold;
+            margin-top: 20px;
+        }
+
+        .result-box.hidden {
+            display: none;
+        }
+
+        /* Progress Bar */
+        .progress-container {
+            background: #e9ecef;
+            border-radius: 10px;
+            height: 30px;
+            overflow: hidden;
+            margin: 15px 0;
+        }
+
+        .progress-bar {
+            height: 100%;
+            background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+            transition: width 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 600;
+        }
+
+        /* Stats */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+        }
+
+        .stat-card {
+            background: white;
+            padding: 15px;
+            border-radius: 10px;
+            text-align: center;
+            border: 2px solid #e9ecef;
+        }
+
+        .stat-label {
+            font-size: 0.9em;
+            color: #666;
+            margin-bottom: 5px;
+        }
+
+        .stat-value {
+            font-size: 1.5em;
+            font-weight: bold;
+            color: #667eea;
+        }
+
+        /* Scrollbar Styling */
+        .log-container::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        .log-container::-webkit-scrollbar-track {
+            background: #2d2d2d;
+            border-radius: 10px;
+        }
+
+        .log-container::-webkit-scrollbar-thumb {
+            background: #667eea;
+            border-radius: 10px;
+        }
+
+        /* Responsive */
+        @media (max-width: 1024px) {
+            .main-content {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🔍 LeetCode 1984: Brute Force Visualization</h1>
+            <p>Minimum Difference Between Highest and Lowest of K Scores</p>
+        </div>
+
+        <div class="main-content">
+            <div class="left-panel">
+                <!-- Input Section -->
+                <div class="card">
+                    <h2><span class="icon">⚙️</span> Configuration</h2>
+                    <div class="input-group">
+                        <label>
+                            <strong>Array (comma-separated):</strong>
+                            <input type="text" id="arrayInput" value="9,4,1,7" placeholder="e.g., 9,4,1,7">
+                        </label>
+                        <label>
+                            <strong>K (number of students):</strong>
+                            <input type="number" id="kInput" value="2" min="1" placeholder="e.g., 2">
+                        </label>
+                    </div>
+                    <div class="controls">
+                        <button class="btn-primary" onclick="initialize()">
+                            <span>🔄</span> Initialize
+                        </button>
+                        <button class="btn-success" id="playBtn" onclick="play()" disabled>
+                            <span>▶️</span> Play
+                        </button>
+                        <button class="btn-warning" id="pauseBtn" onclick="pause()" disabled>
+                            <span>⏸️</span> Pause
+                        </button>
+                        <button class="btn-secondary" id="stepBtn" onclick="step()" disabled>
+                            <span>⏭️</span> Step
+                        </button>
+                        <button class="btn-danger" onclick="reset()">
+                            <span>🔄</span> Reset
+                        </button>
+                    </div>
+                    <div class="speed-control">
+                        <label><strong>Animation Speed:</strong></label>
+                        <input type="range" id="speedSlider" min="100" max="2000" value="1000" step="100" oninput="updateSpeed()">
+                        <div>Speed: <span class="speed-value" id="speedValue">1000ms</span></div>
+                    </div>
+                </div>
+
+                <!-- Array Visualization -->
+                <div class="card">
+                    <h2><span class="icon">📊</span> Array Visualization</h2>
+                    <div class="array-container" id="arrayContainer"></div>
+
+                    <div class="combination-display">
+                        <h3>Current Combination:</h3>
+                        <div class="combination-values" id="currentCombo">
+                            <em style="color: #999;">No combination selected</em>
+                        </div>
+                    </div>
+
+                    <div class="progress-container">
+                        <div class="progress-bar" id="progressBar" style="width: 0%">0%</div>
+                    </div>
+                </div>
+
+                <!-- Variables -->
+                <div class="card">
+                    <h2><span class="icon">📝</span> Current State</h2>
+                    <div class="variables">
+                        <div class="variable-row">
+                            <span class="variable-name">Current Combination #:</span>
+                            <span class="variable-value" id="varComboNum">0</span>
+                        </div>
+                        <div class="variable-row">
+                            <span class="variable-name">Max in Combination:</span>
+                            <span class="variable-value" id="varMax">-</span>
+                        </div>
+                        <div class="variable-row">
+                            <span class="variable-name">Min in Combination:</span>
+                            <span class="variable-value" id="varMin">-</span>
+                        </div>
+                        <div class="variable-row">
+                            <span class="variable-name">Current Difference:</span>
+                            <span class="variable-value" id="varDiff">-</span>
+                        </div>
+                        <div class="variable-row">
+                            <span class="variable-name">Minimum Difference:</span>
+                            <span class="variable-value" id="varMinDiff">∞</span>
+                        </div>
+                    </div>
+
+                    <div class="result-box hidden" id="resultBox">
+                        Final Answer: <span id="finalAnswer">-</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="right-panel">
+                <!-- Statistics -->
+                <div class="card">
+                    <h2><span class="icon">📈</span> Statistics</h2>
+                    <div class="stats-grid">
+                        <div class="stat-card">
+                            <div class="stat-label">Total Combinations</div>
+                            <div class="stat-value" id="statTotal">0</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-label">Checked</div>
+                            <div class="stat-value" id="statChecked">0</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-label">Array Length</div>
+                            <div class="stat-value" id="statN">0</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-label">K Value</div>
+                            <div class="stat-value" id="statK">0</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Execution Log -->
+                <div class="card" style="flex: 1;">
+                    <h2><span class="icon">📋</span> Execution Log</h2>
+                    <div class="log-container" id="logContainer">
+                        <div class="log-entry info">Ready to start. Click Initialize to begin.</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let nums = [];
+        let k = 0;
+        let combinations = [];
+        let currentStep = 0;
+        let isPlaying = false;
+        let animationSpeed = 1000;
+        let timeoutId = null;
+
+        function factorial(n) {
+            if (n <= 1) return 1;
+            return n * factorial(n - 1);
+        }
+
+        function binomialCoefficient(n, k) {
+            if (k > n) return 0;
+            return factorial(n) / (factorial(k) * factorial(n - k));
+        }
+
+        function generateCombinations(arr, k) {
+            const result = [];
+
+            function backtrack(start, current) {
+                if (current.length === k) {
+                    result.push([...current]);
+                    return;
+                }
+
+                for (let i = start; i < arr.length; i++) {
+                    current.push(i);
+                    backtrack(i + 1, current);
+                    current.pop();
+                }
+            }
+
+            backtrack(0, []);
+            return result;
+        }
+
+        function addLog(message, type = 'info') {
+            const logContainer = document.getElementById('logContainer');
+            const entry = document.createElement('div');
+            entry.className = `log-entry ${type}`;
+            entry.textContent = `[${new Date().toLocaleTimeString()}] ${message}`;
+            logContainer.appendChild(entry);
+            logContainer.scrollTop = logContainer.scrollHeight;
+        }
+
+        function updateVariable(id, value, highlight = false) {
+            const element = document.getElementById(id);
+            element.textContent = value;
+            if (highlight) {
+                element.classList.add('highlight');
+                setTimeout(() => element.classList.remove('highlight'), 500);
+            }
+        }
+
+        function renderArray(selectedIndices = [], checkingIndices = []) {
+            const container = document.getElementById('arrayContainer');
+            container.innerHTML = '';
+
+            nums.forEach((num, idx) => {
+                const element = document.createElement('div');
+                element.className = 'array-element';
+
+                if (selectedIndices.includes(idx)) {
+                    element.classList.add('selected');
+                } else if (checkingIndices.includes(idx)) {
+                    element.classList.add('checking');
+                }
+
+                const index = document.createElement('span');
+                index.className = 'index';
+                index.textContent = `[${idx}]`;
+                element.appendChild(index);
+
+                const value = document.createElement('span');
+                value.textContent = num;
+                element.appendChild(value);
+
+                container.appendChild(element);
+            });
+        }
+
+        function initialize() {
+            // Parse input
+            const arrayInput = document.getElementById('arrayInput').value;
+            const kInput = document.getElementById('kInput').value;
+
+            nums = arrayInput.split(',').map(s => parseInt(s.trim())).filter(n => !isNaN(n));
+            k = parseInt(kInput);
+
+            // Validation
+            if (nums.length === 0) {
+                alert('Please enter a valid array');
+                return;
+            }
+            if (k < 1 || k > nums.length) {
+                alert('K must be between 1 and array length');
+                return;
+            }
+
+            // Generate combinations
+            combinations = generateCombinations(nums, k);
+            currentStep = 0;
+
+            // Reset UI
+            document.getElementById('logContainer').innerHTML = '';
+            document.getElementById('resultBox').classList.add('hidden');
+
+            // Update stats
+            const totalCombos = binomialCoefficient(nums.length, k);
+            document.getElementById('statTotal').textContent = totalCombos;
+            document.getElementById('statChecked').textContent = 0;
+            document.getElementById('statN').textContent = nums.length;
+            document.getElementById('statK').textContent = k;
+
+            // Update variables
+            updateVariable('varComboNum', 0);
+            updateVariable('varMax', '-');
+            updateVariable('varMin', '-');
+            updateVariable('varDiff', '-');
+            updateVariable('varMinDiff', '∞');
+
+            // Render array
+            renderArray();
+
+            // Update progress
+            document.getElementById('progressBar').style.width = '0%';
+            document.getElementById('progressBar').textContent = '0%';
+
+            // Enable controls
+            document.getElementById('playBtn').disabled = false;
+            document.getElementById('stepBtn').disabled = false;
+
+            // Log
+            addLog('Initialized with array: [' + nums.join(', ') + '], k=' + k, 'success');
+            addLog('Total combinations to check: ' + totalCombos, 'info');
+            addLog('Ready to start brute-force search', 'info');
+        }
+
+        function step() {
+            if (currentStep >= combinations.length) {
+                finish();
+                return;
+            }
+
+            const comboIndices = combinations[currentStep];
+            const comboValues = comboIndices.map(i => nums[i]);
+
+            // Calculate min, max, diff
+            const max = Math.max(...comboValues);
+            const min = Math.min(...comboValues);
+            const diff = max - min;
+
+            // Get current minDiff
+            const currentMinDiff = document.getElementById('varMinDiff').textContent;
+            const minDiff = currentMinDiff === '∞' ? diff : Math.min(parseInt(currentMinDiff), diff);
+
+            // Update UI
+            renderArray(comboIndices);
+
+            // Update current combo display
+            const comboContainer = document.getElementById('currentCombo');
+            comboContainer.innerHTML = comboValues.map(v => 
+                `<span class="combo-value">${v}</span>`
+            ).join('');
+
+            // Update variables
+            updateVariable('varComboNum', currentStep + 1, true);
+            updateVariable('varMax', max, true);
+            updateVariable('varMin', min, true);
+            updateVariable('varDiff', diff, true);
+            updateVariable('varMinDiff', minDiff, minDiff < parseInt(currentMinDiff === '∞' ? Infinity : currentMinDiff));
+
+            // Update stats
+            document.getElementById('statChecked').textContent = currentStep + 1;
+
+            // Update progress
+            const progress = ((currentStep + 1) / combinations.length * 100).toFixed(1);
+            document.getElementById('progressBar').style.width = progress + '%';
+            document.getElementById('progressBar').textContent = progress + '%';
+
+            // Log
+            addLog(`Checking combination #${currentStep + 1}: [${comboValues.join(', ')}]`, 'step');
+            addLog(`  → Max: ${max}, Min: ${min}, Diff: ${diff}`, 'info');
+            if (minDiff < parseInt(currentMinDiff === '∞' ? Infinity : currentMinDiff)) {
+                addLog(`  ✓ New minimum found: ${minDiff}`, 'success');
+            }
+
+            currentStep++;
+
+            if (currentStep >= combinations.length) {
+                setTimeout(finish, animationSpeed / 2);
+            }
+        }
+
+        function play() {
+            isPlaying = true;
+            document.getElementById('playBtn').disabled = true;
+            document.getElementById('pauseBtn').disabled = false;
+            document.getElementById('stepBtn').disabled = true;
+
+            addLog('Starting automatic execution...', 'info');
+
+            autoPlay();
+        }
+
+        function autoPlay() {
+            if (!isPlaying || currentStep >= combinations.length) {
+                if (currentStep >= combinations.length) {
+                    finish();
+                }
+                return;
+            }
+
+            step();
+
+            timeoutId = setTimeout(autoPlay, animationSpeed);
+        }
+
+        function pause() {
+            isPlaying = false;
+            document.getElementById('playBtn').disabled = false;
+            document.getElementById('pauseBtn').disabled = true;
+            document.getElementById('stepBtn').disabled = false;
+
+            if (timeoutId) {
+                clearTimeout(timeoutId);
+                timeoutId = null;
+            }
+
+            addLog('Paused', 'warning');
+        }
+
+        function finish() {
+            isPlaying = false;
+            document.getElementById('playBtn').disabled = true;
+            document.getElementById('pauseBtn').disabled = true;
+            document.getElementById('stepBtn').disabled = true;
+
+            if (timeoutId) {
+                clearTimeout(timeoutId);
+                timeoutId = null;
+            }
+
+            const finalAnswer = document.getElementById('varMinDiff').textContent;
+            document.getElementById('finalAnswer').textContent = finalAnswer;
+            document.getElementById('resultBox').classList.remove('hidden');
+
+            addLog('═══════════════════════════════════════', 'success');
+            addLog('Brute-force search completed!', 'success');
+            addLog(`Final Answer: ${finalAnswer}`, 'success');
+            addLog(`Total combinations checked: ${combinations.length}`, 'info');
+            addLog('═══════════════════════════════════════', 'success');
+
+            renderArray();
+        }
+
+        function reset() {
+            isPlaying = false;
+            currentStep = 0;
+
+            if (timeoutId) {
+                clearTimeout(timeoutId);
+                timeoutId = null;
+            }
+
+            document.getElementById('playBtn').disabled = true;
+            document.getElementById('pauseBtn').disabled = true;
+            document.getElementById('stepBtn').disabled = true;
+
+            document.getElementById('arrayContainer').innerHTML = '';
+            document.getElementById('currentCombo').innerHTML = '<em style="color: #999;">No combination selected</em>';
+            document.getElementById('logContainer').innerHTML = '<div class="log-entry info">Ready to start. Click Initialize to begin.</div>';
+            document.getElementById('resultBox').classList.add('hidden');
+
+            updateVariable('varComboNum', 0);
+            updateVariable('varMax', '-');
+            updateVariable('varMin', '-');
+            updateVariable('varDiff', '-');
+            updateVariable('varMinDiff', '∞');
+
+            document.getElementById('statTotal').textContent = '0';
+            document.getElementById('statChecked').textContent = '0';
+            document.getElementById('statN').textContent = '0';
+            document.getElementById('statK').textContent = '0';
+
+            document.getElementById('progressBar').style.width = '0%';
+            document.getElementById('progressBar').textContent = '0%';
+
+            addLog('Reset complete. Enter new values and click Initialize.', 'info');
+        }
+
+        function updateSpeed() {
+            const slider = document.getElementById('speedSlider');
+            animationSpeed = parseInt(slider.value);
+            document.getElementById('speedValue').textContent = animationSpeed + 'ms';
+        }
+
+        // Initialize on load
+        window.onload = function() {
+            addLog('Welcome to Brute Force Visualization!', 'success');
+            addLog('Enter your array and k value, then click Initialize.', 'info');
+        };
+    </script>
+</body>
+</html>

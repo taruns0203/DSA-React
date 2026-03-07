@@ -1,0 +1,417 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Min Subarray Sum - Binary Search</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            min-height: 100vh;
+            padding: 20px;
+            color: #333;
+        }
+        .container {
+            max-width: 1100px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            overflow: hidden;
+        }
+        header {
+            background: linear-gradient(135deg, #a18cd1 0%, #fbc2eb 100%);
+            color: white;
+            padding: 25px;
+            text-align: center;
+        }
+        h1 { font-size: 1.5em; margin-bottom: 8px; }
+        .subtitle { font-size: 1em; opacity: 0.9; }
+        .complexity-badge {
+            display: inline-block;
+            background: rgba(255,255,255,0.2);
+            padding: 6px 14px;
+            border-radius: 15px;
+            margin-top: 8px;
+            font-size: 0.85em;
+        }
+        .main-content {
+            display: grid;
+            grid-template-columns: 1fr 280px;
+            gap: 20px;
+            padding: 20px;
+        }
+        .card {
+            background: #f8f9fa;
+            border-radius: 12px;
+            padding: 16px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            margin-bottom: 16px;
+        }
+        .card-title {
+            font-size: 0.95em;
+            font-weight: 600;
+            margin-bottom: 12px;
+            color: #667eea;
+        }
+        
+        .controls { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+        button {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 8px;
+            font-size: 0.85em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        button:hover { transform: translateY(-2px); }
+        button:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+        .btn-primary { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; }
+        .btn-success { background: linear-gradient(135deg, #28a745 0%, #20c997 100%); color: white; }
+        .btn-warning { background: linear-gradient(135deg, #ffc107 0%, #ff9800 100%); color: white; }
+        .btn-secondary { background: #6c757d; color: white; }
+        .speed-control { display: flex; align-items: center; gap: 6px; flex: 1; min-width: 140px; }
+        .speed-control input[type="range"] { flex: 1; height: 5px; }
+
+        .array-container {
+            display: flex;
+            gap: 15px;
+            min-height: 80px;
+            padding: 30px 10px;
+            background: #fff;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            position: relative;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+        
+        .array-item {
+            width: 45px;
+            height: 45px;
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            color: white;
+            position: relative;
+            transition: all 0.2s ease;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            font-size: 1.1em;
+            background: #2f3640;
+        }
+        .array-item.prefix { background: #8e44ad; } /* Prefix Sums Color */
+        .array-item.search-range { background: #ffeaa7; color: #d35400; transform: scale(1.05); }
+        .array-item.found { background: #27ae60; transform: scale(1.15); z-index: 10; border: 2px solid #2c3e50; }
+        .array-item.mid { border: 3px solid #e74c3c; } /* Current Binary Search Mid */
+        
+        .idx-label {
+            position: absolute;
+            top: -25px;
+            font-size: 0.7em;
+            color: #888;
+            width: 100%;
+            text-align: center;
+        }
+        
+        .ptr {
+            position: absolute;
+            bottom: -30px;
+            font-size: 0.8em;
+            font-weight: 700;
+            text-align: center;
+            width: 45px;
+            transition: left 0.3s ease;
+        }
+        .ptr-i { color: #3498db; }
+        .ptr-i::before { content: 'i'; display: block; }
+        
+        /* State & Log */
+        .state-display { background: white; border-radius: 8px; padding: 10px; font-family: 'Courier New', monospace; font-size: 0.85em; }
+        .state-row { display: flex; justify-content: space-between; padding: 4px 0; border-bottom: 1px solid #eee; }
+        
+        .log-container { 
+            background: white; border-radius: 8px; padding: 10px; 
+            max-height: 200px; overflow-y: auto; 
+            font-family: 'Courier New', monospace; font-size: 0.65em; 
+        }
+        .log-entry { padding: 3px 6px; margin: 2px 0; border-radius: 4px; border-left: 3px solid #ccc; background: #f9f9f9; }
+        .log-entry.search { border-left-color: #f39c12; background: #fef9e7; }
+        .log-entry.found { border-left-color: #27ae60; background: #eafaf1; }
+        .log-entry.info { border-left-color: #3498db; background: #ebf5fb; }
+        
+        .min-len-display {
+            text-align: center;
+            padding: 10px;
+            background: #2c3e50;
+            color: white;
+            border-radius: 8px;
+            margin-top: 10px;
+            font-size: 1.2em;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Min Subarray Sum</h1>
+            <div class="subtitle">Binary Search on Prefix Sums</div>
+            <div class="complexity-badge">Time: O(N log N) | Space: O(N)</div>
+        </header>
+
+        <div class="main-content">
+            <div class="left-panel">
+                <div class="card">
+                    <div class="card-title">⚙️ Controls</div>
+                    <div class="controls">
+                        <button class="btn-primary" id="playBtn">▶️ Play</button>
+                        <button class="btn-warning" id="pauseBtn" disabled>⏸️ Pause</button>
+                        <button class="btn-success" id="stepBtn">⏭️ Step</button>
+                        <button class="btn-secondary" id="resetBtn">🔄 Reset</button>
+                        <div class="speed-control">
+                            <label>Speed:</label>
+                            <input type="range" id="speedSlider" min="1" max="10" value="5">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-title">Prefix Sums Array (Precomputed)</div>
+                    <div class="array-container" id="sumsContainer"></div>
+                </div>
+                
+                <div class="card">
+                    <div class="card-title">ℹ️ Strategy</div>
+                    <div style="font-size: 0.9em; color: #555;">
+                        1. Compute <code>sums[i]</code> = sum of <code>nums[0...i-1]</code>.<br>
+                        2. For each <code>i</code>, find smallest <code>end</code> such that <code>sums[end] - sums[i] >= target</code>.<br>
+                        3. Use <strong>Binary Search</strong> on the sorted <code>sums</code> array to find <code>end</code>.
+                    </div>
+                </div>
+            </div>
+
+            <div class="right-panel">
+                <div class="card">
+                    <div class="card-title">📊 State</div>
+                    <div class="state-display">
+                        <div class="state-row"><span>Target Sum:</span><span id="targetVal">7</span></div>
+                        <div class="state-row"><span>Start (i):</span><span id="iVal">-</span></div>
+                        <div class="state-row"><span>Target Prefix (>=):</span><span id="reqVal">-</span></div>
+                        <div class="state-row"><span>Search Range [L, R]:</span><span id="rangeVal">-</span></div>
+                    </div>
+                    <div class="min-len-display">
+                        Min Length: <span id="minLenVal">∞</span>
+                    </div>
+                </div>
+
+                <div class="card" style="flex-grow: 1; display: flex; flex-direction: column;">
+                    <div class="card-title">📝 Log</div>
+                    <div class="log-container" id="logContainer"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const TARGET = 7;
+        const nums = [2, 3, 1, 2, 4, 3];
+        let sums = [0]; // Prefix sums array
+        let n = nums.length;
+        
+        let i = 0;
+        let l = 0, r = 0, mid = 0;
+        let required = 0;
+        let minLen = Infinity;
+        
+        // Phase: init, start_search, binary_search, found, next_i, done
+        let phase = 'init';
+        let foundIdx = -1;
+        
+        let isRunning = false;
+        let timer = null;
+        let speed = 5;
+        let stepCount = 0;
+
+        function init() {
+            // Compute Prefix Sums
+            sums = [0];
+            let currentSum = 0;
+            for(let k=0; k<nums.length; k++) {
+                currentSum += nums[k];
+                sums.push(currentSum);
+            }
+            n = nums.length;
+            
+            i = 0;
+            minLen = Infinity;
+            phase = 'init';
+            stepCount = 0;
+            
+            clearLog();
+            addLog(`Prefix Sums Computed: [${sums.join(', ')}]`, "info");
+            
+            render();
+            updateControls();
+        }
+
+        function render() {
+            const c = document.getElementById('sumsContainer');
+            c.innerHTML = '';
+            
+            sums.forEach((val, idx) => {
+                const el = document.createElement('div');
+                let cls = 'array-item prefix';
+                
+                // Visualization Logic
+                if (phase === 'binary_search') {
+                    if (idx >= l && idx <= r) cls += ' search-range';
+                    if (idx === mid) cls += ' mid';
+                }
+                if (phase === 'found' && idx === foundIdx) cls += ' found';
+                
+                el.className = cls;
+                el.textContent = val;
+                
+                const lbl = document.createElement('div');
+                lbl.className = 'idx-label';
+                lbl.textContent = idx;
+                el.appendChild(lbl);
+                
+                c.appendChild(el);
+            });
+            
+            // Pointer i
+            if (phase !== 'done' && phase !== 'init') {
+                const ptr = document.createElement('div');
+                ptr.className = 'ptr ptr-i';
+                // Rough positioning based on gap (15px) + width (45px) + padding (30px)
+                // (45 + 15) * i + 30
+                ptr.style.left = `${(60 * i) + 30}px`;
+                c.appendChild(ptr);
+            }
+            
+            // State
+            document.getElementById('iVal').textContent = phase === 'init' || phase === 'done' ? '-' : i;
+            document.getElementById('reqVal').textContent = phase === 'init' || phase === 'done' ? '-' : required;
+            document.getElementById('rangeVal').textContent = phase === 'binary_search' ? `[${l}, ${r}]` : '-';
+            document.getElementById('minLenVal').textContent = minLen === Infinity ? '∞' : minLen;
+        }
+
+        function step() {
+            stepCount++;
+            
+            if (phase === 'init') {
+                phase = 'start_search';
+                i = 0;
+                addLog("Starting Iteration...", "info");
+            }
+            else if (phase === 'start_search') {
+                if (i < n) {
+                    required = TARGET + sums[i];
+                    l = i + 1;
+                    r = n; // sums length is n+1, so valid indices are up to n
+                    foundIdx = -1;
+                    phase = 'binary_search';
+                    addLog(`i=${i} (sums[${i}]=${sums[i]}). Need prefix sum >= ${required}. Search range [${l}, ${r}]`, "search");
+                } else {
+                    phase = 'done';
+                    addLog(`Done! Min Length: ${minLen}`, "success");
+                    stop();
+                }
+            }
+            else if (phase === 'binary_search') {
+                if (l <= r) {
+                    mid = Math.floor((l + r) / 2);
+                    addLog(`Check mid=${mid}, sums[${mid}]=${sums[mid]}`, "search");
+                    
+                    if (sums[mid] >= required) {
+                        foundIdx = mid;
+                        r = mid - 1; // Try smaller length
+                        addLog(`Found valid sum! Try smaller index. New range [${l}, ${r}]`, "found");
+                    } else {
+                        l = mid + 1;
+                        addLog(`Sum too small. Go right. New range [${l}, ${r}]`, "search");
+                    }
+                } else {
+                    // Search for this i finished
+                    phase = 'found';
+                }
+            }
+            else if (phase === 'found') {
+                if (foundIdx !== -1) {
+                    const len = foundIdx - i;
+                    addLog(`Best end for i=${i} is ${foundIdx}. Length=${len}`, "found");
+                    if (len < minLen) {
+                        minLen = len;
+                        addLog(`New Global Min Length: ${minLen}`, "found");
+                    }
+                } else {
+                    addLog(`No valid subarray found starting at i=${i}`, "info");
+                }
+                phase = 'next_i';
+            }
+            else if (phase === 'next_i') {
+                i++;
+                phase = 'start_search';
+            }
+            
+            render();
+        }
+
+        function addLog(msg, type = 'info') {
+            const log = document.getElementById('logContainer');
+            log.innerHTML += `<div class="log-entry ${type}">[${stepCount}] ${msg}</div>`;
+            log.scrollTop = log.scrollHeight;
+        }
+
+        function clearLog() { document.getElementById('logContainer').innerHTML = ''; }
+
+        function play() {
+            if (isRunning) return;
+            isRunning = true;
+            updateControls();
+            runLoop();
+        }
+
+        function runLoop() {
+            if (!isRunning) return;
+            step();
+            if (phase !== 'done') {
+                const delay = 1000 - (speed * 90);
+                timer = setTimeout(runLoop, Math.max(50, delay));
+            }
+        }
+
+        function stop() {
+            isRunning = false;
+            if (timer) clearTimeout(timer);
+            updateControls();
+        }
+
+        function reset() {
+            stop();
+            init();
+        }
+
+        function updateControls() {
+            document.getElementById('playBtn').disabled = isRunning || phase === 'done';
+            document.getElementById('pauseBtn').disabled = !isRunning;
+            document.getElementById('stepBtn').disabled = isRunning || phase === 'done';
+            document.getElementById('resetBtn').disabled = isRunning;
+        }
+
+        document.getElementById('playBtn').addEventListener('click', play);
+        document.getElementById('pauseBtn').addEventListener('click', stop);
+        document.getElementById('stepBtn').addEventListener('click', step);
+        document.getElementById('resetBtn').addEventListener('click', reset);
+        document.getElementById('speedSlider').addEventListener('input', (e) => speed = parseInt(e.target.value));
+
+        init();
+    </script>
+</body>
+</html>

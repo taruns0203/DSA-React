@@ -1,0 +1,1501 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Odd-Even Linked List - Collect Nodes Approach Whiteboard</title>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Caveat:wght@400;500;600;700&family=Patrick+Hand&family=Kalam:wght@300;400;700&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        font-family: "Kalam", cursive;
+        min-height: 100vh;
+        overflow-x: hidden;
+      }
+
+      /* Whiteboard texture background */
+      .whiteboard {
+        background: #f5f5f0;
+        background-image: linear-gradient(
+            90deg,
+            transparent 79px,
+            #e8e4db 79px,
+            #e8e4db 81px,
+            transparent 81px
+          ),
+          linear-gradient(#e8e4db 1px, transparent 1px);
+        background-size: 100% 30px;
+        min-height: 100vh;
+        padding: 20px;
+        position: relative;
+      }
+
+      /* Notebook holes */
+      .whiteboard::before {
+        content: "";
+        position: absolute;
+        left: 40px;
+        top: 0;
+        bottom: 0;
+        width: 4px;
+        background: repeating-linear-gradient(
+          to bottom,
+          transparent,
+          transparent 25px,
+          #ff6b6b 25px,
+          #ff6b6b 35px
+        );
+      }
+
+      /* Red margin line */
+      .whiteboard::after {
+        content: "";
+        position: absolute;
+        left: 70px;
+        top: 0;
+        bottom: 0;
+        width: 2px;
+        background: #ff9999;
+      }
+
+      .container {
+        max-width: 1400px;
+        margin: 0 auto;
+        padding: 20px 20px 100px 90px;
+        position: relative;
+        z-index: 1;
+      }
+
+      /* Handwritten title */
+      .title {
+        font-family: "Caveat", cursive;
+        font-size: 3rem;
+        font-weight: 700;
+        color: #2c3e50;
+        text-align: center;
+        margin-bottom: 5px;
+        text-shadow: 1px 1px 0 rgba(0, 0, 0, 0.1);
+        transform: rotate(-0.5deg);
+      }
+
+      .subtitle {
+        font-family: "Patrick Hand", cursive;
+        font-size: 1.3rem;
+        color: #8e44ad;
+        text-align: center;
+        margin-bottom: 25px;
+        transform: rotate(0.3deg);
+      }
+
+      /* Underline sketch effect */
+      .title-underline {
+        width: 400px;
+        height: 8px;
+        margin: 0 auto 20px;
+        background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='8'%3E%3Cpath d='M0,4 Q50,0 100,4 T200,4 T300,4 T400,4' stroke='%238e44ad' stroke-width='3' fill='none'/%3E%3C/svg%3E")
+          no-repeat center;
+      }
+
+      /* Key insight box */
+      .insight-box {
+        background: linear-gradient(135deg, #fff9e6 0%, #fff3cd 100%);
+        border: 3px solid #f39c12;
+        border-radius: 12px;
+        padding: 18px 22px;
+        margin-bottom: 25px;
+        transform: rotate(0.3deg);
+        box-shadow: 4px 4px 0 rgba(0, 0, 0, 0.1);
+        position: relative;
+      }
+
+      .insight-box::before {
+        content: "💡";
+        position: absolute;
+        top: -12px;
+        left: 15px;
+        font-size: 1.4rem;
+        background: #fff9e6;
+        padding: 0 5px;
+      }
+
+      .insight-box h3 {
+        font-family: "Caveat", cursive;
+        font-size: 1.5rem;
+        color: #e67e22;
+        margin-bottom: 8px;
+      }
+
+      .insight-box p {
+        font-size: 1.05rem;
+        color: #333;
+        line-height: 1.5;
+      }
+
+      .vs-badge {
+        display: inline-block;
+        background: #e74c3c;
+        color: white;
+        padding: 3px 10px;
+        border-radius: 15px;
+        font-family: "Patrick Hand", cursive;
+        font-size: 0.9rem;
+        margin: 0 5px;
+      }
+
+      /* Example box */
+      .example-box {
+        background: white;
+        border: 3px dashed #3498db;
+        border-radius: 10px;
+        padding: 15px 20px;
+        margin-bottom: 20px;
+        transform: rotate(-0.2deg);
+      }
+
+      .example-box .label {
+        font-family: "Caveat", cursive;
+        font-size: 1.3rem;
+        color: #3498db;
+        margin-bottom: 8px;
+      }
+
+      /* Progress & Controls */
+      .controls-section {
+        background: rgba(255, 255, 255, 0.8);
+        border: 2px solid #bdc3c7;
+        border-radius: 10px;
+        padding: 15px 20px;
+        margin-bottom: 20px;
+      }
+
+      .step-counter {
+        text-align: center;
+        font-family: "Patrick Hand", cursive;
+        font-size: 1.2rem;
+        color: #7f8c8d;
+        margin-bottom: 8px;
+      }
+
+      .progress-bar {
+        width: 100%;
+        height: 10px;
+        background: #ecf0f1;
+        border-radius: 5px;
+        margin-bottom: 15px;
+        overflow: hidden;
+        border: 1px solid #bdc3c7;
+      }
+
+      .progress-fill {
+        height: 100%;
+        background: linear-gradient(90deg, #9b59b6, #8e44ad);
+        border-radius: 5px;
+        transition: width 0.3s ease;
+      }
+
+      .controls {
+        display: flex;
+        justify-content: center;
+        gap: 12px;
+        flex-wrap: wrap;
+      }
+
+      .btn {
+        font-family: "Patrick Hand", cursive;
+        font-size: 1.15rem;
+        padding: 10px 22px;
+        border: 3px solid #333;
+        border-radius: 8px;
+        cursor: pointer;
+        transition: all 0.2s;
+        background: white;
+        box-shadow: 3px 3px 0 rgba(0, 0, 0, 0.15);
+      }
+
+      .btn:hover:not(:disabled) {
+        transform: translate(-2px, -2px);
+        box-shadow: 5px 5px 0 rgba(0, 0, 0, 0.15);
+      }
+
+      .btn:active:not(:disabled) {
+        transform: translate(1px, 1px);
+        box-shadow: 1px 1px 0 rgba(0, 0, 0, 0.15);
+      }
+
+      .btn:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+      }
+
+      .btn-primary {
+        background: linear-gradient(135deg, #9b59b6 0%, #8e44ad 100%);
+        color: white;
+        border-color: #6c3483;
+      }
+
+      .btn-success {
+        background: linear-gradient(135deg, #27ae60 0%, #1e8449 100%);
+        color: white;
+        border-color: #1e8449;
+      }
+
+      .btn-danger {
+        background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%);
+        color: white;
+        border-color: #c0392b;
+      }
+
+      .btn-warning {
+        background: linear-gradient(135deg, #f39c12 0%, #d68910 100%);
+        color: white;
+        border-color: #d68910;
+      }
+
+      /* Step explanation */
+      .step-explanation {
+        background: linear-gradient(135deg, #ebf5fb 0%, #d4e6f1 100%);
+        border: 3px solid #3498db;
+        border-radius: 12px;
+        padding: 18px 22px;
+        margin-bottom: 20px;
+        transform: rotate(-0.2deg);
+        position: relative;
+      }
+
+      .step-explanation::after {
+        content: "✏️";
+        position: absolute;
+        top: -12px;
+        right: 15px;
+        font-size: 1.3rem;
+      }
+
+      .step-explanation h4 {
+        font-family: "Caveat", cursive;
+        font-size: 1.5rem;
+        color: #2980b9;
+        margin-bottom: 8px;
+      }
+
+      .step-explanation p {
+        font-size: 1.05rem;
+        color: #333;
+        line-height: 1.5;
+      }
+
+      .highlight {
+        background: #f9e79f;
+        padding: 2px 6px;
+        border-radius: 4px;
+      }
+
+      .code-inline {
+        font-family: "Consolas", monospace;
+        background: #2c3e50;
+        color: #ecf0f1;
+        padding: 2px 8px;
+        border-radius: 4px;
+        font-size: 0.95rem;
+      }
+
+      /* Main visualization grid */
+      .viz-grid {
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 20px;
+        margin-bottom: 20px;
+      }
+
+      .section {
+        background: rgba(255, 255, 255, 0.9);
+        border: 3px solid #34495e;
+        border-radius: 12px;
+        padding: 18px;
+        position: relative;
+      }
+
+      .section-title {
+        font-family: "Caveat", cursive;
+        font-size: 1.6rem;
+        color: #2c3e50;
+        margin-bottom: 12px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        border-bottom: 2px dashed #bdc3c7;
+        padding-bottom: 8px;
+      }
+
+      .section-title .phase-badge {
+        background: #9b59b6;
+        color: white;
+        padding: 4px 12px;
+        border-radius: 15px;
+        font-size: 1rem;
+        font-family: "Patrick Hand", cursive;
+      }
+
+      /* Linked list visualization */
+      .linked-list {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-wrap: wrap;
+        gap: 5px;
+        padding: 15px 10px;
+        min-height: 90px;
+      }
+
+      .node {
+        display: flex;
+        align-items: center;
+        animation: nodeAppear 0.4s ease-out forwards;
+        opacity: 0;
+      }
+
+      @keyframes nodeAppear {
+        from {
+          opacity: 0;
+          transform: scale(0.5) translateY(-15px);
+        }
+        to {
+          opacity: 1;
+          transform: scale(1) translateY(0);
+        }
+      }
+
+      .node-box {
+        width: 52px;
+        height: 52px;
+        border: 3px solid #34495e;
+        border-radius: 10px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        font-family: "Caveat", cursive;
+        font-size: 1.6rem;
+        font-weight: 700;
+        position: relative;
+        transition: all 0.3s ease;
+        background: white;
+      }
+
+      .node-box .node-val {
+        line-height: 1;
+      }
+
+      .node-box .node-ref {
+        font-size: 0.6rem;
+        color: #7f8c8d;
+        font-family: "Patrick Hand", cursive;
+      }
+
+      .node-box.odd {
+        background: linear-gradient(135deg, #abebc6 0%, #82e0aa 100%);
+        border-color: #27ae60;
+      }
+
+      .node-box.even {
+        background: linear-gradient(135deg, #f5b7b1 0%, #f1948a 100%);
+        border-color: #e74c3c;
+      }
+
+      .node-box.highlight {
+        transform: scale(1.15);
+        box-shadow: 0 0 20px rgba(155, 89, 182, 0.6);
+        z-index: 10;
+      }
+
+      .node-box.faded {
+        opacity: 0.4;
+      }
+
+      .node-index {
+        position: absolute;
+        top: -20px;
+        left: 50%;
+        transform: translateX(-50%);
+        font-family: "Patrick Hand", cursive;
+        font-size: 0.8rem;
+        color: #7f8c8d;
+        background: white;
+        padding: 1px 5px;
+        border-radius: 3px;
+        border: 1px solid #bdc3c7;
+      }
+
+      .node-index.odd-idx {
+        color: #27ae60;
+        border-color: #27ae60;
+      }
+      .node-index.even-idx {
+        color: #e74c3c;
+        border-color: #e74c3c;
+      }
+
+      .arrow {
+        font-size: 1.4rem;
+        color: #34495e;
+        margin: 0 2px;
+      }
+
+      .arrow.broken {
+        color: #e74c3c;
+        text-decoration: line-through;
+        opacity: 0.5;
+      }
+
+      .arrow.new-link {
+        color: #27ae60;
+        font-weight: bold;
+      }
+
+      .null-node {
+        font-family: "Kalam", cursive;
+        font-size: 0.95rem;
+        color: #95a5a6;
+        font-style: italic;
+        padding: 5px 10px;
+        border: 2px dashed #bdc3c7;
+        border-radius: 5px;
+      }
+
+      /* Node arrays */
+      .arrays-row {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 20px;
+      }
+
+      .array-section {
+        background: rgba(255, 255, 255, 0.95);
+        border: 3px solid #34495e;
+        border-radius: 12px;
+        padding: 15px;
+      }
+
+      .array-title {
+        font-family: "Caveat", cursive;
+        font-size: 1.4rem;
+        margin-bottom: 10px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+
+      .array-title.odd-title {
+        color: #27ae60;
+      }
+      .array-title.even-title {
+        color: #e74c3c;
+      }
+
+      .array-visual {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-wrap: wrap;
+        background: #f8f9fa;
+        border: 2px solid #dee2e6;
+        border-radius: 8px;
+        padding: 12px;
+        min-height: 70px;
+        gap: 8px;
+      }
+
+      .array-node {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        animation: nodePop 0.3s ease-out forwards;
+      }
+
+      @keyframes nodePop {
+        from {
+          transform: scale(0);
+          opacity: 0;
+        }
+        50% {
+          transform: scale(1.2);
+        }
+        to {
+          transform: scale(1);
+          opacity: 1;
+        }
+      }
+
+      .array-node .mini-node {
+        width: 42px;
+        height: 42px;
+        border: 2px solid #34495e;
+        border-radius: 8px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-family: "Caveat", cursive;
+        font-size: 1.4rem;
+        font-weight: 700;
+      }
+
+      .array-node .mini-node.odd {
+        background: linear-gradient(135deg, #abebc6 0%, #82e0aa 100%);
+        border-color: #27ae60;
+      }
+
+      .array-node .mini-node.even {
+        background: linear-gradient(135deg, #f5b7b1 0%, #f1948a 100%);
+        border-color: #e74c3c;
+      }
+
+      .array-node .arr-idx {
+        font-family: "Patrick Hand", cursive;
+        font-size: 0.75rem;
+        color: #7f8c8d;
+        margin-top: 3px;
+      }
+
+      .empty-array {
+        font-family: "Patrick Hand", cursive;
+        color: #95a5a6;
+        font-style: italic;
+      }
+
+      /* Result section */
+      .result-section {
+        background: linear-gradient(135deg, #e8f8f5 0%, #d1f2eb 100%);
+        border: 3px solid #1abc9c;
+      }
+
+      .result-section .section-title {
+        color: #16a085;
+      }
+
+      /* Pointer visualization */
+      .pointer-state {
+        display: flex;
+        justify-content: center;
+        gap: 25px;
+        flex-wrap: wrap;
+        margin: 12px 0;
+        padding: 10px;
+        background: #fdf2e9;
+        border-radius: 8px;
+        border: 2px dashed #e67e22;
+      }
+
+      .pointer-box {
+        text-align: center;
+        min-width: 80px;
+      }
+
+      .pointer-name {
+        font-family: "Consolas", monospace;
+        font-size: 0.85rem;
+        color: #8e44ad;
+        margin-bottom: 4px;
+      }
+
+      .pointer-value {
+        font-family: "Caveat", cursive;
+        font-size: 1.4rem;
+        font-weight: 700;
+        color: #2c3e50;
+        background: white;
+        padding: 4px 12px;
+        border-radius: 6px;
+        border: 2px solid #8e44ad;
+      }
+
+      /* Legend */
+      .legend {
+        display: flex;
+        justify-content: center;
+        gap: 25px;
+        margin: 15px 0;
+        flex-wrap: wrap;
+      }
+
+      .legend-item {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        font-family: "Patrick Hand", cursive;
+        font-size: 1.05rem;
+      }
+
+      .legend-color {
+        width: 22px;
+        height: 22px;
+        border-radius: 5px;
+        border: 2px solid #34495e;
+      }
+
+      .legend-color.odd {
+        background: linear-gradient(135deg, #abebc6 0%, #82e0aa 100%);
+      }
+      .legend-color.even {
+        background: linear-gradient(135deg, #f5b7b1 0%, #f1948a 100%);
+      }
+
+      /* Code section */
+      .code-section {
+        background: #2c3e50;
+        border: 3px solid #1a252f;
+        border-radius: 12px;
+        padding: 18px;
+        margin: 20px 0;
+        overflow-x: auto;
+      }
+
+      .code-section pre {
+        font-family: "Fira Code", "Consolas", monospace;
+        font-size: 0.9rem;
+        color: #ecf0f1;
+        line-height: 1.5;
+        margin: 0;
+      }
+
+      .code-section .keyword {
+        color: #e74c3c;
+      }
+      .code-section .string {
+        color: #f1c40f;
+      }
+      .code-section .number {
+        color: #2ecc71;
+      }
+      .code-section .comment {
+        color: #7f8c8d;
+      }
+      .code-section .function {
+        color: #3498db;
+      }
+      .code-section .variable {
+        color: #9b59b6;
+      }
+
+      /* Complexity box */
+      .complexity-box {
+        background: linear-gradient(135deg, #fdebd0 0%, #f9e4c8 100%);
+        border: 3px solid #e67e22;
+        border-radius: 12px;
+        padding: 18px;
+        margin-top: 20px;
+        transform: rotate(0.3deg);
+      }
+
+      .complexity-box h4 {
+        font-family: "Caveat", cursive;
+        font-size: 1.5rem;
+        color: #d35400;
+        margin-bottom: 12px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+      }
+
+      .complexity-grid {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 12px;
+      }
+
+      .complexity-item {
+        background: white;
+        border: 2px solid #34495e;
+        border-radius: 8px;
+        padding: 12px;
+        text-align: center;
+      }
+
+      .complexity-label {
+        font-family: "Patrick Hand", cursive;
+        font-size: 0.95rem;
+        color: #7f8c8d;
+      }
+
+      .complexity-value {
+        font-family: "Caveat", cursive;
+        font-size: 1.7rem;
+        font-weight: 700;
+        color: #e67e22;
+      }
+
+      .complexity-value.bad {
+        color: #e74c3c;
+      }
+
+      /* Comparison note */
+      .comparison-note {
+        background: linear-gradient(135deg, #f5eef8 0%, #ebdef0 100%);
+        border: 3px solid #8e44ad;
+        border-radius: 12px;
+        padding: 18px;
+        margin-top: 20px;
+      }
+
+      .comparison-note h4 {
+        font-family: "Caveat", cursive;
+        font-size: 1.4rem;
+        color: #8e44ad;
+        margin-bottom: 10px;
+      }
+
+      .comparison-table {
+        width: 100%;
+        border-collapse: collapse;
+        font-family: "Patrick Hand", cursive;
+      }
+
+      .comparison-table th,
+      .comparison-table td {
+        border: 2px solid #8e44ad;
+        padding: 10px;
+        text-align: center;
+      }
+
+      .comparison-table th {
+        background: #8e44ad;
+        color: white;
+      }
+
+      .comparison-table td {
+        background: white;
+      }
+
+      /* Responsive */
+      @media (max-width: 768px) {
+        .container {
+          padding-left: 20px;
+        }
+
+        .whiteboard::before,
+        .whiteboard::after {
+          display: none;
+        }
+
+        .title {
+          font-size: 2.2rem;
+        }
+
+        .arrays-row {
+          grid-template-columns: 1fr;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="whiteboard">
+      <div class="container">
+        <!-- Title -->
+        <h1 class="title">Odd-Even Linked List</h1>
+        <div class="title-underline"></div>
+        <p class="subtitle">
+          🔗 Improved Approach: Collect Node References (Not Values!)
+        </p>
+
+        <!-- Legend -->
+        <div class="legend">
+          <div class="legend-item">
+            <div class="legend-color odd"></div>
+            <span>Odd Index Nodes (1, 3, 5...)</span>
+          </div>
+          <div class="legend-item">
+            <div class="legend-color even"></div>
+            <span>Even Index Nodes (2, 4, 6...)</span>
+          </div>
+        </div>
+
+        <!-- Key Insight -->
+        <div class="insight-box">
+          <h3>Key Improvement Over Brute Force</h3>
+          <p>
+            Instead of collecting <span class="vs-badge">values</span> into
+            arrays and overwriting, we collect
+            <span class="vs-badge">node references</span> (pointers) and then
+            <strong>reconnect</strong> them! This teaches us to think about
+            <em>node rearrangement</em> — a stepping stone to the optimal O(1)
+            space solution.
+          </p>
+        </div>
+
+        <!-- Example -->
+        <div class="example-box">
+          <div class="label">📝 Example Input</div>
+          <div style="font-family: 'Kalam', cursive; font-size: 1.1rem">
+            <strong>Input:</strong> [1] → [2] → [3] → [4] → [5] → null<br />
+            <strong>Expected:</strong> [1] → [3] → [5] → [2] → [4] → null
+          </div>
+        </div>
+
+        <!-- Controls -->
+        <div class="controls-section">
+          <div class="step-counter">
+            Step <span id="currentStep">0</span> of
+            <span id="totalSteps">14</span>
+          </div>
+          <div class="progress-bar">
+            <div
+              class="progress-fill"
+              id="progressFill"
+              style="width: 0%"
+            ></div>
+          </div>
+          <div class="controls">
+            <button class="btn btn-danger" id="resetBtn">🔄 Reset</button>
+            <button class="btn btn-primary" id="prevBtn" disabled>
+              ⬅ Prev
+            </button>
+            <button class="btn btn-success" id="nextBtn">Next ➡</button>
+            <button class="btn btn-warning" id="autoBtn">▶ Auto Play</button>
+          </div>
+        </div>
+
+        <!-- Step Explanation -->
+        <div class="step-explanation">
+          <h4 id="stepTitle">🚀 Ready to Begin!</h4>
+          <p id="stepDesc">
+            Click "Next" to start. We'll collect node <em>references</em> into
+            two arrays, then reconnect them to form the final list.
+          </p>
+        </div>
+
+        <!-- Pointer State -->
+        <div class="pointer-state">
+          <div class="pointer-box">
+            <div class="pointer-name">index</div>
+            <div class="pointer-value" id="varIndex">—</div>
+          </div>
+          <div class="pointer-box">
+            <div class="pointer-name">current</div>
+            <div class="pointer-value" id="varCurrent">—</div>
+          </div>
+          <div class="pointer-box">
+            <div class="pointer-name">index % 2</div>
+            <div class="pointer-value" id="varMod">—</div>
+          </div>
+          <div class="pointer-box">
+            <div class="pointer-name">phase</div>
+            <div class="pointer-value" id="varPhase">—</div>
+          </div>
+        </div>
+
+        <!-- Main Visualization -->
+        <div class="viz-grid">
+          <!-- Original List -->
+          <div class="section">
+            <div class="section-title">
+              <span class="phase-badge">Phase 1</span>
+              Original Linked List (Traversing & Collecting)
+            </div>
+            <div class="linked-list" id="originalList"></div>
+          </div>
+
+          <!-- Node Arrays -->
+          <div class="arrays-row">
+            <div class="array-section">
+              <div class="array-title odd-title">
+                🟢 oddNodes[ ] — Node References
+              </div>
+              <div class="array-visual" id="oddArray">
+                <span class="empty-array">empty</span>
+              </div>
+            </div>
+            <div class="array-section">
+              <div class="array-title even-title">
+                🔴 evenNodes[ ] — Node References
+              </div>
+              <div class="array-visual" id="evenArray">
+                <span class="empty-array">empty</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Reconnection Section -->
+          <div class="section result-section">
+            <div class="section-title">
+              <span class="phase-badge">Phase 2</span>
+              Reconnected Result List
+            </div>
+            <div class="linked-list" id="resultList">
+              <span class="null-node">waiting for reconnection phase...</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Code Display -->
+        <div class="code-section">
+          <pre id="codeDisplay">
+<span class="keyword">function</span> <span class="function">oddEvenListCollectNodes</span>(<span class="variable">head</span>) {
+    <span class="keyword">const</span> <span class="variable">oddNodes</span> = [];     <span class="comment">// Store node REFERENCES, not values!</span>
+    <span class="keyword">const</span> <span class="variable">evenNodes</span> = [];
+    <span class="keyword">let</span> <span class="variable">current</span> = <span class="variable">head</span>, <span class="variable">index</span> = <span class="number">1</span>;
+
+    <span class="comment">// Phase 1: Collect node references</span>
+    <span class="keyword">while</span> (<span class="variable">current</span>) {
+        (<span class="variable">index</span> % <span class="number">2</span> === <span class="number">1</span> ? <span class="variable">oddNodes</span> : <span class="variable">evenNodes</span>).<span class="function">push</span>(<span class="variable">current</span>);
+        <span class="variable">current</span> = <span class="variable">current</span>.<span class="variable">next</span>;
+        <span class="variable">index</span>++;
+    }
+
+    <span class="comment">// Phase 2: Reconnect odd nodes</span>
+    <span class="keyword">for</span> (<span class="keyword">let</span> <span class="variable">i</span> = <span class="number">0</span>; <span class="variable">i</span> < <span class="variable">oddNodes</span>.<span class="variable">length</span> - <span class="number">1</span>; <span class="variable">i</span>++)
+        <span class="variable">oddNodes</span>[<span class="variable">i</span>].<span class="variable">next</span> = <span class="variable">oddNodes</span>[<span class="variable">i</span> + <span class="number">1</span>];
+
+    <span class="comment">// Connect last odd → first even</span>
+    <span class="variable">oddNodes</span>[<span class="variable">oddNodes</span>.<span class="variable">length</span> - <span class="number">1</span>].<span class="variable">next</span> = <span class="variable">evenNodes</span>[<span class="number">0</span>];
+
+    <span class="comment">// Reconnect even nodes</span>
+    <span class="keyword">for</span> (<span class="keyword">let</span> <span class="variable">i</span> = <span class="number">0</span>; <span class="variable">i</span> < <span class="variable">evenNodes</span>.<span class="variable">length</span> - <span class="number">1</span>; <span class="variable">i</span>++)
+        <span class="variable">evenNodes</span>[<span class="variable">i</span>].<span class="variable">next</span> = <span class="variable">evenNodes</span>[<span class="variable">i</span> + <span class="number">1</span>];
+    <span class="variable">evenNodes</span>[<span class="variable">evenNodes</span>.<span class="variable">length</span> - <span class="number">1</span>].<span class="variable">next</span> = <span class="keyword">null</span>;
+
+    <span class="keyword">return</span> <span class="variable">oddNodes</span>[<span class="number">0</span>];
+}</pre>
+        </div>
+
+        <!-- Complexity -->
+        <div class="complexity-box">
+          <h4>⚠️ Complexity Analysis</h4>
+          <div class="complexity-grid">
+            <div class="complexity-item">
+              <div class="complexity-label">Time Complexity</div>
+              <div class="complexity-value">O(n)</div>
+            </div>
+            <div class="complexity-item">
+              <div class="complexity-label">Space Complexity</div>
+              <div class="complexity-value bad">O(n) ❌</div>
+            </div>
+          </div>
+          <p style="margin-top: 12px; font-size: 1rem; color: #7f8c8d">
+            Still uses O(n) space for arrays — but now we understand
+            <strong>node reconnection</strong>, which is the key to the optimal
+            approach!
+          </p>
+        </div>
+
+        <!-- Comparison -->
+        <div class="comparison-note">
+          <h4>📊 Brute Force vs. Collect Nodes</h4>
+          <table class="comparison-table">
+            <tr>
+              <th>Aspect</th>
+              <th>Brute Force (Values)</th>
+              <th>This Approach (Nodes)</th>
+            </tr>
+            <tr>
+              <td>Stores</td>
+              <td>Node values (integers)</td>
+              <td>Node references (pointers)</td>
+            </tr>
+            <tr>
+              <td>Modifies</td>
+              <td>Node values in place</td>
+              <td>Node.next pointers</td>
+            </tr>
+            <tr>
+              <td>Insight</td>
+              <td>Basic separation</td>
+              <td>Pointer manipulation ✨</td>
+            </tr>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      // Animation state
+      let currentStep = 0;
+      let autoPlayInterval = null;
+
+      // List data
+      const listValues = [1, 2, 3, 4, 5];
+
+      // Step definitions
+      const steps = [
+        {
+          title: "🚀 Initial State",
+          desc: "We have our linked list: [1] → [2] → [3] → [4] → [5]. Instead of collecting values, we'll collect <span class='highlight'>node references</span> (pointers to the actual nodes). This lets us reconnect them later!",
+          index: null,
+          current: null,
+          phase: "init",
+          highlightNode: null,
+          oddArr: [],
+          evenArr: [],
+          result: [],
+          resultPhase: "waiting",
+        },
+        {
+          title: "📍 Step 1: Collect Node at Index 1",
+          desc: "<span class='code-inline'>index = 1</span>, pointing to node with value 1. Since <span class='highlight'>1 % 2 = 1</span> (odd), we push this <em>node reference</em> to oddNodes array.",
+          index: 1,
+          current: 1,
+          phase: "collect",
+          highlightNode: 0,
+          oddArr: [{ val: 1, type: "odd" }],
+          evenArr: [],
+          result: [],
+          resultPhase: "waiting",
+        },
+        {
+          title: "📍 Step 2: Collect Node at Index 2",
+          desc: "<span class='code-inline'>index = 2</span>, pointing to node with value 2. Since <span class='highlight'>2 % 2 = 0</span> (even), we push this <em>node reference</em> to evenNodes array.",
+          index: 2,
+          current: 2,
+          phase: "collect",
+          highlightNode: 1,
+          oddArr: [{ val: 1, type: "odd" }],
+          evenArr: [{ val: 2, type: "even" }],
+          result: [],
+          resultPhase: "waiting",
+        },
+        {
+          title: "📍 Step 3: Collect Node at Index 3",
+          desc: "<span class='code-inline'>index = 3</span>, pointing to node with value 3. Since <span class='highlight'>3 % 2 = 1</span> (odd), we push to oddNodes.",
+          index: 3,
+          current: 3,
+          phase: "collect",
+          highlightNode: 2,
+          oddArr: [
+            { val: 1, type: "odd" },
+            { val: 3, type: "odd" },
+          ],
+          evenArr: [{ val: 2, type: "even" }],
+          result: [],
+          resultPhase: "waiting",
+        },
+        {
+          title: "📍 Step 4: Collect Node at Index 4",
+          desc: "<span class='code-inline'>index = 4</span>, pointing to node with value 4. Since <span class='highlight'>4 % 2 = 0</span> (even), we push to evenNodes.",
+          index: 4,
+          current: 4,
+          phase: "collect",
+          highlightNode: 3,
+          oddArr: [
+            { val: 1, type: "odd" },
+            { val: 3, type: "odd" },
+          ],
+          evenArr: [
+            { val: 2, type: "even" },
+            { val: 4, type: "even" },
+          ],
+          result: [],
+          resultPhase: "waiting",
+        },
+        {
+          title: "📍 Step 5: Collect Node at Index 5",
+          desc: "<span class='code-inline'>index = 5</span>, pointing to node with value 5. Since <span class='highlight'>5 % 2 = 1</span> (odd), we push to oddNodes. Collection complete!",
+          index: 5,
+          current: 5,
+          phase: "collect",
+          highlightNode: 4,
+          oddArr: [
+            { val: 1, type: "odd" },
+            { val: 3, type: "odd" },
+            { val: 5, type: "odd" },
+          ],
+          evenArr: [
+            { val: 2, type: "even" },
+            { val: 4, type: "even" },
+          ],
+          result: [],
+          resultPhase: "waiting",
+        },
+        {
+          title: "✅ Phase 1 Complete!",
+          desc: "Collection done! <span class='highlight'>oddNodes = [node1, node3, node5]</span> and <span class='highlight'>evenNodes = [node2, node4]</span>. Now we have references to all nodes — time to reconnect them!",
+          index: null,
+          current: null,
+          phase: "transition",
+          highlightNode: null,
+          oddArr: [
+            { val: 1, type: "odd" },
+            { val: 3, type: "odd" },
+            { val: 5, type: "odd" },
+          ],
+          evenArr: [
+            { val: 2, type: "even" },
+            { val: 4, type: "even" },
+          ],
+          result: [],
+          resultPhase: "waiting",
+        },
+        {
+          title: "🔗 Reconnect: oddNodes[0].next = oddNodes[1]",
+          desc: "Phase 2 begins! We set <span class='code-inline'>node1.next = node3</span>. The node with value 1 now points directly to the node with value 3 (skipping 2).",
+          index: null,
+          current: null,
+          phase: "reconnect",
+          highlightNode: null,
+          oddArr: [
+            { val: 1, type: "odd" },
+            { val: 3, type: "odd" },
+            { val: 5, type: "odd" },
+          ],
+          evenArr: [
+            { val: 2, type: "even" },
+            { val: 4, type: "even" },
+          ],
+          result: [{ val: 1, type: "odd" }],
+          resultPhase: "building",
+        },
+        {
+          title: "🔗 Reconnect: oddNodes[1].next = oddNodes[2]",
+          desc: "We set <span class='code-inline'>node3.next = node5</span>. Now we have: 1 → 3 → 5. All odd nodes are linked!",
+          index: null,
+          current: null,
+          phase: "reconnect",
+          highlightNode: null,
+          oddArr: [
+            { val: 1, type: "odd" },
+            { val: 3, type: "odd" },
+            { val: 5, type: "odd" },
+          ],
+          evenArr: [
+            { val: 2, type: "even" },
+            { val: 4, type: "even" },
+          ],
+          result: [
+            { val: 1, type: "odd" },
+            { val: 3, type: "odd" },
+            { val: 5, type: "odd" },
+          ],
+          resultPhase: "building",
+        },
+        {
+          title: "🔗 Connect: Last Odd → First Even",
+          desc: "Critical step! <span class='code-inline'>oddNodes[2].next = evenNodes[0]</span> means node5.next = node2. This bridges the odd chain to the even chain!",
+          index: null,
+          current: null,
+          phase: "reconnect",
+          highlightNode: null,
+          oddArr: [
+            { val: 1, type: "odd" },
+            { val: 3, type: "odd" },
+            { val: 5, type: "odd" },
+          ],
+          evenArr: [
+            { val: 2, type: "even" },
+            { val: 4, type: "even" },
+          ],
+          result: [
+            { val: 1, type: "odd" },
+            { val: 3, type: "odd" },
+            { val: 5, type: "odd" },
+            { val: 2, type: "even" },
+          ],
+          resultPhase: "building",
+        },
+        {
+          title: "🔗 Reconnect: evenNodes[0].next = evenNodes[1]",
+          desc: "We set <span class='code-inline'>node2.next = node4</span>. Even nodes are now linked: 2 → 4.",
+          index: null,
+          current: null,
+          phase: "reconnect",
+          highlightNode: null,
+          oddArr: [
+            { val: 1, type: "odd" },
+            { val: 3, type: "odd" },
+            { val: 5, type: "odd" },
+          ],
+          evenArr: [
+            { val: 2, type: "even" },
+            { val: 4, type: "even" },
+          ],
+          result: [
+            { val: 1, type: "odd" },
+            { val: 3, type: "odd" },
+            { val: 5, type: "odd" },
+            { val: 2, type: "even" },
+            { val: 4, type: "even" },
+          ],
+          resultPhase: "building",
+        },
+        {
+          title: "🔗 Terminate: evenNodes[1].next = null",
+          desc: "Finally, <span class='code-inline'>node4.next = null</span> to properly terminate the list. Without this, we might have a dangling pointer or cycle!",
+          index: null,
+          current: null,
+          phase: "reconnect",
+          highlightNode: null,
+          oddArr: [
+            { val: 1, type: "odd" },
+            { val: 3, type: "odd" },
+            { val: 5, type: "odd" },
+          ],
+          evenArr: [
+            { val: 2, type: "even" },
+            { val: 4, type: "even" },
+          ],
+          result: [
+            { val: 1, type: "odd" },
+            { val: 3, type: "odd" },
+            { val: 5, type: "odd" },
+            { val: 2, type: "even" },
+            { val: 4, type: "even" },
+          ],
+          resultPhase: "complete",
+        },
+        {
+          title: "🎉 Algorithm Complete!",
+          desc: "Success! By collecting <span class='highlight'>node references</span> and reconnecting them, we achieved: <strong>[1] → [3] → [5] → [2] → [4] → null</strong>. Same result as brute force, but we now understand pointer manipulation!",
+          index: null,
+          current: null,
+          phase: "complete",
+          highlightNode: null,
+          oddArr: [
+            { val: 1, type: "odd" },
+            { val: 3, type: "odd" },
+            { val: 5, type: "odd" },
+          ],
+          evenArr: [
+            { val: 2, type: "even" },
+            { val: 4, type: "even" },
+          ],
+          result: [
+            { val: 1, type: "odd" },
+            { val: 3, type: "odd" },
+            { val: 5, type: "odd" },
+            { val: 2, type: "even" },
+            { val: 4, type: "even" },
+          ],
+          resultPhase: "complete",
+        },
+      ];
+
+      // DOM elements
+      const originalListEl = document.getElementById("originalList");
+      const oddArrayEl = document.getElementById("oddArray");
+      const evenArrayEl = document.getElementById("evenArray");
+      const resultListEl = document.getElementById("resultList");
+      const stepTitleEl = document.getElementById("stepTitle");
+      const stepDescEl = document.getElementById("stepDesc");
+      const varIndexEl = document.getElementById("varIndex");
+      const varCurrentEl = document.getElementById("varCurrent");
+      const varModEl = document.getElementById("varMod");
+      const varPhaseEl = document.getElementById("varPhase");
+      const progressFillEl = document.getElementById("progressFill");
+      const currentStepEl = document.getElementById("currentStep");
+      const totalStepsEl = document.getElementById("totalSteps");
+      const nextBtn = document.getElementById("nextBtn");
+      const prevBtn = document.getElementById("prevBtn");
+      const resetBtn = document.getElementById("resetBtn");
+      const autoBtn = document.getElementById("autoBtn");
+
+      // Initialize
+      totalStepsEl.textContent = steps.length - 1;
+      renderStep(0);
+
+      // Render original linked list
+      function renderOriginalList(highlightIdx) {
+        originalListEl.innerHTML = "";
+
+        listValues.forEach((val, idx) => {
+          const nodeDiv = document.createElement("div");
+          nodeDiv.className = "node";
+          nodeDiv.style.animationDelay = `${idx * 0.08}s`;
+
+          const isOdd = (idx + 1) % 2 === 1;
+          const nodeClass = isOdd ? "odd" : "even";
+          const highlightClass = highlightIdx === idx ? "highlight" : "";
+          const indexClass = isOdd ? "odd-idx" : "even-idx";
+
+          nodeDiv.innerHTML = `
+                    <div class="node-box ${nodeClass} ${highlightClass}">
+                        <span class="node-index ${indexClass}">${idx + 1}</span>
+                        <span class="node-val">${val}</span>
+                        <span class="node-ref">node${idx + 1}</span>
+                    </div>
+                    ${
+                      idx < listValues.length - 1
+                        ? '<span class="arrow">→</span>'
+                        : '<span class="arrow">→</span><span class="null-node">null</span>'
+                    }
+                `;
+          originalListEl.appendChild(nodeDiv);
+        });
+      }
+
+      // Render node array
+      function renderNodeArray(container, nodes) {
+        if (nodes.length === 0) {
+          container.innerHTML = '<span class="empty-array">empty</span>';
+          return;
+        }
+
+        container.innerHTML = "";
+        nodes.forEach((node, idx) => {
+          const arrNode = document.createElement("div");
+          arrNode.className = "array-node";
+          arrNode.style.animationDelay = `${idx * 0.1}s`;
+          arrNode.innerHTML = `
+                    <div class="mini-node ${node.type}">${node.val}</div>
+                    <div class="arr-idx">[${idx}]</div>
+                `;
+          container.appendChild(arrNode);
+        });
+      }
+
+      // Render result list
+      function renderResultList(nodes, phase) {
+        if (phase === "waiting") {
+          resultListEl.innerHTML =
+            '<span class="null-node">waiting for reconnection phase...</span>';
+          return;
+        }
+
+        resultListEl.innerHTML = "";
+
+        if (nodes.length === 0) {
+          resultListEl.innerHTML = '<span class="null-node">empty</span>';
+          return;
+        }
+
+        nodes.forEach((node, idx) => {
+          const nodeDiv = document.createElement("div");
+          nodeDiv.className = "node";
+          nodeDiv.style.animationDelay = `${idx * 0.1}s`;
+
+          const isLastNode = idx === nodes.length - 1;
+          const arrowClass =
+            phase === "complete" && isLastNode ? "" : "new-link";
+
+          nodeDiv.innerHTML = `
+                    <div class="node-box ${node.type}">
+                        <span class="node-val">${node.val}</span>
+                    </div>
+                    ${
+                      !isLastNode
+                        ? `<span class="arrow ${arrowClass}">→</span>`
+                        : '<span class="arrow">→</span><span class="null-node">null</span>'
+                    }
+                `;
+          resultListEl.appendChild(nodeDiv);
+        });
+      }
+
+      // Render current step
+      function renderStep(stepIdx) {
+        const step = steps[stepIdx];
+
+        // Update text
+        stepTitleEl.textContent = step.title;
+        stepDescEl.innerHTML = step.desc;
+
+        // Update variables
+        varIndexEl.textContent = step.index !== null ? step.index : "—";
+        varCurrentEl.textContent =
+          step.current !== null ? `node${step.current}` : "—";
+        varModEl.textContent =
+          step.index !== null
+            ? step.index % 2 === 1
+              ? "1 (odd)"
+              : "0 (even)"
+            : "—";
+
+        const phaseMap = {
+          init: "Ready",
+          collect: "Collecting",
+          transition: "Transition",
+          reconnect: "Reconnecting",
+          complete: "Done! ✓",
+        };
+        varPhaseEl.textContent = phaseMap[step.phase] || "—";
+
+        // Render visuals
+        renderOriginalList(step.highlightNode);
+        renderNodeArray(oddArrayEl, step.oddArr);
+        renderNodeArray(evenArrayEl, step.evenArr);
+        renderResultList(step.result, step.resultPhase);
+
+        // Update progress
+        const progress = (stepIdx / (steps.length - 1)) * 100;
+        progressFillEl.style.width = `${progress}%`;
+        currentStepEl.textContent = stepIdx;
+
+        // Update buttons
+        prevBtn.disabled = stepIdx === 0;
+        nextBtn.disabled = stepIdx === steps.length - 1;
+      }
+
+      // Event handlers
+      nextBtn.addEventListener("click", () => {
+        if (currentStep < steps.length - 1) {
+          currentStep++;
+          renderStep(currentStep);
+        }
+      });
+
+      prevBtn.addEventListener("click", () => {
+        if (currentStep > 0) {
+          currentStep--;
+          renderStep(currentStep);
+        }
+      });
+
+      resetBtn.addEventListener("click", () => {
+        stopAutoPlay();
+        currentStep = 0;
+        renderStep(currentStep);
+      });
+
+      autoBtn.addEventListener("click", () => {
+        if (autoPlayInterval) {
+          stopAutoPlay();
+        } else {
+          startAutoPlay();
+        }
+      });
+
+      function startAutoPlay() {
+        autoBtn.textContent = "⏸ Pause";
+        autoBtn.classList.remove("btn-warning");
+        autoBtn.classList.add("btn-danger");
+
+        autoPlayInterval = setInterval(() => {
+          if (currentStep < steps.length - 1) {
+            currentStep++;
+            renderStep(currentStep);
+          } else {
+            stopAutoPlay();
+          }
+        }, 2000);
+      }
+
+      function stopAutoPlay() {
+        autoBtn.textContent = "▶ Auto Play";
+        autoBtn.classList.remove("btn-danger");
+        autoBtn.classList.add("btn-warning");
+
+        if (autoPlayInterval) {
+          clearInterval(autoPlayInterval);
+          autoPlayInterval = null;
+        }
+      }
+
+      // Keyboard navigation
+      document.addEventListener("keydown", (e) => {
+        if (e.key === "ArrowRight" && currentStep < steps.length - 1) {
+          currentStep++;
+          renderStep(currentStep);
+        } else if (e.key === "ArrowLeft" && currentStep > 0) {
+          currentStep--;
+          renderStep(currentStep);
+        } else if (e.key === " ") {
+          e.preventDefault();
+          if (autoPlayInterval) stopAutoPlay();
+          else startAutoPlay();
+        }
+      });
+    </script>
+  </body>
+</html>

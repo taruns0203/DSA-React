@@ -1,0 +1,428 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LCIS - Optimal (Sliding Window)</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            min-height: 100vh;
+            padding: 20px;
+            color: #333;
+        }
+        .container {
+            max-width: 1100px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            overflow: hidden;
+        }
+        header {
+            background: linear-gradient(135deg, #2ecc71 0%, #27ae60 100%);
+            color: white;
+            padding: 25px;
+            text-align: center;
+        }
+        h1 { font-size: 1.5em; margin-bottom: 8px; }
+        .subtitle { font-size: 1em; opacity: 0.9; }
+        .complexity-badge {
+            display: inline-block;
+            background: rgba(255,255,255,0.2);
+            padding: 6px 14px;
+            border-radius: 15px;
+            margin-top: 8px;
+            font-size: 0.85em;
+        }
+        .main-content {
+            display: grid;
+            grid-template-columns: 1fr 280px;
+            gap: 20px;
+            padding: 20px;
+        }
+        .card {
+            background: #f8f9fa;
+            border-radius: 12px;
+            padding: 16px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            margin-bottom: 16px;
+        }
+        .card-title {
+            font-size: 0.95em;
+            font-weight: 600;
+            margin-bottom: 12px;
+            color: #27ae60;
+        }
+        
+        /* Controls */
+        .controls { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+        button {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 8px;
+            font-size: 0.85em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        button:hover { transform: translateY(-2px); }
+        button:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+        .btn-primary { background: linear-gradient(135deg, #2ecc71 0%, #27ae60 100%); color: white; }
+        .btn-success { background: linear-gradient(135deg, #28a745 0%, #20c997 100%); color: white; }
+        .btn-warning { background: linear-gradient(135deg, #ffc107 0%, #ff9800 100%); color: white; }
+        .btn-secondary { background: #6c757d; color: white; }
+        .speed-control { display: flex; align-items: center; gap: 6px; flex: 1; min-width: 140px; }
+        .speed-control input[type="range"] { flex: 1; height: 5px; accent-color: #2ecc71; }
+
+        /* Array Viz */
+        .array-container {
+            display: flex;
+            align-items: flex-end;
+            justify-content: center;
+            gap: 4px;
+            height: 200px;
+            padding: 20px 10px;
+            background: #fff;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            position: relative;
+        }
+        
+        .array-bar {
+            width: 45px;
+            background: #dfe6e9;
+            border-radius: 4px 4px 0 0;
+            position: relative;
+            transition: all 0.3s ease;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            padding-top: 5px;
+            color: #636e72;
+            font-weight: bold;
+            font-size: 0.9em;
+        }
+        
+        /* Bar States */
+        .bar-current { border: 2px solid #27ae60; background: #a29bfe; color: white; }
+        .bar-active { background: #2ecc71; color: white; } /* Part of active sequence */
+        .bar-break { background: #e74c3c; color: white; } /* Broke sequence */
+        
+        .idx-label {
+            position: absolute;
+            bottom: -25px;
+            font-size: 0.7em;
+            color: #888;
+            width: 100%;
+            text-align: center;
+        }
+        
+        .ptr {
+            position: absolute;
+            bottom: -45px;
+            font-size: 0.8em;
+            font-weight: 700;
+            text-align: center;
+            width: 45px;
+            transition: left 0.3s ease;
+            color: #27ae60;
+        }
+        .ptr::before { content: 'i'; display: block; }
+        .ptr::after { content: '↑'; display: block; }
+        
+        /* State & Log */
+        .state-display { background: white; border-radius: 8px; padding: 10px; font-family: 'Courier New', monospace; font-size: 0.85em; }
+        .state-row { display: flex; justify-content: space-between; padding: 4px 0; border-bottom: 1px solid #eee; }
+        .highlight-val { color: #27ae60; font-weight: bold; }
+        
+        .log-container { 
+            background: white; border-radius: 8px; padding: 10px; 
+            max-height: 200px; overflow-y: auto; 
+            font-family: 'Courier New', monospace; font-size: 0.65em; 
+        }
+        .log-entry { padding: 3px 6px; margin: 2px 0; border-radius: 4px; border-left: 3px solid #ccc; background: #f9f9f9; }
+        .log-entry.extend { border-left-color: #2ecc71; background: #e8f5e9; }
+        .log-entry.reset { border-left-color: #e74c3c; background: #ffebee; }
+        .log-entry.info { border-left-color: #3498db; background: #e3f2fd; }
+        
+        .max-len-display {
+            text-align: center;
+            padding: 10px;
+            background: #2d3436;
+            color: white;
+            border-radius: 8px;
+            margin-top: 10px;
+            font-size: 1.2em;
+            font-weight: bold;
+        }
+        
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Longest Continuous Increasing Subsequence</h1>
+            <div class="subtitle">Optimal: Single Pass (Sliding Window)</div>
+            <div class="complexity-badge">Time: O(N) | Space: O(1)</div>
+        </header>
+
+        <div class="main-content">
+            <div class="left-panel">
+                <div class="card">
+                    <div class="card-title">⚙️ Controls</div>
+                    <div class="controls">
+                        <button class="btn-primary" id="playBtn">▶️ Play</button>
+                        <button class="btn-warning" id="pauseBtn" disabled>⏸️ Pause</button>
+                        <button class="btn-success" id="stepBtn">⏭️ Step</button>
+                        <button class="btn-secondary" id="resetBtn">🔄 Reset</button>
+                        <div class="speed-control">
+                            <label>Speed:</label>
+                            <input type="range" id="speedSlider" min="1" max="10" value="5">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-title">Sliding Window</div>
+                    <div class="array-container" id="arrayContainer"></div>
+                </div>
+                
+                <div class="card">
+                    <div class="card-title">ℹ️ Logic</div>
+                    <div style="font-size: 0.9em; color: #555;">
+                        1. Iterate <code>i</code> from 0 to N-1.<br>
+                        2. If <code>nums[i] > nums[i-1]</code>, currentLen++.<br>
+                        3. Else, reset currentLen = 1.<br>
+                        4. Update Max Length at each step.
+                    </div>
+                </div>
+            </div>
+
+            <div class="right-panel">
+                <div class="card">
+                    <div class="card-title">📊 State</div>
+                    <div class="state-display">
+                        <div class="state-row"><span>i (Index):</span><span id="iVal">-</span></div>
+                        <div class="state-row"><span>Comparison:</span><span id="compVal">-</span></div>
+                        <div class="state-row"><span>Current Len:</span><span id="curLenVal">-</span></div>
+                    </div>
+                    <div class="max-len-display">
+                        Max Length: <span id="maxLenVal">0</span>
+                    </div>
+                </div>
+
+                <div class="card" style="flex-grow: 1; display: flex; flex-direction: column;">
+                    <div class="card-title">📝 Execution Log</div>
+                    <div class="log-container" id="logContainer"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Data
+        const nums = [1, 3, 5, 4, 7];
+        let n = nums.length;
+        
+        let i = 0;
+        let curLen = 0;
+        let maxLen = 0;
+        
+        // State Machine
+        // phases: 'init', 'check', 'done'
+        let phase = 'init';
+        
+        let isRunning = false;
+        let timer = null;
+        let speed = 5;
+        let stepCount = 0;
+        
+        const maxVal = Math.max(...nums);
+
+        function init() {
+            i = 0;
+            curLen = 0;
+            maxLen = 0;
+            phase = 'init';
+            stepCount = 0;
+            
+            clearLog();
+            addLog(`Array: [${nums.join(', ')}]`, "info");
+            
+            render();
+            updateControls();
+        }
+
+        function createBar(val, idx) {
+            const el = document.createElement('div');
+            let cls = 'array-bar';
+            
+            // Visual logic based on curLen
+            // current sequence ends at i.
+            // Start is i - curLen + 1.
+            
+            if (phase !== 'init' && phase !== 'done') {
+                if (idx === i) cls += ' bar-current';
+                
+                // Highlight active sequence
+                // If checking i, sequence is valid up to i (if successful extend) 
+                // or just i (if reset).
+                // Logic runs before render, so curLen is updated.
+                
+                const startIdx = i - curLen + 1;
+                if (idx >= startIdx && idx <= i) {
+                    cls += ' bar-active';
+                }
+                
+                // Special case for break visually?
+                // If just reset, startIdx == i.
+                if (curLen === 1 && idx === i && i > 0 && nums[i] <= nums[i-1]) {
+                    // It was a break point
+                    el.style.backgroundColor = '#e74c3c'; // Red flash?
+                }
+            }
+            
+            el.className = cls;
+            el.textContent = val;
+            
+            const hPercent = (val / maxVal) * 80 + 10;
+            el.style.height = `${hPercent}%`;
+            
+            const lbl = document.createElement('div');
+            lbl.className = 'idx-label';
+            lbl.textContent = idx;
+            el.appendChild(lbl);
+            
+            return el;
+        }
+
+        function render() {
+            const container = document.getElementById('arrayContainer');
+            container.innerHTML = '';
+            
+            nums.forEach((val, idx) => {
+                const bar = createBar(val, idx);
+                container.appendChild(bar);
+            });
+            
+            // Ptr
+            if (phase !== 'done' && phase !== 'init') {
+                const ptr = document.createElement('div');
+                ptr.className = 'ptr';
+                ptr.style.left = `${(i * 49)}px`;
+                container.appendChild(ptr);
+            }
+
+            // State Updates
+            document.getElementById('iVal').textContent = phase === 'done' ? '-' : i;
+            document.getElementById('curLenVal').textContent = curLen;
+            document.getElementById('maxLenVal').textContent = maxLen;
+            
+            let comp = '-';
+            if (i > 0 && phase !== 'init' && phase !== 'done') {
+                if (nums[i] > nums[i-1]) comp = `${nums[i]} > ${nums[i-1]}`;
+                else comp = `${nums[i]} <= ${nums[i-1]}`;
+            } else if (i === 0 && phase !== 'init') {
+                comp = "Start";
+            }
+            document.getElementById('compVal').textContent = comp;
+        }
+
+        function step() {
+            stepCount++;
+            
+            if (phase === 'init') {
+                phase = 'check';
+                i = 0;
+                curLen = 0;
+                addLog(`Start scan...`, "info");
+            }
+            else if (phase === 'check') {
+                if (i < n) {
+                    if (i === 0) {
+                        curLen = 1;
+                        addLog(`i=0. Start new sequence. Len=1`, "extend");
+                    } else {
+                        if (nums[i] > nums[i-1]) {
+                            curLen++;
+                            addLog(`i=${i}: ${nums[i]} > ${nums[i-1]}. Extend. Len=${curLen}`, "extend");
+                        } else {
+                            curLen = 1;
+                            addLog(`i=${i}: ${nums[i]} <= ${nums[i-1]}. Reset. Len=1`, "reset");
+                        }
+                    }
+                    
+                    if (curLen > maxLen) {
+                        maxLen = curLen;
+                        addLog(`New Max Length: ${maxLen}`, "info");
+                    }
+                    
+                    i++;
+                } else {
+                    phase = 'done';
+                    addLog(`Done. Final Max Length: ${maxLen}`, "success");
+                    stop();
+                }
+            }
+            
+            render();
+        }
+
+        function addLog(msg, type = 'info') {
+            const log = document.getElementById('logContainer');
+            log.innerHTML += `<div class="log-entry ${type}">[${stepCount}] ${msg}</div>`;
+            log.scrollTop = log.scrollHeight;
+        }
+
+        function clearLog() { document.getElementById('logContainer').innerHTML = ''; }
+
+        function play() {
+            if (isRunning) return;
+            isRunning = true;
+            updateControls();
+            runLoop();
+        }
+
+        function runLoop() {
+            if (!isRunning) return;
+            step();
+            if (phase !== 'done') {
+                const delay = 1000 - (speed * 90);
+                timer = setTimeout(runLoop, Math.max(50, delay));
+            }
+        }
+
+        function stop() {
+            isRunning = false;
+            if (timer) clearTimeout(timer);
+            updateControls();
+        }
+
+        function reset() {
+            stop();
+            init();
+        }
+
+        function updateControls() {
+            document.getElementById('playBtn').disabled = isRunning || phase === 'done';
+            document.getElementById('pauseBtn').disabled = !isRunning;
+            document.getElementById('stepBtn').disabled = isRunning || phase === 'done';
+            document.getElementById('resetBtn').disabled = isRunning;
+        }
+
+        // Listeners
+        document.getElementById('playBtn').addEventListener('click', play);
+        document.getElementById('pauseBtn').addEventListener('click', stop);
+        document.getElementById('stepBtn').addEventListener('click', step);
+        document.getElementById('resetBtn').addEventListener('click', reset);
+        document.getElementById('speedSlider').addEventListener('input', (e) => speed = parseInt(e.target.value));
+
+        // Start
+        init();
+
+    </script>
+</body>
+</html>

@@ -1,0 +1,663 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Count of Range Sum - Merge Sort on Prefix Sums</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #0f0c29 0%, #1a1a2e 50%, #16213e 100%);
+            min-height: 100vh;
+            padding: 20px;
+            color: #e0e0e0;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: #1a1a2e;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.6);
+            overflow: hidden;
+        }
+        header {
+            background: linear-gradient(135deg, #e84393 0%, #fd79a8 50%, #6c5ce7 100%);
+            color: white; padding: 22px; text-align: center;
+        }
+        h1 { font-size: 1.25em; margin-bottom: 6px; }
+        .subtitle { font-size: 0.92em; opacity: 0.9; }
+        .complexity-badge {
+            display: inline-block; background: rgba(255,255,255,0.18);
+            padding: 5px 14px; border-radius: 15px; margin-top: 6px; font-size: 0.82em;
+        }
+        .main-content {
+            display: grid; grid-template-columns: 1fr 265px;
+            gap: 14px; padding: 14px;
+        }
+        .card {
+            background: #16213e; border-radius: 12px; padding: 12px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.4); margin-bottom: 12px;
+        }
+        .card-title { font-size: 0.85em; font-weight: 600; margin-bottom: 8px; color: #fd79a8; }
+
+        .controls { display: flex; flex-wrap: wrap; gap: 7px; align-items: center; }
+        button {
+            padding: 6px 13px; border: none; border-radius: 8px;
+            font-size: 0.8em; font-weight: 600; cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        button:hover { transform: translateY(-2px); filter: brightness(1.15); }
+        button:disabled { opacity: 0.4; cursor: not-allowed; transform: none; }
+        .btn-primary { background: linear-gradient(135deg, #e84393, #fd79a8); color: white; }
+        .btn-success { background: linear-gradient(135deg, #00b894, #55efc4); color: white; }
+        .btn-warning { background: linear-gradient(135deg, #fdcb6e, #e17055); color: white; }
+        .btn-secondary { background: #636e72; color: white; }
+        .speed-control { display: flex; align-items: center; gap: 5px; flex: 1; min-width: 120px; font-size: 0.8em; }
+        .speed-control input[type="range"] { flex: 1; height: 4px; accent-color: #e84393; }
+        .input-row { display: flex; gap: 6px; align-items: center; margin-top: 9px; flex-wrap: wrap; }
+        .input-row label { font-size: 0.75em; color: #b2bec3; white-space: nowrap; }
+        .input-row input {
+            flex: 1; padding: 6px 8px; border-radius: 8px;
+            border: 1px solid #3d4f7c; background: #0f0c29;
+            color: #e0e0e0; font-family: 'Courier New', monospace; font-size: 0.82em;
+            min-width: 50px;
+        }
+        .input-row input:focus { outline: none; border-color: #e84393; }
+
+        .viz-area {
+            padding: 12px 8px;
+            background: #0a0e1a;
+            border: 1px solid #2d3a56;
+            border-radius: 10px;
+        }
+        .section-label {
+            font-size: 0.6em; font-weight: 700;
+            text-transform: uppercase; letter-spacing: 0.8px;
+            margin-bottom: 3px; padding-left: 2px;
+        }
+        .sl-prefix { color: #fdcb6e; }
+        .sl-left { color: #ff6b6b; }
+        .sl-right { color: #74b9ff; }
+        .sl-merged { color: #55efc4; }
+        .sl-count { color: #a29bfe; }
+
+        .arr-row {
+            display: flex; justify-content: center;
+            gap: 4px; margin-bottom: 8px; min-height: 40px;
+            flex-wrap: wrap;
+        }
+        .cell {
+            min-width: 42px; height: 38px; padding: 0 4px;
+            border-radius: 7px;
+            display: flex; align-items: center; justify-content: center;
+            font-weight: 700; font-size: 0.9em;
+            font-family: 'Courier New', monospace;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.25);
+        }
+        .c-default { background: linear-gradient(145deg, #2d3a56, #3d4f7c); color: #b2bec3; }
+        .c-left { background: linear-gradient(145deg, #c0392b, #e74c3c); color: white; }
+        .c-left-ptr { background: linear-gradient(145deg, #e74c3c, #ff6b6b); color: white; box-shadow: 0 0 12px rgba(231,76,60,0.5); }
+        .c-left-used { background: #2d3a56; color: #636e72; border: 1px dashed #636e72; }
+        .c-right { background: linear-gradient(145deg, #0984e3, #74b9ff); color: white; }
+        .c-right-ptr { background: linear-gradient(145deg, #74b9ff, #a8d8ff); color: #2d3436; box-shadow: 0 0 12px rgba(116,185,255,0.5); }
+        .c-right-used { background: #2d3a56; color: #636e72; border: 1px dashed #636e72; }
+        .c-merged { background: linear-gradient(145deg, #00b894, #55efc4); color: #2d3436; }
+        .c-lo { border: 2px solid #fdcb6e; box-shadow: 0 0 8px rgba(253,203,110,0.4); }
+        .c-hi { border: 2px solid #a29bfe; box-shadow: 0 0 8px rgba(162,155,254,0.4); }
+        .c-build { background: linear-gradient(145deg, #fdcb6e, #f39c12); color: #2d3436; }
+        .c-prefix { background: #fdcb6e15; color: #fdcb6e; border: 1px solid #fdcb6e44; }
+
+        /* Count badge */
+        .count-badge {
+            display: inline-block; padding: 6px 16px;
+            border-radius: 8px; font-family: 'Courier New', monospace;
+            font-size: 1em; font-weight: 700;
+            background: #6c5ce733; color: #a29bfe; border: 1px solid #6c5ce7;
+            text-align: center;
+        }
+
+        .formula-bar {
+            text-align: center; padding: 8px;
+            background: #16213e; border-radius: 8px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.78em; min-height: 36px;
+            display: flex; align-items: center; justify-content: center;
+        }
+
+        .depth-badge {
+            display: inline-block; padding: 3px 10px; border-radius: 6px;
+            font-family: 'Courier New', monospace; font-size: 0.72em;
+            background: #e8439322; color: #fd79a8; border: 1px solid #e84393;
+            margin-bottom: 6px;
+        }
+
+        .state-display { background: #0f0c29; border-radius: 8px; padding: 9px; font-family: 'Courier New', monospace; font-size: 0.75em; }
+        .state-row { display: flex; justify-content: space-between; padding: 3px 0; border-bottom: 1px solid #2d3a56; }
+        .state-val { font-weight: bold; }
+        .log-container {
+            background: #0f0c29; border-radius: 8px; padding: 7px;
+            max-height: 200px; overflow-y: auto;
+            font-family: 'Courier New', monospace; font-size: 0.52em;
+        }
+        .log-entry { padding: 3px 5px; margin: 2px 0; border-radius: 4px; border-left: 3px solid #4a5568; background: #16213e; }
+        .log-entry.split { border-left-color: #e84393; }
+        .log-entry.count { border-left-color: #a29bfe; }
+        .log-entry.merge { border-left-color: #55efc4; }
+        .log-entry.hit { border-left-color: #00b894; }
+        .log-entry.info { border-left-color: #74b9ff; }
+        .log-entry.build { border-left-color: #fdcb6e; }
+        .log-entry.done { border-left-color: #fdcb6e; }
+
+        .result-display {
+            text-align: center; padding: 10px;
+            background: linear-gradient(135deg, #16213e, #0f0c29);
+            border: 1px solid #e84393;
+            color: white; border-radius: 8px;
+            margin-top: 8px; font-size: 0.92em; font-weight: bold;
+            font-family: 'Courier New', monospace;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>327. Count of Range Sum</h1>
+            <div class="subtitle">Optimal: Merge Sort on Prefix Sums</div>
+            <div class="complexity-badge">Time: O(N log N) | Space: O(N)</div>
+        </header>
+
+        <div class="main-content">
+            <div class="left-panel">
+                <div class="card">
+                    <div class="card-title">⚙️ Controls</div>
+                    <div class="controls">
+                        <button class="btn-primary" id="playBtn">▶ Play</button>
+                        <button class="btn-warning" id="pauseBtn" disabled>⏸ Pause</button>
+                        <button class="btn-success" id="stepBtn">⏭ Step</button>
+                        <button class="btn-secondary" id="resetBtn">↺ Reset</button>
+                        <div class="speed-control">
+                            <label>Speed:</label>
+                            <input type="range" id="speedSlider" min="1" max="10" value="5">
+                        </div>
+                    </div>
+                    <div class="input-row">
+                        <label>nums:</label>
+                        <input type="text" id="numsInput" value="-2,5,-1">
+                        <label>lo:</label>
+                        <input type="text" id="lowerInput" value="-2" style="max-width:48px;">
+                        <label>hi:</label>
+                        <input type="text" id="upperInput" value="2" style="max-width:48px;">
+                        <button class="btn-secondary" id="loadBtn">Load</button>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-title">📊 Full Prefix Array</div>
+                    <div class="viz-area">
+                        <div class="section-label sl-prefix">prefix[]</div>
+                        <div class="arr-row" id="prefixRow"></div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-title">🔀 Merge Workspace</div>
+                    <div class="viz-area">
+                        <div id="depthBadge" class="depth-badge">-</div>
+                        <div class="section-label sl-left">Left Half (sorted)</div>
+                        <div class="arr-row" id="leftRow"></div>
+                        <div class="section-label sl-right">Right Half (sorted)</div>
+                        <div class="arr-row" id="rightRow"></div>
+                        <div class="section-label sl-count" style="margin-top:4px;">Two-Pointer Count Window [lo, hi)</div>
+                        <div class="formula-bar" id="countBar">-</div>
+                        <div class="section-label sl-merged" style="margin-top:6px;">Merged Result</div>
+                        <div class="arr-row" id="mergedRow"></div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-title">📐 Detail</div>
+                    <div class="formula-bar" id="formulaBar">
+                        <span style="color:#4a5568">Press Step to begin</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="right-panel">
+                <div class="card">
+                    <div class="card-title">📊 State</div>
+                    <div class="state-display">
+                        <div class="state-row"><span>Phase:</span><span class="state-val" style="color:#fd79a8" id="phaseVal">Ready</span></div>
+                        <div class="state-row"><span>Depth:</span><span class="state-val" style="color:#fdcb6e" id="depthVal">-</span></div>
+                        <div class="state-row"><span>Sub-range:</span><span class="state-val" style="color:#74b9ff" id="rangeVal">-</span></div>
+                        <div class="state-row"><span>lo ptr:</span><span class="state-val" style="color:#fdcb6e" id="loVal">-</span></div>
+                        <div class="state-row"><span>hi ptr:</span><span class="state-val" style="color:#a29bfe" id="hiVal">-</span></div>
+                        <div class="state-row"><span>Cross Count:</span><span class="state-val" style="color:#55efc4" id="crossVal">-</span></div>
+                        <div class="state-row"><span>Total Count:</span><span class="state-val" style="color:#fdcb6e" id="totalVal">0</span></div>
+                    </div>
+                    <div class="result-display" id="resultDisplay">Total: 0</div>
+                </div>
+
+                <div class="card" style="flex-grow:1;display:flex;flex-direction:column;">
+                    <div class="card-title">📝 Execution Log</div>
+                    <div class="log-container" id="logContainer"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let initNums = [-2, 5, -1];
+        let lower = -2, upper = 2;
+
+        let events = [];
+
+        function buildTrace() {
+            events = [];
+            const nums = [...initNums];
+            const n = nums.length;
+            const prefix = new Array(n + 1);
+            prefix[0] = 0;
+            for (let k = 0; k < n; k++) prefix[k + 1] = prefix[k] + nums[k];
+
+            events.push({ type: 'build-prefix', prefix: [...prefix] });
+
+            const arr = [...prefix];
+            let totalCount = 0;
+
+            function ms(left, right, depth) {
+                if (left >= right) return 0;
+                const mid = (left + right) >> 1;
+
+                events.push({ type: 'split', left, right, mid, depth, arr: [...arr] });
+
+                const cntL = ms(left, mid, depth + 1);
+                const cntR = ms(mid + 1, right, depth + 1);
+
+                // Count phase
+                const leftHalf = arr.slice(left, mid + 1);
+                const rightHalf = arr.slice(mid + 1, right + 1);
+
+                events.push({
+                    type: 'count-start', left, right, mid, depth,
+                    leftHalf: [...leftHalf], rightHalf: [...rightHalf],
+                    arr: [...arr]
+                });
+
+                let crossCount = 0;
+                let lo = mid + 1, hi = mid + 1;
+
+                for (let j = left; j <= mid; j++) {
+                    while (lo <= right && arr[lo] - arr[j] < lower) lo++;
+                    while (hi <= right && arr[hi] - arr[j] <= upper) hi++;
+                    const added = hi - lo;
+                    crossCount += added;
+
+                    events.push({
+                        type: 'count-step', left, right, mid, depth,
+                        j, jVal: arr[j], lo, hi, added, crossCount,
+                        leftHalf: [...leftHalf], rightHalf: [...rightHalf],
+                        arr: [...arr]
+                    });
+                }
+
+                totalCount += crossCount;
+                const localTotal = cntL + cntR + crossCount;
+
+                events.push({
+                    type: 'count-end', left, right, mid, depth,
+                    crossCount, localTotal, totalCount,
+                    leftHalf: [...leftHalf], rightHalf: [...rightHalf],
+                    arr: [...arr]
+                });
+
+                // Merge
+                const temp = [];
+                let p = left, q = mid + 1;
+                events.push({
+                    type: 'merge-start', left, right, mid, depth,
+                    leftHalf: [...leftHalf], rightHalf: [...rightHalf],
+                    arr: [...arr]
+                });
+
+                while (p <= mid && q <= right) {
+                    if (arr[p] <= arr[q]) {
+                        temp.push(arr[p]);
+                        events.push({
+                            type: 'merge-pick', side: 'left', val: arr[p],
+                            pIdx: p - left, qIdx: q - (mid + 1),
+                            merged: [...temp], depth,
+                            leftHalf: [...leftHalf], rightHalf: [...rightHalf]
+                        });
+                        p++;
+                    } else {
+                        temp.push(arr[q]);
+                        events.push({
+                            type: 'merge-pick', side: 'right', val: arr[q],
+                            pIdx: p - left, qIdx: q - (mid + 1),
+                            merged: [...temp], depth,
+                            leftHalf: [...leftHalf], rightHalf: [...rightHalf]
+                        });
+                        q++;
+                    }
+                }
+                while (p <= mid) {
+                    temp.push(arr[p]);
+                    events.push({
+                        type: 'merge-pick', side: 'left', val: arr[p],
+                        pIdx: p - left, qIdx: rightHalf.length,
+                        merged: [...temp], depth,
+                        leftHalf: [...leftHalf], rightHalf: [...rightHalf]
+                    });
+                    p++;
+                }
+                while (q <= right) {
+                    temp.push(arr[q]);
+                    events.push({
+                        type: 'merge-pick', side: 'right', val: arr[q],
+                        pIdx: leftHalf.length, qIdx: q - (mid + 1),
+                        merged: [...temp], depth,
+                        leftHalf: [...leftHalf], rightHalf: [...rightHalf]
+                    });
+                    q++;
+                }
+                for (let i = 0; i < temp.length; i++) arr[left + i] = temp[i];
+
+                events.push({
+                    type: 'merge-done', left, right, depth,
+                    merged: [...temp], arr: [...arr]
+                });
+
+                return localTotal;
+            }
+
+            ms(0, n, 0);
+            events.push({ type: 'done', totalCount, arr: [...arr] });
+        }
+
+        // State
+        let eventIdx = 0;
+        let curPrefix = [];
+        let curArr = [];
+        let curPhase = 'Ready';
+        let curDepth = 0;
+        let curRange = '';
+        let curLeftHalf = [], curRightHalf = [];
+        let curMerged = [];
+        let curLo = -1, curHi = -1;
+        let curJ = -1;
+        let curCross = 0;
+        let curTotal = 0;
+        let curPIdx = -1, curQIdx = -1;
+        let isDone = false;
+        let formulaHtml = '<span style="color:#4a5568">Press Step to begin</span>';
+        let countBarHtml = '-';
+        let depthLabel = '-';
+
+        let isRunning = false, timer = null, speed = 5, stepCount = 0;
+
+        function init() {
+            buildTrace();
+            const n = initNums.length;
+            eventIdx = 0;
+            curPrefix = new Array(n + 1).fill(0);
+            curArr = [];
+            curPhase = 'Ready'; curDepth = 0; curRange = '';
+            curLeftHalf = []; curRightHalf = []; curMerged = [];
+            curLo = -1; curHi = -1; curJ = -1;
+            curCross = 0; curTotal = 0;
+            curPIdx = -1; curQIdx = -1;
+            isDone = false; stepCount = 0;
+            formulaHtml = '<span style="color:#4a5568">Press Step to begin</span>';
+            countBarHtml = '-'; depthLabel = '-';
+
+            clearLog();
+            addLog(`nums=[${initNums.join(',')}], lower=${lower}, upper=${upper}`, 'info');
+            render();
+            updateControls();
+        }
+
+        function step() {
+            if (eventIdx >= events.length) return;
+            stepCount++;
+
+            const ev = events[eventIdx++];
+            switch (ev.type) {
+                case 'build-prefix':
+                    curPrefix = [...ev.prefix];
+                    curArr = [...ev.prefix];
+                    curPhase = 'Build';
+                    addLog(`prefix = [${ev.prefix.join(', ')}]`, 'build');
+                    formulaHtml = `<span style="color:#fdcb6e">prefix = [${ev.prefix.join(', ')}]</span>`;
+                    break;
+
+                case 'split':
+                    curPhase = 'Split';
+                    curDepth = ev.depth;
+                    curRange = `[${ev.left}..${ev.right}]`;
+                    curArr = [...ev.arr];
+                    curLeftHalf = []; curRightHalf = []; curMerged = [];
+                    curLo = -1; curHi = -1; curJ = -1; curCross = 0;
+                    depthLabel = `Depth ${ev.depth}: mergeSort(${ev.left}, ${ev.right}), mid=${ev.mid}`;
+                    addLog(`Split [${ev.left}..${ev.right}], mid=${ev.mid}`, 'split');
+                    formulaHtml = `<span style="color:#fd79a8">Split [${ev.left}..${ev.right}] at mid=${ev.mid}</span>`;
+                    countBarHtml = '-';
+                    break;
+
+                case 'count-start':
+                    curPhase = 'Count';
+                    curDepth = ev.depth;
+                    curRange = `[${ev.left}..${ev.right}]`;
+                    curLeftHalf = [...ev.leftHalf];
+                    curRightHalf = [...ev.rightHalf];
+                    curMerged = [];
+                    curLo = -1; curHi = -1; curJ = -1; curCross = 0;
+                    depthLabel = `Depth ${ev.depth}: counting across [${ev.left}..${ev.mid}] × [${ev.mid+1}..${ev.right}]`;
+                    addLog(`Count: left=[${ev.leftHalf.join(',')}] × right=[${ev.rightHalf.join(',')}]`, 'count');
+                    formulaHtml = `<span style="color:#a29bfe">Two-pointer counting across halves</span>`;
+                    countBarHtml = `<span style="color:#636e72">Scanning…</span>`;
+                    break;
+
+                case 'count-step': {
+                    curJ = ev.j - ev.left; // index within left half
+                    curLo = ev.lo - (ev.mid + 1); // index within right half
+                    curHi = ev.hi - (ev.mid + 1);
+                    curCross = ev.crossCount;
+                    const loStr = ev.lo <= ev.right ? `right[${curLo}]=${ev.arr[ev.lo]}` : 'end';
+                    const hiStr = ev.hi <= ev.right ? `right[${curHi}]=${ev.arr[ev.hi]}` : 'end';
+                    addLog(`  left[${curJ}]=${ev.jVal}: lo→${loStr}, hi→${hiStr}, window=${ev.added}, cross=${ev.crossCount}`, ev.added > 0 ? 'hit' : 'count');
+                    formulaHtml = `<span style="color:#ff6b6b">L[${curJ}]=${ev.jVal}</span>: <span style="color:#fdcb6e">lo=${curLo}</span> <span style="color:#a29bfe">hi=${curHi}</span> → <span style="color:#55efc4">+${ev.added}</span>`;
+                    const windowVals = ev.rightHalf ? ev.rightHalf.slice(curLo >= 0 ? curLo : 0, curHi >= 0 ? curHi : 0) : [];
+                    countBarHtml = ev.added > 0
+                        ? `<span style="color:#55efc4">Window [lo=${curLo}, hi=${curHi}): ${ev.added} values in [${lower},${upper}] from ${ev.jVal}</span>`
+                        : `<span style="color:#636e72">Window [lo=${curLo}, hi=${curHi}): empty</span>`;
+                    break;
+                }
+
+                case 'count-end':
+                    curCross = ev.crossCount;
+                    curTotal = ev.totalCount;
+                    curJ = -1; curLo = -1; curHi = -1;
+                    addLog(`  ✔ Cross count = ${ev.crossCount}, total so far = ${ev.totalCount}`, 'count');
+                    formulaHtml = `<span style="color:#55efc4">Cross=${ev.crossCount} | Running total=${ev.totalCount}</span>`;
+                    countBarHtml = `<span style="color:#55efc4;font-weight:bold">Cross count = ${ev.crossCount}</span>`;
+                    break;
+
+                case 'merge-start':
+                    curPhase = 'Merge';
+                    curMerged = [];
+                    curPIdx = 0; curQIdx = 0;
+                    depthLabel = `Depth ${ev.depth}: merging [${ev.left}..${ev.mid}] + [${ev.mid+1}..${ev.right}]`;
+                    addLog(`Merge: [${ev.leftHalf.join(',')}] + [${ev.rightHalf.join(',')}]`, 'merge');
+                    formulaHtml = `<span style="color:#55efc4">Standard merge step</span>`;
+                    break;
+
+                case 'merge-pick':
+                    curMerged = [...ev.merged];
+                    curPIdx = ev.pIdx; curQIdx = ev.qIdx;
+                    curLeftHalf = [...ev.leftHalf];
+                    curRightHalf = [...ev.rightHalf];
+                    break;
+
+                case 'merge-done':
+                    curMerged = [...ev.merged];
+                    curArr = [...ev.arr];
+                    curPIdx = -1; curQIdx = -1;
+                    addLog(`  → [${ev.merged.join(', ')}]`, 'merge');
+                    formulaHtml = `<span style="color:#55efc4">Merged: [${ev.merged.join(', ')}]</span>`;
+                    break;
+
+                case 'done':
+                    isDone = true;
+                    curTotal = ev.totalCount;
+                    curPhase = 'Done';
+                    addLog(`✅ Total count = ${ev.totalCount}`, 'done');
+                    formulaHtml = `<span style="color:#55efc4;font-weight:bold">✅ Answer = ${ev.totalCount}</span>`;
+                    stop();
+                    break;
+            }
+            render();
+        }
+
+        function render() {
+            renderPrefix();
+            renderWorkspace();
+            renderFormula();
+            renderState();
+        }
+
+        function renderPrefix() {
+            const row = document.getElementById('prefixRow');
+            row.innerHTML = '';
+            for (let i = 0; i < curPrefix.length; i++) {
+                const el = document.createElement('div');
+                el.className = 'cell c-prefix';
+                el.textContent = curPrefix[i];
+                row.appendChild(el);
+            }
+        }
+
+        function renderWorkspace() {
+            document.getElementById('depthBadge').textContent = depthLabel;
+
+            // Left half
+            const leftRow = document.getElementById('leftRow');
+            leftRow.innerHTML = '';
+            for (let i = 0; i < curLeftHalf.length; i++) {
+                const el = document.createElement('div');
+                let cls = 'cell';
+                if (curPhase === 'Count' && i === curJ) cls += ' c-left-ptr';
+                else if (curPhase === 'Merge' && curPIdx >= 0 && i === curPIdx) cls += ' c-left-ptr';
+                else if (curPhase === 'Merge' && curPIdx >= 0 && i < curPIdx) cls += ' c-left-used';
+                else cls += ' c-left';
+                el.className = cls;
+                el.textContent = curLeftHalf[i];
+                leftRow.appendChild(el);
+            }
+            if (curLeftHalf.length === 0) leftRow.innerHTML = '<span style="color:#636e72;font-size:0.7em">—</span>';
+
+            // Right half
+            const rightRow = document.getElementById('rightRow');
+            rightRow.innerHTML = '';
+            for (let i = 0; i < curRightHalf.length; i++) {
+                const el = document.createElement('div');
+                let cls = 'cell';
+                if (curPhase === 'Count') {
+                    if (curLo >= 0 && curHi >= 0 && i >= curLo && i < curHi) {
+                        cls += ' c-right';
+                        if (i === curLo) cls += ' c-lo';
+                        if (i === curHi - 1) cls += ' c-hi';
+                    } else if (i === curLo) {
+                        cls += ' c-right c-lo';
+                    } else {
+                        cls += ' c-right';
+                    }
+                } else if (curPhase === 'Merge' && curQIdx >= 0) {
+                    if (i === curQIdx) cls += ' c-right-ptr';
+                    else if (i < curQIdx) cls += ' c-right-used';
+                    else cls += ' c-right';
+                } else {
+                    cls += ' c-right';
+                }
+                el.className = cls;
+                el.textContent = curRightHalf[i];
+                rightRow.appendChild(el);
+            }
+            if (curRightHalf.length === 0) rightRow.innerHTML = '<span style="color:#636e72;font-size:0.7em">—</span>';
+
+            // Count bar
+            document.getElementById('countBar').innerHTML = countBarHtml;
+
+            // Merged
+            const mergedRow = document.getElementById('mergedRow');
+            mergedRow.innerHTML = '';
+            for (let i = 0; i < curMerged.length; i++) {
+                const el = document.createElement('div');
+                el.className = 'cell c-merged';
+                el.textContent = curMerged[i];
+                mergedRow.appendChild(el);
+            }
+            if (curMerged.length === 0) mergedRow.innerHTML = '<span style="color:#636e72;font-size:0.7em">—</span>';
+        }
+
+        function renderFormula() {
+            document.getElementById('formulaBar').innerHTML = formulaHtml;
+        }
+
+        function renderState() {
+            document.getElementById('phaseVal').textContent = curPhase;
+            document.getElementById('depthVal').textContent = curDepth;
+            document.getElementById('rangeVal').textContent = curRange || '-';
+            document.getElementById('loVal').textContent = curLo >= 0 ? curLo : '-';
+            document.getElementById('hiVal').textContent = curHi >= 0 ? curHi : '-';
+            document.getElementById('crossVal').textContent = curCross;
+            document.getElementById('totalVal').textContent = curTotal;
+            document.getElementById('resultDisplay').textContent = `Total: ${curTotal}`;
+        }
+
+        function addLog(msg, type = 'info') {
+            const log = document.getElementById('logContainer');
+            log.innerHTML += `<div class="log-entry ${type}">[${stepCount}] ${msg}</div>`;
+            log.scrollTop = log.scrollHeight;
+        }
+        function clearLog() { document.getElementById('logContainer').innerHTML = ''; }
+
+        function play() { if (isRunning) return; isRunning = true; updateControls(); runLoop(); }
+        function runLoop() {
+            if (!isRunning || eventIdx >= events.length) { stop(); return; }
+            step();
+            timer = setTimeout(runLoop, Math.max(60, 1200 - speed * 110));
+        }
+        function stop() { isRunning = false; if (timer) clearTimeout(timer); updateControls(); }
+        function reset() { stop(); init(); }
+        function updateControls() {
+            const done = eventIdx >= events.length;
+            document.getElementById('playBtn').disabled = isRunning || done;
+            document.getElementById('pauseBtn').disabled = !isRunning;
+            document.getElementById('stepBtn').disabled = isRunning || done;
+            document.getElementById('resetBtn').disabled = isRunning;
+        }
+
+        function loadCustom() {
+            const raw = document.getElementById('numsInput').value.trim();
+            const arr = raw.split(',').map(s => parseInt(s.trim())).filter(v => !isNaN(v));
+            const lo = parseInt(document.getElementById('lowerInput').value.trim());
+            const hi = parseInt(document.getElementById('upperInput').value.trim());
+            if (arr.length === 0 || isNaN(lo) || isNaN(hi)) return;
+            initNums = arr; lower = lo; upper = hi;
+            stop(); init();
+        }
+
+        document.getElementById('playBtn').addEventListener('click', play);
+        document.getElementById('pauseBtn').addEventListener('click', stop);
+        document.getElementById('stepBtn').addEventListener('click', step);
+        document.getElementById('resetBtn').addEventListener('click', reset);
+        document.getElementById('loadBtn').addEventListener('click', loadCustom);
+        document.getElementById('speedSlider').addEventListener('input', e => speed = parseInt(e.target.value));
+        document.getElementById('numsInput').addEventListener('keydown', e => { if (e.key === 'Enter') loadCustom(); });
+
+        init();
+    </script>
+</body>
+</html>

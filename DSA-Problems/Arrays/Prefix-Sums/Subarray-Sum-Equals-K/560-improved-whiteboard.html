@@ -1,0 +1,1081 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>560. Subarray Sum Equals K - Improved O(n²)</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+            min-height: 100vh;
+            color: #e8e8e8;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1100px;
+            margin: 0 auto;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 25px;
+        }
+
+        h1 {
+            font-size: 1.7rem;
+            background: linear-gradient(90deg, #ffd93d, #00d9ff);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 8px;
+        }
+
+        .subtitle {
+            color: #888;
+            font-size: 1rem;
+        }
+
+        .complexity-badge {
+            display: inline-block;
+            background: rgba(255, 217, 61, 0.2);
+            border: 1px solid #ffd93d;
+            color: #ffd93d;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            margin-top: 10px;
+        }
+
+        .whiteboard {
+            background: rgba(255, 255, 255, 0.03);
+            border-radius: 20px;
+            padding: 25px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+        }
+
+        .improvement-info {
+            background: rgba(0, 255, 136, 0.1);
+            border: 1px solid rgba(0, 255, 136, 0.3);
+            border-radius: 12px;
+            padding: 12px;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .improvement-info p {
+            color: #00ff88;
+            font-size: 0.9rem;
+        }
+
+        .section-title {
+            font-size: 1rem;
+            color: #ffd93d;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .section-title::before {
+            content: '';
+            width: 4px;
+            height: 18px;
+            background: linear-gradient(180deg, #ffd93d, #00d9ff);
+            border-radius: 2px;
+        }
+
+        .target-display {
+            text-align: center;
+            margin-bottom: 15px;
+        }
+
+        .target-badge {
+            display: inline-block;
+            background: rgba(168, 85, 247, 0.2);
+            border: 2px solid #a855f7;
+            color: #a855f7;
+            padding: 6px 20px;
+            border-radius: 20px;
+            font-size: 1.1rem;
+            font-weight: bold;
+        }
+
+        /* Array Visualization */
+        .array-container {
+            display: flex;
+            justify-content: center;
+            gap: 8px;
+            margin: 20px 0;
+            flex-wrap: wrap;
+        }
+
+        .array-cell {
+            width: 75px;
+            height: 75px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            background: rgba(255, 255, 255, 0.05);
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            border-radius: 10px;
+            font-size: 1.5rem;
+            font-weight: bold;
+            position: relative;
+            transition: all 0.3s ease;
+        }
+
+        .array-cell .index {
+            position: absolute;
+            top: -22px;
+            font-size: 0.7rem;
+            color: #888;
+        }
+
+        .array-cell.start {
+            border-color: #ff6b6b;
+            box-shadow: 0 0 15px rgba(255, 107, 107, 0.4);
+        }
+
+        .array-cell.current {
+            background: rgba(0, 217, 255, 0.2);
+            border-color: #00d9ff;
+            box-shadow: 0 0 20px rgba(0, 217, 255, 0.4);
+            transform: scale(1.08);
+        }
+
+        .array-cell.in-range {
+            background: rgba(255, 217, 61, 0.15);
+            border-color: #ffd93d;
+        }
+
+        .array-cell.found {
+            background: rgba(0, 255, 136, 0.3);
+            border-color: #00ff88;
+            box-shadow: 0 0 20px rgba(0, 255, 136, 0.5);
+        }
+
+        .array-cell.passed {
+            opacity: 0.4;
+        }
+
+        .pointer {
+            position: absolute;
+            bottom: -28px;
+            font-size: 0.65rem;
+            padding: 2px 6px;
+            border-radius: 4px;
+            white-space: nowrap;
+        }
+
+        .pointer.start-ptr {
+            background: rgba(255, 107, 107, 0.3);
+            color: #ff6b6b;
+        }
+
+        .pointer.current-ptr {
+            background: rgba(0, 217, 255, 0.3);
+            color: #00d9ff;
+        }
+
+        /* Running Sum Visualization */
+        .running-sum-display {
+            display: flex;
+            justify-content: center;
+            gap: 5px;
+            margin: 15px 0;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .sum-element {
+            padding: 5px 12px;
+            background: rgba(255, 217, 61, 0.1);
+            border: 1px solid rgba(255, 217, 61, 0.3);
+            border-radius: 8px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.95rem;
+            color: #ffd93d;
+            transition: all 0.3s ease;
+        }
+
+        .sum-element.active {
+            background: rgba(0, 217, 255, 0.2);
+            border-color: #00d9ff;
+            color: #00d9ff;
+            transform: scale(1.1);
+        }
+
+        .sum-operator {
+            color: #888;
+            font-size: 1.2rem;
+        }
+
+        .sum-result {
+            padding: 5px 15px;
+            background: rgba(168, 85, 247, 0.2);
+            border: 2px solid #a855f7;
+            border-radius: 8px;
+            font-family: 'Courier New', monospace;
+            font-size: 1.1rem;
+            color: #a855f7;
+            font-weight: bold;
+        }
+
+        /* Subarray Display */
+        .subarray-display {
+            text-align: center;
+            margin: 15px 0;
+            padding: 12px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 10px;
+        }
+
+        .subarray-label {
+            font-size: 0.85rem;
+            color: #888;
+            margin-bottom: 6px;
+        }
+
+        .subarray-content {
+            font-size: 1.2rem;
+            font-family: 'Courier New', monospace;
+            color: #a855f7;
+        }
+
+        /* Variables Panel */
+        .variables-panel {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 12px;
+            margin: 20px 0;
+        }
+
+        .variable-card {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            padding: 12px;
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+
+        .variable-card.highlight {
+            border-color: #00d9ff;
+            box-shadow: 0 0 12px rgba(0, 217, 255, 0.3);
+        }
+
+        .variable-card.success {
+            border-color: #00ff88;
+            box-shadow: 0 0 12px rgba(0, 255, 136, 0.3);
+        }
+
+        .variable-name {
+            font-size: 0.75rem;
+            color: #888;
+            margin-bottom: 4px;
+        }
+
+        .variable-value {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #fff;
+        }
+
+        /* Loop Indicators */
+        .loops-display {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+            margin: 15px 0;
+        }
+
+        .loop-box {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            border-radius: 10px;
+            padding: 12px;
+            text-align: center;
+        }
+
+        .loop-box.active {
+            border-color: #a855f7;
+            background: rgba(168, 85, 247, 0.1);
+        }
+
+        .loop-label {
+            font-size: 0.75rem;
+            color: #888;
+            margin-bottom: 5px;
+        }
+
+        .loop-code {
+            font-family: 'Courier New', monospace;
+            font-size: 0.85rem;
+            color: #ffd93d;
+        }
+
+        /* Key Insight Box */
+        .insight-box {
+            background: rgba(0, 217, 255, 0.1);
+            border: 1px solid rgba(0, 217, 255, 0.3);
+            border-radius: 10px;
+            padding: 12px;
+            margin: 15px 0;
+            text-align: center;
+        }
+
+        .insight-text {
+            color: #00d9ff;
+            font-size: 0.9rem;
+        }
+
+        /* Comparison Box */
+        .comparison-box {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            padding: 15px;
+            margin: 15px 0;
+            text-align: center;
+        }
+
+        .comparison-text {
+            font-size: 1.2rem;
+            font-family: 'Courier New', monospace;
+            color: #ffd93d;
+        }
+
+        .comparison-result {
+            margin-top: 10px;
+            font-size: 0.95rem;
+            padding: 5px 15px;
+            border-radius: 15px;
+            display: inline-block;
+        }
+
+        .comparison-result.true {
+            background: rgba(0, 255, 136, 0.2);
+            color: #00ff88;
+        }
+
+        .comparison-result.false {
+            background: rgba(255, 107, 107, 0.2);
+            color: #ff6b6b;
+        }
+
+        .comparison-result.info {
+            background: rgba(0, 217, 255, 0.2);
+            color: #00d9ff;
+        }
+
+        /* Found Subarrays */
+        .found-subarrays {
+            background: rgba(0, 255, 136, 0.1);
+            border: 1px solid rgba(0, 255, 136, 0.3);
+            border-radius: 10px;
+            padding: 12px;
+            margin: 15px 0;
+        }
+
+        .found-title {
+            font-size: 0.85rem;
+            color: #00ff88;
+            margin-bottom: 8px;
+        }
+
+        .found-list {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .found-item {
+            background: rgba(0, 255, 136, 0.2);
+            padding: 5px 12px;
+            border-radius: 15px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9rem;
+            color: #00ff88;
+        }
+
+        /* Action Log */
+        .action-log {
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 10px;
+            padding: 10px;
+            margin: 12px 0;
+            font-family: 'Courier New', monospace;
+            font-size: 0.8rem;
+            max-height: 90px;
+            overflow-y: auto;
+        }
+
+        .log-entry {
+            padding: 3px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            opacity: 0;
+            transform: translateX(-20px);
+            animation: slideIn 0.3s ease forwards;
+        }
+
+        @keyframes slideIn {
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        .log-step {
+            color: #a855f7;
+        }
+
+        .log-action {
+            color: #888;
+        }
+
+        .log-value {
+            color: #00ff88;
+        }
+
+        /* Controls */
+        .controls {
+            display: flex;
+            justify-content: center;
+            gap: 12px;
+            margin-top: 20px;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            padding: 10px 25px;
+            border: none;
+            border-radius: 25px;
+            font-size: 0.95rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 600;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #ffd93d, #00d9ff);
+            color: #1a1a2e;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(255, 217, 61, 0.3);
+        }
+
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.1);
+            color: #fff;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .btn-secondary:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        /* Speed Control */
+        .speed-control {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-top: 15px;
+            justify-content: center;
+        }
+
+        .speed-control label {
+            color: #888;
+            font-size: 0.85rem;
+        }
+
+        .speed-slider {
+            width: 120px;
+            height: 5px;
+            -webkit-appearance: none;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 3px;
+            outline: none;
+        }
+
+        .speed-slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 16px;
+            height: 16px;
+            background: linear-gradient(135deg, #ffd93d, #00d9ff);
+            border-radius: 50%;
+            cursor: pointer;
+        }
+
+        /* Result Display */
+        .result-display {
+            text-align: center;
+            padding: 25px;
+            margin-top: 15px;
+            background: linear-gradient(135deg, rgba(0, 255, 136, 0.1), rgba(0, 217, 255, 0.1));
+            border-radius: 15px;
+            border: 1px solid rgba(0, 255, 136, 0.3);
+            display: none;
+        }
+
+        .result-display.show {
+            display: block;
+            animation: fadeIn 0.5s ease;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .result-label {
+            font-size: 1rem;
+            color: #888;
+            margin-bottom: 8px;
+        }
+
+        .result-value {
+            font-size: 3rem;
+            font-weight: bold;
+            background: linear-gradient(90deg, #00ff88, #00d9ff);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        /* Progress */
+        .progress-container {
+            margin: 12px 0;
+        }
+
+        .progress-bar {
+            height: 4px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 2px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #ffd93d, #00d9ff);
+            width: 0%;
+            transition: width 0.3s ease;
+        }
+
+        .step-counter {
+            text-align: center;
+            margin-top: 8px;
+            font-size: 0.8rem;
+            color: #888;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <header>
+            <h1>📊 Subarray Sum Equals K</h1>
+            <p class="subtitle">Improved Approach - Running Sum (Double Loop)</p>
+            <span class="complexity-badge">⏱️ O(n²) Time · 📦 O(1) Space</span>
+        </header>
+
+        <div class="whiteboard">
+            <div class="improvement-info">
+                <p>🚀 Key Improvement: Use running sum instead of recalculating from scratch!</p>
+            </div>
+
+            <div class="section-title">Array: nums = [1, 2, 3]</div>
+
+            <div class="target-display">
+                <span class="target-badge">🎯 Target k = 3</span>
+            </div>
+
+            <div class="array-container" id="arrayContainer"></div>
+
+            <div class="running-sum-display" id="runningSumDisplay">
+                <span style="color: #888; font-size: 0.9rem;">Running sum will appear here...</span>
+            </div>
+
+            <div class="subarray-display">
+                <div class="subarray-label">Current Subarray [i...j]</div>
+                <div class="subarray-content" id="subarrayContent">-</div>
+            </div>
+
+            <div class="loops-display">
+                <div class="loop-box" id="loop1">
+                    <div class="loop-label">Outer Loop (start)</div>
+                    <div class="loop-code" id="loop1Code">for i = 0 to n-1</div>
+                </div>
+                <div class="loop-box" id="loop2">
+                    <div class="loop-label">Inner Loop (end) + Running Sum</div>
+                    <div class="loop-code" id="loop2Code">for j = i to n-1, sum += nums[j]</div>
+                </div>
+            </div>
+
+            <div class="insight-box" id="insightBox" style="display: none;">
+                <div class="insight-text" id="insightText"></div>
+            </div>
+
+            <div class="variables-panel">
+                <div class="variable-card" id="iCard">
+                    <div class="variable-name">Start (i)</div>
+                    <div class="variable-value" id="iValue">-</div>
+                </div>
+                <div class="variable-card" id="jCard">
+                    <div class="variable-name">End (j)</div>
+                    <div class="variable-value" id="jValue">-</div>
+                </div>
+                <div class="variable-card" id="sumCard">
+                    <div class="variable-name">Running Sum</div>
+                    <div class="variable-value" id="sumValue">0</div>
+                </div>
+                <div class="variable-card" id="countCard">
+                    <div class="variable-name">Count</div>
+                    <div class="variable-value" id="countValue">0</div>
+                </div>
+            </div>
+
+            <div class="comparison-box" id="comparisonBox">
+                <div class="comparison-text" id="comparisonText">Click "Start" to begin</div>
+                <div class="comparison-result" id="comparisonResult"></div>
+            </div>
+
+            <div class="found-subarrays">
+                <div class="found-title">✅ Found Subarrays (sum = 3):</div>
+                <div class="found-list" id="foundList">
+                    <span style="color: #888; font-size: 0.85rem;">None yet...</span>
+                </div>
+            </div>
+
+            <div class="action-log" id="actionLog"></div>
+
+            <div class="progress-container">
+                <div class="progress-bar">
+                    <div class="progress-fill" id="progressFill"></div>
+                </div>
+                <div class="step-counter" id="stepCounter">Step 0 of 12</div>
+            </div>
+
+            <div class="result-display" id="resultDisplay">
+                <div class="result-label">✨ Total Subarrays Found!</div>
+                <div class="result-value" id="finalResult">2</div>
+            </div>
+
+            <div class="controls">
+                <button class="btn btn-secondary" id="resetBtn" onclick="reset()">↺ Reset</button>
+                <button class="btn btn-secondary" id="prevBtn" onclick="prevStep()" disabled>← Prev</button>
+                <button class="btn btn-primary" id="nextBtn" onclick="nextStep()">Start →</button>
+                <button class="btn btn-secondary" id="autoBtn" onclick="autoPlay()">▶ Auto</button>
+            </div>
+
+            <div class="speed-control">
+                <label>Speed:</label>
+                <input type="range" class="speed-slider" id="speedSlider" min="300" max="1500" value="700">
+                <span id="speedValue">700ms</span>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const nums = [1, 2, 3];
+        const k = 3;
+        let currentStep = 0;
+        let isPlaying = false;
+        let playInterval = null;
+        let foundSubarrays = [];
+
+        // Generate steps
+        const steps = [];
+
+        // Initial step
+        steps.push({
+            type: 'init',
+            desc: 'Initialize count = 0'
+        });
+
+        // Generate steps for each starting position
+        for (let i = 0; i < nums.length; i++) {
+            // New start position
+            steps.push({
+                type: 'new-start',
+                i: i,
+                desc: `Start new outer loop: i = ${i}`
+            });
+
+            let sum = 0;
+            for (let j = i; j < nums.length; j++) {
+                sum += nums[j];
+
+                // Add element to running sum
+                steps.push({
+                    type: 'extend',
+                    i: i,
+                    j: j,
+                    addedValue: nums[j],
+                    sum: sum,
+                    elements: nums.slice(i, j + 1),
+                    desc: `Extend: j = ${j}, sum += ${nums[j]} = ${sum}`
+                });
+
+                // Check if sum equals k
+                steps.push({
+                    type: 'check',
+                    i: i,
+                    j: j,
+                    sum: sum,
+                    match: sum === k,
+                    subarray: nums.slice(i, j + 1),
+                    desc: `Check: sum = ${sum} == k = ${k}?`
+                });
+            }
+        }
+
+        // Final step
+        steps.push({
+            type: 'done',
+            desc: 'All subarrays checked!'
+        });
+
+        function initArray() {
+            const container = document.getElementById('arrayContainer');
+            container.innerHTML = '';
+
+            nums.forEach((num, idx) => {
+                const cell = document.createElement('div');
+                cell.className = 'array-cell';
+                cell.id = `cell-${idx}`;
+                cell.innerHTML = `<span class="index">index ${idx}</span>${num}`;
+                container.appendChild(cell);
+            });
+        }
+
+        function updateRunningSumDisplay(elements, sum, activeIndex) {
+            const display = document.getElementById('runningSumDisplay');
+            if (!elements || elements.length === 0) {
+                display.innerHTML = '<span style="color: #888; font-size: 0.9rem;">Running sum will appear here...</span>';
+                return;
+            }
+
+            let html = '';
+            elements.forEach((el, idx) => {
+                if (idx > 0) {
+                    html += '<span class="sum-operator">+</span>';
+                }
+                const isActive = idx === elements.length - 1;
+                html += `<span class="sum-element ${isActive ? 'active' : ''}">${el}</span>`;
+            });
+            html += '<span class="sum-operator">=</span>';
+            html += `<span class="sum-result">${sum}</span>`;
+
+            display.innerHTML = html;
+        }
+
+        function updateDisplay() {
+            // Reset cells
+            nums.forEach((_, idx) => {
+                const cell = document.getElementById(`cell-${idx}`);
+                cell.className = 'array-cell';
+                cell.innerHTML = `<span class="index">index ${idx}</span>${nums[idx]}`;
+            });
+
+            // Reset loop boxes
+            document.querySelectorAll('.loop-box').forEach(box => box.classList.remove('active'));
+            document.getElementById('insightBox').style.display = 'none';
+
+            const step = steps[currentStep];
+            const compText = document.getElementById('comparisonText');
+            const compResult = document.getElementById('comparisonResult');
+
+            if (step.type === 'init') {
+                document.getElementById('iValue').textContent = '-';
+                document.getElementById('jValue').textContent = '-';
+                document.getElementById('sumValue').textContent = '0';
+                document.getElementById('countValue').textContent = '0';
+                document.getElementById('subarrayContent').textContent = '-';
+                document.getElementById('runningSumDisplay').innerHTML = '<span style="color: #888; font-size: 0.9rem;">Running sum will appear here...</span>';
+
+                document.getElementById('loop1Code').textContent = 'for i = 0 to n-1';
+                document.getElementById('loop2Code').textContent = 'for j = i to n-1, sum += nums[j]';
+
+                compText.textContent = 'Initialize: count = 0';
+                compResult.textContent = '';
+                compResult.className = 'comparison-result';
+
+                addLog('Init', 'count = 0', 'Start');
+
+            } else if (step.type === 'new-start') {
+                document.getElementById('iValue').textContent = step.i;
+                document.getElementById('jValue').textContent = '-';
+                document.getElementById('sumValue').textContent = '0';
+
+                document.getElementById('loop1').classList.add('active');
+                document.getElementById('loop1Code').textContent = `i = ${step.i}`;
+                document.getElementById('loop2Code').textContent = 'sum = 0 (reset)';
+
+                // Mark start cell
+                const startCell = document.getElementById(`cell-${step.i}`);
+                startCell.classList.add('start');
+                startCell.innerHTML += '<span class="pointer start-ptr">i</span>';
+
+                // Mark passed cells
+                for (let x = 0; x < step.i; x++) {
+                    document.getElementById(`cell-${x}`).classList.add('passed');
+                }
+
+                document.getElementById('subarrayContent').textContent = '-';
+                document.getElementById('runningSumDisplay').innerHTML = '<span style="color: #888; font-size: 0.9rem;">sum = 0 (reset for new start)</span>';
+
+                document.getElementById('insightBox').style.display = 'block';
+                document.getElementById('insightText').textContent = `🔄 New starting position i=${step.i}: Reset sum to 0`;
+
+                compText.textContent = `New start: i = ${step.i}, reset sum = 0`;
+                compResult.textContent = 'Ready to extend';
+                compResult.className = 'comparison-result info';
+
+                addLog(`i=${step.i}`, 'New start', 'sum = 0');
+
+            } else if (step.type === 'extend') {
+                document.getElementById('iValue').textContent = step.i;
+                document.getElementById('jValue').textContent = step.j;
+                document.getElementById('sumValue').textContent = step.sum;
+
+                document.getElementById('loop1').classList.add('active');
+                document.getElementById('loop2').classList.add('active');
+                document.getElementById('loop1Code').textContent = `i = ${step.i}`;
+                document.getElementById('loop2Code').textContent = `j = ${step.j}, sum += ${step.addedValue}`;
+
+                document.getElementById('sumCard').classList.add('highlight');
+                setTimeout(() => document.getElementById('sumCard').classList.remove('highlight'), 300);
+
+                // Mark passed cells
+                for (let x = 0; x < step.i; x++) {
+                    document.getElementById(`cell-${x}`).classList.add('passed');
+                }
+
+                // Mark range
+                for (let x = step.i; x <= step.j; x++) {
+                    const cell = document.getElementById(`cell-${x}`);
+                    cell.classList.add('in-range');
+                    if (x === step.i && step.i !== step.j) {
+                        cell.innerHTML += '<span class="pointer start-ptr">i</span>';
+                    }
+                }
+
+                // Mark current (j)
+                const currentCell = document.getElementById(`cell-${step.j}`);
+                currentCell.classList.add('current');
+                currentCell.innerHTML = `<span class="index">index ${step.j}</span>${nums[step.j]}<span class="pointer current-ptr">j (+${step.addedValue})</span>`;
+
+                document.getElementById('subarrayContent').textContent = `[${step.elements.join(', ')}]`;
+                updateRunningSumDisplay(step.elements, step.sum, step.j - step.i);
+
+                document.getElementById('insightBox').style.display = 'block';
+                document.getElementById('insightText').textContent = `⚡ Just add nums[${step.j}]=${step.addedValue} to running sum — no recalculation!`;
+
+                compText.textContent = `sum += nums[${step.j}] = ${step.addedValue}`;
+                compResult.textContent = `Running sum = ${step.sum}`;
+                compResult.className = 'comparison-result info';
+
+            } else if (step.type === 'check') {
+                document.getElementById('iValue').textContent = step.i;
+                document.getElementById('jValue').textContent = step.j;
+                document.getElementById('sumValue').textContent = step.sum;
+
+                document.getElementById('loop1').classList.add('active');
+                document.getElementById('loop2').classList.add('active');
+
+                // Mark passed cells
+                for (let x = 0; x < step.i; x++) {
+                    document.getElementById(`cell-${x}`).classList.add('passed');
+                }
+
+                // Mark range
+                for (let x = step.i; x <= step.j; x++) {
+                    const cell = document.getElementById(`cell-${x}`);
+                    if (step.match) {
+                        cell.classList.add('found');
+                    } else {
+                        cell.classList.add('in-range');
+                    }
+                }
+
+                document.getElementById('subarrayContent').textContent = `[${step.subarray.join(', ')}]`;
+
+                compText.textContent = `sum = ${step.sum} == k = ${k}?`;
+
+                if (step.match) {
+                    const currentCount = foundSubarrays.length + 1;
+                    document.getElementById('countValue').textContent = currentCount;
+                    document.getElementById('countCard').classList.add('success');
+                    setTimeout(() => document.getElementById('countCard').classList.remove('success'), 400);
+
+                    foundSubarrays.push(`[${step.subarray.join(',')}]`);
+                    updateFoundList();
+
+                    compResult.textContent = '✅ YES! count++';
+                    compResult.className = 'comparison-result true';
+
+                    addLog(`[${step.i},${step.j}]`, `sum=${step.sum}=k`, '✓ Found!');
+                } else {
+                    compResult.textContent = '❌ No match';
+                    compResult.className = 'comparison-result false';
+
+                    addLog(`[${step.i},${step.j}]`, `sum=${step.sum}≠k`, 'Continue');
+                }
+
+            } else if (step.type === 'done') {
+                document.getElementById('iValue').textContent = '✓';
+                document.getElementById('jValue').textContent = '✓';
+                document.getElementById('loop1Code').textContent = 'done';
+                document.getElementById('loop2Code').textContent = 'done';
+
+                compText.textContent = '🎉 All subarrays checked!';
+                compResult.textContent = `Total count = ${foundSubarrays.length}`;
+                compResult.className = 'comparison-result true';
+
+                document.getElementById('resultDisplay').classList.add('show');
+                document.getElementById('finalResult').textContent = foundSubarrays.length;
+
+                addLog('Done', 'Complete', `Count = ${foundSubarrays.length}`);
+            }
+
+            // Update progress
+            document.getElementById('progressFill').style.width = ((currentStep + 1) / steps.length * 100) + '%';
+            document.getElementById('stepCounter').textContent = `Step ${currentStep + 1} of ${steps.length}`;
+
+            // Update buttons
+            document.getElementById('prevBtn').disabled = currentStep === 0;
+            document.getElementById('nextBtn').disabled = currentStep >= steps.length - 1;
+            document.getElementById('nextBtn').textContent = currentStep === 0 ? 'Start →' : 'Next →';
+        }
+
+        function updateFoundList() {
+            const list = document.getElementById('foundList');
+            if (foundSubarrays.length === 0) {
+                list.innerHTML = '<span style="color: #888; font-size: 0.85rem;">None yet...</span>';
+            } else {
+                list.innerHTML = foundSubarrays.map(s => `<div class="found-item">${s}</div>`).join('');
+            }
+        }
+
+        function addLog(step, action, result) {
+            const log = document.getElementById('actionLog');
+            const entry = document.createElement('div');
+            entry.className = 'log-entry';
+            entry.innerHTML = `<span class="log-step">[${step}]</span> <span class="log-action">${action}</span> → <span class="log-value">${result}</span>`;
+            log.appendChild(entry);
+            log.scrollTop = log.scrollHeight;
+        }
+
+        function nextStep() {
+            if (currentStep < steps.length - 1) {
+                currentStep++;
+                updateDisplay();
+            }
+        }
+
+        function prevStep() {
+            if (currentStep > 0) {
+                foundSubarrays = [];
+                for (let i = 0; i < currentStep; i++) {
+                    if (steps[i].type === 'check' && steps[i].match) {
+                        foundSubarrays.push(`[${steps[i].subarray.join(',')}]`);
+                    }
+                }
+                updateFoundList();
+
+                currentStep--;
+                document.getElementById('actionLog').innerHTML = '';
+                document.getElementById('resultDisplay').classList.remove('show');
+                document.getElementById('countValue').textContent = foundSubarrays.length;
+
+                updateDisplay();
+            }
+        }
+
+        function reset() {
+            stopAutoPlay();
+            currentStep = 0;
+            foundSubarrays = [];
+            document.getElementById('actionLog').innerHTML = '';
+            document.getElementById('resultDisplay').classList.remove('show');
+            document.getElementById('countValue').textContent = '0';
+            updateFoundList();
+
+            document.getElementById('comparisonText').textContent = 'Click "Start" to begin';
+            document.getElementById('comparisonResult').textContent = '';
+            document.getElementById('progressFill').style.width = '0%';
+            document.getElementById('stepCounter').textContent = `Step 0 of ${steps.length}`;
+            document.getElementById('nextBtn').textContent = 'Start →';
+            document.getElementById('nextBtn').disabled = false;
+            document.getElementById('prevBtn').disabled = true;
+
+            initArray();
+        }
+
+        function autoPlay() {
+            if (isPlaying) {
+                stopAutoPlay();
+                return;
+            }
+
+            isPlaying = true;
+            document.getElementById('autoBtn').textContent = '⏸ Pause';
+
+            const speed = parseInt(document.getElementById('speedSlider').value);
+
+            playInterval = setInterval(() => {
+                if (currentStep < steps.length - 1) {
+                    nextStep();
+                } else {
+                    stopAutoPlay();
+                }
+            }, speed);
+        }
+
+        function stopAutoPlay() {
+            isPlaying = false;
+            document.getElementById('autoBtn').textContent = '▶ Auto';
+            if (playInterval) {
+                clearInterval(playInterval);
+                playInterval = null;
+            }
+        }
+
+        document.getElementById('speedSlider').addEventListener('input', function () {
+            document.getElementById('speedValue').textContent = this.value + 'ms';
+            if (isPlaying) {
+                stopAutoPlay();
+                autoPlay();
+            }
+        });
+
+        // Initialize
+        initArray();
+    </script>
+</body>
+
+</html>

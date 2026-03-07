@@ -1,0 +1,491 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Max Product Subarray - Brute Force</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #0f0c29 0%, #302b63 50%, #24243e 100%);
+            min-height: 100vh;
+            padding: 20px;
+            color: #e0e0e0;
+        }
+        .container {
+            max-width: 1150px;
+            margin: 0 auto;
+            background: #1a1a2e;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.6);
+            overflow: hidden;
+        }
+        header {
+            background: linear-gradient(135deg, #e74c3c 0%, #c0392b 50%, #e74c3c 100%);
+            color: white;
+            padding: 22px;
+            text-align: center;
+        }
+        h1 { font-size: 1.4em; margin-bottom: 6px; }
+        .subtitle { font-size: 0.95em; opacity: 0.9; }
+        .complexity-badge {
+            display: inline-block;
+            background: rgba(255,255,255,0.18);
+            padding: 5px 14px;
+            border-radius: 15px;
+            margin-top: 6px;
+            font-size: 0.82em;
+        }
+        .main-content {
+            display: grid;
+            grid-template-columns: 1fr 280px;
+            gap: 16px;
+            padding: 16px;
+        }
+        .card {
+            background: #16213e;
+            border-radius: 12px;
+            padding: 14px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.4);
+            margin-bottom: 14px;
+        }
+        .card-title {
+            font-size: 0.9em;
+            font-weight: 600;
+            margin-bottom: 10px;
+            color: #ff6b6b;
+        }
+
+        /* Controls */
+        .controls { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+        button {
+            padding: 7px 14px; border: none; border-radius: 8px;
+            font-size: 0.82em; font-weight: 600; cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        button:hover { transform: translateY(-2px); filter: brightness(1.15); }
+        button:disabled { opacity: 0.4; cursor: not-allowed; transform: none; }
+        .btn-primary { background: linear-gradient(135deg, #e74c3c, #c0392b); color: white; }
+        .btn-success { background: linear-gradient(135deg, #00b894, #55efc4); color: white; }
+        .btn-warning { background: linear-gradient(135deg, #fdcb6e, #e17055); color: white; }
+        .btn-secondary { background: #636e72; color: white; }
+        .speed-control { display: flex; align-items: center; gap: 6px; flex: 1; min-width: 130px; font-size: 0.82em; }
+        .speed-control input[type="range"] { flex: 1; height: 4px; accent-color: #e74c3c; }
+
+        /* Array Viz */
+        .array-area {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 12px;
+            padding: 20px 10px;
+            background: #0f0c29;
+            border: 1px solid #302b63;
+            border-radius: 10px;
+        }
+        .array-row {
+            display: flex;
+            justify-content: center;
+            gap: 6px;
+        }
+        .arr-cell {
+            width: 60px;
+            height: 55px;
+            border-radius: 10px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 1.2em;
+            position: relative;
+            transition: all 0.35s ease;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+        }
+        .arr-cell .cidx {
+            position: absolute;
+            bottom: -18px;
+            font-size: 0.5em;
+            color: #636e72;
+        }
+
+        /* Cell States */
+        .cell-default { background: linear-gradient(145deg, #2d3a56, #3d4f7c); color: #b2bec3; }
+        .cell-i { background: linear-gradient(145deg, #e17055, #d63031); color: white; border: 2px solid #ff7675; }
+        .cell-range { background: linear-gradient(145deg, #6c5ce7, #a29bfe); color: white; }
+        .cell-j { background: linear-gradient(145deg, #0984e3, #74b9ff); color: white; border: 2px solid #74b9ff; }
+        .cell-best { background: linear-gradient(145deg, #fdcb6e, #f39c12); color: #2d3436; border: 2px solid #f39c12; }
+
+        /* Product bar */
+        .product-bar {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.95em;
+        }
+        .product-label { color: #b2bec3; }
+        .product-value {
+            font-size: 1.3em;
+            font-weight: 700;
+            padding: 4px 14px;
+            border-radius: 8px;
+            transition: all 0.3s;
+        }
+        .product-positive { background: #00b89433; color: #55efc4; border: 1px solid #00b894; }
+        .product-negative { background: #d6303133; color: #ff7675; border: 1px solid #d63031; }
+        .product-zero { background: #636e7233; color: #b2bec3; border: 1px solid #636e72; }
+
+        /* Subarray expression */
+        .subarray-expr {
+            font-family: 'Courier New', monospace;
+            font-size: 0.85em;
+            color: #a29bfe;
+            padding: 6px 12px;
+            background: #16213e;
+            border-radius: 6px;
+            min-height: 30px;
+            text-align: center;
+        }
+
+        /* State & Log */
+        .state-display { background: #0f0c29; border-radius: 8px; padding: 10px; font-family: 'Courier New', monospace; font-size: 0.82em; }
+        .state-row { display: flex; justify-content: space-between; padding: 4px 0; border-bottom: 1px solid #302b63; }
+        .state-val { color: #ff6b6b; font-weight: bold; }
+
+        .log-container {
+            background: #0f0c29; border-radius: 8px; padding: 8px;
+            max-height: 210px; overflow-y: auto;
+            font-family: 'Courier New', monospace; font-size: 0.6em;
+        }
+        .log-entry { padding: 3px 6px; margin: 2px 0; border-radius: 4px; border-left: 3px solid #4a5568; background: #16213e; }
+        .log-entry.start { border-left-color: #e17055; }
+        .log-entry.multiply { border-left-color: #6c5ce7; }
+        .log-entry.best { border-left-color: #fdcb6e; }
+        .log-entry.done { border-left-color: #00b894; }
+
+        .max-display {
+            text-align: center; padding: 12px;
+            background: linear-gradient(135deg, #16213e, #0f0c29);
+            border: 1px solid #e74c3c;
+            color: white; border-radius: 8px;
+            margin-top: 10px; font-size: 1.1em; font-weight: bold;
+        }
+        .best-subarray {
+            text-align: center;
+            font-family: 'Courier New', monospace;
+            font-size: 0.8em;
+            color: #fdcb6e;
+            margin-top: 6px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Maximum Product Subarray</h1>
+            <div class="subtitle">Brute Force: Try Every Subarray</div>
+            <div class="complexity-badge">Time: O(N²) | Space: O(1)</div>
+        </header>
+
+        <div class="main-content">
+            <div class="left-panel">
+                <div class="card">
+                    <div class="card-title">⚙️ Controls</div>
+                    <div class="controls">
+                        <button class="btn-primary" id="playBtn">▶ Play</button>
+                        <button class="btn-warning" id="pauseBtn" disabled>⏸ Pause</button>
+                        <button class="btn-success" id="stepBtn">⏭ Step</button>
+                        <button class="btn-secondary" id="resetBtn">↺ Reset</button>
+                        <div class="speed-control">
+                            <label>Speed:</label>
+                            <input type="range" id="speedSlider" min="1" max="10" value="5">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-title">📊 Array</div>
+                    <div class="array-area" id="arrayArea">
+                        <div class="array-row" id="arrayRow"></div>
+                        <div class="subarray-expr" id="subarrayExpr">-</div>
+                        <div class="product-bar">
+                            <span class="product-label">Current Product:</span>
+                            <span class="product-value product-zero" id="productValue">-</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-title">💡 Logic</div>
+                    <div style="font-size: 0.8em; color: #b2bec3; line-height: 1.6;">
+                        1. Fix start index <span style="color:#e17055;font-weight:bold">i</span>.<br>
+                        2. Extend end index <span style="color:#74b9ff;font-weight:bold">j</span> rightward.<br>
+                        3. At each step, multiply <code>currentProduct *= nums[j]</code>.<br>
+                        4. Track the global maximum product.
+                    </div>
+                </div>
+            </div>
+
+            <div class="right-panel">
+                <div class="card">
+                    <div class="card-title">📊 State</div>
+                    <div class="state-display">
+                        <div class="state-row"><span>i (start):</span><span class="state-val" id="iVal">-</span></div>
+                        <div class="state-row"><span>j (end):</span><span class="state-val" id="jVal">-</span></div>
+                        <div class="state-row"><span>nums[j]:</span><span class="state-val" id="numsJVal">-</span></div>
+                        <div class="state-row"><span>curProduct:</span><span class="state-val" id="curProdVal">-</span></div>
+                        <div class="state-row"><span>Subarray:</span><span class="state-val" id="subArrVal">-</span></div>
+                    </div>
+                    <div class="max-display">
+                        Max Product: <span id="maxVal">-∞</span>
+                    </div>
+                    <div class="best-subarray" id="bestSubArr">-</div>
+                </div>
+
+                <div class="card" style="flex-grow: 1; display: flex; flex-direction: column;">
+                    <div class="card-title">📝 Execution Log</div>
+                    <div class="log-container" id="logContainer"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ── Data ───────────────────────────────────────────────
+        const nums = [2, 3, -2, 4];
+        const N = nums.length;
+
+        // ── Pre-generate trace ────────────────────────────────
+        let events = [];
+
+        function buildTrace() {
+            events = [];
+            let maxProd = -Infinity;
+            let bestI = 0, bestJ = 0;
+
+            for (let i = 0; i < N; i++) {
+                events.push({ type: 'newI', i });
+                let curProd = 1;
+                for (let j = i; j < N; j++) {
+                    curProd *= nums[j];
+                    const isNewBest = curProd > maxProd;
+                    if (isNewBest) {
+                        maxProd = curProd;
+                        bestI = i; bestJ = j;
+                    }
+                    events.push({
+                        type: 'extend',
+                        i, j,
+                        numsJ: nums[j],
+                        curProd,
+                        maxProd,
+                        isNewBest,
+                        bestI, bestJ,
+                        subarray: nums.slice(i, j + 1)
+                    });
+                }
+            }
+            events.push({ type: 'done', maxProd, bestI, bestJ, subarray: nums.slice(bestI, bestJ + 1) });
+        }
+        buildTrace();
+
+        // ── Animation State ───────────────────────────────────
+        let eventIdx = 0;
+        let curI = -1, curJ = -1;
+        let curProd = 0;
+        let maxProd = -Infinity;
+        let bestI = 0, bestJ = 0;
+        let curSubarray = [];
+        let isDone = false;
+
+        let isRunning = false;
+        let timer = null;
+        let speed = 5;
+        let stepCount = 0;
+
+        function init() {
+            eventIdx = 0;
+            curI = -1; curJ = -1;
+            curProd = 0;
+            maxProd = -Infinity;
+            bestI = 0; bestJ = 0;
+            curSubarray = [];
+            isDone = false;
+            stepCount = 0;
+
+            clearLog();
+            addLog(`Array: [${nums.join(', ')}]`, 'info');
+            render();
+            updateControls();
+        }
+
+        function step() {
+            if (eventIdx >= events.length) return;
+            stepCount++;
+
+            const ev = events[eventIdx];
+            eventIdx++;
+
+            switch (ev.type) {
+                case 'newI':
+                    curI = ev.i;
+                    curJ = -1;
+                    curProd = 0;
+                    curSubarray = [];
+                    addLog(`── Start i=${ev.i} (nums[${ev.i}]=${nums[ev.i]}) ──`, 'start');
+                    break;
+
+                case 'extend':
+                    curI = ev.i;
+                    curJ = ev.j;
+                    curProd = ev.curProd;
+                    maxProd = ev.maxProd;
+                    bestI = ev.bestI;
+                    bestJ = ev.bestJ;
+                    curSubarray = ev.subarray;
+
+                    if (ev.isNewBest) {
+                        addLog(`j=${ev.j}: ×${ev.numsJ} → ${ev.curProd} 🏆 NEW MAX`, 'best');
+                    } else {
+                        addLog(`j=${ev.j}: ×${ev.numsJ} → ${ev.curProd}`, 'multiply');
+                    }
+                    break;
+
+                case 'done':
+                    isDone = true;
+                    maxProd = ev.maxProd;
+                    bestI = ev.bestI;
+                    bestJ = ev.bestJ;
+                    curSubarray = ev.subarray;
+                    curI = -1; curJ = -1;
+                    addLog(`✅ Done. Max Product = ${ev.maxProd} from [${ev.subarray.join(', ')}]`, 'done');
+                    stop();
+                    break;
+            }
+
+            render();
+        }
+
+        // ── Rendering ─────────────────────────────────────────
+        function render() {
+            renderArray();
+            renderProduct();
+            renderState();
+        }
+
+        function renderArray() {
+            const row = document.getElementById('arrayRow');
+            row.innerHTML = '';
+
+            for (let idx = 0; idx < N; idx++) {
+                const el = document.createElement('div');
+                let cls = 'arr-cell';
+
+                if (isDone) {
+                    if (idx >= bestI && idx <= bestJ) cls += ' cell-best';
+                    else cls += ' cell-default';
+                } else if (curI >= 0 && curJ >= 0) {
+                    if (idx === curI && idx === curJ) cls += ' cell-j';
+                    else if (idx === curI) cls += ' cell-i';
+                    else if (idx === curJ) cls += ' cell-j';
+                    else if (idx > curI && idx < curJ) cls += ' cell-range';
+                    else cls += ' cell-default';
+                } else if (curI >= 0 && curJ < 0) {
+                    if (idx === curI) cls += ' cell-i';
+                    else cls += ' cell-default';
+                } else {
+                    cls += ' cell-default';
+                }
+
+                el.className = cls;
+                el.textContent = nums[idx];
+
+                const lbl = document.createElement('div');
+                lbl.className = 'cidx';
+                lbl.textContent = idx;
+                el.appendChild(lbl);
+
+                row.appendChild(el);
+            }
+        }
+
+        function renderProduct() {
+            const expr = document.getElementById('subarrayExpr');
+            const prodEl = document.getElementById('productValue');
+
+            if (isDone) {
+                const bestArr = nums.slice(bestI, bestJ + 1);
+                expr.textContent = `Best: [${bestArr.join(' × ')}] = ${maxProd}`;
+                prodEl.textContent = maxProd;
+                prodEl.className = 'product-value ' + (maxProd > 0 ? 'product-positive' : maxProd < 0 ? 'product-negative' : 'product-zero');
+            } else if (curSubarray.length > 0) {
+                expr.textContent = `[${curSubarray.join(' × ')}] = ${curProd}`;
+                prodEl.textContent = curProd;
+                prodEl.className = 'product-value ' + (curProd > 0 ? 'product-positive' : curProd < 0 ? 'product-negative' : 'product-zero');
+            } else {
+                expr.textContent = '-';
+                prodEl.textContent = '-';
+                prodEl.className = 'product-value product-zero';
+            }
+        }
+
+        function renderState() {
+            document.getElementById('iVal').textContent = curI >= 0 ? curI : '-';
+            document.getElementById('jVal').textContent = curJ >= 0 ? curJ : '-';
+            document.getElementById('numsJVal').textContent = curJ >= 0 ? nums[curJ] : '-';
+            document.getElementById('curProdVal').textContent = curSubarray.length > 0 ? curProd : '-';
+            document.getElementById('subArrVal').textContent = curSubarray.length > 0 ? `[${curSubarray.join(',')}]` : '-';
+            document.getElementById('maxVal').textContent = maxProd === -Infinity ? '-∞' : maxProd;
+
+            const bestArr = maxProd !== -Infinity ? nums.slice(bestI, bestJ + 1) : [];
+            document.getElementById('bestSubArr').textContent = bestArr.length > 0 ? `Best: [${bestArr.join(', ')}]` : '-';
+        }
+
+        // ── Log ───────────────────────────────────────────────
+        function addLog(msg, type = 'info') {
+            const log = document.getElementById('logContainer');
+            log.innerHTML += `<div class="log-entry ${type}">[${stepCount}] ${msg}</div>`;
+            log.scrollTop = log.scrollHeight;
+        }
+        function clearLog() { document.getElementById('logContainer').innerHTML = ''; }
+
+        // ── Controls ──────────────────────────────────────────
+        function play() {
+            if (isRunning) return;
+            isRunning = true;
+            updateControls();
+            runLoop();
+        }
+        function runLoop() {
+            if (!isRunning) return;
+            if (eventIdx >= events.length) { stop(); return; }
+            step();
+            const delay = 1100 - (speed * 100);
+            timer = setTimeout(runLoop, Math.max(60, delay));
+        }
+        function stop() {
+            isRunning = false;
+            if (timer) clearTimeout(timer);
+            updateControls();
+        }
+        function reset() { stop(); init(); }
+        function updateControls() {
+            const done = eventIdx >= events.length;
+            document.getElementById('playBtn').disabled = isRunning || done;
+            document.getElementById('pauseBtn').disabled = !isRunning;
+            document.getElementById('stepBtn').disabled = isRunning || done;
+            document.getElementById('resetBtn').disabled = isRunning;
+        }
+
+        document.getElementById('playBtn').addEventListener('click', play);
+        document.getElementById('pauseBtn').addEventListener('click', stop);
+        document.getElementById('stepBtn').addEventListener('click', step);
+        document.getElementById('resetBtn').addEventListener('click', reset);
+        document.getElementById('speedSlider').addEventListener('input', e => speed = parseInt(e.target.value));
+
+        init();
+    </script>
+</body>
+</html>

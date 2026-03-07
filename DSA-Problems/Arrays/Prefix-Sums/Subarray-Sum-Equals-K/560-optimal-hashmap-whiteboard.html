@@ -1,0 +1,1084 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>560. Subarray Sum Equals K - Optimal O(n) HashMap</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #0a0a1a 0%, #1a0a2e 50%, #0a1a2e 100%);
+            min-height: 100vh;
+            color: #e8e8e8;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        h1 {
+            font-size: 1.7rem;
+            background: linear-gradient(90deg, #00ff88, #00d9ff, #a855f7);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 8px;
+        }
+
+        .subtitle {
+            color: #888;
+            font-size: 1rem;
+        }
+
+        .complexity-badge {
+            display: inline-block;
+            background: linear-gradient(135deg, rgba(0, 255, 136, 0.2), rgba(0, 217, 255, 0.2));
+            border: 1px solid #00ff88;
+            color: #00ff88;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            margin-top: 10px;
+        }
+
+        .whiteboard {
+            background: rgba(255, 255, 255, 0.02);
+            border-radius: 20px;
+            padding: 25px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+        }
+
+        .key-insight {
+            background: linear-gradient(135deg, rgba(168, 85, 247, 0.15), rgba(0, 217, 255, 0.15));
+            border: 1px solid rgba(168, 85, 247, 0.4);
+            border-radius: 12px;
+            padding: 15px;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .key-insight p {
+            color: #a855f7;
+            font-size: 0.95rem;
+            margin-bottom: 5px;
+        }
+
+        .key-insight .formula {
+            font-family: 'Courier New', monospace;
+            font-size: 1.1rem;
+            color: #ffd93d;
+        }
+
+        .section-title {
+            font-size: 1rem;
+            color: #00ff88;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .section-title::before {
+            content: '';
+            width: 4px;
+            height: 18px;
+            background: linear-gradient(180deg, #00ff88, #00d9ff);
+            border-radius: 2px;
+        }
+
+        .target-display {
+            text-align: center;
+            margin-bottom: 15px;
+        }
+
+        .target-badge {
+            display: inline-block;
+            background: rgba(255, 217, 61, 0.2);
+            border: 2px solid #ffd93d;
+            color: #ffd93d;
+            padding: 6px 20px;
+            border-radius: 20px;
+            font-size: 1.1rem;
+            font-weight: bold;
+        }
+
+        /* Main Layout */
+        .main-content {
+            display: grid;
+            grid-template-columns: 1fr 300px;
+            gap: 20px;
+        }
+
+        .left-panel {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        /* Array Visualization */
+        .array-container {
+            display: flex;
+            justify-content: center;
+            gap: 8px;
+            margin: 15px 0;
+            flex-wrap: wrap;
+        }
+
+        .array-cell {
+            width: 70px;
+            height: 70px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            background: rgba(255, 255, 255, 0.05);
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            border-radius: 10px;
+            font-size: 1.5rem;
+            font-weight: bold;
+            position: relative;
+            transition: all 0.3s ease;
+        }
+
+        .array-cell .index {
+            position: absolute;
+            top: -22px;
+            font-size: 0.7rem;
+            color: #888;
+        }
+
+        .array-cell.current {
+            background: rgba(0, 217, 255, 0.25);
+            border-color: #00d9ff;
+            box-shadow: 0 0 20px rgba(0, 217, 255, 0.4);
+            transform: scale(1.1);
+        }
+
+        .array-cell.processed {
+            background: rgba(168, 85, 247, 0.15);
+            border-color: rgba(168, 85, 247, 0.5);
+        }
+
+        .array-cell.found-end {
+            background: rgba(0, 255, 136, 0.3);
+            border-color: #00ff88;
+            box-shadow: 0 0 15px rgba(0, 255, 136, 0.4);
+        }
+
+        .prefix-sum-label {
+            position: absolute;
+            bottom: -25px;
+            font-size: 0.7rem;
+            color: #a855f7;
+            white-space: nowrap;
+        }
+
+        /* Prefix Sum Display */
+        .prefix-sum-display {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 12px;
+            padding: 15px;
+        }
+
+        .prefix-title {
+            font-size: 0.85rem;
+            color: #888;
+            margin-bottom: 10px;
+            text-align: center;
+        }
+
+        .prefix-calculation {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 10px;
+            flex-wrap: wrap;
+            font-family: 'Courier New', monospace;
+        }
+
+        .prefix-item {
+            padding: 5px 12px;
+            background: rgba(168, 85, 247, 0.2);
+            border: 1px solid rgba(168, 85, 247, 0.4);
+            border-radius: 8px;
+            color: #a855f7;
+        }
+
+        .prefix-item.highlight {
+            background: rgba(0, 217, 255, 0.2);
+            border-color: #00d9ff;
+            color: #00d9ff;
+        }
+
+        .prefix-operator {
+            color: #888;
+            font-size: 1.1rem;
+        }
+
+        .prefix-result {
+            padding: 5px 15px;
+            background: rgba(0, 255, 136, 0.2);
+            border: 2px solid #00ff88;
+            border-radius: 8px;
+            color: #00ff88;
+            font-weight: bold;
+        }
+
+        /* Target Lookup */
+        .target-lookup {
+            background: rgba(255, 217, 61, 0.1);
+            border: 1px solid rgba(255, 217, 61, 0.3);
+            border-radius: 12px;
+            padding: 15px;
+            text-align: center;
+        }
+
+        .lookup-title {
+            font-size: 0.85rem;
+            color: #888;
+            margin-bottom: 10px;
+        }
+
+        .lookup-formula {
+            font-family: 'Courier New', monospace;
+            font-size: 1.1rem;
+            color: #ffd93d;
+            margin-bottom: 10px;
+        }
+
+        .lookup-result {
+            padding: 5px 15px;
+            border-radius: 15px;
+            display: inline-block;
+            font-size: 0.95rem;
+        }
+
+        .lookup-result.found {
+            background: rgba(0, 255, 136, 0.2);
+            color: #00ff88;
+        }
+
+        .lookup-result.not-found {
+            background: rgba(255, 107, 107, 0.2);
+            color: #ff6b6b;
+        }
+
+        /* HashMap Visualization */
+        .hashmap-panel {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            padding: 15px;
+        }
+
+        .hashmap-title {
+            font-size: 0.9rem;
+            color: #00d9ff;
+            margin-bottom: 12px;
+            text-align: center;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .hashmap-entries {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+
+        .hashmap-entry {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px 12px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.85rem;
+            transition: all 0.3s ease;
+        }
+
+        .hashmap-entry.highlight {
+            background: rgba(0, 217, 255, 0.2);
+            border-color: #00d9ff;
+        }
+
+        .hashmap-entry.found {
+            background: rgba(0, 255, 136, 0.2);
+            border-color: #00ff88;
+            animation: pulse 0.5s ease;
+        }
+
+        .hashmap-entry.new {
+            background: rgba(168, 85, 247, 0.2);
+            border-color: #a855f7;
+            animation: slideIn 0.3s ease;
+        }
+
+        @keyframes pulse {
+
+            0%,
+            100% {
+                transform: scale(1);
+            }
+
+            50% {
+                transform: scale(1.05);
+            }
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateX(-20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        .entry-key {
+            color: #ffd93d;
+        }
+
+        .entry-arrow {
+            color: #888;
+        }
+
+        .entry-value {
+            color: #00ff88;
+            font-weight: bold;
+        }
+
+        /* Variables Panel */
+        .variables-panel {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+        }
+
+        .variable-card {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            padding: 10px;
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+
+        .variable-card.highlight {
+            border-color: #00d9ff;
+            box-shadow: 0 0 12px rgba(0, 217, 255, 0.3);
+        }
+
+        .variable-card.success {
+            border-color: #00ff88;
+            box-shadow: 0 0 12px rgba(0, 255, 136, 0.3);
+        }
+
+        .variable-name {
+            font-size: 0.7rem;
+            color: #888;
+            margin-bottom: 4px;
+        }
+
+        .variable-value {
+            font-size: 1.4rem;
+            font-weight: bold;
+            color: #fff;
+        }
+
+        /* Found Subarrays */
+        .found-subarrays {
+            background: rgba(0, 255, 136, 0.1);
+            border: 1px solid rgba(0, 255, 136, 0.3);
+            border-radius: 10px;
+            padding: 10px;
+        }
+
+        .found-title {
+            font-size: 0.8rem;
+            color: #00ff88;
+            margin-bottom: 6px;
+        }
+
+        .found-list {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .found-item {
+            background: rgba(0, 255, 136, 0.2);
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.8rem;
+            color: #00ff88;
+        }
+
+        /* Action Log */
+        .action-log {
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 10px;
+            padding: 10px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.75rem;
+            max-height: 80px;
+            overflow-y: auto;
+        }
+
+        .log-entry {
+            padding: 2px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            opacity: 0;
+            transform: translateX(-20px);
+            animation: slideIn 0.3s ease forwards;
+        }
+
+        .log-step {
+            color: #a855f7;
+        }
+
+        .log-action {
+            color: #888;
+        }
+
+        .log-value {
+            color: #00ff88;
+        }
+
+        /* Controls */
+        .controls {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-top: 20px;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            padding: 10px 22px;
+            border: none;
+            border-radius: 22px;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 600;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #00ff88, #00d9ff);
+            color: #0a0a1a;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(0, 255, 136, 0.3);
+        }
+
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.1);
+            color: #fff;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .btn-secondary:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        /* Speed Control */
+        .speed-control {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-top: 12px;
+            justify-content: center;
+        }
+
+        .speed-control label {
+            color: #888;
+            font-size: 0.8rem;
+        }
+
+        .speed-slider {
+            width: 100px;
+            height: 4px;
+            -webkit-appearance: none;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 2px;
+            outline: none;
+        }
+
+        .speed-slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 14px;
+            height: 14px;
+            background: linear-gradient(135deg, #00ff88, #00d9ff);
+            border-radius: 50%;
+            cursor: pointer;
+        }
+
+        /* Result Display */
+        .result-display {
+            text-align: center;
+            padding: 20px;
+            margin-top: 15px;
+            background: linear-gradient(135deg, rgba(0, 255, 136, 0.1), rgba(0, 217, 255, 0.1));
+            border-radius: 15px;
+            border: 1px solid rgba(0, 255, 136, 0.3);
+            display: none;
+        }
+
+        .result-display.show {
+            display: block;
+            animation: fadeIn 0.5s ease;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .result-label {
+            font-size: 0.9rem;
+            color: #888;
+            margin-bottom: 6px;
+        }
+
+        .result-value {
+            font-size: 2.5rem;
+            font-weight: bold;
+            background: linear-gradient(90deg, #00ff88, #00d9ff);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .result-stats {
+            display: flex;
+            justify-content: center;
+            gap: 25px;
+            margin-top: 10px;
+        }
+
+        .stat-value {
+            font-size: 1.1rem;
+            font-weight: bold;
+            color: #a855f7;
+        }
+
+        .stat-label {
+            font-size: 0.7rem;
+            color: #888;
+        }
+
+        /* Progress */
+        .progress-container {
+            margin: 12px 0;
+        }
+
+        .progress-bar {
+            height: 4px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 2px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #00ff88, #00d9ff);
+            width: 0%;
+            transition: width 0.3s ease;
+        }
+
+        .step-counter {
+            text-align: center;
+            margin-top: 6px;
+            font-size: 0.75rem;
+            color: #888;
+        }
+
+        @media (max-width: 900px) {
+            .main-content {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <header>
+            <h1>📊 Subarray Sum Equals K</h1>
+            <p class="subtitle">Optimal Approach - Prefix Sum + HashMap</p>
+            <span class="complexity-badge">⏱️ O(n) Time · 📦 O(n) Space</span>
+        </header>
+
+        <div class="whiteboard">
+            <div class="key-insight">
+                <p>💡 Key Formula: If prefixSum[i] - prefixSum[j] = k, then subarray (j+1 to i) sums to k</p>
+                <div class="formula">Looking for: prefixSum[j] = currentSum - k</div>
+            </div>
+
+            <div class="section-title">Array: nums = [1, 1, 1], k = 2</div>
+
+            <div class="main-content">
+                <div class="left-panel">
+                    <div class="array-container" id="arrayContainer"></div>
+
+                    <div class="prefix-sum-display">
+                        <div class="prefix-title">Current Prefix Sum Calculation</div>
+                        <div class="prefix-calculation" id="prefixCalculation">
+                            <span style="color: #888;">Will appear as we iterate...</span>
+                        </div>
+                    </div>
+
+                    <div class="target-lookup" id="targetLookup">
+                        <div class="lookup-title">Looking for target in HashMap</div>
+                        <div class="lookup-formula" id="lookupFormula">target = currentSum - k</div>
+                        <div class="lookup-result not-found" id="lookupResult">-</div>
+                    </div>
+
+                    <div class="variables-panel">
+                        <div class="variable-card" id="indexCard">
+                            <div class="variable-name">Index</div>
+                            <div class="variable-value" id="indexValue">-</div>
+                        </div>
+                        <div class="variable-card" id="sumCard">
+                            <div class="variable-name">currentSum</div>
+                            <div class="variable-value" id="sumValue">0</div>
+                        </div>
+                        <div class="variable-card" id="countCard">
+                            <div class="variable-name">count</div>
+                            <div class="variable-value" id="countValue">0</div>
+                        </div>
+                    </div>
+
+                    <div class="found-subarrays">
+                        <div class="found-title">✅ Found Subarrays (sum = 2):</div>
+                        <div class="found-list" id="foundList">
+                            <span style="color: #888; font-size: 0.8rem;">None yet...</span>
+                        </div>
+                    </div>
+
+                    <div class="action-log" id="actionLog"></div>
+                </div>
+
+                <div class="hashmap-panel">
+                    <div class="hashmap-title">
+                        🗂️ HashMap (prefixSum → count)
+                    </div>
+                    <div class="hashmap-entries" id="hashmapEntries">
+                        <div class="hashmap-entry new">
+                            <span class="entry-key">0</span>
+                            <span class="entry-arrow">→</span>
+                            <span class="entry-value">1</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="progress-container">
+                <div class="progress-bar">
+                    <div class="progress-fill" id="progressFill"></div>
+                </div>
+                <div class="step-counter" id="stepCounter">Step 0 of 7</div>
+            </div>
+
+            <div class="result-display" id="resultDisplay">
+                <div class="result-label">✨ Total Subarrays Found!</div>
+                <div class="result-value" id="finalResult">2</div>
+                <div class="result-stats">
+                    <div class="stat">
+                        <div class="stat-value">O(n)</div>
+                        <div class="stat-label">Time</div>
+                    </div>
+                    <div class="stat">
+                        <div class="stat-value">1 pass</div>
+                        <div class="stat-label">Iterations</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="controls">
+                <button class="btn btn-secondary" id="resetBtn" onclick="reset()">↺ Reset</button>
+                <button class="btn btn-secondary" id="prevBtn" onclick="prevStep()" disabled>← Prev</button>
+                <button class="btn btn-primary" id="nextBtn" onclick="nextStep()">Start →</button>
+                <button class="btn btn-secondary" id="autoBtn" onclick="autoPlay()">▶ Auto</button>
+            </div>
+
+            <div class="speed-control">
+                <label>Speed:</label>
+                <input type="range" class="speed-slider" id="speedSlider" min="400" max="2000" value="900">
+                <span id="speedValue">900ms</span>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const nums = [1, 1, 1];
+        const k = 2;
+        let currentStep = 0;
+        let isPlaying = false;
+        let playInterval = null;
+        let foundSubarrays = [];
+        let hashMap = new Map();
+
+        const steps = [
+            {
+                type: 'init',
+                desc: 'Initialize: count=0, currentSum=0, map={0:1}',
+                map: new Map([[0, 1]])
+            },
+            {
+                type: 'process',
+                index: 0,
+                num: 1,
+                prevSum: 0,
+                currentSum: 1,
+                target: -1,
+                found: false,
+                foundCount: 0,
+                map: new Map([[0, 1], [1, 1]]),
+                newEntry: 1,
+                desc: 'Index 0: sum=1, target=-1 not in map'
+            },
+            {
+                type: 'process',
+                index: 1,
+                num: 1,
+                prevSum: 1,
+                currentSum: 2,
+                target: 0,
+                found: true,
+                foundCount: 1,
+                foundSubarray: '[0,1]',
+                map: new Map([[0, 1], [1, 1], [2, 1]]),
+                newEntry: 2,
+                desc: 'Index 1: sum=2, target=0 FOUND! count++'
+            },
+            {
+                type: 'process',
+                index: 2,
+                num: 1,
+                prevSum: 2,
+                currentSum: 3,
+                target: 1,
+                found: true,
+                foundCount: 1,
+                foundSubarray: '[1,2]',
+                map: new Map([[0, 1], [1, 1], [2, 1], [3, 1]]),
+                newEntry: 3,
+                desc: 'Index 2: sum=3, target=1 FOUND! count++'
+            },
+            {
+                type: 'done',
+                desc: 'Complete! Total count = 2'
+            }
+        ];
+
+        function initArray() {
+            const container = document.getElementById('arrayContainer');
+            container.innerHTML = '';
+
+            nums.forEach((num, idx) => {
+                const cell = document.createElement('div');
+                cell.className = 'array-cell';
+                cell.id = `cell-${idx}`;
+                cell.innerHTML = `<span class="index">index ${idx}</span>${num}`;
+                container.appendChild(cell);
+            });
+        }
+
+        function updateHashmapDisplay(map, highlightKey, foundKey, newKey) {
+            const container = document.getElementById('hashmapEntries');
+            container.innerHTML = '';
+
+            const entries = Array.from(map.entries());
+            entries.forEach(([key, value]) => {
+                const entry = document.createElement('div');
+                entry.className = 'hashmap-entry';
+
+                if (key === foundKey) {
+                    entry.classList.add('found');
+                } else if (key === newKey) {
+                    entry.classList.add('new');
+                } else if (key === highlightKey) {
+                    entry.classList.add('highlight');
+                }
+
+                entry.innerHTML = `
+                    <span class="entry-key">${key}</span>
+                    <span class="entry-arrow">→</span>
+                    <span class="entry-value">${value}</span>
+                `;
+                container.appendChild(entry);
+            });
+        }
+
+        function updatePrefixCalculation(elements, sum) {
+            const container = document.getElementById('prefixCalculation');
+            if (!elements || elements.length === 0) {
+                container.innerHTML = '<span style="color: #888;">Will appear as we iterate...</span>';
+                return;
+            }
+
+            let html = elements.map((el, idx) => {
+                const isLast = idx === elements.length - 1;
+                return `<span class="prefix-item ${isLast ? 'highlight' : ''}">${el}</span>`;
+            }).join('<span class="prefix-operator">+</span>');
+
+            html += `<span class="prefix-operator">=</span><span class="prefix-result">${sum}</span>`;
+            container.innerHTML = html;
+        }
+
+        function updateDisplay() {
+            // Reset cells
+            nums.forEach((_, idx) => {
+                const cell = document.getElementById(`cell-${idx}`);
+                cell.className = 'array-cell';
+                cell.innerHTML = `<span class="index">index ${idx}</span>${nums[idx]}`;
+            });
+
+            const step = steps[currentStep];
+            const lookupFormula = document.getElementById('lookupFormula');
+            const lookupResult = document.getElementById('lookupResult');
+
+            if (step.type === 'init') {
+                document.getElementById('indexValue').textContent = '-';
+                document.getElementById('sumValue').textContent = '0';
+                document.getElementById('countValue').textContent = '0';
+
+                updatePrefixCalculation(null);
+                updateHashmapDisplay(step.map, null, null, 0);
+
+                lookupFormula.textContent = 'target = currentSum - k';
+                lookupResult.textContent = 'Initialized with {0: 1}';
+                lookupResult.className = 'lookup-result not-found';
+
+                addLog('Init', 'map = {0: 1}', 'Empty prefix exists');
+
+            } else if (step.type === 'process') {
+                // Mark processed cells
+                for (let i = 0; i < step.index; i++) {
+                    document.getElementById(`cell-${i}`).classList.add('processed');
+                }
+
+                // Mark current cell
+                const currentCell = document.getElementById(`cell-${step.index}`);
+                currentCell.classList.add('current');
+                currentCell.innerHTML += `<span class="prefix-sum-label">sum=${step.currentSum}</span>`;
+
+                if (step.found) {
+                    currentCell.classList.add('found-end');
+                }
+
+                document.getElementById('indexValue').textContent = step.index;
+                document.getElementById('sumValue').textContent = step.currentSum;
+
+                document.getElementById('sumCard').classList.add('highlight');
+                setTimeout(() => document.getElementById('sumCard').classList.remove('highlight'), 300);
+
+                // Update prefix calculation
+                const elements = nums.slice(0, step.index + 1);
+                updatePrefixCalculation(elements, step.currentSum);
+
+                // Update lookup
+                lookupFormula.textContent = `target = ${step.currentSum} - ${k} = ${step.target}`;
+
+                if (step.found) {
+                    lookupResult.textContent = `✅ Found! map[${step.target}] = ${step.foundCount} → count += ${step.foundCount}`;
+                    lookupResult.className = 'lookup-result found';
+
+                    // Update count
+                    const currentCount = foundSubarrays.length + step.foundCount;
+                    document.getElementById('countValue').textContent = currentCount;
+                    document.getElementById('countCard').classList.add('success');
+                    setTimeout(() => document.getElementById('countCard').classList.remove('success'), 400);
+
+                    foundSubarrays.push(step.foundSubarray);
+                    updateFoundList();
+
+                    updateHashmapDisplay(step.map, step.target, step.target, step.newEntry);
+
+                    addLog(`i=${step.index}`, `sum=${step.currentSum}, target=${step.target}`, '✓ Found!');
+                } else {
+                    lookupResult.textContent = `❌ ${step.target} not in map`;
+                    lookupResult.className = 'lookup-result not-found';
+
+                    updateHashmapDisplay(step.map, step.target, null, step.newEntry);
+
+                    addLog(`i=${step.index}`, `sum=${step.currentSum}, target=${step.target}`, 'Not found');
+                }
+
+            } else if (step.type === 'done') {
+                // Mark all as processed
+                nums.forEach((_, idx) => {
+                    document.getElementById(`cell-${idx}`).classList.add('processed');
+                });
+
+                document.getElementById('indexValue').textContent = '✓';
+
+                lookupFormula.textContent = '🎉 All elements processed!';
+                lookupResult.textContent = `Total count = ${foundSubarrays.length}`;
+                lookupResult.className = 'lookup-result found';
+
+                document.getElementById('resultDisplay').classList.add('show');
+                document.getElementById('finalResult').textContent = foundSubarrays.length;
+
+                addLog('Done', 'Complete', `Count = ${foundSubarrays.length}`);
+            }
+
+            // Update progress
+            document.getElementById('progressFill').style.width = ((currentStep + 1) / steps.length * 100) + '%';
+            document.getElementById('stepCounter').textContent = `Step ${currentStep + 1} of ${steps.length}`;
+
+            // Update buttons
+            document.getElementById('prevBtn').disabled = currentStep === 0;
+            document.getElementById('nextBtn').disabled = currentStep >= steps.length - 1;
+            document.getElementById('nextBtn').textContent = currentStep === 0 ? 'Start →' : 'Next →';
+        }
+
+        function updateFoundList() {
+            const list = document.getElementById('foundList');
+            if (foundSubarrays.length === 0) {
+                list.innerHTML = '<span style="color: #888; font-size: 0.8rem;">None yet...</span>';
+            } else {
+                list.innerHTML = foundSubarrays.map(s => `<div class="found-item">${s}</div>`).join('');
+            }
+        }
+
+        function addLog(step, action, result) {
+            const log = document.getElementById('actionLog');
+            const entry = document.createElement('div');
+            entry.className = 'log-entry';
+            entry.innerHTML = `<span class="log-step">[${step}]</span> <span class="log-action">${action}</span> → <span class="log-value">${result}</span>`;
+            log.appendChild(entry);
+            log.scrollTop = log.scrollHeight;
+        }
+
+        function nextStep() {
+            if (currentStep < steps.length - 1) {
+                currentStep++;
+                updateDisplay();
+            }
+        }
+
+        function prevStep() {
+            if (currentStep > 0) {
+                foundSubarrays = [];
+                for (let i = 0; i < currentStep; i++) {
+                    if (steps[i].type === 'process' && steps[i].found) {
+                        foundSubarrays.push(steps[i].foundSubarray);
+                    }
+                }
+                updateFoundList();
+
+                currentStep--;
+                document.getElementById('actionLog').innerHTML = '';
+                document.getElementById('resultDisplay').classList.remove('show');
+                document.getElementById('countValue').textContent = foundSubarrays.length;
+
+                updateDisplay();
+            }
+        }
+
+        function reset() {
+            stopAutoPlay();
+            currentStep = 0;
+            foundSubarrays = [];
+            hashMap = new Map();
+            document.getElementById('actionLog').innerHTML = '';
+            document.getElementById('resultDisplay').classList.remove('show');
+            document.getElementById('countValue').textContent = '0';
+            updateFoundList();
+
+            document.getElementById('progressFill').style.width = '0%';
+            document.getElementById('stepCounter').textContent = `Step 0 of ${steps.length}`;
+            document.getElementById('nextBtn').textContent = 'Start →';
+            document.getElementById('nextBtn').disabled = false;
+            document.getElementById('prevBtn').disabled = true;
+
+            // Reset hashmap display
+            updateHashmapDisplay(new Map([[0, 1]]), null, null, 0);
+
+            initArray();
+        }
+
+        function autoPlay() {
+            if (isPlaying) {
+                stopAutoPlay();
+                return;
+            }
+
+            isPlaying = true;
+            document.getElementById('autoBtn').textContent = '⏸ Pause';
+
+            const speed = parseInt(document.getElementById('speedSlider').value);
+
+            playInterval = setInterval(() => {
+                if (currentStep < steps.length - 1) {
+                    nextStep();
+                } else {
+                    stopAutoPlay();
+                }
+            }, speed);
+        }
+
+        function stopAutoPlay() {
+            isPlaying = false;
+            document.getElementById('autoBtn').textContent = '▶ Auto';
+            if (playInterval) {
+                clearInterval(playInterval);
+                playInterval = null;
+            }
+        }
+
+        document.getElementById('speedSlider').addEventListener('input', function () {
+            document.getElementById('speedValue').textContent = this.value + 'ms';
+            if (isPlaying) {
+                stopAutoPlay();
+                autoPlay();
+            }
+        });
+
+        // Initialize
+        initArray();
+    </script>
+</body>
+
+</html>

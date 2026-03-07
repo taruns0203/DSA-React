@@ -1,0 +1,454 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Non-overlapping Intervals - DP</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #a1c4fd 0%, #c2e9fb 100%);
+            min-height: 100vh;
+            padding: 20px;
+            color: #333;
+        }
+        .container {
+            max-width: 1100px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            overflow: hidden;
+        }
+        header {
+            background: linear-gradient(135deg, #a1c4fd 0%, #c2e9fb 100%);
+            color: #333;
+            padding: 25px;
+            text-align: center;
+        }
+        h1 { font-size: 1.5em; margin-bottom: 8px; }
+        .subtitle { font-size: 1em; opacity: 0.8; }
+        .complexity-badge {
+            display: inline-block;
+            background: rgba(255,255,255,0.5);
+            padding: 6px 14px;
+            border-radius: 15px;
+            margin-top: 8px;
+            font-size: 0.85em;
+        }
+        .main-content {
+            display: grid;
+            grid-template-columns: 1fr 260px;
+            gap: 20px;
+            padding: 20px;
+        }
+        .card {
+            background: #f8f9fa;
+            border-radius: 12px;
+            padding: 16px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            margin-bottom: 16px;
+        }
+        .card-title {
+            font-size: 0.95em;
+            font-weight: 600;
+            margin-bottom: 12px;
+            color: #1565c0;
+        }
+        .controls { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+        button {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 8px;
+            font-size: 0.85em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        button:hover { transform: translateY(-2px); }
+        button:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+        .btn-primary { background: linear-gradient(135deg, #a1c4fd 0%, #1565c0 100%); color: white; }
+        .btn-success { background: linear-gradient(135deg, #28a745 0%, #20c997 100%); color: white; }
+        .btn-warning { background: linear-gradient(135deg, #ffc107 0%, #ff9800 100%); color: white; }
+        .btn-secondary { background: #6c757d; color: white; }
+        .speed-control { display: flex; align-items: center; gap: 6px; flex: 1; min-width: 140px; }
+        .speed-control input[type="range"] { flex: 1; height: 5px; }
+        .intervals-display {
+            display: flex;
+            gap: 8px;
+            padding: 12px;
+            background: white;
+            border-radius: 8px;
+            flex-wrap: wrap;
+            justify-content: center;
+            min-height: 55px;
+            align-items: flex-end;
+        }
+        .interval-wrapper {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        .interval {
+            padding: 8px 12px;
+            border-radius: 8px;
+            font-weight: 700;
+            font-size: 0.85em;
+            background: #e8eaf6;
+            border: 3px solid #5c6bc0;
+            transition: all 0.3s;
+        }
+        .interval-idx { font-size: 0.65em; color: #666; margin-top: 2px; }
+        .interval.current-i { background: #ffecb3; border-color: #ffa000; }
+        .interval.current-j { background: #bbdefb; border-color: #1976d2; }
+        .interval.compatible { background: #c8e6c9; border-color: #43a047; }
+        .interval.processed { background: #e3f2fd; border-color: #90caf9; }
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.08); }
+        }
+        .dp-display {
+            display: flex;
+            gap: 8px;
+            padding: 12px;
+            background: white;
+            border-radius: 8px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+        .dp-cell {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 8px 12px;
+            border-radius: 8px;
+            background: #e8eaf6;
+            border: 2px solid #5c6bc0;
+            min-width: 50px;
+        }
+        .dp-idx { font-size: 0.65em; color: #666; }
+        .dp-val { font-size: 1.2em; font-weight: 700; color: #1565c0; }
+        .dp-cell.current { background: #ffecb3; border-color: #ffa000; animation: pulse 0.4s; }
+        .dp-cell.checking { background: #bbdefb; border-color: #1976d2; }
+        .dp-cell.updated { background: #c8e6c9; border-color: #43a047; }
+        .comparison-display {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            padding: 12px;
+            background: white;
+            border-radius: 8px;
+            font-size: 0.85em;
+            flex-wrap: wrap;
+        }
+        .comp-box { padding: 6px 10px; border-radius: 6px; font-weight: 700; }
+        .comp-j { background: #bbdefb; color: #1565c0; }
+        .comp-i { background: #ffecb3; color: #e65100; }
+        .comp-result { padding: 6px 10px; border-radius: 6px; font-weight: 700; }
+        .comp-yes { background: #c8e6c9; color: #2e7d32; }
+        .comp-no { background: #ffcdd2; color: #c62828; }
+        .result-display {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+        }
+        .result-box {
+            padding: 15px;
+            border-radius: 8px;
+            text-align: center;
+        }
+        .result-box.keep { background: #e8f5e9; }
+        .result-box.remove { background: #fff3e0; }
+        .result-label { font-size: 0.85em; color: #666; }
+        .result-value { font-size: 1.5em; font-weight: 700; }
+        .result-value.keep { color: #2e7d32; }
+        .result-value.remove { color: #e65100; }
+        .state-display { background: white; border-radius: 8px; padding: 10px; font-family: 'Courier New', monospace; font-size: 0.75em; }
+        .state-row { display: flex; justify-content: space-between; padding: 4px 0; border-bottom: 1px solid #e0e0e0; }
+        .state-row:last-child { border-bottom: none; }
+        .state-label { font-weight: 600; color: #1565c0; }
+        .log-container { background: white; border-radius: 8px; padding: 10px; max-height: 140px; overflow-y: auto; font-family: 'Courier New', monospace; font-size: 0.55em; }
+        .log-entry { padding: 3px 6px; margin: 2px 0; border-radius: 4px; border-left: 3px solid #1565c0; background: #f8f9fa; }
+        .log-entry.success { border-left-color: #28a745; background: #d4edda; }
+        .log-entry.warning { border-left-color: #ffc107; background: #fff3cd; }
+        .log-entry.info { border-left-color: #17a2b8; background: #d1ecf1; }
+        @media (max-width: 900px) { .main-content { grid-template-columns: 1fr; } }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🚫 Non-overlapping Intervals</h1>
+            <div class="subtitle">Improved - Dynamic Programming O(n²)</div>
+            <div class="complexity-badge">Time: O(n²) | Space: O(n)</div>
+        </header>
+        <div class="main-content">
+            <div class="left-panel">
+                <div class="card">
+                    <div class="card-title">⚙️ Controls</div>
+                    <div class="controls">
+                        <button class="btn-primary" id="playBtn">▶️ Play</button>
+                        <button class="btn-warning" id="pauseBtn" disabled>⏸️ Pause</button>
+                        <button class="btn-success" id="stepBtn">⏭️ Step</button>
+                        <button class="btn-secondary" id="resetBtn">🔄 Reset</button>
+                        <div class="speed-control">
+                            <label>Speed:</label>
+                            <input type="range" id="speedSlider" min="1" max="10" value="5">
+                            <span id="speedValue">5x</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="card">
+                    <div class="card-title">📋 Sorted Intervals (by start)</div>
+                    <div class="intervals-display" id="intervalsDisplay"></div>
+                </div>
+                <div class="card">
+                    <div class="card-title">📊 DP Array (dp[i] = max non-overlapping ending at i)</div>
+                    <div class="dp-display" id="dpDisplay"></div>
+                </div>
+                <div class="card">
+                    <div class="card-title">🔍 Checking: intervals[j].end ≤ intervals[i].start?</div>
+                    <div class="comparison-display" id="comparisonDisplay">
+                        <span style="color:#888">Ready</span>
+                    </div>
+                </div>
+                <div class="card">
+                    <div class="result-display">
+                        <div class="result-box keep">
+                            <div class="result-label">Max Keep</div>
+                            <div class="result-value keep" id="maxKeepValue">1</div>
+                        </div>
+                        <div class="result-box remove">
+                            <div class="result-label">Min Removals</div>
+                            <div class="result-value remove" id="removalsValue">3</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="right-panel">
+                <div class="card">
+                    <div class="card-title">📋 Current State</div>
+                    <div class="state-display">
+                        <div class="state-row"><span class="state-label">Phase:</span><span id="phaseState">Sort</span></div>
+                        <div class="state-row"><span class="state-label">i:</span><span id="iState">-</span></div>
+                        <div class="state-row"><span class="state-label">j:</span><span id="jState">-</span></div>
+                        <div class="state-row"><span class="state-label">dp[i]:</span><span id="dpIState">-</span></div>
+                    </div>
+                </div>
+                <div class="card" style="flex: 1;">
+                    <div class="card-title">📝 Execution Log</div>
+                    <div class="log-container" id="logContainer"><div class="log-entry info">DP: dp[i] = max intervals ending at i.</div></div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script>
+        const original = [[1,2],[2,3],[3,4],[1,3]];
+        let intervals = [];
+        let dp = [];
+        const n = original.length;
+        
+        let phase = 'sort'; // 'sort', 'init', 'dp', 'done'
+        let i = 1, j = 0;
+        let currentDpCell = -1;
+        let checkingDpCell = -1;
+        let compatible = false;
+        let isRunning = false;
+        let speed = 5;
+        let stepCount = 0;
+        let done = false;
+
+        function init() {
+            intervals = [...original].sort((a, b) => a[0] - b[0]);
+            dp = new Array(n).fill(1);
+            phase = 'sort';
+            i = 1;
+            j = 0;
+            currentDpCell = -1;
+            checkingDpCell = -1;
+            compatible = false;
+            stepCount = 0;
+            done = false;
+            
+            clearLog();
+            addLog(`Original: ${JSON.stringify(original)}`, 'info');
+            updateState();
+            render();
+        }
+
+        function render() {
+            // Intervals display
+            const display = document.getElementById('intervalsDisplay');
+            display.innerHTML = intervals.map((int, idx) => {
+                let cls = 'interval';
+                if (phase === 'dp') {
+                    if (idx === i) cls += ' current-i';
+                    else if (idx === j) cls += ' current-j';
+                    else if (idx < i && compatible && idx === j) cls += ' compatible';
+                    else if (idx < i) cls += ' processed';
+                }
+                return `<div class="interval-wrapper">
+                    <div class="${cls}">[${int[0]},${int[1]}]</div>
+                    <div class="interval-idx">${idx}</div>
+                </div>`;
+            }).join('');
+            
+            // DP display
+            const dpDisp = document.getElementById('dpDisplay');
+            dpDisp.innerHTML = dp.map((val, idx) => {
+                let cls = 'dp-cell';
+                if (idx === currentDpCell) cls += ' current';
+                else if (idx === checkingDpCell) cls += ' checking';
+                return `<div class="${cls}">
+                    <div class="dp-idx">dp[${idx}]</div>
+                    <div class="dp-val">${val}</div>
+                </div>`;
+            }).join('');
+            
+            // Comparison display
+            const compDisp = document.getElementById('comparisonDisplay');
+            if (phase === 'dp' && j < i) {
+                const jEnd = intervals[j][1];
+                const iStart = intervals[i][0];
+                const valid = jEnd <= iStart;
+                compDisp.innerHTML = `
+                    <span class="comp-box comp-j">[${intervals[j]}].end=${jEnd}</span>
+                    <span>≤</span>
+                    <span class="comp-box comp-i">[${intervals[i]}].start=${iStart}?</span>
+                    <span class="comp-result ${valid ? 'comp-yes' : 'comp-no'}">${valid ? '✓ Yes' : '✗ No'}</span>
+                `;
+            } else if (phase === 'done') {
+                compDisp.innerHTML = '<span style="color:#2e7d32;font-weight:700">✓ DP Complete!</span>';
+            } else {
+                compDisp.innerHTML = '<span style="color:#888">-</span>';
+            }
+            
+            // Results
+            const maxKeep = Math.max(...dp);
+            document.getElementById('maxKeepValue').textContent = maxKeep;
+            document.getElementById('removalsValue').textContent = n - maxKeep;
+        }
+
+        function updateState() {
+            document.getElementById('phaseState').textContent = phase;
+            document.getElementById('iState').textContent = phase === 'dp' || phase === 'done' ? i : '-';
+            document.getElementById('jState').textContent = phase === 'dp' && j < i ? j : '-';
+            document.getElementById('dpIState').textContent = phase === 'dp' && i < n ? dp[i] : '-';
+        }
+
+        function addLog(msg, type = 'info') {
+            const log = document.getElementById('logContainer');
+            log.innerHTML += `<div class="log-entry ${type}">[${stepCount}] ${msg}</div>`;
+            log.scrollTop = log.scrollHeight;
+        }
+
+        function clearLog() { document.getElementById('logContainer').innerHTML = ''; }
+
+        function step() {
+            if (done) { stopExecution(); return; }
+            stepCount++;
+            currentDpCell = -1;
+            checkingDpCell = -1;
+            
+            if (phase === 'sort') {
+                addLog(`Sorted: ${JSON.stringify(intervals)}`, 'success');
+                phase = 'init';
+            } else if (phase === 'init') {
+                addLog(`Init dp = [${dp.join(',')}]`, 'info');
+                phase = 'dp';
+                i = 1;
+                j = 0;
+            } else if (phase === 'dp') {
+                if (i < n) {
+                    currentDpCell = i;
+                    
+                    if (j < i) {
+                        checkingDpCell = j;
+                        const jEnd = intervals[j][1];
+                        const iStart = intervals[i][0];
+                        
+                        if (jEnd <= iStart) {
+                            const newVal = dp[j] + 1;
+                            if (newVal > dp[i]) {
+                                dp[i] = newVal;
+                                addLog(`j=${j}: ${jEnd}≤${iStart} ✓ dp[${i}]=max(${dp[i]-1},${dp[j]}+1)=${dp[i]}`, 'success');
+                            } else {
+                                addLog(`j=${j}: ${jEnd}≤${iStart} ✓ no update`, 'info');
+                            }
+                        } else {
+                            addLog(`j=${j}: ${jEnd}>${iStart} ✗ skip`, 'warning');
+                        }
+                        j++;
+                    } else {
+                        addLog(`dp[${i}] = ${dp[i]} (final)`, 'success');
+                        i++;
+                        j = 0;
+                    }
+                } else {
+                    phase = 'done';
+                    done = true;
+                    const maxKeep = Math.max(...dp);
+                    addLog(`Done! max(dp)=${maxKeep}, removals=${n - maxKeep}`, 'success');
+                }
+            }
+            
+            updateState();
+            render();
+        }
+
+        function play() {
+            if (isRunning) return;
+            isRunning = true;
+            document.getElementById('playBtn').disabled = true;
+            document.getElementById('pauseBtn').disabled = false;
+            document.getElementById('stepBtn').disabled = true;
+            runLoop();
+        }
+
+        function pause() {
+            isRunning = false;
+            document.getElementById('playBtn').disabled = false;
+            document.getElementById('pauseBtn').disabled = true;
+            document.getElementById('stepBtn').disabled = false;
+        }
+
+        function stopExecution() {
+            isRunning = false;
+            document.getElementById('playBtn').disabled = true;
+            document.getElementById('pauseBtn').disabled = true;
+            document.getElementById('stepBtn').disabled = true;
+        }
+
+        function runLoop() {
+            if (!isRunning) return;
+            step();
+            if (isRunning && !done) {
+                setTimeout(runLoop, 400 / speed);
+            } else {
+                stopExecution();
+            }
+        }
+
+        function reset() {
+            isRunning = false;
+            document.getElementById('playBtn').disabled = false;
+            document.getElementById('pauseBtn').disabled = true;
+            document.getElementById('stepBtn').disabled = false;
+            init();
+        }
+
+        document.getElementById('playBtn').addEventListener('click', play);
+        document.getElementById('pauseBtn').addEventListener('click', pause);
+        document.getElementById('stepBtn').addEventListener('click', step);
+        document.getElementById('resetBtn').addEventListener('click', reset);
+        document.getElementById('speedSlider').addEventListener('input', (e) => {
+            speed = parseInt(e.target.value);
+            document.getElementById('speedValue').textContent = speed + 'x';
+        });
+
+        init();
+    </script>
+</body>
+</html>

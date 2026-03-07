@@ -1,0 +1,884 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>141 - Optimal: Floyd's Tortoise & Hare</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #0f0c29 0%, #302b63 50%, #24243e 100%);
+            min-height: 100vh;
+            padding: 18px;
+            color: #e0e0e0
+        }
+
+        .container {
+            max-width: 1360px;
+            margin: 0 auto;
+            background: rgba(25, 25, 50, .95);
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, .5), 0 0 40px rgba(46, 204, 113, .07);
+            overflow: hidden;
+            border: 1px solid rgba(255, 255, 255, .06)
+        }
+
+        header {
+            background: linear-gradient(135deg, #27ae60, #2ecc71);
+            color: #fff;
+            padding: 22px;
+            text-align: center
+        }
+
+        h1 {
+            font-size: 1.15em;
+            margin-bottom: 5px
+        }
+
+        .subtitle {
+            font-size: .84em;
+            opacity: .92
+        }
+
+        .badge {
+            display: inline-block;
+            background: rgba(255, 255, 255, .2);
+            padding: 5px 14px;
+            border-radius: 15px;
+            margin-top: 7px;
+            font-size: .78em
+        }
+
+        .main-content {
+            display: grid;
+            grid-template-columns: 1fr 280px;
+            gap: 16px;
+            padding: 18px
+        }
+
+        .card {
+            background: rgba(40, 40, 75, .8);
+            border-radius: 14px;
+            padding: 15px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, .2);
+            margin-bottom: 14px;
+            border: 1px solid rgba(255, 255, 255, .05)
+        }
+
+        .card-title {
+            font-size: .88em;
+            font-weight: 600;
+            margin-bottom: 10px;
+            color: #2ecc71
+        }
+
+        button {
+            padding: 7px 14px;
+            border: none;
+            border-radius: 8px;
+            font-size: .82em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all .3s
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, .3)
+        }
+
+        button:disabled {
+            opacity: .4;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #27ae60, #2ecc71);
+            color: #fff
+        }
+
+        .btn-success {
+            background: linear-gradient(135deg, #16a085, #1abc9c);
+            color: #fff
+        }
+
+        .btn-warning {
+            background: linear-gradient(135deg, #f39c12, #e67e22);
+            color: #fff
+        }
+
+        .btn-secondary {
+            background: rgba(100, 100, 140, .7);
+            color: #fff
+        }
+
+        .btn-info {
+            background: linear-gradient(135deg, #8e44ad, #9b59b6);
+            color: #fff
+        }
+
+        .controls {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            align-items: center
+        }
+
+        .speed-control {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            flex: 1;
+            min-width: 140px
+        }
+
+        .speed-control label {
+            font-size: .8em;
+            color: #aaa
+        }
+
+        .speed-control input[type="range"] {
+            flex: 1;
+            height: 5px;
+            accent-color: #2ecc71
+        }
+
+        .speed-control span {
+            font-size: .8em;
+            color: #2ecc71;
+            min-width: 24px
+        }
+
+        .input-section {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+            flex-wrap: wrap
+        }
+
+        .input-section input {
+            padding: 7px 10px;
+            border-radius: 8px;
+            border: 1px solid rgba(255, 255, 255, .15);
+            background: rgba(20, 20, 45, .8);
+            color: #e0e0e0;
+            font-size: .85em;
+            font-family: 'Courier New', monospace;
+            flex: 1;
+            min-width: 80px
+        }
+
+        .input-section input:focus {
+            outline: none;
+            border-color: #2ecc71
+        }
+
+        .input-section label {
+            font-size: .82em;
+            color: #aaa;
+            white-space: nowrap
+        }
+
+        /* Linked list */
+        .ll-area {
+            padding: 16px;
+            background: rgba(20, 20, 50, .4);
+            border-radius: 10px;
+            min-height: 110px;
+            overflow-x: auto
+        }
+
+        .ll-row {
+            display: flex;
+            align-items: center;
+            gap: 0;
+            min-height: 80px;
+            padding: 14px 0;
+            flex-wrap: nowrap
+        }
+
+        .ll-node {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            position: relative;
+            flex-shrink: 0
+        }
+
+        .node-box {
+            width: 56px;
+            height: 56px;
+            border-radius: 12px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            font-family: 'Courier New', monospace;
+            font-weight: 700;
+            border: 2.5px solid;
+            transition: all .35s;
+            position: relative
+        }
+
+        .node-box.idle {
+            border-color: rgba(100, 100, 140, .3);
+            background: rgba(40, 40, 70, .6);
+            color: #aaa
+        }
+
+        .node-box.slow-only {
+            border-color: #3498db;
+            background: rgba(52, 152, 219, .08);
+            color: #3498db;
+            box-shadow: 0 0 12px rgba(52, 152, 219, .12)
+        }
+
+        .node-box.fast-only {
+            border-color: #e74c3c;
+            background: rgba(231, 76, 60, .08);
+            color: #e74c3c;
+            box-shadow: 0 0 12px rgba(231, 76, 60, .12)
+        }
+
+        .node-box.both {
+            border-color: #f1c40f;
+            background: rgba(241, 196, 15, .1);
+            color: #f1c40f;
+            box-shadow: 0 0 18px rgba(241, 196, 15, .2)
+        }
+
+        .node-box.met {
+            border-color: #2ecc71;
+            background: rgba(46, 204, 113, .12);
+            color: #2ecc71;
+            box-shadow: 0 0 20px rgba(46, 204, 113, .25);
+            animation: pulse-meet 1s infinite
+        }
+
+        @keyframes pulse-meet {
+
+            0%,
+            100% {
+                box-shadow: 0 0 14px rgba(46, 204, 113, .2)
+            }
+
+            50% {
+                box-shadow: 0 0 26px rgba(46, 204, 113, .45)
+            }
+        }
+
+        .node-val {
+            font-size: 1.1em
+        }
+
+        .node-idx {
+            font-size: .38em;
+            color: #666;
+            margin-top: 1px
+        }
+
+        .ptr-labels {
+            position: absolute;
+            top: -22px;
+            display: flex;
+            gap: 3px;
+            justify-content: center;
+            white-space: nowrap
+        }
+
+        .ptr-tag {
+            font-size: .42em;
+            font-weight: 700;
+            padding: 1px 5px;
+            border-radius: 4px
+        }
+
+        .ptr-tag.slow {
+            background: rgba(52, 152, 219, .15);
+            color: #3498db
+        }
+
+        .ptr-tag.fast {
+            background: rgba(231, 76, 60, .15);
+            color: #e74c3c
+        }
+
+        .ptr-tag.meet {
+            background: rgba(46, 204, 113, .15);
+            color: #2ecc71
+        }
+
+        .arrow {
+            width: 28px;
+            height: 2px;
+            background: rgba(150, 150, 200, .15);
+            position: relative;
+            flex-shrink: 0
+        }
+
+        .arrow::after {
+            content: '▶';
+            font-size: .55em;
+            color: rgba(150, 150, 200, .25);
+            position: absolute;
+            right: -4px;
+            top: -6px
+        }
+
+        .cycle-label {
+            font-size: .55em;
+            color: #e74c3c;
+            padding: 2px 6px;
+            border: 1.5px solid rgba(231, 76, 60, .3);
+            border-radius: 6px;
+            background: rgba(231, 76, 60, .06);
+            white-space: nowrap;
+            margin-left: 4px;
+            flex-shrink: 0
+        }
+
+        .null-marker {
+            font-size: .7em;
+            color: #555;
+            font-family: 'Courier New', monospace;
+            padding: 0 8px;
+            flex-shrink: 0
+        }
+
+        /* Speed visualization */
+        .speed-viz {
+            padding: 12px;
+            background: rgba(20, 20, 50, .4);
+            border-radius: 10px;
+            display: flex;
+            gap: 20px;
+            justify-content: center;
+            align-items: center;
+            flex-wrap: wrap
+        }
+
+        .speed-block {
+            display: flex;
+            align-items: center;
+            gap: 8px
+        }
+
+        .speed-icon {
+            font-size: 1.6em
+        }
+
+        .speed-info {
+            font-family: 'Courier New', monospace;
+            font-size: .72em
+        }
+
+        .speed-info .sp-label {
+            font-weight: 600
+        }
+
+        .speed-info .sp-label.slow-c {
+            color: #3498db
+        }
+
+        .speed-info .sp-label.fast-c {
+            color: #e74c3c
+        }
+
+        .speed-info .sp-detail {
+            color: #888;
+            font-size: .85em
+        }
+
+        .gap-display {
+            padding: 6px 14px;
+            border-radius: 8px;
+            background: rgba(241, 196, 15, .06);
+            border: 1px solid rgba(241, 196, 15, .12);
+            font-family: 'Courier New', monospace;
+            font-size: .78em;
+            color: #f1c40f;
+            font-weight: 600;
+            text-align: center
+        }
+
+        .result-box {
+            padding: 14px;
+            border-radius: 10px;
+            text-align: center;
+            font-weight: 700;
+            font-size: 1em;
+            transition: all .3s
+        }
+
+        .rb-neutral {
+            background: rgba(100, 100, 140, .12);
+            color: #888
+        }
+
+        .rb-run {
+            background: rgba(46, 204, 113, .06);
+            color: #2ecc71;
+            border: 1px solid rgba(46, 204, 113, .12)
+        }
+
+        .rb-true {
+            background: rgba(46, 204, 113, .12);
+            color: #2ecc71;
+            border: 1px solid rgba(46, 204, 113, .25)
+        }
+
+        .rb-false {
+            background: rgba(52, 152, 219, .12);
+            color: #3498db;
+            border: 1px solid rgba(52, 152, 219, .25)
+        }
+
+        .state-display {
+            background: rgba(20, 20, 50, .5);
+            border-radius: 8px;
+            padding: 10px;
+            font-family: 'Courier New', monospace;
+            font-size: .63em
+        }
+
+        .state-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 4px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, .05)
+        }
+
+        .state-row:last-child {
+            border-bottom: none
+        }
+
+        .state-label {
+            font-weight: 600;
+            color: #2ecc71
+        }
+
+        .state-val {
+            color: #ccc;
+            text-align: right;
+            max-width: 130px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap
+        }
+
+        .log-container {
+            background: rgba(20, 20, 50, .5);
+            border-radius: 8px;
+            padding: 10px;
+            max-height: 300px;
+            overflow-y: auto;
+            font-family: 'Courier New', monospace;
+            font-size: .5em
+        }
+
+        .log-entry {
+            padding: 3px 7px;
+            margin: 2px 0;
+            border-radius: 4px;
+            border-left: 3px solid #555;
+            background: rgba(40, 40, 70, .5);
+            line-height: 1.5
+        }
+
+        .log-entry.success {
+            border-left-color: #2ecc71;
+            background: rgba(46, 204, 113, .08);
+            color: #2ecc71
+        }
+
+        .log-entry.warning {
+            border-left-color: #f39c12;
+            background: rgba(243, 156, 18, .08);
+            color: #f39c12
+        }
+
+        .log-entry.info {
+            border-left-color: #3498db;
+            background: rgba(52, 152, 219, .08);
+            color: #8ec8f0
+        }
+
+        .log-entry.orange {
+            border-left-color: #e67e22;
+            background: rgba(230, 126, 34, .08);
+            color: #e67e22
+        }
+
+        .log-entry.error {
+            border-left-color: #e74c3c;
+            background: rgba(231, 76, 60, .08);
+            color: #e74c3c
+        }
+
+        .log-entry.teal {
+            border-left-color: #1abc9c;
+            background: rgba(26, 188, 156, .08);
+            color: #1abc9c
+        }
+
+        .log-container::-webkit-scrollbar {
+            width: 5px
+        }
+
+        .log-container::-webkit-scrollbar-track {
+            background: transparent
+        }
+
+        .log-container::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, .15);
+            border-radius: 3px
+        }
+
+        @media(max-width:960px) {
+            .main-content {
+                grid-template-columns: 1fr
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <header>
+            <h1>🔗 Linked List Cycle (141)</h1>
+            <div class="subtitle">Optimal — Floyd's Tortoise 🐢 & Hare 🐇 (Two Pointers)</div>
+            <div class="badge">Time: O(n) | Space: O(1) | Non-destructive ✓</div>
+        </header>
+        <div class="main-content">
+            <div class="left-panel">
+                <div class="card">
+                    <div class="card-title">⚙️ Controls</div>
+                    <div class="controls">
+                        <button class="btn-primary" id="playBtn">▶️ Play</button>
+                        <button class="btn-warning" id="pauseBtn" disabled>⏸️ Pause</button>
+                        <button class="btn-success" id="stepBtn">⏭️ Step</button>
+                        <button class="btn-secondary" id="resetBtn">🔄 Reset</button>
+                        <div class="speed-control">
+                            <label>Speed:</label>
+                            <input type="range" id="speedSlider" min="1" max="10" value="5">
+                            <span id="speedValue">5x</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="card">
+                    <div class="card-title">✏️ Custom Input</div>
+                    <div class="input-section">
+                        <label>values:</label>
+                        <input type="text" id="arrInput" value="3,2,0,-4" placeholder="e.g. 3,2,0,-4">
+                        <label>pos:</label>
+                        <input type="number" id="posInput" value="1" min="-1" max="20" style="width:50px;flex:none">
+                        <button class="btn-info" id="applyBtn">Apply</button>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-title">🔗 Linked List — 🐢 Slow (blue) vs 🐇 Fast (red)</div>
+                    <div class="ll-area">
+                        <div class="ll-row" id="llDisplay"></div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-title">🏃 Pointer Movement</div>
+                    <div class="speed-viz">
+                        <div class="speed-block">
+                            <div class="speed-icon">🐢</div>
+                            <div class="speed-info">
+                                <div class="sp-label slow-c" id="slowInfo">slow = ?</div>
+                                <div class="sp-detail">moves 1 step</div>
+                            </div>
+                        </div>
+                        <div class="speed-block">
+                            <div class="speed-icon">🐇</div>
+                            <div class="speed-info">
+                                <div class="sp-label fast-c" id="fastInfo">fast = ?</div>
+                                <div class="sp-detail">moves 2 steps</div>
+                            </div>
+                        </div>
+                        <div class="gap-display" id="gapDisplay">gap: —</div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="result-box rb-neutral" id="resultBox">Ready — press Play or Step</div>
+                </div>
+            </div>
+
+            <div class="right-panel">
+                <div class="card">
+                    <div class="card-title">📋 Current State</div>
+                    <div class="state-display">
+                        <div class="state-row"><span class="state-label">Phase:</span><span class="state-val"
+                                id="stPhase">init</span></div>
+                        <div class="state-row"><span class="state-label">Iteration:</span><span class="state-val"
+                                id="stIter">0</span></div>
+                        <div class="state-row"><span class="state-label">🐢 slow:</span><span class="state-val"
+                                id="stSlow">—</span></div>
+                        <div class="state-row"><span class="state-label">🐇 fast:</span><span class="state-val"
+                                id="stFast">—</span></div>
+                        <div class="state-row"><span class="state-label">fast.next:</span><span class="state-val"
+                                id="stFNext">—</span></div>
+                        <div class="state-row"><span class="state-label">slow===fast?:</span><span class="state-val"
+                                id="stMeet">—</span></div>
+                        <div class="state-row"><span class="state-label">Result:</span><span class="state-val"
+                                id="stResult">?</span></div>
+                    </div>
+                </div>
+                <div class="card" style="flex:1">
+                    <div class="card-title">📝 Execution Log</div>
+                    <div class="log-container" id="logContainer">
+                        <div class="log-entry info">🐢 +1 step, 🐇 +2 steps. If they meet → cycle. If fast=null → no
+                            cycle.</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let VALS = [3, 2, 0, -4];
+        let POS = 1;
+        let slowIdx = 0, fastIdx = 0;
+        let iteration = 0;
+
+        // phases: init | move | check | done
+        let phase = 'init';
+        let stepCount = 0, isRunning = false, speed = 5, isDone = false;
+
+        const $ = id => document.getElementById(id);
+        const logC = $('logContainer');
+        function addLog(m, t = 'info') { logC.innerHTML += `<div class="log-entry ${t}">[${stepCount}] ${m}</div>`; logC.scrollTop = logC.scrollHeight }
+        function clearLog() { logC.innerHTML = '' }
+
+        function getNextIdx(idx) {
+            if (idx < 0 || idx >= VALS.length) return -1;
+            if (idx === VALS.length - 1) return POS;
+            return idx + 1;
+        }
+
+        function nodeLabel(idx) {
+            if (idx < 0) return 'null';
+            return `node[${idx}](${VALS[idx]})`;
+        }
+
+        function renderLL() {
+            const c = $('llDisplay');
+            c.innerHTML = '';
+            for (let i = 0; i < VALS.length; i++) {
+                const nd = document.createElement('div');
+                nd.className = 'll-node';
+                const box = document.createElement('div');
+                const hasSlow = slowIdx === i;
+                const hasFast = fastIdx === i;
+                const met = hasSlow && hasFast && phase === 'done' && isDone && slowIdx === fastIdx && slowIdx >= 0;
+                let cls = 'node-box ';
+                if (met) cls += 'met';
+                else if (hasSlow && hasFast) cls += 'both';
+                else if (hasSlow) cls += 'slow-only';
+                else if (hasFast) cls += 'fast-only';
+                else cls += 'idle';
+                box.className = cls;
+                box.innerHTML = `<div class="node-val">${VALS[i]}</div><div class="node-idx">idx ${i}</div>`;
+
+                // Pointer labels
+                if (hasSlow || hasFast) {
+                    const labels = document.createElement('div');
+                    labels.className = 'ptr-labels';
+                    if (met) {
+                        labels.innerHTML = '<span class="ptr-tag meet">🐢🐇 MEET!</span>';
+                    } else {
+                        if (hasSlow) labels.innerHTML += '<span class="ptr-tag slow">🐢 slow</span>';
+                        if (hasFast) labels.innerHTML += '<span class="ptr-tag fast">🐇 fast</span>';
+                    }
+                    box.appendChild(labels);
+                }
+                nd.appendChild(box);
+                c.appendChild(nd);
+                if (i < VALS.length - 1) {
+                    const arr = document.createElement('div');
+                    arr.className = 'arrow';
+                    c.appendChild(arr);
+                }
+            }
+            if (POS >= 0 && POS < VALS.length) {
+                const cyc = document.createElement('div');
+                cyc.className = 'cycle-label';
+                cyc.textContent = `↩ → node[${POS}]`;
+                c.appendChild(cyc);
+            } else {
+                const arr = document.createElement('div');
+                arr.className = 'arrow';
+                c.appendChild(arr);
+                const nl = document.createElement('div');
+                nl.className = 'null-marker';
+                nl.textContent = 'null';
+                c.appendChild(nl);
+            }
+        }
+
+        function updatePointerInfo() {
+            $('slowInfo').textContent = `slow = ${nodeLabel(slowIdx)}`;
+            $('fastInfo').textContent = `fast = ${nodeLabel(fastIdx)}`;
+            $('stSlow').textContent = slowIdx < 0 ? 'null' : `[${slowIdx}]=${VALS[slowIdx]}`;
+            $('stFast').textContent = fastIdx < 0 ? 'null' : `[${fastIdx}]=${VALS[fastIdx]}`;
+        }
+
+        function doStep() {
+            if (isDone) { stopExec(); return; }
+            stepCount++;
+
+            switch (phase) {
+                case 'init': {
+                    slowIdx = 0;
+                    fastIdx = 0;
+                    iteration = 0;
+                    addLog(`List: [${VALS}], pos=${POS}`, 'info');
+                    addLog(POS >= 0 ? `Cycle: tail→node[${POS}]` : 'No cycle', 'orange');
+                    addLog('Both pointers start at head', 'teal');
+                    $('resultBox').className = 'result-box rb-run';
+                    $('resultBox').textContent = '🐢🐇 Racing...';
+                    if (VALS.length === 0) {
+                        addLog('Empty list → return false', 'success');
+                        phase = 'done'; isDone = true;
+                        $('resultBox').className = 'result-box rb-false';
+                        $('resultBox').textContent = '✅ return false';
+                        $('stResult').textContent = 'false';
+                        stopExec(); return;
+                    }
+                    updatePointerInfo();
+                    $('gapDisplay').textContent = 'gap: 0 (both at head)';
+                    phase = 'move';
+                    renderLL();
+                    break;
+                }
+                case 'move': {
+                    // Check if fast can move
+                    if (fastIdx < 0 || getNextIdx(fastIdx) < 0) {
+                        addLog(`fast=${nodeLabel(fastIdx)}, can't move 2 steps → null reached → no cycle`, 'info');
+                        $('resultBox').className = 'result-box rb-false';
+                        $('resultBox').textContent = '✅ return false — fast reached null, no cycle';
+                        $('stResult').textContent = 'false';
+                        $('stMeet').textContent = 'N/A (no cycle)';
+                        phase = 'done'; isDone = true;
+                        renderLL();
+                        stopExec(); return;
+                    }
+
+                    iteration++;
+                    $('stIter').textContent = iteration;
+
+                    const prevSlow = slowIdx;
+                    const prevFast = fastIdx;
+
+                    // Move slow 1 step
+                    slowIdx = getNextIdx(slowIdx);
+                    // Move fast 2 steps
+                    fastIdx = getNextIdx(fastIdx);
+                    if (fastIdx >= 0) fastIdx = getNextIdx(fastIdx);
+
+                    addLog(`━━ Iter ${iteration} ━━`, 'warning');
+                    addLog(`  🐢 slow: [${prevSlow}]→[${slowIdx}] (+1)`, 'info');
+                    addLog(`  🐇 fast: [${prevFast}]→[${fastIdx}] (+2)`, 'error');
+
+                    updatePointerInfo();
+
+                    // Compute gap for display
+                    if (slowIdx >= 0 && fastIdx >= 0) {
+                        // When in cycle, show meaningful gap
+                        $('gapDisplay').textContent = `slow=[${slowIdx}], fast=[${fastIdx}]`;
+                    }
+
+                    if (fastIdx < 0) {
+                        $('stFNext').textContent = 'null';
+                    } else {
+                        const fn = getNextIdx(fastIdx);
+                        $('stFNext').textContent = fn < 0 ? 'null' : `[${fn}]`;
+                    }
+
+                    phase = 'check';
+                    renderLL();
+                    break;
+                }
+                case 'check': {
+                    if (fastIdx < 0) {
+                        addLog('fast reached null → no cycle → return false', 'success');
+                        $('resultBox').className = 'result-box rb-false';
+                        $('resultBox').textContent = '✅ return false — no cycle';
+                        $('stMeet').textContent = 'N/A';
+                        $('stResult').textContent = 'false';
+                        phase = 'done'; isDone = true;
+                        renderLL();
+                        stopExec(); return;
+                    }
+
+                    if (slowIdx === fastIdx) {
+                        addLog(`🎯 slow === fast at node[${slowIdx}] → CYCLE DETECTED! return true`, 'success');
+                        $('stMeet').textContent = `✓ MEET at [${slowIdx}]!`;
+                        $('resultBox').className = 'result-box rb-true';
+                        $('resultBox').textContent = `🎯 return true — met at node[${slowIdx}] (val=${VALS[slowIdx]})`;
+                        $('stResult').textContent = 'true';
+                        $('gapDisplay').textContent = '🎯 gap: 0 — MET!';
+                        phase = 'done'; isDone = true;
+                        renderLL();
+                        stopExec(); return;
+                    } else {
+                        addLog(`  slow[${slowIdx}] ≠ fast[${fastIdx}] → continue`, 'info');
+                        $('stMeet').textContent = `✗ [${slowIdx}]≠[${fastIdx}]`;
+                    }
+                    phase = 'move';
+                    break;
+                }
+            }
+            $('stPhase').textContent = phase;
+        }
+
+        function play() { if (isRunning || isDone) return; isRunning = true; $('playBtn').disabled = true; $('pauseBtn').disabled = false; $('stepBtn').disabled = true; runLoop() }
+        function pause() { isRunning = false; $('playBtn').disabled = false; $('pauseBtn').disabled = true; $('stepBtn').disabled = false }
+        function stopExec() { isRunning = false; $('playBtn').disabled = true; $('pauseBtn').disabled = true; $('stepBtn').disabled = true }
+        function runLoop() { if (!isRunning) return; doStep(); if (isRunning && !isDone) setTimeout(runLoop, Math.max(150, 650 - speed * 55)) }
+
+        function init() {
+            const s = $('arrInput').value || '3,2,0,-4';
+            VALS = s.split(',').map(x => parseInt(x.trim())).filter(x => !isNaN(x));
+            POS = parseInt($('posInput').value);
+            if (isNaN(POS)) POS = -1;
+            if (POS >= VALS.length) POS = -1;
+            slowIdx = 0; fastIdx = 0; iteration = 0;
+            phase = 'init'; stepCount = 0; isDone = false;
+            $('resultBox').className = 'result-box rb-neutral';
+            $('resultBox').textContent = 'Ready — press Play or Step';
+            $('slowInfo').textContent = 'slow = ?'; $('fastInfo').textContent = 'fast = ?';
+            $('gapDisplay').textContent = 'gap: —';
+            $('stSlow').textContent = '—'; $('stFast').textContent = '—'; $('stFNext').textContent = '—';
+            $('stMeet').textContent = '—'; $('stResult').textContent = '?'; $('stIter').textContent = '0';
+            $('playBtn').disabled = false; $('pauseBtn').disabled = true; $('stepBtn').disabled = false;
+            clearLog(); addLog('🐢 +1 step, 🐇 +2 steps. If they meet → cycle. If fast=null → no cycle.', 'info');
+            renderLL();
+        }
+
+        $('playBtn').addEventListener('click', play);
+        $('pauseBtn').addEventListener('click', pause);
+        $('stepBtn').addEventListener('click', () => { if (!isDone) doStep() });
+        $('resetBtn').addEventListener('click', () => { isRunning = false; init() });
+        $('speedSlider').addEventListener('input', e => { speed = parseInt(e.target.value); $('speedValue').textContent = speed + 'x' });
+        $('applyBtn').addEventListener('click', () => { isRunning = false; init() });
+
+        init();
+    </script>
+</body>
+
+</html>

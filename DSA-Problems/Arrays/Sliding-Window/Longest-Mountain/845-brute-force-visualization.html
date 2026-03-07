@@ -1,0 +1,507 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Longest Mountain - Brute Force (Iterate Peaks)</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            min-height: 100vh;
+            padding: 20px;
+            color: #333;
+        }
+        .container {
+            max-width: 1100px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            overflow: hidden;
+        }
+        header {
+            background: linear-gradient(135deg, #6c5ce7 0%, #a29bfe 100%);
+            color: white;
+            padding: 25px;
+            text-align: center;
+        }
+        h1 { font-size: 1.5em; margin-bottom: 8px; }
+        .subtitle { font-size: 1em; opacity: 0.9; }
+        .complexity-badge {
+            display: inline-block;
+            background: rgba(255,255,255,0.2);
+            padding: 6px 14px;
+            border-radius: 15px;
+            margin-top: 8px;
+            font-size: 0.85em;
+        }
+        .main-content {
+            display: grid;
+            grid-template-columns: 1fr 280px;
+            gap: 20px;
+            padding: 20px;
+        }
+        .card {
+            background: #f8f9fa;
+            border-radius: 12px;
+            padding: 16px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            margin-bottom: 16px;
+        }
+        .card-title {
+            font-size: 0.95em;
+            font-weight: 600;
+            margin-bottom: 12px;
+            color: #6c5ce7;
+        }
+        
+        /* Controls */
+        .controls { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+        button {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 8px;
+            font-size: 0.85em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        button:hover { transform: translateY(-2px); }
+        button:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+        .btn-primary { background: linear-gradient(135deg, #6c5ce7 0%, #a29bfe 100%); color: white; }
+        .btn-success { background: linear-gradient(135deg, #28a745 0%, #20c997 100%); color: white; }
+        .btn-warning { background: linear-gradient(135deg, #ffc107 0%, #ff9800 100%); color: white; }
+        .btn-secondary { background: #6c757d; color: white; }
+        .speed-control { display: flex; align-items: center; gap: 6px; flex: 1; min-width: 140px; }
+        .speed-control input[type="range"] { flex: 1; height: 5px; accent-color: #6c5ce7; }
+
+        /* Array & Mountain Viz */
+        .array-container {
+            display: flex;
+            align-items: flex-end; /* Align bars to bottom */
+            justify-content: center;
+            gap: 4px;
+            height: 200px; /* Taller for mountains */
+            padding: 20px 10px;
+            background: #fff;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            position: relative;
+        }
+        
+        .array-bar {
+            width: 40px;
+            background: #dfe6e9;
+            border-radius: 4px 4px 0 0;
+            position: relative;
+            transition: all 0.3s ease;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start; /* Label at top */
+            padding-top: 5px;
+            color: #636e72;
+            font-weight: bold;
+            font-size: 0.9em;
+        }
+        
+        /* Bar States */
+        .bar-peak { background: #e84393; color: white; box-shadow: 0 0 10px rgba(232, 67, 147, 0.4); z-index: 2; }
+        .bar-left { background: #0984e3; color: white; }
+        .bar-right { background: #00cec9; color: white; }
+        .bar-current { border: 2px solid #55efc4; } /* Pointer i */
+        
+        .idx-label {
+            position: absolute;
+            bottom: -25px;
+            font-size: 0.7em;
+            color: #888;
+            width: 100%;
+            text-align: center;
+        }
+
+        /* Pointers as arrows */
+        .ptr-container {
+            position: absolute;
+            bottom: -45px;
+            left: 0;
+            width: 100%;
+            height: 20px;
+        }
+        .ptr {
+            position: absolute;
+            bottom: 0;
+            font-size: 0.8em;
+            font-weight: 700;
+            text-align: center;
+            width: 40px; /* Match bar width */
+            transition: left 0.3s ease;
+        }
+        .ptr-i { color: #636e72; bottom: 20px; }
+        .ptr-i::before { content: 'i'; display: block; }
+        .ptr-i::after { content: '↓'; display: block; font-size: 1.2em; }
+        
+        .ptr-l { color: #0984e3; }
+        .ptr-l::before { content: 'L'; display: block; }
+        .ptr-l::after { content: '↑'; display: block; }
+        
+        .ptr-r { color: #00cec9; }
+        .ptr-r::before { content: 'R'; display: block; }
+        .ptr-r::after { content: '↑'; display: block; }
+
+        /* State & Log */
+        .state-display { background: white; border-radius: 8px; padding: 10px; font-family: 'Courier New', monospace; font-size: 0.85em; }
+        .state-row { display: flex; justify-content: space-between; padding: 4px 0; border-bottom: 1px solid #eee; }
+        .highlight-val { color: #6c5ce7; font-weight: bold; }
+        
+        .log-container { 
+            background: white; border-radius: 8px; padding: 10px; 
+            max-height: 200px; overflow-y: auto; 
+            font-family: 'Courier New', monospace; font-size: 0.65em; 
+        }
+        .log-entry { padding: 3px 6px; margin: 2px 0; border-radius: 4px; border-left: 3px solid #ccc; background: #f9f9f9; }
+        .log-entry.peak { border-left-color: #e84393; background: #fce4ec; }
+        .log-entry.expand { border-left-color: #0984e3; background: #e1f5fe; }
+        .log-entry.success { border-left-color: #00b894; background: #e6fffa; }
+        .log-entry.info { border-left-color: #b2bec3; background: #f1f2f6; }
+        
+        .max-len-display {
+            text-align: center;
+            padding: 10px;
+            background: #2d3436;
+            color: white;
+            border-radius: 8px;
+            margin-top: 10px;
+            font-size: 1.2em;
+            font-weight: bold;
+        }
+        
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Longest Mountain in Array</h1>
+            <div class="subtitle">Brute Force: Iterate Center & Expand</div>
+            <div class="complexity-badge">Time: O(N²) | Space: O(1)</div>
+        </header>
+
+        <div class="main-content">
+            <div class="left-panel">
+                <div class="card">
+                    <div class="card-title">⚙️ Controls</div>
+                    <div class="controls">
+                        <button class="btn-primary" id="playBtn">▶️ Play</button>
+                        <button class="btn-warning" id="pauseBtn" disabled>⏸️ Pause</button>
+                        <button class="btn-success" id="stepBtn">⏭️ Step</button>
+                        <button class="btn-secondary" id="resetBtn">🔄 Reset</button>
+                        <div class="speed-control">
+                            <label>Speed:</label>
+                            <input type="range" id="speedSlider" min="1" max="10" value="5">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-title">Array Visualization</div>
+                    
+                    <div class="array-container" id="arrayContainer">
+                        <!-- Bars populated by JS -->
+                        <div class="ptr-container" id="ptrContainer"></div>
+                    </div>
+                </div>
+                
+                <div class="card">
+                    <div class="card-title">ℹ️ Logic</div>
+                    <div style="font-size: 0.9em; color: #555;">
+                        1. Iterate <code>i</code> from 1 to N-2.<br>
+                        2. Check if <code>arr[i]</code> is a <strong>Peak</strong> (greater than neighbors).<br>
+                        3. If Peak, expand <strong>Left</strong> then <strong>Right</strong> to find boundaries.<br>
+                        4. Calculate length: <code>R - L + 1</code>.
+                    </div>
+                </div>
+            </div>
+
+            <div class="right-panel">
+                <div class="card">
+                    <div class="card-title">📊 State</div>
+                    <div class="state-display">
+                        <div class="state-row"><span>i (Center):</span><span id="iVal">-</span></div>
+                        <div class="state-row"><span>Peak Check:</span><span id="peakCheck">-</span></div>
+                        <div class="state-row"><span>Left (L):</span><span id="lVal">-</span></div>
+                        <div class="state-row"><span>Right (R):</span><span id="rVal">-</span></div>
+                        <div class="state-row"><span>Current Len:</span><span id="curLenVal">-</span></div>
+                    </div>
+                    <div class="max-len-display">
+                        Max Length: <span id="maxLenVal">0</span>
+                    </div>
+                </div>
+
+                <div class="card" style="flex-grow: 1; display: flex; flex-direction: column;">
+                    <div class="card-title">📝 Execution Log</div>
+                    <div class="log-container" id="logContainer"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Data
+        const arr = [2, 1, 4, 7, 3, 2, 5];
+        let n = arr.length;
+        
+        let i = 1;
+        let l = -1; 
+        let r = -1;
+        let maxLen = 0;
+        
+        // State Machine
+        // phases: 'init', 'check_peak', 'expand_left', 'expand_right', 'update_max', 'next_i', 'done'
+        let phase = 'init';
+        
+        let isRunning = false;
+        let timer = null;
+        let speed = 5;
+        let stepCount = 0;
+        
+        // Helper to find max height for bar scaling
+        const maxVal = Math.max(...arr);
+
+        function init() {
+            i = 1;
+            l = -1;
+            r = -1;
+            maxLen = 0;
+            phase = 'init';
+            stepCount = 0;
+            
+            clearLog();
+            addLog(`Array: [${arr.join(', ')}]`, "info");
+            
+            render();
+            updateControls();
+        }
+
+        function createBar(val, idx) {
+            const el = document.createElement('div');
+            let cls = 'array-bar';
+            
+            // Visual logic based on phase/indices
+            if (phase !== 'init' && phase !== 'done') {
+                if (phase === 'check_peak' && idx === i) {
+                    // Just highlighting current
+                    el.style.border = '2px solid #6c5ce7';
+                }
+                
+                // If we found a peak and are expanding
+                if (phase === 'expand_left' || phase === 'expand_right' || phase === 'update_max') {
+                    if (idx === i) cls += ' bar-peak';
+                    else if (idx >= l && idx < i && l !== -1) cls += ' bar-left'; // Left side
+                    else if (idx > i && idx <= r && r !== -1) cls += ' bar-right'; // Right side
+                }
+            }
+            
+            el.className = cls;
+            el.textContent = val;
+            
+            // Set Height
+            const hPercent = (val / maxVal) * 80 + 10; // Min 10%, max 90%
+            el.style.height = `${hPercent}%`;
+            
+            const lbl = document.createElement('div');
+            lbl.className = 'idx-label';
+            lbl.textContent = idx;
+            el.appendChild(lbl);
+            
+            return el;
+        }
+
+        function render() {
+            const container = document.getElementById('arrayContainer');
+            // Clear but keep ptr container? No, rebuild.
+            container.innerHTML = '';
+            
+            // Bars
+            arr.forEach((val, idx) => {
+                const bar = createBar(val, idx);
+                container.appendChild(bar);
+            });
+            
+            // Pointers Container
+            const ptrC = document.createElement('div');
+            ptrC.className = 'ptr-container';
+            container.appendChild(ptrC);
+            
+            // Render Pointers
+            // Assume 40px width + 4px gap = 44px step.
+            // Center of bar is at roughly 22px mark? No, logic:
+            // Left offset = idx * 44.
+            
+            const stepPx = 44;
+            
+            if (phase !== 'done' && phase !== 'init') {
+                const ptrI = document.createElement('div');
+                ptrI.className = 'ptr ptr-i';
+                ptrI.style.left = `${i * stepPx}px`;
+                ptrC.appendChild(ptrI);
+                
+                if ((phase === 'expand_left' || phase === 'expand_right' || phase === 'update_max') && l !== -1) {
+                    const ptrL = document.createElement('div');
+                    ptrL.className = 'ptr ptr-l';
+                    ptrL.style.left = `${l * stepPx}px`;
+                    ptrC.appendChild(ptrL);
+                }
+                
+                if ((phase === 'expand_right' || phase === 'update_max') && r !== -1) {
+                    const ptrR = document.createElement('div');
+                    ptrR.className = 'ptr ptr-r';
+                    ptrR.style.left = `${r * stepPx}px`;
+                    ptrC.appendChild(ptrR);
+                }
+            }
+
+            // State Updates
+            document.getElementById('iVal').textContent = phase === 'done' ? '-' : i;
+            
+            let peakStatus = '-';
+            if (phase === 'check_peak') {
+                const isPeak = arr[i] > arr[i-1] && arr[i] > arr[i+1];
+                peakStatus = isPeak ? "YES" : "NO";
+            } else if (phase !== 'init' && phase !== 'next_i') {
+                peakStatus = "YES"; // Implicitly
+            }
+            document.getElementById('peakCheck').textContent = peakStatus;
+            
+            document.getElementById('lVal').textContent = l !== -1 ? l : '-';
+            document.getElementById('rVal').textContent = r !== -1 ? r : '-';
+            
+            let curLen = '-';
+            if (phase === 'update_max' && l !== -1 && r !== -1) curLen = r - l + 1;
+            document.getElementById('curLenVal').textContent = curLen;
+            
+            document.getElementById('maxLenVal').textContent = maxLen;
+        }
+
+        function step() {
+            stepCount++;
+            
+            if (phase === 'init') {
+                phase = 'check_peak';
+                i = 1; // Start at 1
+                addLog(`Start check at i=${i}`, "info");
+            }
+            else if (phase === 'check_peak') {
+                // Check neighbors
+                const isPeak = arr[i] > arr[i-1] && arr[i] > arr[i+1];
+                if (isPeak) {
+                    addLog(`Peak found at i=${i} (${arr[i]}). Expand...`, "peak");
+                    l = i - 1;
+                    r = i + 1;
+                    phase = 'expand_left';
+                } else {
+                    addLog(`i=${i} (${arr[i]}) is not a peak. Skip.`, "info");
+                    phase = 'next_i';
+                }
+            }
+            else if (phase === 'expand_left') {
+                // Try to move left
+                if (l > 0 && arr[l-1] < arr[l]) {
+                    l--;
+                    addLog(`Expand Left to ${l} (${arr[l]})`, "expand");
+                } else {
+                    addLog(`Left bound at ${l}. Now expand Right.`, "info");
+                    phase = 'expand_right';
+                }
+            }
+            else if (phase === 'expand_right') {
+                // Try to move right
+                if (r < n - 1 && arr[r] > arr[r+1]) {
+                    r++;
+                    addLog(`Expand Right to ${r} (${arr[r]})`, "expand");
+                } else {
+                    addLog(`Right bound at ${r}. Calculate Length.`, "info");
+                    phase = 'update_max';
+                }
+            }
+            else if (phase === 'update_max') {
+                const currentLen = r - l + 1;
+                addLog(`Mountain Length: ${currentLen}. (Max was ${maxLen})`, "success");
+                if (currentLen > maxLen) {
+                    maxLen = currentLen;
+                    addLog(`New Max Length Found!`, "success");
+                }
+                phase = 'next_i';
+            }
+            else if (phase === 'next_i') {
+                i++;
+                l = -1;
+                r = -1;
+                if (i < n - 1) {
+                    phase = 'check_peak';
+                    addLog(`Move to next i=${i}`, "info");
+                } else {
+                    phase = 'done';
+                    addLog(`Finished. Final Max Length: ${maxLen}`, "success");
+                    stop();
+                }
+            }
+            
+            render();
+        }
+
+        function addLog(msg, type = 'info') {
+            const log = document.getElementById('logContainer');
+            log.innerHTML += `<div class="log-entry ${type}">[${stepCount}] ${msg}</div>`;
+            log.scrollTop = log.scrollHeight;
+        }
+
+        function clearLog() { document.getElementById('logContainer').innerHTML = ''; }
+
+        function play() {
+            if (isRunning) return;
+            isRunning = true;
+            updateControls();
+            runLoop();
+        }
+
+        function runLoop() {
+            if (!isRunning) return;
+            step();
+            if (phase !== 'done') {
+                const delay = 1000 - (speed * 90);
+                timer = setTimeout(runLoop, Math.max(50, delay));
+            }
+        }
+
+        function stop() {
+            isRunning = false;
+            if (timer) clearTimeout(timer);
+            updateControls();
+        }
+
+        function reset() {
+            stop();
+            init();
+        }
+
+        function updateControls() {
+            document.getElementById('playBtn').disabled = isRunning || phase === 'done';
+            document.getElementById('pauseBtn').disabled = !isRunning;
+            document.getElementById('stepBtn').disabled = isRunning || phase === 'done';
+            document.getElementById('resetBtn').disabled = isRunning;
+        }
+
+        // Listeners
+        document.getElementById('playBtn').addEventListener('click', play);
+        document.getElementById('pauseBtn').addEventListener('click', stop);
+        document.getElementById('stepBtn').addEventListener('click', step);
+        document.getElementById('resetBtn').addEventListener('click', reset);
+        document.getElementById('speedSlider').addEventListener('input', (e) => speed = parseInt(e.target.value));
+
+        // Start
+        init();
+
+    </script>
+</body>
+</html>

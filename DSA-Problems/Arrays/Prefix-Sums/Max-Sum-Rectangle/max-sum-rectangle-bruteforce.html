@@ -1,0 +1,480 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Max Sum Rectangle - Brute Force</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-primary: #0c1220;
+            --bg-secondary: #151d2e;
+            --bg-tertiary: #1e2a3f;
+            --accent-primary: #f59e0b;
+            --accent-secondary: #fbbf24;
+            --accent-glow: rgba(245, 158, 11, 0.4);
+            --blue: #3b82f6;
+            --green: #22c55e;
+            --red: #ef4444;
+            --orange: #f59e0b;
+            --purple: #a855f7;
+            --cyan: #06b6d4;
+            --text-primary: #f1f5f9;
+            --text-secondary: #94a3b8;
+            --text-muted: #64748b;
+            --border-color: #334155;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1100px;
+            margin: 0 auto;
+            padding: 1.25rem;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 1.25rem;
+            padding: 1.25rem;
+            background: linear-gradient(135deg, var(--bg-secondary), var(--bg-tertiary));
+            border-radius: 16px;
+            border: 1px solid var(--border-color);
+        }
+
+        .header h1 {
+            font-size: 1.6rem;
+            background: linear-gradient(135deg, var(--accent-secondary), var(--red), var(--purple));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 0.3rem;
+        }
+
+        .header p { color: var(--text-secondary); font-size: 0.9rem; }
+
+        .badge-row { display: flex; justify-content: center; gap: 0.5rem; margin-top: 0.5rem; }
+
+        .badge {
+            padding: 0.25rem 0.6rem;
+            border-radius: 20px;
+            font-size: 0.7rem;
+            font-weight: 600;
+            border: 1px solid;
+        }
+
+        .badge.red { background: rgba(239, 68, 68, 0.15); color: var(--red); border-color: rgba(239, 68, 68, 0.3); }
+        .badge.orange { background: rgba(245, 158, 11, 0.15); color: var(--orange); border-color: rgba(245, 158, 11, 0.3); }
+
+        .main-grid {
+            display: grid;
+            grid-template-columns: 1fr 280px;
+            gap: 1rem;
+        }
+
+        @media (max-width: 900px) { .main-grid { grid-template-columns: 1fr; } }
+
+        .card {
+            background: var(--bg-secondary);
+            border-radius: 14px;
+            padding: 1rem;
+            border: 1px solid var(--border-color);
+            margin-bottom: 1rem;
+        }
+
+        .card-header {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-bottom: 0.75rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .card-icon { width: 28px; height: 28px; border-radius: 6px; display: flex; align-items: center; justify-content: center; font-size: 0.9rem; }
+        .card-title { font-size: 0.85rem; font-weight: 600; }
+
+        /* Matrix Display */
+        .matrix-container {
+            display: flex;
+            flex-direction: column;
+            gap: 3px;
+            padding: 1rem;
+            background: var(--bg-tertiary);
+            border-radius: 10px;
+            align-items: center;
+        }
+
+        .matrix-row {
+            display: flex;
+            gap: 3px;
+        }
+
+        .matrix-cell {
+            width: 55px;
+            height: 55px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: 'Fira Code', monospace;
+            font-size: 1rem;
+            font-weight: 700;
+            border-radius: 6px;
+            background: var(--bg-primary);
+            border: 2px solid var(--border-color);
+            transition: all 0.2s ease;
+            position: relative;
+        }
+
+        .matrix-cell .coord {
+            position: absolute;
+            top: 2px;
+            left: 3px;
+            font-size: 0.4rem;
+            color: var(--text-muted);
+        }
+
+        .matrix-cell.selected {
+            background: linear-gradient(135deg, var(--cyan), #22d3ee);
+            color: #000;
+            border-color: var(--cyan);
+            box-shadow: 0 0 10px rgba(6, 182, 212, 0.4);
+        }
+
+        .matrix-cell.scanning {
+            animation: pulse 0.3s ease;
+        }
+
+        @keyframes pulse { 50% { transform: scale(1.1); } }
+
+        /* Stats */
+        .stats-row {
+            display: flex;
+            gap: 0.5rem;
+            justify-content: center;
+            margin: 0.6rem 0;
+            flex-wrap: wrap;
+        }
+
+        .stat-box {
+            padding: 0.4rem 0.6rem;
+            background: var(--bg-tertiary);
+            border-radius: 6px;
+            text-align: center;
+        }
+
+        .stat-label { font-size: 0.5rem; color: var(--text-muted); }
+        .stat-value { font-family: 'Fira Code', monospace; font-size: 0.8rem; font-weight: 700; }
+        .stat-value.cyan { color: var(--cyan); }
+        .stat-value.green { color: var(--green); }
+        .stat-value.orange { color: var(--orange); }
+        .stat-value.red { color: var(--red); }
+
+        /* Controls */
+        .controls { display: flex; gap: 0.5rem; justify-content: center; margin: 0.6rem 0; }
+
+        .btn {
+            padding: 0.5rem 1rem;
+            border: none;
+            border-radius: 8px;
+            font-family: 'Inter', sans-serif;
+            font-size: 0.75rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .btn-primary { background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary)); color: #000; }
+        .btn-secondary { background: var(--bg-tertiary); color: var(--text-primary); border: 1px solid var(--border-color); }
+        .btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+        /* Operation Panel */
+        .operation-panel { padding: 0.5rem; background: var(--bg-tertiary); border-radius: 8px; }
+        .operation-content { font-family: 'Fira Code', monospace; font-size: 0.65rem; padding: 0.4rem; background: var(--bg-primary); border-radius: 6px; text-align: center; line-height: 1.5; }
+
+        .hl-green { color: var(--green); font-weight: 600; }
+        .hl-red { color: var(--red); font-weight: 600; }
+        .hl-cyan { color: var(--cyan); font-weight: 600; }
+        .hl-orange { color: var(--orange); font-weight: 600; }
+
+        /* Complexity Warning */
+        .complexity-box {
+            padding: 0.4rem;
+            background: rgba(239, 68, 68, 0.1);
+            border: 1px solid rgba(239, 68, 68, 0.3);
+            border-radius: 6px;
+            font-size: 0.6rem;
+            color: var(--red);
+            text-align: center;
+            margin-top: 0.5rem;
+        }
+
+        /* Result display */
+        .result-box {
+            padding: 0.6rem;
+            background: linear-gradient(135deg, rgba(34, 197, 94, 0.1), rgba(34, 197, 94, 0.05));
+            border: 1px solid rgba(34, 197, 94, 0.3);
+            border-radius: 8px;
+            text-align: center;
+            margin-top: 0.5rem;
+        }
+
+        .result-label { font-size: 0.55rem; color: var(--text-muted); }
+        .result-value { font-family: 'Fira Code', monospace; font-size: 1.3rem; font-weight: 700; color: var(--green); }
+
+        /* Log */
+        .log-container {
+            max-height: 180px;
+            overflow-y: auto;
+            font-family: 'Fira Code', monospace;
+            font-size: 0.5rem;
+            padding: 0.25rem;
+            background: var(--bg-tertiary);
+            border-radius: 6px;
+        }
+
+        .log-entry { padding: 0.15rem 0.3rem; margin: 0.05rem 0; border-radius: 3px; }
+        .log-entry.valid { background: rgba(34, 197, 94, 0.1); color: var(--green); }
+        .log-entry.invalid { background: rgba(239, 68, 68, 0.1); color: var(--red); }
+        .log-entry.check { background: rgba(6, 182, 212, 0.1); color: var(--cyan); }
+        .log-entry.best { background: rgba(245, 158, 11, 0.1); color: var(--orange); }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <div class="header">
+            <h1>📊 Max Sum Rectangle ≤ K</h1>
+            <p>Brute Force: Enumerate All Rectangles</p>
+            <div class="badge-row">
+                <span class="badge red">⚠️ O(m³n³)</span>
+                <span class="badge orange">🔄 Check Every Rectangle</span>
+            </div>
+        </div>
+
+        <div class="main-grid">
+            <div class="left-panel">
+                <!-- Matrix -->
+                <div class="card">
+                    <div class="card-header">
+                        <div class="card-icon" style="background: rgba(6, 182, 212, 0.2); color: var(--cyan);">📊</div>
+                        <span class="card-title">matrix = [[1,0,1],[0,-2,3]], k = 2</span>
+                    </div>
+
+                    <div class="matrix-container" id="matrixContainer"></div>
+
+                    <div class="stats-row">
+                        <div class="stat-box">
+                            <div class="stat-label">Top-Left</div>
+                            <div class="stat-value cyan" id="topLeft">-</div>
+                        </div>
+                        <div class="stat-box">
+                            <div class="stat-label">Bottom-Right</div>
+                            <div class="stat-value cyan" id="bottomRight">-</div>
+                        </div>
+                        <div class="stat-box">
+                            <div class="stat-label">Sum</div>
+                            <div class="stat-value orange" id="currentSum">-</div>
+                        </div>
+                        <div class="stat-box">
+                            <div class="stat-label">≤ k?</div>
+                            <div class="stat-value green" id="isValid">-</div>
+                        </div>
+                        <div class="stat-box">
+                            <div class="stat-label">Rectangles</div>
+                            <div class="stat-value red" id="rectCount">0</div>
+                        </div>
+                    </div>
+
+                    <div class="controls">
+                        <button class="btn btn-primary" id="startBtn" onclick="startVisualization()">▶️ Start</button>
+                        <button class="btn btn-secondary" onclick="resetVisualization()">🔄 Reset</button>
+                    </div>
+
+                    <div class="operation-panel">
+                        <div class="operation-content" id="operationContent">Enumerate all (r1,c1) to (r2,c2) rectangles</div>
+                    </div>
+
+                    <div class="result-box">
+                        <div class="result-label">Best Sum ≤ k</div>
+                        <div class="result-value" id="bestResult">-</div>
+                    </div>
+
+                    <div class="complexity-box">
+                        ⚠️ O(m²n²) rectangles × O(mn) sum = O(m³n³) total
+                    </div>
+                </div>
+            </div>
+
+            <div class="right-panel">
+                <!-- Log -->
+                <div class="card">
+                    <div class="card-header">
+                        <div class="card-icon" style="background: rgba(6, 182, 212, 0.2); color: var(--cyan);">📝</div>
+                        <span class="card-title">Log</span>
+                    </div>
+                    <div class="log-container" id="logContainer">
+                        <div class="log-entry" style="color: var(--text-muted);">Click Start...</div>
+                    </div>
+                </div>
+
+                <!-- Info -->
+                <div class="card">
+                    <div class="card-header">
+                        <div class="card-icon" style="background: rgba(168, 85, 247, 0.2); color: var(--purple);">💡</div>
+                        <span class="card-title">Algorithm</span>
+                    </div>
+                    <div style="font-size: 0.6rem; color: var(--text-secondary); line-height: 1.5;">
+                        <p>For each rectangle:</p>
+                        <p style="margin-left: 0.5rem;">1. Pick top-left (r1, c1)</p>
+                        <p style="margin-left: 0.5rem;">2. Pick bottom-right (r2, c2)</p>
+                        <p style="margin-left: 0.5rem;">3. Sum all cells in rectangle</p>
+                        <p style="margin-left: 0.5rem;">4. If sum ≤ k, update best</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const matrix = [[1, 0, 1], [0, -2, 3]];
+        const k = 2;
+        const m = matrix.length;
+        const n = matrix[0].length;
+        let isRunning = false;
+        let bestResult = -Infinity;
+        let rectCount = 0;
+
+        function initDisplay() {
+            const container = document.getElementById('matrixContainer');
+            container.innerHTML = matrix.map((row, i) => 
+                `<div class="matrix-row">
+                    ${row.map((val, j) => 
+                        `<div class="matrix-cell" id="cell-${i}-${j}">
+                            <span class="coord">${i},${j}</span>
+                            ${val}
+                        </div>`
+                    ).join('')}
+                </div>`
+            ).join('');
+        }
+
+        function highlightRectangle(r1, c1, r2, c2) {
+            // Clear all
+            for (let i = 0; i < m; i++) {
+                for (let j = 0; j < n; j++) {
+                    document.getElementById(`cell-${i}-${j}`).classList.remove('selected', 'scanning');
+                }
+            }
+            // Highlight rectangle
+            for (let i = r1; i <= r2; i++) {
+                for (let j = c1; j <= c2; j++) {
+                    document.getElementById(`cell-${i}-${j}`).classList.add('selected');
+                }
+            }
+        }
+
+        function calculateSum(r1, c1, r2, c2) {
+            let sum = 0;
+            for (let i = r1; i <= r2; i++) {
+                for (let j = c1; j <= c2; j++) {
+                    sum += matrix[i][j];
+                }
+            }
+            return sum;
+        }
+
+        function addLog(msg, type) {
+            const container = document.getElementById('logContainer');
+            const entry = document.createElement('div');
+            entry.className = `log-entry ${type}`;
+            entry.textContent = msg;
+            container.appendChild(entry);
+            container.scrollTop = container.scrollHeight;
+        }
+
+        async function startVisualization() {
+            if (isRunning) return;
+            isRunning = true;
+            document.getElementById('startBtn').disabled = true;
+            document.getElementById('logContainer').innerHTML = '';
+            bestResult = -Infinity;
+            rectCount = 0;
+            document.getElementById('bestResult').textContent = '-';
+            
+            addLog('Starting rectangle enumeration...', 'check');
+            
+            for (let r1 = 0; r1 < m && isRunning; r1++) {
+                for (let c1 = 0; c1 < n && isRunning; c1++) {
+                    for (let r2 = r1; r2 < m && isRunning; r2++) {
+                        for (let c2 = c1; c2 < n && isRunning; c2++) {
+                            rectCount++;
+                            
+                            highlightRectangle(r1, c1, r2, c2);
+                            
+                            const sum = calculateSum(r1, c1, r2, c2);
+                            const valid = sum <= k;
+                            
+                            document.getElementById('topLeft').textContent = `(${r1},${c1})`;
+                            document.getElementById('bottomRight').textContent = `(${r2},${c2})`;
+                            document.getElementById('currentSum').textContent = sum;
+                            document.getElementById('isValid').textContent = valid ? '✓' : '✗';
+                            document.getElementById('isValid').style.color = valid ? 'var(--green)' : 'var(--red)';
+                            document.getElementById('rectCount').textContent = rectCount;
+                            
+                            document.getElementById('operationContent').innerHTML = 
+                                `Rectangle (${r1},${c1})→(${r2},${c2}): sum=${sum}, ` +
+                                (valid ? `<span class="hl-green">≤ ${k} ✓</span>` : `<span class="hl-red">> ${k} ✗</span>`);
+                            
+                            if (valid) {
+                                if (sum > bestResult) {
+                                    bestResult = sum;
+                                    document.getElementById('bestResult').textContent = bestResult;
+                                    addLog(`(${r1},${c1})→(${r2},${c2}): sum=${sum} ≤ k → NEW BEST!`, 'best');
+                                } else {
+                                    addLog(`(${r1},${c1})→(${r2},${c2}): sum=${sum} ≤ k ✓`, 'valid');
+                                }
+                            } else {
+                                addLog(`(${r1},${c1})→(${r2},${c2}): sum=${sum} > k ✗`, 'invalid');
+                            }
+                            
+                            await new Promise(r => setTimeout(r, 250));
+                        }
+                    }
+                }
+            }
+            
+            document.getElementById('operationContent').innerHTML = 
+                `<span class="hl-green">Done!</span> Checked ${rectCount} rectangles. Best sum ≤ k = <span class="hl-orange">${bestResult}</span>`;
+            addLog(`Complete! Checked ${rectCount} rectangles. Answer: ${bestResult}`, 'best');
+            
+            isRunning = false;
+            document.getElementById('startBtn').disabled = false;
+        }
+
+        function resetVisualization() {
+            isRunning = false;
+            bestResult = -Infinity;
+            rectCount = 0;
+            initDisplay();
+            document.getElementById('topLeft').textContent = '-';
+            document.getElementById('bottomRight').textContent = '-';
+            document.getElementById('currentSum').textContent = '-';
+            document.getElementById('isValid').textContent = '-';
+            document.getElementById('rectCount').textContent = '0';
+            document.getElementById('bestResult').textContent = '-';
+            document.getElementById('startBtn').disabled = false;
+            document.getElementById('logContainer').innerHTML = '<div class="log-entry" style="color: var(--text-muted);">Click Start...</div>';
+            document.getElementById('operationContent').innerHTML = 'Enumerate all (r1,c1) to (r2,c2) rectangles';
+        }
+
+        initDisplay();
+    </script>
+</body>
+</html>

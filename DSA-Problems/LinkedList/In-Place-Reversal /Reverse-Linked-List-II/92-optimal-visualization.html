@@ -1,0 +1,953 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>92 - Optimal: One-Pass Head Insertion</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #0f0c29 0%, #302b63 50%, #24243e 100%);
+            min-height: 100vh;
+            padding: 18px;
+            color: #e0e0e0
+        }
+
+        .container {
+            max-width: 1340px;
+            margin: 0 auto;
+            background: rgba(25, 25, 50, .95);
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, .5), 0 0 40px rgba(46, 204, 113, .07);
+            overflow: hidden;
+            border: 1px solid rgba(255, 255, 255, .06)
+        }
+
+        header {
+            background: linear-gradient(135deg, #16a085, #1abc9c);
+            color: #fff;
+            padding: 22px;
+            text-align: center
+        }
+
+        h1 {
+            font-size: 1.2em;
+            margin-bottom: 5px
+        }
+
+        .subtitle {
+            font-size: .86em;
+            opacity: .92
+        }
+
+        .badge {
+            display: inline-block;
+            background: rgba(255, 255, 255, .2);
+            padding: 5px 14px;
+            border-radius: 15px;
+            margin-top: 7px;
+            font-size: .78em
+        }
+
+        .main-content {
+            display: grid;
+            grid-template-columns: 1fr 280px;
+            gap: 16px;
+            padding: 18px
+        }
+
+        .card {
+            background: rgba(40, 40, 75, .8);
+            border-radius: 14px;
+            padding: 15px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, .2);
+            margin-bottom: 14px;
+            border: 1px solid rgba(255, 255, 255, .05)
+        }
+
+        .card-title {
+            font-size: .88em;
+            font-weight: 600;
+            margin-bottom: 10px;
+            color: #1abc9c
+        }
+
+        button {
+            padding: 7px 14px;
+            border: none;
+            border-radius: 8px;
+            font-size: .82em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all .3s
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, .3)
+        }
+
+        button:disabled {
+            opacity: .4;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #16a085, #1abc9c);
+            color: #fff
+        }
+
+        .btn-success {
+            background: linear-gradient(135deg, #27ae60, #2ecc71);
+            color: #fff
+        }
+
+        .btn-warning {
+            background: linear-gradient(135deg, #f39c12, #e67e22);
+            color: #fff
+        }
+
+        .btn-secondary {
+            background: rgba(100, 100, 140, .7);
+            color: #fff
+        }
+
+        .btn-info {
+            background: linear-gradient(135deg, #3498db, #2980b9);
+            color: #fff
+        }
+
+        .controls {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            align-items: center
+        }
+
+        .speed-control {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            flex: 1;
+            min-width: 140px
+        }
+
+        .speed-control label {
+            font-size: .8em;
+            color: #aaa
+        }
+
+        .speed-control input[type="range"] {
+            flex: 1;
+            height: 5px;
+            accent-color: #1abc9c
+        }
+
+        .speed-control span {
+            font-size: .8em;
+            color: #1abc9c;
+            min-width: 24px
+        }
+
+        .input-section {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+            flex-wrap: wrap
+        }
+
+        .input-section input {
+            padding: 7px 10px;
+            border-radius: 8px;
+            border: 1px solid rgba(255, 255, 255, .15);
+            background: rgba(20, 20, 45, .8);
+            color: #e0e0e0;
+            font-size: .85em;
+            font-family: 'Courier New', monospace
+        }
+
+        .input-section input:focus {
+            outline: none;
+            border-color: #1abc9c
+        }
+
+        .input-section input.list-in {
+            flex: 1;
+            min-width: 140px
+        }
+
+        .input-section input.num-in {
+            width: 55px
+        }
+
+        /* Linked list */
+        .ll-area {
+            padding: 12px;
+            background: rgba(20, 20, 50, .4);
+            border-radius: 10px;
+            min-height: 100px
+        }
+
+        .ptr-row {
+            display: flex;
+            gap: 0;
+            min-height: 18px;
+            align-items: center;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin-bottom: 2px
+        }
+
+        .ll-row {
+            display: flex;
+            gap: 0;
+            align-items: center;
+            justify-content: center;
+            flex-wrap: wrap
+        }
+
+        .ll-node {
+            display: flex;
+            align-items: center
+        }
+
+        .nd {
+            width: 50px;
+            height: 50px;
+            border-radius: 10px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 1.1em;
+            border: 2.5px solid rgba(150, 150, 200, .12);
+            background: rgba(60, 60, 100, .15);
+            font-family: 'Courier New', monospace;
+            color: #666;
+            transition: all .35s;
+            position: relative
+        }
+
+        .nd-pos {
+            font-size: .42em;
+            color: #555;
+            margin-top: 1px
+        }
+
+        .nd.dummy {
+            border-style: dashed;
+            border-color: rgba(150, 150, 200, .2);
+            color: #555;
+            font-size: .7em
+        }
+
+        .nd.pre-nd {
+            border-color: #f39c12;
+            background: rgba(243, 156, 18, .08);
+            color: #f39c12
+        }
+
+        .nd.tail-nd {
+            border-color: #e74c3c;
+            background: rgba(231, 76, 60, .08);
+            color: #e74c3c
+        }
+
+        .nd.move-nd {
+            border-color: #2ecc71;
+            background: rgba(46, 204, 113, .15);
+            color: #2ecc71;
+            box-shadow: 0 0 14px rgba(46, 204, 113, .2);
+            transform: scale(1.08)
+        }
+
+        .nd.nav-nd {
+            border-color: #f1c40f;
+            background: rgba(241, 196, 15, .1);
+            color: #f1c40f;
+            box-shadow: 0 0 10px rgba(241, 196, 15, .12)
+        }
+
+        .nd.in-rev {
+            border-color: #1abc9c;
+            background: rgba(26, 188, 156, .08);
+            color: #1abc9c
+        }
+
+        .nd.done-nd {
+            border-color: #2ecc71;
+            background: rgba(46, 204, 113, .08);
+            color: #2ecc71
+        }
+
+        .arrow {
+            color: #555;
+            font-size: .85em;
+            margin: 0 2px;
+            transition: all .3s;
+            min-width: 20px;
+            text-align: center
+        }
+
+        .arrow.new-link {
+            color: #2ecc71;
+            font-weight: 700
+        }
+
+        .arrow.done-a {
+            color: #2ecc71
+        }
+
+        .ptr-cell {
+            width: 50px;
+            text-align: center;
+            font-size: .5em;
+            font-weight: 700;
+            margin: 0 2px
+        }
+
+        .ptr-spacer {
+            width: 20px;
+            margin: 0 2px
+        }
+
+        .p-pre {
+            color: #f39c12
+        }
+
+        .p-tail {
+            color: #e74c3c
+        }
+
+        .p-move {
+            color: #2ecc71
+        }
+
+        /* Step breakdown */
+        .step-box {
+            padding: 12px;
+            background: rgba(20, 20, 50, .4);
+            border-radius: 10px;
+            min-height: 46px
+        }
+
+        .step-row {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+            margin: 4px 0;
+            flex-wrap: wrap
+        }
+
+        .step-num {
+            width: 22px;
+            height: 22px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: .65em;
+            font-weight: 700;
+            border: 2px solid rgba(150, 150, 200, .15);
+            color: #555;
+            flex-shrink: 0
+        }
+
+        .step-num.active {
+            border-color: #2ecc71;
+            background: rgba(46, 204, 113, .15);
+            color: #2ecc71
+        }
+
+        .step-num.done {
+            border-color: #555;
+            background: rgba(100, 100, 140, .1);
+            color: #555
+        }
+
+        .step-text {
+            font-family: 'Courier New', monospace;
+            font-size: .78em;
+            color: #888;
+            transition: all .3s
+        }
+
+        .step-text.active {
+            color: #2ecc71
+        }
+
+        .step-text.done {
+            color: #555;
+            text-decoration: line-through
+        }
+
+        .status-ind {
+            text-align: center;
+            padding: 11px;
+            border-radius: 10px;
+            font-weight: 700;
+            font-size: .85em;
+            transition: all .3s
+        }
+
+        .si-neutral {
+            background: rgba(100, 100, 140, .12);
+            color: #888
+        }
+
+        .si-nav {
+            background: rgba(243, 156, 18, .1);
+            color: #f39c12;
+            border: 1px solid rgba(243, 156, 18, .2)
+        }
+
+        .si-insert {
+            background: rgba(46, 204, 113, .1);
+            color: #2ecc71;
+            border: 1px solid rgba(46, 204, 113, .2)
+        }
+
+        .si-done {
+            background: rgba(46, 204, 113, .15);
+            color: #2ecc71;
+            border: 1px solid rgba(46, 204, 113, .3)
+        }
+
+        .iter-badge {
+            display: inline-block;
+            padding: 4px 10px;
+            border-radius: 6px;
+            font-size: .78em;
+            font-weight: 700;
+            background: rgba(26, 188, 156, .1);
+            border: 1px solid rgba(26, 188, 156, .15);
+            color: #1abc9c;
+            margin-bottom: 6px
+        }
+
+        .state-display {
+            background: rgba(20, 20, 50, .5);
+            border-radius: 8px;
+            padding: 10px;
+            font-family: 'Courier New', monospace;
+            font-size: .68em
+        }
+
+        .state-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 4px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, .05)
+        }
+
+        .state-row:last-child {
+            border-bottom: none
+        }
+
+        .state-label {
+            font-weight: 600;
+            color: #1abc9c
+        }
+
+        .state-val {
+            color: #ccc;
+            text-align: right;
+            max-width: 150px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap
+        }
+
+        .log-container {
+            background: rgba(20, 20, 50, .5);
+            border-radius: 8px;
+            padding: 10px;
+            max-height: 230px;
+            overflow-y: auto;
+            font-family: 'Courier New', monospace;
+            font-size: .55em
+        }
+
+        .log-entry {
+            padding: 3px 7px;
+            margin: 2px 0;
+            border-radius: 4px;
+            border-left: 3px solid #555;
+            background: rgba(40, 40, 70, .5);
+            line-height: 1.5
+        }
+
+        .log-entry.success {
+            border-left-color: #2ecc71;
+            background: rgba(46, 204, 113, .08);
+            color: #2ecc71
+        }
+
+        .log-entry.warning {
+            border-left-color: #f39c12;
+            background: rgba(243, 156, 18, .08);
+            color: #f39c12
+        }
+
+        .log-entry.info {
+            border-left-color: #3498db;
+            background: rgba(52, 152, 219, .08);
+            color: #8ec8f0
+        }
+
+        .log-entry.error {
+            border-left-color: #e74c3c;
+            background: rgba(231, 76, 60, .08);
+            color: #e74c3c
+        }
+
+        .log-entry.purple {
+            border-left-color: #9b59b6;
+            background: rgba(155, 89, 182, .08);
+            color: #bb6bd9
+        }
+
+        .log-entry.teal {
+            border-left-color: #1abc9c;
+            background: rgba(26, 188, 156, .08);
+            color: #1abc9c
+        }
+
+        .log-container::-webkit-scrollbar {
+            width: 5px
+        }
+
+        .log-container::-webkit-scrollbar-track {
+            background: transparent
+        }
+
+        .log-container::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, .15);
+            border-radius: 3px
+        }
+
+        @media(max-width:960px) {
+            .main-content {
+                grid-template-columns: 1fr
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <header>
+            <h1>🔗 Reverse Linked List II</h1>
+            <div class="subtitle">Optimal — One-Pass "Head Insertion" (extract + insert at front)</div>
+            <div class="badge">Time: O(n) | Space: O(1) | Single pass — pre & tail never move</div>
+        </header>
+        <div class="main-content">
+            <div class="left-panel">
+                <div class="card">
+                    <div class="card-title">⚙️ Controls</div>
+                    <div class="controls">
+                        <button class="btn-primary" id="playBtn">▶️ Play</button>
+                        <button class="btn-warning" id="pauseBtn" disabled>⏸️ Pause</button>
+                        <button class="btn-success" id="stepBtn">⏭️ Step</button>
+                        <button class="btn-secondary" id="resetBtn">🔄 Reset</button>
+                        <div class="speed-control">
+                            <label>Speed:</label>
+                            <input type="range" id="speedSlider" min="1" max="10" value="5">
+                            <span id="speedValue">5x</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="card">
+                    <div class="card-title">✏️ Custom Input</div>
+                    <div class="input-section">
+                        <input type="text" class="list-in" id="listInput" value="1,2,3,4,5"
+                            placeholder="values (comma)">
+                        <input type="number" class="num-in" id="leftInput" value="2" min="1" placeholder="L">
+                        <input type="number" class="num-in" id="rightInput" value="4" min="1" placeholder="R">
+                        <button class="btn-info" id="applyBtn">Apply</button>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-title">🔗 Linked List | left=<span id="lDisp">2</span>, right=<span
+                            id="rDisp">4</span></div>
+                    <div class="ll-area">
+                        <div class="ptr-row" id="ptrRow"></div>
+                        <div class="ll-row" id="llDisplay"></div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-title">🔧 3-Pointer Moves (per iteration)</div>
+                    <div id="iterBadge"></div>
+                    <div class="step-box" id="stepBox">
+                        <div class="step-row">
+                            <div class="step-num" id="s1n">1</div>
+                            <div class="step-text" id="s1t">tail.next = moveNode.next</div>
+                        </div>
+                        <div class="step-row">
+                            <div class="step-num" id="s2n">2</div>
+                            <div class="step-text" id="s2t">moveNode.next = pre.next</div>
+                        </div>
+                        <div class="step-row">
+                            <div class="step-num" id="s3n">3</div>
+                            <div class="step-text" id="s3t">pre.next = moveNode</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="status-ind si-neutral" id="statusInd">Ready — press Play or Step</div>
+                </div>
+            </div>
+
+            <div class="right-panel">
+                <div class="card">
+                    <div class="card-title">📋 Current State</div>
+                    <div class="state-display">
+                        <div class="state-row"><span class="state-label">Phase:</span><span class="state-val"
+                                id="stPhase">init</span></div>
+                        <div class="state-row"><span class="state-label">pre:</span><span class="state-val"
+                                id="stPre">—</span></div>
+                        <div class="state-row"><span class="state-label">tail:</span><span class="state-val"
+                                id="stTail">—</span></div>
+                        <div class="state-row"><span class="state-label">moveNode:</span><span class="state-val"
+                                id="stMove">—</span></div>
+                        <div class="state-row"><span class="state-label">iteration:</span><span class="state-val"
+                                id="stIter">—</span></div>
+                        <div class="state-row"><span class="state-label">subStep:</span><span class="state-val"
+                                id="stSub">—</span></div>
+                    </div>
+                </div>
+                <div class="card" style="flex:1">
+                    <div class="card-title">📝 Execution Log</div>
+                    <div class="log-container" id="logContainer">
+                        <div class="log-entry info">One-pass: navigate to pre, then extract+insert at front.</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let initVals = [1, 2, 3, 4, 5];
+        let left = 2, right = 4;
+
+        // Linked-list as array of {val, next}
+        let nodes = [];
+        let preIdx = -1, tailIdx = -1, moveIdx = -1;
+        let navStep = 0;
+        let iteration = 0, totalIter = 0;
+        let subStep = 0; // 0=start-iter, 1=step1, 2=step2, 3=step3
+
+        // phases: init | navigate | setup-tail | inserting | done
+        let phase = 'init';
+        let stepCount = 0, isRunning = false, speed = 5, isDone = false;
+
+        const $ = id => document.getElementById(id);
+        const logC = $('logContainer');
+        function addLog(m, t = 'info') { logC.innerHTML += `<div class="log-entry ${t}">[${stepCount}] ${m}</div>`; logC.scrollTop = logC.scrollHeight }
+        function clearLog() { logC.innerHTML = '' }
+
+        function buildList() {
+            nodes = [{ val: 'D', next: 1 }];
+            for (let i = 0; i < initVals.length; i++) {
+                nodes.push({ val: initVals[i], next: i + 2 <= initVals.length ? i + 2 : -1 });
+            }
+        }
+
+        function getListOrder() {
+            const order = [];
+            let idx = 0;
+            const visited = new Set();
+            while (idx !== -1 && !visited.has(idx)) {
+                visited.add(idx);
+                order.push(idx);
+                idx = nodes[idx].next;
+            }
+            return order;
+        }
+
+        function nv(idx) { return idx >= 0 ? nodes[idx].val : 'null'; }
+
+        function resetStepDisplay() {
+            for (let i = 1; i <= 3; i++) {
+                $('s' + i + 'n').className = 'step-num';
+                $('s' + i + 't').className = 'step-text';
+            }
+        }
+
+        function render() {
+            $('lDisp').textContent = left;
+            $('rDisp').textContent = right;
+
+            const order = getListOrder();
+
+            // Pointer labels
+            let pH = '';
+            for (let oi = 0; oi < order.length; oi++) {
+                const idx = order[oi];
+                let labels = [];
+                if (idx === preIdx) labels.push('<span class="p-pre">pre</span>');
+                if (idx === tailIdx) labels.push('<span class="p-tail">tail</span>');
+                if (idx === moveIdx && phase === 'inserting') labels.push('<span class="p-move">move</span>');
+                pH += `<div class="ptr-cell">${labels.join(' ')}</div>`;
+                if (oi < order.length - 1) pH += `<div class="ptr-spacer"></div>`;
+            }
+            $('ptrRow').innerHTML = pH;
+
+            // Nodes
+            let lH = '';
+            for (let oi = 0; oi < order.length; oi++) {
+                const idx = order[oi];
+                const nd = nodes[idx];
+                let cls = 'nd';
+
+                if (idx === 0) {
+                    cls += ' dummy';
+                } else if (phase === 'navigate' && idx === preIdx) {
+                    cls += ' nav-nd';
+                } else if (idx === preIdx && phase !== 'init') {
+                    cls += ' pre-nd';
+                } else if (idx === moveIdx && phase === 'inserting') {
+                    cls += ' move-nd';
+                } else if (idx === tailIdx && phase !== 'init' && phase !== 'done') {
+                    cls += ' tail-nd';
+                } else if (phase === 'done') {
+                    // Find position in order
+                    const pos = oi;
+                    if (pos >= left && pos <= right) cls += ' done-nd';
+                } else if (phase === 'inserting') {
+                    // Check if in reversed portion (between pre and tail)
+                    const preOi = order.indexOf(preIdx);
+                    const tailOi = order.indexOf(tailIdx);
+                    if (oi > preOi && oi < tailOi) cls += ' in-rev';
+                }
+
+                const label = idx === 0 ? 'D' : nd.val;
+                const posLabel = idx === 0 ? 'dummy' : '';
+
+                lH += `<div class="ll-node"><div class="${cls}">${label}<span class="nd-pos">${posLabel}</span></div>`;
+                if (oi < order.length - 1) {
+                    let aCls = 'arrow';
+                    if (phase === 'done') aCls += ' done-a';
+                    else if (phase === 'inserting' && subStep >= 1) {
+                        // Highlight newly created links
+                        if (idx === preIdx && subStep === 3) aCls += ' new-link';
+                        else if (idx === moveIdx && subStep >= 2) aCls += ' new-link';
+                    }
+                    lH += `<span class="${aCls}"> → </span>`;
+                }
+                lH += '</div>';
+            }
+            $('llDisplay').innerHTML = lH;
+
+            // Iteration badge
+            if (phase === 'inserting') {
+                $('iterBadge').innerHTML = `<div class="iter-badge">Iteration ${iteration + 1} / ${totalIter} — moveNode = node(${nv(moveIdx)})</div>`;
+            } else if (phase === 'done') {
+                $('iterBadge').innerHTML = `<div class="iter-badge" style="background:rgba(46,204,113,.1);border-color:rgba(46,204,113,.15);color:#2ecc71">✅ All ${totalIter} iterations complete</div>`;
+            } else {
+                $('iterBadge').innerHTML = '';
+            }
+
+            // Step display texts with actual values
+            if (phase === 'inserting' && tailIdx >= 0 && moveIdx >= 0) {
+                $('s1t').textContent = `tail(${nv(tailIdx)}).next = moveNode(${nv(moveIdx)}).next → ${nv(nodes[moveIdx].next)}`;
+                $('s2t').textContent = `moveNode(${nv(moveIdx)}).next = pre(${nv(preIdx)}).next → ${nv(nodes[preIdx].next)}`;
+                $('s3t').textContent = `pre(${nv(preIdx)}).next = moveNode(${nv(moveIdx)})`;
+            } else {
+                $('s1t').textContent = 'tail.next = moveNode.next';
+                $('s2t').textContent = 'moveNode.next = pre.next';
+                $('s3t').textContent = 'pre.next = moveNode';
+                resetStepDisplay();
+            }
+
+            // State
+            $('stPhase').textContent = phase;
+            $('stPre').textContent = preIdx >= 0 ? (preIdx === 0 ? 'dummy' : `node(${nv(preIdx)})`) : '—';
+            $('stTail').textContent = tailIdx >= 0 ? `node(${nv(tailIdx)})` : '—';
+            $('stMove').textContent = moveIdx >= 0 ? `node(${nv(moveIdx)})` : '—';
+            $('stIter').textContent = phase === 'inserting' ? `${iteration + 1}/${totalIter}` : '—';
+            $('stSub').textContent = phase === 'inserting' && subStep > 0 ? `step ${subStep}/3` : '—';
+        }
+
+        function doStep() {
+            if (isDone) { stopExec(); return; }
+            stepCount++;
+
+            switch (phase) {
+                case 'init': {
+                    buildList();
+                    preIdx = -1; tailIdx = -1; moveIdx = -1;
+                    navStep = 0; iteration = 0; totalIter = right - left; subStep = 0;
+                    addLog(`List: D → ${initVals.join(' → ')} (n=${initVals.length})`, 'info');
+                    addLog(`left=${left}, right=${right}, insertions needed: ${totalIter}`, 'info');
+
+                    if (totalIter === 0) {
+                        addLog(`left === right → no reversal needed!`, 'success');
+                        preIdx = 0; buildList();
+                        phase = 'done'; isDone = true;
+                        const order = getListOrder();
+                        const fv = order.slice(1).map(i => nodes[i].val);
+                        $('statusInd').className = 'status-ind si-done';
+                        $('statusInd').textContent = `✅ Done! [${fv.join(' → ')}]`;
+                        render(); stopExec(); return;
+                    }
+
+                    addLog(`Navigate pre to position ${left}-1...`, 'warning');
+                    phase = 'navigate';
+                    preIdx = 0;
+                    $('statusInd').className = 'status-ind si-nav';
+                    $('statusInd').textContent = `Navigating to position ${left - 1}...`;
+                    render();
+                    break;
+                }
+                case 'navigate': {
+                    if (navStep >= left - 1) {
+                        addLog(`pre = ${preIdx === 0 ? 'dummy' : 'node(' + nv(preIdx) + ')'} ✓`, 'success');
+                        phase = 'setup-tail';
+                        render();
+                        doStep();
+                        return;
+                    }
+                    preIdx = nodes[preIdx].next;
+                    navStep++;
+                    addLog(`  pre → node(${nv(preIdx)}) [step ${navStep}/${left - 1}]`, 'info');
+                    render();
+                    break;
+                }
+                case 'setup-tail': {
+                    tailIdx = nodes[preIdx].next;
+                    addLog(`tail = pre.next = node(${nv(tailIdx)}) — this stays as tail forever`, 'teal');
+                    addLog(`Begin ${totalIter} head-insertion iteration(s)...`, 'purple');
+                    phase = 'inserting';
+                    iteration = 0;
+                    subStep = 0;
+                    $('statusInd').className = 'status-ind si-insert';
+                    $('statusInd').textContent = `Inserting: ${totalIter} iteration(s)...`;
+                    render();
+                    break;
+                }
+                case 'inserting': {
+                    if (iteration >= totalIter) {
+                        const order = getListOrder();
+                        const fv = order.slice(1).map(i => nodes[i].val);
+                        addLog(`✅ All ${totalIter} insertions done!`, 'success');
+                        addLog(`Final: ${fv.join(' → ')}`, 'success');
+                        phase = 'done'; isDone = true;
+                        moveIdx = -1; subStep = 0;
+                        $('statusInd').className = 'status-ind si-done';
+                        $('statusInd').textContent = `✅ Done! [${fv.join(' → ')}]`;
+                        resetStepDisplay();
+                        render(); stopExec();
+                        return;
+                    }
+
+                    if (subStep === 0) {
+                        // Start new iteration: identify moveNode
+                        moveIdx = nodes[tailIdx].next;
+                        addLog(`── Iter ${iteration + 1}: moveNode = tail.next = node(${nv(moveIdx)}) ──`, 'purple');
+                        subStep = 1;
+                        resetStepDisplay();
+                        render();
+                        return;
+                    }
+
+                    if (subStep === 1) {
+                        // Step 1: tail.next = moveNode.next  (bypass moveNode)
+                        const bypassTo = nodes[moveIdx].next;
+                        nodes[tailIdx].next = bypassTo;
+                        addLog(`  ① tail(${nv(tailIdx)}).next = moveNode.next → ${bypassTo >= 0 ? nv(bypassTo) : 'null'}`, 'teal');
+                        $('s1n').className = 'step-num active';
+                        $('s1t').className = 'step-text active';
+                        subStep = 2;
+                        render();
+                        return;
+                    }
+
+                    if (subStep === 2) {
+                        // Step 2: moveNode.next = pre.next  (link moveNode to current front)
+                        const curFront = nodes[preIdx].next;
+                        nodes[moveIdx].next = curFront;
+                        addLog(`  ② moveNode(${nv(moveIdx)}).next = pre.next → node(${nv(curFront)})`, 'teal');
+                        $('s1n').className = 'step-num done'; $('s1t').className = 'step-text done';
+                        $('s2n').className = 'step-num active'; $('s2t').className = 'step-text active';
+                        subStep = 3;
+                        render();
+                        return;
+                    }
+
+                    if (subStep === 3) {
+                        // Step 3: pre.next = moveNode  (moveNode becomes new front)
+                        nodes[preIdx].next = moveIdx;
+                        addLog(`  ③ pre(${nv(preIdx)}).next = moveNode(${nv(moveIdx)})`, 'teal');
+                        $('s2n').className = 'step-num done'; $('s2t').className = 'step-text done';
+                        $('s3n').className = 'step-num active'; $('s3t').className = 'step-text active';
+
+                        const order = getListOrder();
+                        const fv = order.slice(1).map(i => nodes[i].val);
+                        addLog(`  List: ${fv.join(' → ')}`, 'success');
+
+                        subStep = 0;
+                        iteration++;
+                        render();
+                        return;
+                    }
+                    break;
+                }
+            }
+        }
+
+        function play() { if (isRunning || isDone) return; isRunning = true; $('playBtn').disabled = true; $('pauseBtn').disabled = false; $('stepBtn').disabled = true; runLoop() }
+        function pause() { isRunning = false; $('playBtn').disabled = false; $('pauseBtn').disabled = true; $('stepBtn').disabled = false }
+        function stopExec() { isRunning = false; $('playBtn').disabled = true; $('pauseBtn').disabled = true; $('stepBtn').disabled = true }
+        function runLoop() { if (!isRunning) return; doStep(); if (isRunning && !isDone) setTimeout(runLoop, 450 / speed) }
+
+        function init() {
+            buildList();
+            preIdx = -1; tailIdx = -1; moveIdx = -1;
+            navStep = 0; iteration = 0; totalIter = right - left; subStep = 0;
+            phase = 'init'; stepCount = 0; isDone = false;
+            $('statusInd').className = 'status-ind si-neutral';
+            $('statusInd').textContent = 'Ready — press Play or Step';
+            $('playBtn').disabled = false; $('pauseBtn').disabled = true; $('stepBtn').disabled = false;
+            resetStepDisplay();
+            $('iterBadge').innerHTML = '';
+            clearLog(); addLog('One-pass: navigate to pre, then extract+insert at front.', 'info');
+            render();
+        }
+
+        $('playBtn').addEventListener('click', play);
+        $('pauseBtn').addEventListener('click', pause);
+        $('stepBtn').addEventListener('click', () => { if (!isDone) doStep() });
+        $('resetBtn').addEventListener('click', () => { isRunning = false; init() });
+        $('speedSlider').addEventListener('input', e => { speed = parseInt(e.target.value); $('speedValue').textContent = speed + 'x' });
+        $('applyBtn').addEventListener('click', () => {
+            const lv = $('listInput').value.trim();
+            const lft = parseInt($('leftInput').value);
+            const rgt = parseInt($('rightInput').value);
+            if (!lv) { alert('Values required.'); return }
+            const vs = lv.split(',').map(x => parseInt(x.trim())).filter(x => !isNaN(x));
+            if (!vs.length) { alert('Need at least one value.'); return }
+            if (isNaN(lft) || isNaN(rgt) || lft < 1 || rgt > vs.length || lft > rgt) {
+                alert(`Need 1 ≤ left ≤ right ≤ ${vs.length}.`); return;
+            }
+            initVals = vs; left = lft; right = rgt; isRunning = false; init();
+        });
+
+        init();
+    </script>
+</body>
+
+</html>

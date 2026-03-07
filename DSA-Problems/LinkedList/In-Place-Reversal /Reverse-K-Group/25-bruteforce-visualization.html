@@ -1,0 +1,772 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>25 - Brute-Force: Array Extract, Reverse Groups, Rebuild</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #0f0c29 0%, #302b63 50%, #24243e 100%);
+            min-height: 100vh;
+            padding: 18px;
+            color: #e0e0e0
+        }
+
+        .container {
+            max-width: 1360px;
+            margin: 0 auto;
+            background: rgba(25, 25, 50, .95);
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, .5), 0 0 40px rgba(192, 57, 43, .07);
+            overflow: hidden;
+            border: 1px solid rgba(255, 255, 255, .06)
+        }
+
+        header {
+            background: linear-gradient(135deg, #c0392b, #e74c3c);
+            color: #fff;
+            padding: 22px;
+            text-align: center
+        }
+
+        h1 {
+            font-size: 1.15em;
+            margin-bottom: 5px
+        }
+
+        .subtitle {
+            font-size: .84em;
+            opacity: .92
+        }
+
+        .badge {
+            display: inline-block;
+            background: rgba(255, 255, 255, .2);
+            padding: 5px 14px;
+            border-radius: 15px;
+            margin-top: 7px;
+            font-size: .78em
+        }
+
+        .main-content {
+            display: grid;
+            grid-template-columns: 1fr 280px;
+            gap: 16px;
+            padding: 18px
+        }
+
+        .card {
+            background: rgba(40, 40, 75, .8);
+            border-radius: 14px;
+            padding: 15px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, .2);
+            margin-bottom: 14px;
+            border: 1px solid rgba(255, 255, 255, .05)
+        }
+
+        .card-title {
+            font-size: .88em;
+            font-weight: 600;
+            margin-bottom: 10px;
+            color: #e74c3c
+        }
+
+        button {
+            padding: 7px 14px;
+            border: none;
+            border-radius: 8px;
+            font-size: .82em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all .3s
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, .3)
+        }
+
+        button:disabled {
+            opacity: .4;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #c0392b, #e74c3c);
+            color: #fff
+        }
+
+        .btn-success {
+            background: linear-gradient(135deg, #27ae60, #2ecc71);
+            color: #fff
+        }
+
+        .btn-warning {
+            background: linear-gradient(135deg, #f39c12, #e67e22);
+            color: #fff
+        }
+
+        .btn-secondary {
+            background: rgba(100, 100, 140, .7);
+            color: #fff
+        }
+
+        .btn-info {
+            background: linear-gradient(135deg, #3498db, #2980b9);
+            color: #fff
+        }
+
+        .controls {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            align-items: center
+        }
+
+        .speed-control {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            flex: 1;
+            min-width: 140px
+        }
+
+        .speed-control label {
+            font-size: .8em;
+            color: #aaa
+        }
+
+        .speed-control input[type="range"] {
+            flex: 1;
+            height: 5px;
+            accent-color: #e74c3c
+        }
+
+        .speed-control span {
+            font-size: .8em;
+            color: #e74c3c;
+            min-width: 24px
+        }
+
+        .input-section {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+            flex-wrap: wrap
+        }
+
+        .input-section input {
+            padding: 7px 10px;
+            border-radius: 8px;
+            border: 1px solid rgba(255, 255, 255, .15);
+            background: rgba(20, 20, 45, .8);
+            color: #e0e0e0;
+            font-size: .85em;
+            font-family: 'Courier New', monospace;
+            min-width: 100px
+        }
+
+        .input-section input:focus {
+            outline: none;
+            border-color: #e74c3c
+        }
+
+        .input-section label {
+            font-size: .82em;
+            color: #aaa
+        }
+
+        /* Linked list */
+        .ll-row {
+            display: flex;
+            gap: 0;
+            padding: 10px;
+            background: rgba(20, 20, 50, .4);
+            border-radius: 10px;
+            min-height: 56px;
+            align-items: center;
+            justify-content: center;
+            flex-wrap: wrap
+        }
+
+        .nd {
+            width: 44px;
+            height: 44px;
+            border-radius: 10px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 1.05em;
+            border: 2.5px solid rgba(150, 150, 200, .12);
+            background: rgba(60, 60, 100, .12);
+            font-family: 'Courier New', monospace;
+            color: #666;
+            transition: all .35s
+        }
+
+        .nd-sub {
+            font-size: .38em;
+            color: #555;
+            margin-top: 1px
+        }
+
+        .nd.collecting {
+            border-color: #f1c40f;
+            background: rgba(241, 196, 15, .08);
+            color: #f1c40f;
+            box-shadow: 0 0 8px rgba(241, 196, 15, .1)
+        }
+
+        .nd.writing {
+            border-color: #2ecc71;
+            background: rgba(46, 204, 113, .08);
+            color: #2ecc71;
+            box-shadow: 0 0 8px rgba(46, 204, 113, .1)
+        }
+
+        .nd.done-nd {
+            border-color: #2ecc71;
+            background: rgba(46, 204, 113, .06);
+            color: #2ecc71
+        }
+
+        .arrow {
+            color: #555;
+            font-size: .78em;
+            margin: 0 1px
+        }
+
+        .arrow.done-a {
+            color: #2ecc71
+        }
+
+        /* Array */
+        .arr-row {
+            display: flex;
+            gap: 3px;
+            padding: 10px;
+            background: rgba(20, 20, 50, .4);
+            border-radius: 10px;
+            min-height: 50px;
+            align-items: center;
+            justify-content: center;
+            flex-wrap: wrap
+        }
+
+        .ac {
+            width: 42px;
+            height: 42px;
+            border-radius: 8px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: .95em;
+            border: 2px solid rgba(150, 150, 200, .1);
+            background: rgba(60, 60, 100, .1);
+            font-family: 'Courier New', monospace;
+            color: #666;
+            transition: all .35s;
+            position: relative
+        }
+
+        .ac-idx {
+            font-size: .38em;
+            color: #555;
+            margin-top: 1px
+        }
+
+        .ac.filled {
+            border-color: #f1c40f;
+            background: rgba(241, 196, 15, .04);
+            color: #f1c40f
+        }
+
+        .ac.swapping {
+            border-color: #e74c3c;
+            background: rgba(231, 76, 60, .12);
+            color: #e74c3c;
+            box-shadow: 0 0 10px rgba(231, 76, 60, .15);
+            transform: scale(1.08)
+        }
+
+        .ac.reversed {
+            border-color: #9b59b6;
+            background: rgba(155, 89, 182, .06);
+            color: #bb6bd9
+        }
+
+        .ac.skip {
+            border-color: rgba(100, 100, 140, .15);
+            color: #888
+        }
+
+        .ac.wb {
+            border-color: #2ecc71;
+            background: rgba(46, 204, 113, .06);
+            color: #2ecc71
+        }
+
+        /* Group brackets */
+        .groups-row {
+            display: flex;
+            gap: 3px;
+            padding: 0 10px;
+            min-height: 18px;
+            align-items: flex-start;
+            justify-content: center;
+            flex-wrap: wrap
+        }
+
+        .gc {
+            width: 42px;
+            text-align: center;
+            font-size: .44em;
+            font-weight: 700;
+            border-radius: 3px;
+            padding: 2px 0
+        }
+
+        .status-ind {
+            text-align: center;
+            padding: 11px;
+            border-radius: 10px;
+            font-weight: 700;
+            font-size: .85em;
+            transition: all .3s
+        }
+
+        .si-neutral {
+            background: rgba(100, 100, 140, .12);
+            color: #888
+        }
+
+        .si-run {
+            background: rgba(231, 76, 60, .06);
+            color: #e74c3c;
+            border: 1px solid rgba(231, 76, 60, .12)
+        }
+
+        .si-done {
+            background: rgba(46, 204, 113, .12);
+            color: #2ecc71;
+            border: 1px solid rgba(46, 204, 113, .25)
+        }
+
+        .state-display {
+            background: rgba(20, 20, 50, .5);
+            border-radius: 8px;
+            padding: 10px;
+            font-family: 'Courier New', monospace;
+            font-size: .68em
+        }
+
+        .state-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 4px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, .05)
+        }
+
+        .state-row:last-child {
+            border-bottom: none
+        }
+
+        .state-label {
+            font-weight: 600;
+            color: #e74c3c
+        }
+
+        .state-val {
+            color: #ccc;
+            text-align: right;
+            max-width: 150px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap
+        }
+
+        .log-container {
+            background: rgba(20, 20, 50, .5);
+            border-radius: 8px;
+            padding: 10px;
+            max-height: 240px;
+            overflow-y: auto;
+            font-family: 'Courier New', monospace;
+            font-size: .54em
+        }
+
+        .log-entry {
+            padding: 3px 7px;
+            margin: 2px 0;
+            border-radius: 4px;
+            border-left: 3px solid #555;
+            background: rgba(40, 40, 70, .5);
+            line-height: 1.5
+        }
+
+        .log-entry.success {
+            border-left-color: #2ecc71;
+            background: rgba(46, 204, 113, .08);
+            color: #2ecc71
+        }
+
+        .log-entry.warning {
+            border-left-color: #f39c12;
+            background: rgba(243, 156, 18, .08);
+            color: #f39c12
+        }
+
+        .log-entry.info {
+            border-left-color: #3498db;
+            background: rgba(52, 152, 219, .08);
+            color: #8ec8f0
+        }
+
+        .log-entry.purple {
+            border-left-color: #9b59b6;
+            background: rgba(155, 89, 182, .08);
+            color: #bb6bd9
+        }
+
+        .log-entry.orange {
+            border-left-color: #e67e22;
+            background: rgba(230, 126, 34, .08);
+            color: #e67e22
+        }
+
+        .log-entry.error {
+            border-left-color: #e74c3c;
+            background: rgba(231, 76, 60, .08);
+            color: #e74c3c
+        }
+
+        .log-container::-webkit-scrollbar {
+            width: 5px
+        }
+
+        .log-container::-webkit-scrollbar-track {
+            background: transparent
+        }
+
+        .log-container::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, .15);
+            border-radius: 3px
+        }
+
+        @media(max-width:960px) {
+            .main-content {
+                grid-template-columns: 1fr
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <header>
+            <h1>🔄 Reverse Nodes in k-Group</h1>
+            <div class="subtitle">Brute-Force — Extract to Array, Reverse k-Groups, Write Back</div>
+            <div class="badge">Time: O(n) | Space: O(n) — stores all values in array</div>
+        </header>
+        <div class="main-content">
+            <div class="left-panel">
+                <div class="card">
+                    <div class="card-title">⚙️ Controls</div>
+                    <div class="controls">
+                        <button class="btn-primary" id="playBtn">▶️ Play</button>
+                        <button class="btn-warning" id="pauseBtn" disabled>⏸️ Pause</button>
+                        <button class="btn-success" id="stepBtn">⏭️ Step</button>
+                        <button class="btn-secondary" id="resetBtn">🔄 Reset</button>
+                        <div class="speed-control">
+                            <label>Speed:</label>
+                            <input type="range" id="speedSlider" min="1" max="10" value="5">
+                            <span id="speedValue">5x</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="card">
+                    <div class="card-title">✏️ Custom Input</div>
+                    <div class="input-section">
+                        <label>List:</label>
+                        <input type="text" id="listInput" value="1,2,3,4,5" placeholder="values" style="flex:1">
+                        <label>k:</label>
+                        <input type="text" id="kInput" value="2" placeholder="k" style="width:40px">
+                        <button class="btn-info" id="applyBtn">Apply</button>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-title">🔗 Linked List</div>
+                    <div class="ll-row" id="llDisplay"></div>
+                </div>
+
+                <div class="card">
+                    <div class="card-title">📦 values[] Array (k=<span id="kDisp">2</span>)</div>
+                    <div class="arr-row" id="arrDisplay"><span style="color:#555">—</span></div>
+                    <div class="groups-row" id="groupsRow"></div>
+                </div>
+
+                <div class="card">
+                    <div class="status-ind si-neutral" id="statusInd">Ready — press Play or Step</div>
+                </div>
+            </div>
+
+            <div class="right-panel">
+                <div class="card">
+                    <div class="card-title">📋 Current State</div>
+                    <div class="state-display">
+                        <div class="state-row"><span class="state-label">Phase:</span><span class="state-val"
+                                id="stPhase">init</span></div>
+                        <div class="state-row"><span class="state-label">n:</span><span class="state-val"
+                                id="stN">—</span></div>
+                        <div class="state-row"><span class="state-label">k:</span><span class="state-val"
+                                id="stK">—</span></div>
+                        <div class="state-row"><span class="state-label">groups:</span><span class="state-val"
+                                id="stGroups">—</span></div>
+                        <div class="state-row"><span class="state-label">currGroup:</span><span class="state-val"
+                                id="stGrp">—</span></div>
+                        <div class="state-row"><span class="state-label">swap L,R:</span><span class="state-val"
+                                id="stSwap">—</span></div>
+                        <div class="state-row"><span class="state-label">writeIdx:</span><span class="state-val"
+                                id="stWrite">—</span></div>
+                    </div>
+                </div>
+                <div class="card" style="flex:1">
+                    <div class="card-title">📝 Execution Log</div>
+                    <div class="log-container" id="logContainer">
+                        <div class="log-entry info">Extract → reverse each k-group in array → write back.</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let initVals = [1, 2, 3, 4, 5];
+        let K = 2;
+
+        let values = [];
+        let extractIdx = -1;
+        let n = 0, numGroups = 0;
+        let currGroup = -1, swapL = -1, swapR = -1;
+        let writeIdx = -1;
+        let reversedGroups = new Set();
+        let swappingCells = new Set();
+        let writtenCells = new Set();
+        let skippedCells = new Set();
+
+        const GCOLORS = ['#e74c3c', '#3498db', '#2ecc71', '#f39c12', '#9b59b6', '#1abc9c', '#e67e22', '#c0392b', '#2980b9', '#27ae60'];
+
+        // phases: init | extract | compute | reverse-start | swap | reverse-done | write | done
+        let phase = 'init';
+        let stepCount = 0, isRunning = false, speed = 5, isDone = false;
+
+        const $ = id => document.getElementById(id);
+        const logC = $('logContainer');
+        function addLog(m, t = 'info') { logC.innerHTML += `<div class="log-entry ${t}">[${stepCount}] ${m}</div>`; logC.scrollTop = logC.scrollHeight }
+        function clearLog() { logC.innerHTML = '' }
+
+        function render() {
+            $('kDisp').textContent = K;
+
+            // Linked list
+            let llH = '';
+            for (let i = 0; i < initVals.length; i++) {
+                let cls = 'nd';
+                if (phase === 'extract' && i === extractIdx) cls += ' collecting';
+                else if (phase === 'write' && i === writeIdx) cls += ' writing';
+                else if (phase === 'done') cls += ' done-nd';
+                llH += `<div class="${cls}">${phase === 'write' || phase === 'done' ? values[i] : initVals[i]}<span class="nd-sub">L${i}</span></div>`;
+                if (i < initVals.length - 1) llH += `<span class="arrow${phase === 'done' ? ' done-a' : ''}"> → </span>`;
+            }
+            $('llDisplay').innerHTML = llH;
+
+            // Array
+            if (values.length > 0) {
+                let aH = '';
+                for (let i = 0; i < values.length; i++) {
+                    let cls = 'ac filled';
+                    if (swappingCells.has(i)) cls = 'ac swapping';
+                    else if (reversedGroups.has(Math.floor(i / K)) && !skippedCells.has(i)) cls = 'ac reversed';
+                    else if (skippedCells.has(i)) cls = 'ac skip';
+                    else if (writtenCells.has(i)) cls = 'ac wb';
+                    aH += `<div class="${cls}">${values[i]}<span class="ac-idx">[${i}]</span></div>`;
+                }
+                $('arrDisplay').innerHTML = aH;
+
+                // Group labels
+                let gH = '';
+                for (let i = 0; i < values.length; i++) {
+                    const gi = Math.floor(i / K);
+                    const isFullGroup = (gi + 1) * K <= n;
+                    const color = isFullGroup ? GCOLORS[gi % GCOLORS.length] : '#666';
+                    const label = i % K === 0 ? (isFullGroup ? `G${gi}` : 'skip') : '';
+                    gH += `<div class="gc" style="color:${color}">${label}</div>`;
+                }
+                $('groupsRow').innerHTML = gH;
+            } else {
+                $('arrDisplay').innerHTML = '<span style="color:#555">—</span>';
+                $('groupsRow').innerHTML = '';
+            }
+
+            $('stPhase').textContent = phase;
+            $('stN').textContent = n > 0 ? n : '—';
+            $('stK').textContent = K;
+            $('stGroups').textContent = numGroups > 0 ? `${numGroups} full` : '—';
+            $('stGrp').textContent = currGroup >= 0 ? `G${currGroup} [${currGroup * K}..${currGroup * K + K - 1}]` : '—';
+            $('stSwap').textContent = swapL >= 0 ? `L=${swapL}, R=${swapR}` : '—';
+            $('stWrite').textContent = writeIdx >= 0 ? writeIdx : '—';
+        }
+
+        function doStep() {
+            if (isDone) { stopExec(); return; }
+            stepCount++;
+
+            switch (phase) {
+                case 'init': {
+                    values = []; extractIdx = 0; n = initVals.length;
+                    numGroups = 0; currGroup = -1; swapL = -1; swapR = -1; writeIdx = -1;
+                    reversedGroups = new Set(); swappingCells = new Set();
+                    writtenCells = new Set(); skippedCells = new Set();
+                    addLog(`List: [${initVals.join(',')}], k=${K}, n=${n}`, 'info');
+                    addLog(`━━ Phase 1: Extract values to array ━━`, 'orange');
+                    phase = 'extract';
+                    $('statusInd').className = 'status-ind si-run';
+                    $('statusInd').textContent = 'Phase 1: Extracting...';
+                    render();
+                    break;
+                }
+                case 'extract': {
+                    if (extractIdx >= n) {
+                        addLog(`  values = [${values.join(',')}]`, 'success');
+                        phase = 'compute';
+                        render();
+                        doStep();
+                        return;
+                    }
+                    values.push(initVals[extractIdx]);
+                    addLog(`  values[${extractIdx}] = ${initVals[extractIdx]}`, 'info');
+                    render();
+                    extractIdx++;
+                    break;
+                }
+                case 'compute': {
+                    numGroups = Math.floor(n / K);
+                    const leftover = n % K;
+                    addLog(`━━ Phase 2: Reverse k-groups in array ━━`, 'error');
+                    addLog(`  Full groups: ${numGroups}, leftover: ${leftover} node(s)${leftover > 0 ? ' (skip)' : ''}`, 'warning');
+                    if (leftover > 0) {
+                        for (let i = numGroups * K; i < n; i++) skippedCells.add(i);
+                    }
+                    currGroup = 0;
+                    phase = 'reverse-start';
+                    $('statusInd').textContent = 'Phase 2: Reversing groups...';
+                    render();
+                    break;
+                }
+                case 'reverse-start': {
+                    if (currGroup >= numGroups) {
+                        addLog(`  All ${numGroups} groups reversed.`, 'success');
+                        addLog(`  values = [${values.join(',')}]`, 'success');
+                        addLog(`━━ Phase 3: Write back to list ━━`, 'purple');
+                        writeIdx = 0;
+                        phase = 'write';
+                        $('statusInd').textContent = 'Phase 3: Writing back...';
+                        render();
+                        break;
+                    }
+                    swapL = currGroup * K;
+                    swapR = currGroup * K + K - 1;
+                    swappingCells = new Set([swapL, swapR]);
+                    addLog(`  G${currGroup}: reverse [${swapL}..${swapR}]`, 'error');
+                    phase = 'swap';
+                    render();
+                    break;
+                }
+                case 'swap': {
+                    if (swapL >= swapR) {
+                        swappingCells = new Set();
+                        reversedGroups.add(currGroup);
+                        addLog(`    → [${values.slice(currGroup * K, currGroup * K + K).join(',')}]`, 'purple');
+                        currGroup++;
+                        phase = 'reverse-start';
+                        render();
+                        break;
+                    }
+                    [values[swapL], values[swapR]] = [values[swapR], values[swapL]];
+                    addLog(`    swap [${swapL}]↔[${swapR}]: ${values[swapL]}↔${values[swapR]}`, 'error');
+                    render();
+                    swapL++; swapR--;
+                    swappingCells = new Set();
+                    if (swapL < swapR) swappingCells = new Set([swapL, swapR]);
+                    break;
+                }
+                case 'write': {
+                    if (writeIdx >= n) {
+                        addLog(`✅ Done! Result: [${values.join(',')}]`, 'success');
+                        phase = 'done'; isDone = true;
+                        $('statusInd').className = 'status-ind si-done';
+                        $('statusInd').textContent = `✅ Done! [${values.join(' → ')}]`;
+                        render(); stopExec(); return;
+                    }
+                    writtenCells.add(writeIdx);
+                    addLog(`  node(L${writeIdx}).val = ${values[writeIdx]}`, 'purple');
+                    render();
+                    writeIdx++;
+                    break;
+                }
+            }
+        }
+
+        function play() { if (isRunning || isDone) return; isRunning = true; $('playBtn').disabled = true; $('pauseBtn').disabled = false; $('stepBtn').disabled = true; runLoop() }
+        function pause() { isRunning = false; $('playBtn').disabled = false; $('pauseBtn').disabled = true; $('stepBtn').disabled = false }
+        function stopExec() { isRunning = false; $('playBtn').disabled = true; $('pauseBtn').disabled = true; $('stepBtn').disabled = true }
+        function runLoop() { if (!isRunning) return; doStep(); if (isRunning && !isDone) setTimeout(runLoop, 400 / speed) }
+
+        function init() {
+            values = []; extractIdx = -1; n = initVals.length;
+            numGroups = 0; currGroup = -1; swapL = -1; swapR = -1; writeIdx = -1;
+            reversedGroups = new Set(); swappingCells = new Set();
+            writtenCells = new Set(); skippedCells = new Set();
+            phase = 'init'; stepCount = 0; isDone = false;
+            $('statusInd').className = 'status-ind si-neutral';
+            $('statusInd').textContent = 'Ready — press Play or Step';
+            $('playBtn').disabled = false; $('pauseBtn').disabled = true; $('stepBtn').disabled = false;
+            clearLog(); addLog('Extract → reverse each k-group in array → write back.', 'info');
+            render();
+        }
+
+        $('playBtn').addEventListener('click', play);
+        $('pauseBtn').addEventListener('click', pause);
+        $('stepBtn').addEventListener('click', () => { if (!isDone) doStep() });
+        $('resetBtn').addEventListener('click', () => { isRunning = false; init() });
+        $('speedSlider').addEventListener('input', e => { speed = parseInt(e.target.value); $('speedValue').textContent = speed + 'x' });
+        $('applyBtn').addEventListener('click', () => {
+            const lv = $('listInput').value.trim();
+            const kv = $('kInput').value.trim();
+            const vs = lv ? lv.split(',').map(x => parseInt(x.trim())).filter(x => !isNaN(x)) : [];
+            const kn = parseInt(kv);
+            if (!vs.length) { alert('Need at least one value.'); return }
+            if (isNaN(kn) || kn < 1) { alert('k must be ≥ 1'); return }
+            initVals = [...vs]; K = kn; isRunning = false; init();
+        });
+
+        init();
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,432 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Largest Number — Optimal Merge Sort Visualization</title>
+<style>
+:root{
+  --bg:#0f172a;--sf:#1e293b;--sf2:#334155;--bd:#475569;
+  --tx:#e2e8f0;--dim:#94a3b8;--acc:#38bdf8;--acc2:#818cf8;
+  --grn:#4ade80;--red:#f87171;--org:#fb923c;--yel:#facc15;--pk:#f472b6;--cyan:#22d3ee;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(--tx);min-height:100vh;padding:18px}
+h1{text-align:center;font-size:1.45rem;margin-bottom:3px;background:linear-gradient(135deg,var(--acc),var(--acc2));-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+.sub{text-align:center;color:var(--dim);font-size:.8rem;margin-bottom:16px}
+.container{max-width:1280px;margin:0 auto;display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.full{grid-column:1/-1}
+.panel{background:var(--sf);border:1px solid var(--bd);border-radius:12px;padding:14px}
+.pt{font-size:.72rem;text-transform:uppercase;letter-spacing:1px;color:var(--acc);margin-bottom:8px;font-weight:700}
+
+/* input */
+.ir{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.ir label{font-size:.85rem;color:var(--dim)}
+.ir input[type="text"]{flex:1;min-width:180px;padding:7px 12px;border-radius:8px;border:1px solid var(--bd);background:var(--sf2);color:var(--tx);font-size:.92rem;outline:none}
+.ir input[type="text"]:focus{border-color:var(--acc);box-shadow:0 0 0 2px rgba(56,189,248,.2)}
+.warn{background:rgba(251,146,60,.1);border:1px solid var(--org);border-radius:8px;padding:8px 12px;font-size:.8rem;color:var(--org);margin-top:6px;display:none}
+.warn.show{display:block}
+
+/* buttons */
+.btn{padding:7px 16px;border:none;border-radius:8px;font-size:.82rem;font-weight:600;cursor:pointer;transition:all .15s;display:inline-flex;align-items:center;gap:5px}
+.btn:hover{transform:translateY(-1px);filter:brightness(1.1)}.btn:active{transform:translateY(0)}
+.btn:disabled{opacity:.35;cursor:not-allowed;transform:none}
+.btn-p{background:var(--acc);color:#0f172a}.btn-s{background:var(--sf2);color:var(--tx);border:1px solid var(--bd)}
+.btn-g{background:var(--grn);color:#0f172a}.btn-o{background:var(--org);color:#0f172a}.btn-r{background:var(--red);color:#0f172a}
+
+/* controls */
+.cr{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.sp{display:flex;align-items:center;gap:6px;margin-left:auto}
+.sp label{font-size:.78rem;color:var(--dim)}.sp input[type="range"]{width:110px;accent-color:var(--acc)}
+.spv{font-size:.78rem;color:var(--acc);min-width:32px}
+.sc{font-size:.78rem;color:var(--dim);padding:3px 10px;background:var(--sf2);border-radius:6px}
+.pb{width:100%;height:4px;background:var(--sf2);border-radius:2px;overflow:hidden;margin-top:7px}
+.pf{height:100%;background:linear-gradient(90deg,var(--acc),var(--acc2));border-radius:2px;transition:width .3s}
+
+/* viz */
+.sec{font-size:.68rem;text-transform:uppercase;letter-spacing:.5px;color:var(--dim);margin-bottom:4px;margin-top:12px}
+.sec:first-child{margin-top:0}
+.legend{font-size:.7rem;color:var(--dim);margin-bottom:8px}
+.legend span{margin-right:10px}
+
+/* cells */
+.row{display:flex;gap:4px;flex-wrap:wrap;align-items:center;min-height:44px}
+.c{min-width:44px;padding:5px 9px;text-align:center;border-radius:7px;font-weight:700;font-size:.9rem;border:2px solid var(--bd);background:var(--sf2);transition:all .3s;position:relative}
+.c .ix{position:absolute;top:-14px;left:50%;transform:translateX(-50%);font-size:.58rem;color:var(--dim);font-weight:400}
+.c.left{border-color:var(--acc);background:rgba(56,189,248,.12)}
+.c.right{border-color:var(--pk);background:rgba(244,114,182,.12)}
+.c.merge-a{border-color:var(--acc);background:rgba(56,189,248,.18);box-shadow:0 0 8px rgba(56,189,248,.25)}
+.c.merge-b{border-color:var(--pk);background:rgba(244,114,182,.18);box-shadow:0 0 8px rgba(244,114,182,.25)}
+.c.picked{border-color:var(--yel);background:rgba(250,204,21,.18);box-shadow:0 0 10px rgba(250,204,21,.3);animation:pop .35s}
+.c.placed{border-color:var(--grn);background:rgba(74,222,128,.12)}
+.c.done{border-color:var(--grn);background:rgba(74,222,128,.15);box-shadow:0 0 10px rgba(74,222,128,.2)}
+.c.dim-c{opacity:.35}
+@keyframes pop{0%,100%{transform:scale(1)}50%{transform:scale(1.15)}}
+
+/* subarray bracket */
+.bracket{display:inline-flex;align-items:center;gap:3px;padding:4px 8px;border-radius:6px;border:1px dashed var(--bd);margin:2px}
+.bracket.l-br{border-color:var(--acc)}
+.bracket.r-br{border-color:var(--pk)}
+.bracket.m-br{border-color:var(--grn)}
+.arrow-down{text-align:center;color:var(--dim);font-size:1rem;margin:4px 0}
+
+/* compare box */
+.cbox{display:flex;align-items:center;gap:12px;flex-wrap:wrap;min-height:48px;margin-top:4px}
+.ctag{padding:7px 13px;border-radius:8px;font-family:'Courier New',monospace;font-size:.95rem;font-weight:700;border:2px solid var(--bd);background:var(--sf2);transition:all .3s}
+.ctag.a-t{border-color:var(--acc);color:var(--acc)}.ctag.b-t{border-color:var(--pk);color:var(--pk)}
+.ctag.win{border-color:var(--grn);color:var(--grn);box-shadow:0 0 8px rgba(74,222,128,.2)}
+.ctag.lose{opacity:.4}
+.csym{font-size:1rem;font-weight:700;color:var(--dim);min-width:24px;text-align:center}
+
+/* result */
+.rbanner{text-align:center;font-size:1.25rem;font-weight:700;font-family:'Courier New',monospace;padding:10px;border-radius:8px;border:2px solid var(--grn);background:rgba(74,222,128,.08);color:var(--grn);display:none;margin-top:10px}
+.rbanner.show{display:block}
+
+/* state */
+.sg{display:grid;grid-template-columns:auto 1fr;gap:4px 12px;font-size:.8rem}
+.sk{color:var(--acc);font-weight:600;font-family:'Courier New',monospace}
+.sv{color:var(--tx);font-family:'Courier New',monospace;word-break:break-all}
+
+/* log */
+.le{max-height:360px;overflow-y:auto;display:flex;flex-direction:column;gap:2px;font-size:.75rem;font-family:'Courier New',monospace}
+.le::-webkit-scrollbar{width:5px}.le::-webkit-scrollbar-track{background:var(--sf)}.le::-webkit-scrollbar-thumb{background:var(--bd);border-radius:3px}
+.lg{padding:2px 7px;border-radius:3px;line-height:1.5;white-space:pre-wrap}
+.lg.info{color:var(--dim)}.lg.act{color:var(--acc)}.lg.cmp{color:var(--yel)}.lg.ok{color:var(--grn)}.lg.sw{color:var(--org)}.lg.res{color:var(--grn);font-weight:700}.lg.hl{background:rgba(56,189,248,.06)}
+
+/* phase label */
+.phase{display:inline-block;padding:3px 10px;border-radius:5px;font-size:.72rem;font-weight:700;text-transform:uppercase;letter-spacing:.5px}
+.phase.divide{background:rgba(56,189,248,.15);color:var(--acc)}
+.phase.merging{background:rgba(74,222,128,.15);color:var(--grn)}
+.phase.result-ph{background:rgba(250,204,21,.15);color:var(--yel)}
+
+@media(max-width:768px){.container{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+
+<h1>179. Largest Number — Optimal (Merge Sort)</h1>
+<p class="sub">O(n·d·log n) — Divide &amp; conquer with custom comparator: <code>a+b &gt; b+a</code> → a before b</p>
+
+<div class="container">
+  <!-- Input -->
+  <div class="panel full">
+    <div class="pt">Input</div>
+    <div class="ir">
+      <label>nums =</label>
+      <input type="text" id="inp" value="3, 30, 34, 5, 9" placeholder="e.g. 3, 30, 34, 5, 9">
+      <button class="btn btn-p" onclick="load()">Load</button>
+      <button class="btn btn-r" onclick="reset()">⟳ Reset</button>
+    </div>
+    <div class="warn" id="warn"></div>
+  </div>
+
+  <!-- Controls -->
+  <div class="panel full">
+    <div class="pt">Controls</div>
+    <div class="cr">
+      <button class="btn btn-g" id="bPlay" onclick="togglePlay()" disabled>▶ Play</button>
+      <button class="btn btn-s" id="bStep" onclick="stepFwd()" disabled>⏭ Step</button>
+      <button class="btn btn-s" id="bSkip" onclick="skip()" disabled>⏩ Skip</button>
+      <span class="sc" id="sCtr">Step 0 / 0</span>
+      <div class="sp">
+        <label>Speed:</label>
+        <input type="range" id="sSlider" min="1" max="10" value="5" oninput="updSpeed()">
+        <span class="spv" id="sVal">5x</span>
+      </div>
+    </div>
+    <div class="pb"><div class="pf" id="pFill" style="width:0%"></div></div>
+  </div>
+
+  <!-- Visualization -->
+  <div class="panel full" id="vizPanel">
+    <div class="pt">Visualization</div>
+    <div class="legend">
+      <span style="color:var(--acc)">■ Left subarray</span>
+      <span style="color:var(--pk)">■ Right subarray</span>
+      <span style="color:var(--yel)">■ Picked / comparing</span>
+      <span style="color:var(--grn)">■ Merged / final</span>
+    </div>
+    <div id="vizArea"></div>
+    <div class="rbanner" id="rBanner"></div>
+  </div>
+
+  <!-- State -->
+  <div class="panel">
+    <div class="pt">Variable State</div>
+    <div class="sg">
+      <span class="sk">nums</span>       <span class="sv" id="vNums">—</span>
+      <span class="sk">phase</span>      <span class="sv" id="vPhase">—</span>
+      <span class="sk">range</span>      <span class="sv" id="vRange">—</span>
+      <span class="sk">left[]</span>     <span class="sv" id="vLeft">—</span>
+      <span class="sk">right[]</span>    <span class="sv" id="vRight">—</span>
+      <span class="sk">a + b</span>      <span class="sv" id="vAB">—</span>
+      <span class="sk">b + a</span>      <span class="sv" id="vBA">—</span>
+      <span class="sk">merged[]</span>   <span class="sv" id="vMerged">—</span>
+      <span class="sk">depth</span>      <span class="sv" id="vDepth">—</span>
+      <span class="sk">result</span>     <span class="sv" id="vRes">—</span>
+    </div>
+  </div>
+
+  <!-- Log -->
+  <div class="panel">
+    <div class="pt">Execution Log</div>
+    <div class="le" id="logBox"></div>
+  </div>
+</div>
+
+<script>
+/* ── globals ── */
+let nums=[],steps=[],cur=0,playing=false,timer=null,spd=5;
+
+/* ── merge sort step recorder ── */
+function record(strs){
+  const S=[];
+  let stepId=0;
+
+  function ms(arr,lo,hi,depth){
+    if(lo>=hi) return;
+    const mid=Math.floor((lo+hi)/2);
+
+    S.push({t:'divide',arr:[...strs],lo,hi,mid,depth,
+      msg:`Divide [${lo}..${hi}] → [${lo}..${mid}] | [${mid+1}..${hi}]`});
+
+    ms(arr,lo,mid,depth+1);
+    ms(arr,mid+1,hi,depth+1);
+
+    // merge
+    const L=arr.slice(lo,mid+1), R=arr.slice(mid+1,hi+1);
+    S.push({t:'merge_start',arr:[...strs],lo,hi,mid,depth,left:[...L],right:[...R],
+      msg:`Merge [${lo}..${mid}]=[${L.map(s=>'"'+s+'"')}]  ⊕  [${mid+1}..${hi}]=[${R.map(s=>'"'+s+'"')}]`});
+
+    let i=0,j=0,k=lo;
+    const merged=[];
+    while(i<L.length&&j<R.length){
+      const ab=L[i]+R[j], ba=R[j]+L[i];
+      const pickLeft= ab>=ba;
+      S.push({t:'compare',arr:[...strs],lo,hi,mid,depth,
+        left:[...L],right:[...R],li:i,rj:j,ab,ba,pickLeft,merged:[...merged],
+        msg:`  Compare "${L[i]}"+"${R[j]}"="${ab}" vs "${R[j]}"+"${L[i]}"="${ba}" → pick ${pickLeft?'"'+L[i]+'" (left)':'"'+R[j]+'" (right)'}`});
+      if(pickLeft){merged.push(L[i]);arr[k]=L[i];i++;}
+      else{merged.push(R[j]);arr[k]=R[j];j++;}
+      // copy current state into strs
+      for(let x=lo;x<=hi;x++) strs[x]=arr[x];
+      S.push({t:'place',arr:[...strs],lo,hi,mid,depth,
+        left:[...L],right:[...R],li:i,rj:j,merged:[...merged],k,
+        msg:`  → placed "${merged[merged.length-1]}" at index ${k}`});
+      k++;
+    }
+    while(i<L.length){merged.push(L[i]);arr[k]=L[i];
+      for(let x=lo;x<=hi;x++) strs[x]=arr[x];
+      S.push({t:'place',arr:[...strs],lo,hi,mid,depth,left:[...L],right:[...R],li:i+1,rj:j,merged:[...merged],k,
+        msg:`  → remaining left "${L[i]}" at index ${k}`});i++;k++;}
+    while(j<R.length){merged.push(R[j]);arr[k]=R[j];
+      for(let x=lo;x<=hi;x++) strs[x]=arr[x];
+      S.push({t:'place',arr:[...strs],lo,hi,mid,depth,left:[...L],right:[...R],li:i,rj:j+1,merged:[...merged],k,
+        msg:`  → remaining right "${R[j]}" at index ${k}`});j++;k++;}
+
+    S.push({t:'merge_done',arr:[...strs],lo,hi,depth,merged:[...merged],
+      msg:`Merged [${lo}..${hi}] → [${merged.map(s=>'"'+s+'"')}]`});
+  }
+
+  const a=[...strs];
+  S.push({t:'init',arr:[...strs],msg:`Input strings: [${strs.map(s=>'"'+s+'"').join(', ')}]`});
+  ms(a,0,a.length-1,0);
+
+  const joined=strs.join('');
+  const result=joined[0]==='0'?'0':joined;
+  S.push({t:'join',arr:[...strs],result,joined,msg:`Join sorted: "${joined}"${joined[0]==='0'?' → all zeros → "0"':''}`});
+  S.push({t:'done',arr:[...strs],result,msg:`✓ Answer: "${result}"`});
+  return S;
+}
+
+/* ── rendering ── */
+function renderViz(s){
+  const area=document.getElementById('vizArea');
+  let html='';
+
+  // Phase badge
+  if(s.t==='divide') html+=`<span class="phase divide">Divide (depth ${s.depth})</span>`;
+  else if(s.t==='merge_start'||s.t==='compare'||s.t==='place') html+=`<span class="phase merging">Merge (depth ${s.depth})</span>`;
+  else if(s.t==='merge_done') html+=`<span class="phase merging">Merge Complete (depth ${s.depth})</span>`;
+  else if(s.t==='join'||s.t==='done') html+=`<span class="phase result-ph">Result</span>`;
+  else html+=`<span class="phase divide">Initialize</span>`;
+
+  // Full array
+  html+=`<div class="sec" style="margin-top:10px">Full Array</div><div class="row">`;
+  s.arr.forEach((v,idx)=>{
+    let cls='c';
+    if(s.lo!==undefined&&s.hi!==undefined){
+      if(idx>=s.lo&&idx<=s.hi){
+        if(s.t==='merge_done') cls+=' placed';
+        else if(s.t==='divide'){
+          if(idx<=s.mid) cls+=' left'; else cls+=' right';
+        } else if(s.t==='compare'||s.t==='place'||s.t==='merge_start'){
+          if(idx>=s.lo&&idx<=s.mid) cls+=' left';
+          else cls+=' right';
+        }
+      } else {
+        cls+=' dim-c';
+      }
+    }
+    if(s.t==='done') cls='c done';
+    if(s.t==='place'&&idx===s.k) cls='c picked';
+    html+=`<div class="${cls}"><span class="ix">${idx}</span>${v}</div>`;
+  });
+  html+=`</div>`;
+
+  // Subarrays during merge
+  if(s.t==='merge_start'||s.t==='compare'||s.t==='place'){
+    html+=`<div style="display:flex;gap:20px;flex-wrap:wrap;margin-top:12px">`;
+    // Left
+    html+=`<div><div class="sec" style="color:var(--acc)">Left subarray</div><div class="row">`;
+    (s.left||[]).forEach((v,i)=>{
+      let cls='c left';
+      if(s.t==='compare'&&i===s.li) cls='c merge-a';
+      if(s.li!==undefined&&i<s.li) cls='c dim-c';
+      html+=`<div class="${cls}">${v}</div>`;
+    });
+    html+=`</div></div>`;
+    // Right
+    html+=`<div><div class="sec" style="color:var(--pk)">Right subarray</div><div class="row">`;
+    (s.right||[]).forEach((v,j)=>{
+      let cls='c right';
+      if(s.t==='compare'&&j===s.rj) cls='c merge-b';
+      if(s.rj!==undefined&&j<s.rj) cls='c dim-c';
+      html+=`<div class="${cls}">${v}</div>`;
+    });
+    html+=`</div></div>`;
+    html+=`</div>`;
+
+    // Merged so far
+    html+=`<div class="sec" style="color:var(--grn)">Merged so far</div><div class="row">`;
+    (s.merged||[]).forEach(v=>{
+      html+=`<div class="c placed">${v}</div>`;
+    });
+    if(!(s.merged&&s.merged.length)) html+=`<span style="color:var(--dim);font-size:.8rem">empty</span>`;
+    html+=`</div>`;
+  }
+
+  // Compare box
+  if(s.t==='compare'){
+    const abWin=s.pickLeft;
+    html+=`<div class="sec">Comparison</div><div class="cbox">`;
+    html+=`<div class="ctag a-t ${abWin?'win':'lose'}">"${s.ab}"</div>`;
+    html+=`<div class="csym">${abWin?'≥':'<'}</div>`;
+    html+=`<div class="ctag b-t ${!abWin?'win':'lose'}">"${s.ba}"</div>`;
+    html+=`<div style="font-size:.82rem;color:${abWin?'var(--acc)':'var(--pk)'};margin-left:6px">→ pick ${abWin?'left':'right'}</div>`;
+    html+=`</div>`;
+  }
+
+  // Merge done
+  if(s.t==='merge_done'){
+    html+=`<div class="sec" style="color:var(--grn)">Merged Result</div><div class="row">`;
+    s.merged.forEach(v=>{html+=`<div class="c placed">${v}</div>`;});
+    html+=`</div>`;
+  }
+
+  // Divide visual
+  if(s.t==='divide'){
+    html+=`<div style="margin-top:10px">`;
+    html+=`<div class="arrow-down">↙ ↘</div>`;
+    html+=`<div style="display:flex;gap:16px;flex-wrap:wrap">`;
+    html+=`<div class="bracket l-br">`;
+    s.arr.slice(s.lo,s.mid+1).forEach(v=>{html+=`<div class="c left">${v}</div>`;});
+    html+=`</div>`;
+    html+=`<div class="bracket r-br">`;
+    s.arr.slice(s.mid+1,s.hi+1).forEach(v=>{html+=`<div class="c right">${v}</div>`;});
+    html+=`</div></div></div>`;
+  }
+
+  area.innerHTML=html;
+}
+
+function renderState(s){
+  document.getElementById('vNums').textContent=`[${nums.join(', ')}]`;
+  document.getElementById('vPhase').textContent=s.t||'—';
+  document.getElementById('vRange').textContent=s.lo!==undefined?`[${s.lo}..${s.hi}]`:'—';
+  document.getElementById('vLeft').textContent=s.left?`[${s.left.map(x=>'"'+x+'"')}]`:'—';
+  document.getElementById('vRight').textContent=s.right?`[${s.right.map(x=>'"'+x+'"')}]`:'—';
+  document.getElementById('vAB').textContent=s.ab||'—';
+  document.getElementById('vBA').textContent=s.ba||'—';
+  document.getElementById('vMerged').textContent=s.merged?`[${s.merged.map(x=>'"'+x+'"')}]`:'—';
+  document.getElementById('vDepth').textContent=s.depth!==undefined?s.depth:'—';
+  document.getElementById('vRes').textContent=s.result||'—';
+}
+
+function addLog(s,i){
+  const box=document.getElementById('logBox');
+  box.querySelectorAll('.hl').forEach(e=>e.classList.remove('hl'));
+  const d=document.createElement('div');
+  let cls='lg hl ';
+  if(s.t==='divide') cls+='act';
+  else if(s.t==='compare') cls+='cmp';
+  else if(s.t==='place') cls+='sw';
+  else if(s.t==='merge_done'||s.t==='merge_start') cls+='ok';
+  else if(s.t==='done') cls+='res';
+  else cls+='info';
+  d.className=cls;
+  d.textContent=`[${String(i+1).padStart(3)}] ${s.msg}`;
+  box.appendChild(d);
+  box.scrollTop=box.scrollHeight;
+}
+
+function renderStep(i){
+  if(i<0||i>=steps.length) return;
+  const s=steps[i];
+  renderViz(s);
+  renderState(s);
+  addLog(s,i);
+  document.getElementById('pFill').style.width=((i+1)/steps.length*100)+'%';
+  document.getElementById('sCtr').textContent=`Step ${i+1} / ${steps.length}`;
+  if(s.t==='done'){const b=document.getElementById('rBanner');b.textContent=`Answer: "${s.result}"`;b.classList.add('show');}
+}
+
+/* ── controls ── */
+function load(){
+  const raw=document.getElementById('inp').value.trim();
+  const w=document.getElementById('warn');
+  w.className='warn';w.textContent='';
+  const p=raw.split(/[\s,]+/).map(s=>parseInt(s,10)).filter(n=>!isNaN(n)&&n>=0);
+  if(!p.length){w.textContent='Enter at least one non-negative integer.';w.className='warn show';return;}
+  if(p.length>15){w.textContent='Capping at 15 for clarity.';w.className='warn show';p.length=15;}
+
+  nums=p;
+  const strs=nums.map(String);
+  steps=record(strs);
+  cur=0;playing=false;clearInterval(timer);
+
+  document.getElementById('logBox').innerHTML='';
+  document.getElementById('pFill').style.width='0%';
+  document.getElementById('sCtr').textContent=`Step 0 / ${steps.length}`;
+  document.getElementById('rBanner').className='rbanner';
+  document.getElementById('vizArea').innerHTML=`<div class="row">${strs.map((v,i)=>`<div class="c"><span class="ix">${i}</span>${v}</div>`).join('')}</div>`;
+  document.getElementById('vNums').textContent=`[${nums.join(', ')}]`;
+  ['vPhase','vRange','vLeft','vRight','vAB','vBA','vMerged','vDepth','vRes'].forEach(id=>document.getElementById(id).textContent='—');
+
+  en(true);upBtn();
+  addLog({t:'info',msg:`Loaded [${nums.join(', ')}] → ${steps.length} steps`},- 1);
+}
+
+function togglePlay(){
+  if(cur>=steps.length){cur=0;document.getElementById('logBox').innerHTML='';document.getElementById('rBanner').className='rbanner';}
+  playing=!playing;upBtn();playing?run():clearInterval(timer);
+}
+function run(){clearInterval(timer);const d=Math.max(60,1300-spd*120);timer=setInterval(()=>{if(cur>=steps.length){playing=false;upBtn();clearInterval(timer);return;}renderStep(cur);cur++;},d);}
+function stepFwd(){if(cur>=steps.length)return;playing=false;clearInterval(timer);upBtn();renderStep(cur);cur++;}
+function skip(){playing=false;clearInterval(timer);upBtn();while(cur<steps.length){renderStep(cur);cur++;}}
+function reset(){
+  playing=false;clearInterval(timer);cur=0;nums=[];steps=[];
+  document.getElementById('logBox').innerHTML='';document.getElementById('vizArea').innerHTML='';
+  document.getElementById('rBanner').className='rbanner';
+  document.getElementById('pFill').style.width='0%';document.getElementById('sCtr').textContent='Step 0 / 0';
+  ['vNums','vPhase','vRange','vLeft','vRight','vAB','vBA','vMerged','vDepth','vRes'].forEach(id=>document.getElementById(id).textContent='—');
+  document.getElementById('warn').className='warn';en(false);upBtn();
+}
+function updSpeed(){spd=parseInt(document.getElementById('sSlider').value);document.getElementById('sVal').textContent=spd+'x';if(playing)run();}
+function en(on){document.getElementById('bPlay').disabled=!on;document.getElementById('bStep').disabled=!on;document.getElementById('bSkip').disabled=!on;}
+function upBtn(){const b=document.getElementById('bPlay');if(playing){b.textContent='⏸ Pause';b.className='btn btn-o';}else{b.textContent=cur>=steps.length&&steps.length?'⟳ Replay':'▶ Play';b.className='btn btn-g';}}
+
+window.addEventListener('DOMContentLoaded',load);
+</script>
+</body>
+</html>

@@ -1,0 +1,904 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>92 - Improved: Two-Pass In-Place Reversal</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #0f0c29 0%, #302b63 50%, #24243e 100%);
+            min-height: 100vh;
+            padding: 18px;
+            color: #e0e0e0
+        }
+
+        .container {
+            max-width: 1340px;
+            margin: 0 auto;
+            background: rgba(25, 25, 50, .95);
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, .5), 0 0 40px rgba(230, 126, 34, .07);
+            overflow: hidden;
+            border: 1px solid rgba(255, 255, 255, .06)
+        }
+
+        header {
+            background: linear-gradient(135deg, #d35400, #e67e22);
+            color: #fff;
+            padding: 22px;
+            text-align: center
+        }
+
+        h1 {
+            font-size: 1.2em;
+            margin-bottom: 5px
+        }
+
+        .subtitle {
+            font-size: .86em;
+            opacity: .92
+        }
+
+        .badge {
+            display: inline-block;
+            background: rgba(255, 255, 255, .2);
+            padding: 5px 14px;
+            border-radius: 15px;
+            margin-top: 7px;
+            font-size: .78em
+        }
+
+        .main-content {
+            display: grid;
+            grid-template-columns: 1fr 280px;
+            gap: 16px;
+            padding: 18px
+        }
+
+        .card {
+            background: rgba(40, 40, 75, .8);
+            border-radius: 14px;
+            padding: 15px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, .2);
+            margin-bottom: 14px;
+            border: 1px solid rgba(255, 255, 255, .05)
+        }
+
+        .card-title {
+            font-size: .88em;
+            font-weight: 600;
+            margin-bottom: 10px;
+            color: #e67e22
+        }
+
+        button {
+            padding: 7px 14px;
+            border: none;
+            border-radius: 8px;
+            font-size: .82em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all .3s
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, .3)
+        }
+
+        button:disabled {
+            opacity: .4;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #d35400, #e67e22);
+            color: #fff
+        }
+
+        .btn-success {
+            background: linear-gradient(135deg, #27ae60, #2ecc71);
+            color: #fff
+        }
+
+        .btn-warning {
+            background: linear-gradient(135deg, #f39c12, #e67e22);
+            color: #fff
+        }
+
+        .btn-secondary {
+            background: rgba(100, 100, 140, .7);
+            color: #fff
+        }
+
+        .btn-info {
+            background: linear-gradient(135deg, #3498db, #2980b9);
+            color: #fff
+        }
+
+        .controls {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            align-items: center
+        }
+
+        .speed-control {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            flex: 1;
+            min-width: 140px
+        }
+
+        .speed-control label {
+            font-size: .8em;
+            color: #aaa
+        }
+
+        .speed-control input[type="range"] {
+            flex: 1;
+            height: 5px;
+            accent-color: #e67e22
+        }
+
+        .speed-control span {
+            font-size: .8em;
+            color: #e67e22;
+            min-width: 24px
+        }
+
+        .input-section {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+            flex-wrap: wrap
+        }
+
+        .input-section input {
+            padding: 7px 10px;
+            border-radius: 8px;
+            border: 1px solid rgba(255, 255, 255, .15);
+            background: rgba(20, 20, 45, .8);
+            color: #e0e0e0;
+            font-size: .85em;
+            font-family: 'Courier New', monospace
+        }
+
+        .input-section input:focus {
+            outline: none;
+            border-color: #e67e22
+        }
+
+        .input-section input.list-in {
+            flex: 1;
+            min-width: 140px
+        }
+
+        .input-section input.num-in {
+            width: 55px
+        }
+
+        /* Linked list */
+        .ll-row {
+            display: flex;
+            gap: 0;
+            padding: 12px;
+            background: rgba(20, 20, 50, .4);
+            border-radius: 10px;
+            min-height: 90px;
+            align-items: center;
+            justify-content: center;
+            flex-wrap: wrap
+        }
+
+        .ll-node {
+            display: flex;
+            align-items: center
+        }
+
+        .nd {
+            width: 50px;
+            height: 50px;
+            border-radius: 10px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 1.15em;
+            border: 2.5px solid rgba(150, 150, 200, .12);
+            background: rgba(60, 60, 100, .15);
+            font-family: 'Courier New', monospace;
+            color: #666;
+            transition: all .35s;
+            position: relative
+        }
+
+        .nd-val {
+            font-size: 1em
+        }
+
+        .nd-pos {
+            font-size: .42em;
+            color: #555;
+            margin-top: 1px
+        }
+
+        .nd.dummy {
+            border-style: dashed;
+            border-color: rgba(150, 150, 200, .2);
+            color: #555;
+            font-size: .7em
+        }
+
+        .nd.pre-node {
+            border-color: #f39c12;
+            background: rgba(243, 156, 18, .1);
+            color: #f39c12;
+            box-shadow: 0 0 8px rgba(243, 156, 18, .12)
+        }
+
+        .nd.nav-active {
+            border-color: #f1c40f;
+            background: rgba(241, 196, 15, .12);
+            color: #f1c40f;
+            box-shadow: 0 0 10px rgba(241, 196, 15, .15)
+        }
+
+        .nd.rev-prev {
+            border-color: #9b59b6;
+            background: rgba(155, 89, 182, .1);
+            color: #bb6bd9
+        }
+
+        .nd.rev-curr {
+            border-color: #e67e22;
+            background: rgba(230, 126, 34, .12);
+            color: #e67e22;
+            box-shadow: 0 0 10px rgba(230, 126, 34, .15)
+        }
+
+        .nd.rev-next {
+            border-color: #3498db;
+            background: rgba(52, 152, 219, .1);
+            color: #3498db
+        }
+
+        .nd.reversed {
+            border-color: #2ecc71;
+            background: rgba(46, 204, 113, .1);
+            color: #2ecc71
+        }
+
+        .nd.reconnect {
+            border-color: #f1c40f;
+            background: rgba(241, 196, 15, .12);
+            color: #f1c40f;
+            box-shadow: 0 0 10px rgba(241, 196, 15, .15)
+        }
+
+        .nd.in-range {
+            border-color: rgba(230, 126, 34, .3);
+            background: rgba(230, 126, 34, .05);
+            color: #e67e22
+        }
+
+        .arrow {
+            color: #555;
+            font-size: .85em;
+            margin: 0 2px;
+            transition: all .3s;
+            min-width: 20px;
+            text-align: center
+        }
+
+        .arrow.rev-arrow {
+            color: #e74c3c;
+            font-weight: 700
+        }
+
+        .arrow.reconnect-arrow {
+            color: #f1c40f;
+            font-weight: 700
+        }
+
+        .arrow.done-arrow {
+            color: #2ecc71
+        }
+
+        /* Pointer labels */
+        .ptr-row {
+            display: flex;
+            gap: 0;
+            padding: 4px 12px;
+            min-height: 18px;
+            align-items: center;
+            justify-content: center;
+            flex-wrap: wrap
+        }
+
+        .ptr-cell {
+            width: 50px;
+            text-align: center;
+            font-size: .5em;
+            font-weight: 700;
+            margin: 0 2px
+        }
+
+        .ptr-spacer {
+            width: 20px;
+            margin: 0 2px
+        }
+
+        .p-pre {
+            color: #f39c12
+        }
+
+        .p-prev {
+            color: #9b59b6
+        }
+
+        .p-curr {
+            color: #e67e22
+        }
+
+        .p-next {
+            color: #3498db
+        }
+
+        .p-tail {
+            color: #e74c3c
+        }
+
+        /* Action display */
+        .action-box {
+            padding: 12px;
+            background: rgba(20, 20, 50, .4);
+            border-radius: 10px;
+            text-align: center;
+            font-family: 'Courier New', monospace;
+            font-size: .82em;
+            min-height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            flex-wrap: wrap
+        }
+
+        .act-tag {
+            padding: 5px 10px;
+            border-radius: 6px;
+            font-weight: 600;
+            font-size: .82em
+        }
+
+        .act-reverse {
+            background: rgba(230, 126, 34, .1);
+            border: 1px solid rgba(230, 126, 34, .15);
+            color: #e67e22
+        }
+
+        .act-reconnect {
+            background: rgba(241, 196, 15, .1);
+            border: 1px solid rgba(241, 196, 15, .15);
+            color: #f1c40f
+        }
+
+        .act-nav {
+            background: rgba(243, 156, 18, .08);
+            border: 1px solid rgba(243, 156, 18, .12);
+            color: #f39c12
+        }
+
+        .status-ind {
+            text-align: center;
+            padding: 11px;
+            border-radius: 10px;
+            font-weight: 700;
+            font-size: .85em;
+            transition: all .3s
+        }
+
+        .si-neutral {
+            background: rgba(100, 100, 140, .12);
+            color: #888
+        }
+
+        .si-nav {
+            background: rgba(243, 156, 18, .1);
+            color: #f39c12;
+            border: 1px solid rgba(243, 156, 18, .2)
+        }
+
+        .si-rev {
+            background: rgba(230, 126, 34, .1);
+            color: #e67e22;
+            border: 1px solid rgba(230, 126, 34, .2)
+        }
+
+        .si-recon {
+            background: rgba(241, 196, 15, .1);
+            color: #f1c40f;
+            border: 1px solid rgba(241, 196, 15, .2)
+        }
+
+        .si-done {
+            background: rgba(46, 204, 113, .15);
+            color: #2ecc71;
+            border: 1px solid rgba(46, 204, 113, .3)
+        }
+
+        .state-display {
+            background: rgba(20, 20, 50, .5);
+            border-radius: 8px;
+            padding: 10px;
+            font-family: 'Courier New', monospace;
+            font-size: .68em
+        }
+
+        .state-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 4px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, .05)
+        }
+
+        .state-row:last-child {
+            border-bottom: none
+        }
+
+        .state-label {
+            font-weight: 600;
+            color: #e67e22
+        }
+
+        .state-val {
+            color: #ccc;
+            text-align: right;
+            max-width: 150px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap
+        }
+
+        .log-container {
+            background: rgba(20, 20, 50, .5);
+            border-radius: 8px;
+            padding: 10px;
+            max-height: 230px;
+            overflow-y: auto;
+            font-family: 'Courier New', monospace;
+            font-size: .55em
+        }
+
+        .log-entry {
+            padding: 3px 7px;
+            margin: 2px 0;
+            border-radius: 4px;
+            border-left: 3px solid #555;
+            background: rgba(40, 40, 70, .5);
+            line-height: 1.5
+        }
+
+        .log-entry.success {
+            border-left-color: #2ecc71;
+            background: rgba(46, 204, 113, .08);
+            color: #2ecc71
+        }
+
+        .log-entry.warning {
+            border-left-color: #f39c12;
+            background: rgba(243, 156, 18, .08);
+            color: #f39c12
+        }
+
+        .log-entry.info {
+            border-left-color: #3498db;
+            background: rgba(52, 152, 219, .08);
+            color: #8ec8f0
+        }
+
+        .log-entry.error {
+            border-left-color: #e74c3c;
+            background: rgba(231, 76, 60, .08);
+            color: #e74c3c
+        }
+
+        .log-entry.purple {
+            border-left-color: #9b59b6;
+            background: rgba(155, 89, 182, .08);
+            color: #bb6bd9
+        }
+
+        .log-entry.orange {
+            border-left-color: #e67e22;
+            background: rgba(230, 126, 34, .08);
+            color: #e67e22
+        }
+
+        .log-container::-webkit-scrollbar {
+            width: 5px
+        }
+
+        .log-container::-webkit-scrollbar-track {
+            background: transparent
+        }
+
+        .log-container::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, .15);
+            border-radius: 3px
+        }
+
+        @media(max-width:960px) {
+            .main-content {
+                grid-template-columns: 1fr
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <header>
+            <h1>🔗 Reverse Linked List II</h1>
+            <div class="subtitle">Improved — Two-Pass In-Place Reversal (Navigate + Reverse + Reconnect)</div>
+            <div class="badge">Time: O(n) | Space: O(1) — only pointer variables</div>
+        </header>
+        <div class="main-content">
+            <div class="left-panel">
+                <div class="card">
+                    <div class="card-title">⚙️ Controls</div>
+                    <div class="controls">
+                        <button class="btn-primary" id="playBtn">▶️ Play</button>
+                        <button class="btn-warning" id="pauseBtn" disabled>⏸️ Pause</button>
+                        <button class="btn-success" id="stepBtn">⏭️ Step</button>
+                        <button class="btn-secondary" id="resetBtn">🔄 Reset</button>
+                        <div class="speed-control">
+                            <label>Speed:</label>
+                            <input type="range" id="speedSlider" min="1" max="10" value="5">
+                            <span id="speedValue">5x</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="card">
+                    <div class="card-title">✏️ Custom Input</div>
+                    <div class="input-section">
+                        <input type="text" class="list-in" id="listInput" value="1,2,3,4,5"
+                            placeholder="values (comma)">
+                        <input type="number" class="num-in" id="leftInput" value="2" min="1" placeholder="L">
+                        <input type="number" class="num-in" id="rightInput" value="4" min="1" placeholder="R">
+                        <button class="btn-info" id="applyBtn">Apply</button>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-title">🔗 Linked List | left=<span id="lDisp">2</span>, right=<span
+                            id="rDisp">4</span></div>
+                    <div class="ptr-row" id="ptrRow"></div>
+                    <div class="ll-row" id="llDisplay"></div>
+                </div>
+
+                <div class="card">
+                    <div class="card-title">🔄 Action</div>
+                    <div class="action-box" id="actionBox"><span style="color:#555">—</span></div>
+                </div>
+
+                <div class="card">
+                    <div class="status-ind si-neutral" id="statusInd">Ready — press Play or Step</div>
+                </div>
+            </div>
+
+            <div class="right-panel">
+                <div class="card">
+                    <div class="card-title">📋 Current State</div>
+                    <div class="state-display">
+                        <div class="state-row"><span class="state-label">Phase:</span><span class="state-val"
+                                id="stPhase">init</span></div>
+                        <div class="state-row"><span class="state-label">pre:</span><span class="state-val"
+                                id="stPre">—</span></div>
+                        <div class="state-row"><span class="state-label">prev:</span><span class="state-val"
+                                id="stPrev">—</span></div>
+                        <div class="state-row"><span class="state-label">curr:</span><span class="state-val"
+                                id="stCurr">—</span></div>
+                        <div class="state-row"><span class="state-label">next:</span><span class="state-val"
+                                id="stNext">—</span></div>
+                        <div class="state-row"><span class="state-label">revCount:</span><span class="state-val"
+                                id="stRevCnt">—</span></div>
+                        <div class="state-row"><span class="state-label">revTotal:</span><span class="state-val"
+                                id="stRevTot">—</span></div>
+                    </div>
+                </div>
+                <div class="card" style="flex:1">
+                    <div class="card-title">📝 Execution Log</div>
+                    <div class="log-container" id="logContainer">
+                        <div class="log-entry info">Two-pass: navigate to pre, reverse segment, reconnect.</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let initVals = [1, 2, 3, 4, 5];
+        let left = 2, right = 4;
+
+        // Build linked list as array of {val, next}
+        let nodes = []; // nodes[0] = dummy
+        let preIdx = -1;
+        let prevIdx = -1, currIdx = -1, nextIdx = -1;
+        let navStep = 0;
+        let revCount = 0, revTotal = 0;
+        let tailIdx = -1; // the old left node, becomes tail after reversal
+
+        // phases: init | navigate | rev-setup | reversing | reconnect1 | reconnect2 | done
+        let phase = 'init';
+        let stepCount = 0, isRunning = false, speed = 5, isDone = false;
+
+        const $ = id => document.getElementById(id);
+        const logC = $('logContainer');
+        function addLog(m, t = 'info') { logC.innerHTML += `<div class="log-entry ${t}">[${stepCount}] ${m}</div>`; logC.scrollTop = logC.scrollHeight }
+        function clearLog() { logC.innerHTML = '' }
+
+        function buildList() {
+            nodes = [{ val: 'D', next: 1 }]; // dummy at index 0
+            for (let i = 0; i < initVals.length; i++) {
+                nodes.push({ val: initVals[i], next: i + 2 < initVals.length + 1 ? i + 2 : -1 });
+            }
+        }
+
+        function getListOrder() {
+            const order = [];
+            let idx = 0; // start at dummy
+            const visited = new Set();
+            while (idx !== -1 && !visited.has(idx)) {
+                visited.add(idx);
+                order.push(idx);
+                idx = nodes[idx].next;
+            }
+            return order;
+        }
+
+        function render() {
+            $('lDisp').textContent = left;
+            $('rDisp').textContent = right;
+
+            const order = getListOrder();
+
+            // Pointer labels row
+            let ptrH = '';
+            for (let oi = 0; oi < order.length; oi++) {
+                const idx = order[oi];
+                let labels = [];
+                if (idx === preIdx) labels.push('<span class="p-pre">pre</span>');
+                if (idx === prevIdx && phase !== 'init') labels.push('<span class="p-prev">prev</span>');
+                if (idx === currIdx && phase !== 'init') labels.push('<span class="p-curr">curr</span>');
+                if (idx === nextIdx && phase !== 'init') labels.push('<span class="p-next">next</span>');
+                if (idx === tailIdx && (phase === 'reconnect1' || phase === 'reconnect2')) labels.push('<span class="p-tail">tail</span>');
+                ptrH += `<div class="ptr-cell">${labels.join(' ')}</div>`;
+                if (oi < order.length - 1) ptrH += `<div class="ptr-spacer"></div>`;
+            }
+            $('ptrRow').innerHTML = ptrH;
+
+            // Linked list nodes
+            let llH = '';
+            for (let oi = 0; oi < order.length; oi++) {
+                const idx = order[oi];
+                const nd = nodes[idx];
+                let cls = 'nd';
+                const pos = oi; // 0=dummy, 1..n = positions
+
+                if (idx === 0) {
+                    cls += ' dummy';
+                } else if (phase === 'navigate' && idx === preIdx) {
+                    cls += ' nav-active';
+                } else if (idx === preIdx && phase !== 'init' && phase !== 'done') {
+                    cls += ' pre-node';
+                } else if (phase === 'reversing' || phase === 'rev-setup') {
+                    if (idx === currIdx) cls += ' rev-curr';
+                    else if (idx === prevIdx) cls += ' rev-prev';
+                    else if (idx === nextIdx) cls += ' rev-next';
+                    else if (pos >= left && pos <= right) cls += ' in-range';
+                } else if (phase === 'reconnect1' || phase === 'reconnect2') {
+                    if (idx === tailIdx) cls += ' reconnect';
+                    else if (idx === preIdx) cls += ' pre-node';
+                    else if (idx === prevIdx) cls += ' reconnect';
+                } else if (phase === 'done') {
+                    if (pos >= left && pos <= right) cls += ' reversed';
+                }
+
+                const label = idx === 0 ? 'D' : nd.val;
+                const posLabel = idx === 0 ? 'dummy' : `pos ${pos}`;
+
+                llH += `<div class="ll-node"><div class="${cls}"><span class="nd-val">${label}</span><span class="nd-pos">${posLabel}</span></div>`;
+                if (oi < order.length - 1) {
+                    let aCls = 'arrow';
+                    // Check if this arrow was just reversed
+                    const nextInOrder = order[oi + 1];
+                    if (phase === 'reversing' && idx === currIdx) aCls += ' rev-arrow';
+                    else if ((phase === 'reconnect1' || phase === 'reconnect2') &&
+                        (idx === preIdx || idx === tailIdx)) aCls += ' reconnect-arrow';
+                    else if (phase === 'done') aCls += ' done-arrow';
+                    llH += `<span class="${aCls}"> → </span>`;
+                }
+                llH += '</div>';
+            }
+            $('llDisplay').innerHTML = llH;
+
+            // State panel
+            $('stPhase').textContent = phase;
+            $('stPre').textContent = preIdx >= 0 ? (preIdx === 0 ? 'dummy' : `node(${nodes[preIdx].val})`) : '—';
+            $('stPrev').textContent = prevIdx >= 0 ? (prevIdx === 0 ? 'dummy' : `node(${nodes[prevIdx].val})`) : 'null';
+            $('stCurr').textContent = currIdx >= 0 ? `node(${nodes[currIdx].val})` : (currIdx === -1 && phase === 'reversing' ? 'null (done)' : '—');
+            $('stNext').textContent = nextIdx >= 0 ? `node(${nodes[nextIdx].val})` : '—';
+            $('stRevCnt').textContent = revCount > 0 ? `${revCount}/${revTotal}` : '—';
+            $('stRevTot').textContent = revTotal > 0 ? revTotal : '—';
+        }
+
+        function doStep() {
+            if (isDone) { stopExec(); return; }
+            stepCount++;
+
+            switch (phase) {
+                case 'init': {
+                    buildList();
+                    preIdx = -1; prevIdx = -1; currIdx = -1; nextIdx = -1; tailIdx = -1;
+                    navStep = 0; revCount = 0; revTotal = right - left + 1;
+                    addLog(`List: D → ${initVals.join(' → ')} (n=${initVals.length})`, 'info');
+                    addLog(`left=${left}, right=${right}, nodes to reverse: ${revTotal}`, 'info');
+                    addLog(`Pass 1: Navigate pre to position ${left}-1...`, 'warning');
+                    phase = 'navigate';
+                    preIdx = 0; // start at dummy
+                    navStep = 0;
+                    $('statusInd').className = 'status-ind si-nav';
+                    $('statusInd').textContent = `Pass 1: Navigating to position ${left - 1}...`;
+                    $('actionBox').innerHTML = `<div class="act-tag act-nav">Navigate: pre = dummy</div>`;
+                    render();
+                    break;
+                }
+                case 'navigate': {
+                    if (navStep >= left - 1) {
+                        addLog(`pre is now at node(${nodes[preIdx].val}) — just before position ${left}`, 'success');
+                        addLog(`Pass 2: Reverse ${revTotal} nodes using prev/curr/next...`, 'orange');
+                        phase = 'rev-setup';
+                        $('statusInd').className = 'status-ind si-rev';
+                        $('statusInd').textContent = `Pass 2: Reversing ${revTotal} nodes...`;
+                        render();
+                        doStep();
+                        return;
+                    }
+                    preIdx = nodes[preIdx].next;
+                    navStep++;
+                    addLog(`  Step ${navStep}: pre → node(${nodes[preIdx].val})`, 'info');
+                    $('actionBox').innerHTML = `<div class="act-tag act-nav">Navigate: pre → node(${nodes[preIdx].val}) [step ${navStep}/${left - 1}]</div>`;
+                    render();
+                    break;
+                }
+                case 'rev-setup': {
+                    prevIdx = -1; // null
+                    currIdx = nodes[preIdx].next;
+                    tailIdx = currIdx; // save: this will become the tail
+                    nextIdx = -1;
+                    revCount = 0;
+                    addLog(`  Setup: prev=null, curr=node(${nodes[currIdx].val}), tail saved=node(${nodes[currIdx].val})`, 'purple');
+                    $('actionBox').innerHTML = `<div class="act-tag act-reverse">Setup: prev=null, curr=node(${nodes[currIdx].val})</div>`;
+                    phase = 'reversing';
+                    render();
+                    break;
+                }
+                case 'reversing': {
+                    if (revCount >= revTotal) {
+                        addLog(`All ${revTotal} nodes reversed! prev=node(${nodes[prevIdx].val}), curr=${currIdx >= 0 ? 'node(' + nodes[currIdx].val + ')' : 'null'}`, 'success');
+                        addLog(`Pass 3: Reconnect...`, 'warning');
+                        phase = 'reconnect1';
+                        nextIdx = -1;
+                        $('statusInd').className = 'status-ind si-recon';
+                        $('statusInd').textContent = 'Pass 3: Reconnecting pointers...';
+                        render();
+                        break;
+                    }
+                    // Standard 3-pointer reversal step
+                    nextIdx = nodes[currIdx].next;
+                    const currVal = nodes[currIdx].val;
+                    const nextVal = nextIdx >= 0 ? nodes[nextIdx].val : 'null';
+                    const prevVal = prevIdx >= 0 ? nodes[prevIdx].val : 'null';
+
+                    // Reverse the pointer
+                    nodes[currIdx].next = prevIdx;
+
+                    addLog(`  [${revCount}] next=node.next=${nextVal} | curr(${currVal}).next → ${prevVal} | prev=curr(${currVal}) | curr=next(${nextVal})`, 'orange');
+
+                    $('actionBox').innerHTML = `<div class="act-tag act-reverse">curr(${currVal}).next → ${prevVal}</div><span style="color:#888">step ${revCount + 1}/${revTotal}</span>`;
+
+                    prevIdx = currIdx;
+                    currIdx = nextIdx;
+                    revCount++;
+                    render();
+                    break;
+                }
+                case 'reconnect1': {
+                    // pre.next (which is tail) → its next should point to curr (the node after reversed segment)
+                    const tailVal = nodes[tailIdx].val;
+                    const afterVal = currIdx >= 0 ? nodes[currIdx].val : 'null';
+                    nodes[tailIdx].next = currIdx >= 0 ? currIdx : -1;
+                    addLog(`Reconnect 1: tail(${tailVal}).next → ${afterVal}`, 'success');
+                    $('actionBox').innerHTML = `<div class="act-tag act-reconnect">tail(${tailVal}).next → ${afterVal}</div>`;
+                    phase = 'reconnect2';
+                    render();
+                    break;
+                }
+                case 'reconnect2': {
+                    // pre.next → prev (new head of reversed segment)
+                    const preVal = preIdx === 0 ? 'D' : nodes[preIdx].val;
+                    const newHead = nodes[prevIdx].val;
+                    nodes[preIdx].next = prevIdx;
+                    addLog(`Reconnect 2: pre(${preVal}).next → node(${newHead})`, 'success');
+
+                    const order = getListOrder();
+                    const finalVals = order.slice(1).map(i => nodes[i].val);
+                    addLog(`✅ Done! List: ${finalVals.join(' → ')}`, 'success');
+
+                    $('actionBox').innerHTML = `<div class="act-tag act-reconnect">pre(${preVal}).next → node(${newHead})</div>`;
+                    phase = 'done';
+                    isDone = true;
+                    prevIdx = -1; currIdx = -1; nextIdx = -1;
+                    $('statusInd').className = 'status-ind si-done';
+                    $('statusInd').textContent = `✅ Done! [${finalVals.join(' → ')}]`;
+                    render(); stopExec();
+                    break;
+                }
+            }
+        }
+
+        function play() { if (isRunning || isDone) return; isRunning = true; $('playBtn').disabled = true; $('pauseBtn').disabled = false; $('stepBtn').disabled = true; runLoop() }
+        function pause() { isRunning = false; $('playBtn').disabled = false; $('pauseBtn').disabled = true; $('stepBtn').disabled = false }
+        function stopExec() { isRunning = false; $('playBtn').disabled = true; $('pauseBtn').disabled = true; $('stepBtn').disabled = true }
+        function runLoop() { if (!isRunning) return; doStep(); if (isRunning && !isDone) setTimeout(runLoop, 450 / speed) }
+
+        function init() {
+            buildList();
+            preIdx = -1; prevIdx = -1; currIdx = -1; nextIdx = -1; tailIdx = -1;
+            navStep = 0; revCount = 0; revTotal = right - left + 1;
+            phase = 'init'; stepCount = 0; isDone = false;
+            $('statusInd').className = 'status-ind si-neutral';
+            $('statusInd').textContent = 'Ready — press Play or Step';
+            $('actionBox').innerHTML = '<span style="color:#555">—</span>';
+            $('playBtn').disabled = false; $('pauseBtn').disabled = true; $('stepBtn').disabled = false;
+            clearLog(); addLog('Two-pass: navigate to pre, reverse segment, reconnect.', 'info');
+            render();
+        }
+
+        $('playBtn').addEventListener('click', play);
+        $('pauseBtn').addEventListener('click', pause);
+        $('stepBtn').addEventListener('click', () => { if (!isDone) doStep() });
+        $('resetBtn').addEventListener('click', () => { isRunning = false; init() });
+        $('speedSlider').addEventListener('input', e => { speed = parseInt(e.target.value); $('speedValue').textContent = speed + 'x' });
+        $('applyBtn').addEventListener('click', () => {
+            const lv = $('listInput').value.trim();
+            const lft = parseInt($('leftInput').value);
+            const rgt = parseInt($('rightInput').value);
+            if (!lv) { alert('Values required.'); return }
+            const vs = lv.split(',').map(x => parseInt(x.trim())).filter(x => !isNaN(x));
+            if (!vs.length) { alert('Need at least one value.'); return }
+            if (isNaN(lft) || isNaN(rgt) || lft < 1 || rgt > vs.length || lft > rgt) {
+                alert(`Need 1 ≤ left ≤ right ≤ ${vs.length}.`); return;
+            }
+            initVals = vs; left = lft; right = rgt; isRunning = false; init();
+        });
+
+        init();
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,849 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>143 - Brute-Force: Store Nodes in Array</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #0f0c29 0%, #302b63 50%, #24243e 100%);
+            min-height: 100vh;
+            padding: 18px;
+            color: #e0e0e0
+        }
+
+        .container {
+            max-width: 1360px;
+            margin: 0 auto;
+            background: rgba(25, 25, 50, .95);
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, .5), 0 0 40px rgba(192, 57, 43, .07);
+            overflow: hidden;
+            border: 1px solid rgba(255, 255, 255, .06)
+        }
+
+        header {
+            background: linear-gradient(135deg, #c0392b, #e74c3c);
+            color: #fff;
+            padding: 22px;
+            text-align: center
+        }
+
+        h1 {
+            font-size: 1.15em;
+            margin-bottom: 5px
+        }
+
+        .subtitle {
+            font-size: .84em;
+            opacity: .92
+        }
+
+        .badge {
+            display: inline-block;
+            background: rgba(255, 255, 255, .2);
+            padding: 5px 14px;
+            border-radius: 15px;
+            margin-top: 7px;
+            font-size: .78em
+        }
+
+        .main-content {
+            display: grid;
+            grid-template-columns: 1fr 280px;
+            gap: 16px;
+            padding: 18px
+        }
+
+        .card {
+            background: rgba(40, 40, 75, .8);
+            border-radius: 14px;
+            padding: 15px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, .2);
+            margin-bottom: 14px;
+            border: 1px solid rgba(255, 255, 255, .05)
+        }
+
+        .card-title {
+            font-size: .88em;
+            font-weight: 600;
+            margin-bottom: 10px;
+            color: #e74c3c
+        }
+
+        button {
+            padding: 7px 14px;
+            border: none;
+            border-radius: 8px;
+            font-size: .82em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all .3s
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, .3)
+        }
+
+        button:disabled {
+            opacity: .4;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #c0392b, #e74c3c);
+            color: #fff
+        }
+
+        .btn-success {
+            background: linear-gradient(135deg, #27ae60, #2ecc71);
+            color: #fff
+        }
+
+        .btn-warning {
+            background: linear-gradient(135deg, #f39c12, #e67e22);
+            color: #fff
+        }
+
+        .btn-secondary {
+            background: rgba(100, 100, 140, .7);
+            color: #fff
+        }
+
+        .btn-info {
+            background: linear-gradient(135deg, #3498db, #2980b9);
+            color: #fff
+        }
+
+        .controls {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            align-items: center
+        }
+
+        .speed-control {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            flex: 1;
+            min-width: 140px
+        }
+
+        .speed-control label {
+            font-size: .8em;
+            color: #aaa
+        }
+
+        .speed-control input[type="range"] {
+            flex: 1;
+            height: 5px;
+            accent-color: #e74c3c
+        }
+
+        .speed-control span {
+            font-size: .8em;
+            color: #e74c3c;
+            min-width: 24px
+        }
+
+        .input-section {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+            flex-wrap: wrap
+        }
+
+        .input-section input {
+            padding: 7px 10px;
+            border-radius: 8px;
+            border: 1px solid rgba(255, 255, 255, .15);
+            background: rgba(20, 20, 45, .8);
+            color: #e0e0e0;
+            font-size: .85em;
+            font-family: 'Courier New', monospace;
+            flex: 1;
+            min-width: 180px
+        }
+
+        .input-section input:focus {
+            outline: none;
+            border-color: #e74c3c
+        }
+
+        /* Linked list */
+        .ll-row {
+            display: flex;
+            gap: 0;
+            padding: 10px;
+            background: rgba(20, 20, 50, .4);
+            border-radius: 10px;
+            min-height: 60px;
+            align-items: center;
+            justify-content: center;
+            flex-wrap: wrap
+        }
+
+        .ll-node {
+            display: flex;
+            align-items: center
+        }
+
+        .nd {
+            width: 46px;
+            height: 46px;
+            border-radius: 10px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 1.1em;
+            border: 2.5px solid rgba(150, 150, 200, .12);
+            background: rgba(60, 60, 100, .12);
+            font-family: 'Courier New', monospace;
+            color: #666;
+            transition: all .35s
+        }
+
+        .nd-sub {
+            font-size: .38em;
+            color: #555;
+            margin-top: 1px
+        }
+
+        .nd.collecting {
+            border-color: #f1c40f;
+            background: rgba(241, 196, 15, .1);
+            color: #f1c40f;
+            box-shadow: 0 0 10px rgba(241, 196, 15, .12)
+        }
+
+        .nd.left-nd {
+            border-color: #3498db;
+            background: rgba(52, 152, 219, .1);
+            color: #3498db;
+            box-shadow: 0 0 8px rgba(52, 152, 219, .1)
+        }
+
+        .nd.right-nd {
+            border-color: #e74c3c;
+            background: rgba(231, 76, 60, .1);
+            color: #e74c3c;
+            box-shadow: 0 0 8px rgba(231, 76, 60, .1)
+        }
+
+        .nd.link-src {
+            border-color: #2ecc71;
+            background: rgba(46, 204, 113, .12);
+            color: #2ecc71;
+            box-shadow: 0 0 10px rgba(46, 204, 113, .12)
+        }
+
+        .nd.link-dst {
+            border-color: #bb6bd9;
+            background: rgba(155, 89, 182, .1);
+            color: #bb6bd9;
+            box-shadow: 0 0 8px rgba(155, 89, 182, .1)
+        }
+
+        .nd.done-nd {
+            border-color: #2ecc71;
+            background: rgba(46, 204, 113, .06);
+            color: #2ecc71
+        }
+
+        .arrow {
+            color: #555;
+            font-size: .8em;
+            margin: 0 1px;
+            transition: all .3s
+        }
+
+        .arrow.new-a {
+            color: #2ecc71;
+            font-weight: 700
+        }
+
+        .arrow.done-a {
+            color: #2ecc71
+        }
+
+        /* Array display */
+        .arr-row {
+            display: flex;
+            gap: 3px;
+            padding: 10px;
+            background: rgba(20, 20, 50, .4);
+            border-radius: 10px;
+            min-height: 54px;
+            align-items: center;
+            justify-content: center;
+            flex-wrap: wrap;
+            position: relative
+        }
+
+        .ac {
+            width: 42px;
+            height: 42px;
+            border-radius: 8px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 1em;
+            border: 2px solid rgba(150, 150, 200, .1);
+            background: rgba(60, 60, 100, .1);
+            font-family: 'Courier New', monospace;
+            color: #666;
+            transition: all .35s
+        }
+
+        .ac-idx {
+            font-size: .38em;
+            color: #555;
+            margin-top: 1px
+        }
+
+        .ac.filled {
+            border-color: #f1c40f;
+            background: rgba(241, 196, 15, .06);
+            color: #f1c40f
+        }
+
+        .ac.ptr-l {
+            border-color: #3498db;
+            background: rgba(52, 152, 219, .1);
+            color: #3498db;
+            box-shadow: 0 0 8px rgba(52, 152, 219, .1)
+        }
+
+        .ac.ptr-r {
+            border-color: #e74c3c;
+            background: rgba(231, 76, 60, .1);
+            color: #e74c3c;
+            box-shadow: 0 0 8px rgba(231, 76, 60, .1)
+        }
+
+        .ac.linked {
+            border-color: #2ecc71;
+            background: rgba(46, 204, 113, .06);
+            color: #2ecc71
+        }
+
+        .ac.done-ac {
+            border-color: #2ecc71;
+            background: rgba(46, 204, 113, .05);
+            color: #2ecc71
+        }
+
+        /* Pointer labels */
+        .ptr-row {
+            display: flex;
+            gap: 3px;
+            padding: 0 10px;
+            min-height: 16px;
+            align-items: center;
+            justify-content: center;
+            flex-wrap: wrap
+        }
+
+        .ptr-lbl {
+            width: 42px;
+            text-align: center;
+            font-size: .5em;
+            font-weight: 700
+        }
+
+        .pl-l {
+            color: #3498db
+        }
+
+        .pl-r {
+            color: #e74c3c
+        }
+
+        /* Action display */
+        .action-box {
+            padding: 10px;
+            background: rgba(20, 20, 50, .4);
+            border-radius: 8px;
+            text-align: center;
+            font-family: 'Courier New', monospace;
+            font-size: .82em;
+            min-height: 38px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            flex-wrap: wrap
+        }
+
+        .status-ind {
+            text-align: center;
+            padding: 11px;
+            border-radius: 10px;
+            font-weight: 700;
+            font-size: .85em;
+            transition: all .3s
+        }
+
+        .si-neutral {
+            background: rgba(100, 100, 140, .12);
+            color: #888
+        }
+
+        .si-extract {
+            background: rgba(241, 196, 15, .06);
+            color: #f1c40f;
+            border: 1px solid rgba(241, 196, 15, .12)
+        }
+
+        .si-relink {
+            background: rgba(46, 204, 113, .06);
+            color: #2ecc71;
+            border: 1px solid rgba(46, 204, 113, .12)
+        }
+
+        .si-done {
+            background: rgba(46, 204, 113, .12);
+            color: #2ecc71;
+            border: 1px solid rgba(46, 204, 113, .25)
+        }
+
+        .state-display {
+            background: rgba(20, 20, 50, .5);
+            border-radius: 8px;
+            padding: 10px;
+            font-family: 'Courier New', monospace;
+            font-size: .68em
+        }
+
+        .state-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 4px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, .05)
+        }
+
+        .state-row:last-child {
+            border-bottom: none
+        }
+
+        .state-label {
+            font-weight: 600;
+            color: #e74c3c
+        }
+
+        .state-val {
+            color: #ccc;
+            text-align: right;
+            max-width: 150px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap
+        }
+
+        .log-container {
+            background: rgba(20, 20, 50, .5);
+            border-radius: 8px;
+            padding: 10px;
+            max-height: 240px;
+            overflow-y: auto;
+            font-family: 'Courier New', monospace;
+            font-size: .54em
+        }
+
+        .log-entry {
+            padding: 3px 7px;
+            margin: 2px 0;
+            border-radius: 4px;
+            border-left: 3px solid #555;
+            background: rgba(40, 40, 70, .5);
+            line-height: 1.5
+        }
+
+        .log-entry.success {
+            border-left-color: #2ecc71;
+            background: rgba(46, 204, 113, .08);
+            color: #2ecc71
+        }
+
+        .log-entry.warning {
+            border-left-color: #f39c12;
+            background: rgba(243, 156, 18, .08);
+            color: #f39c12
+        }
+
+        .log-entry.info {
+            border-left-color: #3498db;
+            background: rgba(52, 152, 219, .08);
+            color: #8ec8f0
+        }
+
+        .log-entry.error {
+            border-left-color: #e74c3c;
+            background: rgba(231, 76, 60, .08);
+            color: #e74c3c
+        }
+
+        .log-entry.purple {
+            border-left-color: #9b59b6;
+            background: rgba(155, 89, 182, .08);
+            color: #bb6bd9
+        }
+
+        .log-entry.teal {
+            border-left-color: #1abc9c;
+            background: rgba(26, 188, 156, .08);
+            color: #1abc9c
+        }
+
+        .log-container::-webkit-scrollbar {
+            width: 5px
+        }
+
+        .log-container::-webkit-scrollbar-track {
+            background: transparent
+        }
+
+        .log-container::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, .15);
+            border-radius: 3px
+        }
+
+        @media(max-width:960px) {
+            .main-content {
+                grid-template-columns: 1fr
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <header>
+            <h1>🔗 Reorder List</h1>
+            <div class="subtitle">Brute-Force — Store Nodes in Array + Two-Pointer Relinking</div>
+            <div class="badge">Time: O(n) | Space: O(n) — stores all node references</div>
+        </header>
+        <div class="main-content">
+            <div class="left-panel">
+                <div class="card">
+                    <div class="card-title">⚙️ Controls</div>
+                    <div class="controls">
+                        <button class="btn-primary" id="playBtn">▶️ Play</button>
+                        <button class="btn-warning" id="pauseBtn" disabled>⏸️ Pause</button>
+                        <button class="btn-success" id="stepBtn">⏭️ Step</button>
+                        <button class="btn-secondary" id="resetBtn">🔄 Reset</button>
+                        <div class="speed-control">
+                            <label>Speed:</label>
+                            <input type="range" id="speedSlider" min="1" max="10" value="5">
+                            <span id="speedValue">5x</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="card">
+                    <div class="card-title">✏️ Custom Input</div>
+                    <div class="input-section">
+                        <input type="text" id="listInput" value="1,2,3,4,5" placeholder="values (comma-separated)">
+                        <button class="btn-info" id="applyBtn">Apply</button>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-title">🔗 Linked List</div>
+                    <div class="ll-row" id="llDisplay"></div>
+                </div>
+
+                <div class="card">
+                    <div class="card-title">📦 nodes[] Array</div>
+                    <div class="ptr-row" id="ptrRow"></div>
+                    <div class="arr-row" id="arrDisplay"><span style="color:#555">—</span></div>
+                </div>
+
+                <div class="card">
+                    <div class="card-title">🔄 Current Action</div>
+                    <div class="action-box" id="actionBox"><span style="color:#555">—</span></div>
+                </div>
+
+                <div class="card">
+                    <div class="status-ind si-neutral" id="statusInd">Ready — press Play or Step</div>
+                </div>
+            </div>
+
+            <div class="right-panel">
+                <div class="card">
+                    <div class="card-title">📋 Current State</div>
+                    <div class="state-display">
+                        <div class="state-row"><span class="state-label">Phase:</span><span class="state-val"
+                                id="stPhase">init</span></div>
+                        <div class="state-row"><span class="state-label">left (l):</span><span class="state-val"
+                                id="stL">—</span></div>
+                        <div class="state-row"><span class="state-label">right (r):</span><span class="state-val"
+                                id="stR">—</span></div>
+                        <div class="state-row"><span class="state-label">link action:</span><span class="state-val"
+                                id="stLink">—</span></div>
+                        <div class="state-row"><span class="state-label">step detail:</span><span class="state-val"
+                                id="stDetail">—</span></div>
+                        <div class="state-row"><span class="state-label">reorder:</span><span class="state-val"
+                                id="stOrder">—</span></div>
+                    </div>
+                </div>
+                <div class="card" style="flex:1">
+                    <div class="card-title">📝 Execution Log</div>
+                    <div class="log-container" id="logContainer">
+                        <div class="log-entry info">Store all nodes → two-pointer relink from ends.</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let initVals = [1, 2, 3, 4, 5];
+        let n;
+        let nodesArr = [];        // collected values (simulating node refs)
+        let extractIdx = -1;
+        let l = -1, r = -1;
+        let linkOrder = [];       // building the reordered sequence
+        let linkedSet = new Set(); // indices that have been linked
+        let linkSubStep = 0;      // 0=l→r, 1=r→l(next), then advance
+        let resultOrder = [];
+
+        // phases: init | extract | relink-l | relink-r | terminate | done
+        let phase = 'init';
+        let stepCount = 0, isRunning = false, speed = 5, isDone = false;
+
+        const $ = id => document.getElementById(id);
+        const logC = $('logContainer');
+        function addLog(m, t = 'info') { logC.innerHTML += `<div class="log-entry ${t}">[${stepCount}] ${m}</div>`; logC.scrollTop = logC.scrollHeight }
+        function clearLog() { logC.innerHTML = '' }
+
+        function render() {
+            // Linked list display (shows current reorder progress)
+            const displayVals = resultOrder.length > 0 && phase === 'done' ? resultOrder : initVals;
+            let llH = '';
+            for (let i = 0; i < displayVals.length; i++) {
+                let cls = 'nd';
+                if (phase === 'extract' && i === extractIdx) cls += ' collecting';
+                else if (phase === 'done') cls += ' done-nd';
+                llH += `<div class="ll-node"><div class="${cls}">${displayVals[i]}<span class="nd-sub">L${i}</span></div>`;
+                if (i < displayVals.length - 1) {
+                    let aCls = 'arrow';
+                    if (phase === 'done') aCls += ' done-a';
+                    llH += `<span class="${aCls}"> → </span>`;
+                }
+                llH += '</div>';
+            }
+            $('llDisplay').innerHTML = llH;
+
+            // Pointer labels
+            if (nodesArr.length > 0 && l >= 0) {
+                let pH = '';
+                for (let i = 0; i < nodesArr.length; i++) {
+                    let labels = [];
+                    if (i === l && phase !== 'done') labels.push('<span class="pl-l">l</span>');
+                    if (i === r && phase !== 'done') labels.push('<span class="pl-r">r</span>');
+                    pH += `<div class="ptr-lbl">${labels.join(' ')}</div>`;
+                }
+                $('ptrRow').innerHTML = pH;
+            } else {
+                $('ptrRow').innerHTML = '';
+            }
+
+            // Array display
+            if (nodesArr.length > 0) {
+                let aH = '';
+                for (let i = 0; i < nodesArr.length; i++) {
+                    let cls = 'ac';
+                    if (phase === 'extract' && i <= extractIdx) cls += ' filled';
+                    else if (phase === 'done') cls += ' done-ac';
+                    else if (linkedSet.has(i)) cls += ' linked';
+                    else if (i === l && (phase === 'relink-l')) cls += ' ptr-l';
+                    else if (i === r && (phase === 'relink-r' || phase === 'relink-l')) cls += ' ptr-r';
+                    else if (i === l) cls += ' ptr-l';
+                    else if (i === r) cls += ' ptr-r';
+                    else cls += ' filled';
+
+                    aH += `<div class="${cls}">${nodesArr[i]}<span class="ac-idx">[${i}]</span></div>`;
+                }
+                $('arrDisplay').innerHTML = aH;
+            } else if (extractIdx >= 0) {
+                let aH = '';
+                for (let i = 0; i <= extractIdx; i++) {
+                    aH += `<div class="ac filled">${nodesArr[i]}<span class="ac-idx">[${i}]</span></div>`;
+                }
+                $('arrDisplay').innerHTML = aH || '<span style="color:#555">—</span>';
+            } else {
+                $('arrDisplay').innerHTML = '<span style="color:#555">—</span>';
+            }
+
+            // Build reorder display
+            if (linkOrder.length > 0) {
+                $('stOrder').textContent = linkOrder.join(' → ');
+            } else {
+                $('stOrder').textContent = '—';
+            }
+
+            // State
+            $('stPhase').textContent = phase;
+            $('stL').textContent = l >= 0 ? `${l} (val=${nodesArr[l]})` : '—';
+            $('stR').textContent = r >= 0 ? `${r} (val=${nodesArr[r]})` : '—';
+        }
+
+        function doStep() {
+            if (isDone) { stopExec(); return; }
+            stepCount++;
+
+            switch (phase) {
+                case 'init': {
+                    n = initVals.length;
+                    nodesArr = []; extractIdx = -1;
+                    l = -1; r = -1; linkOrder = []; linkedSet = new Set();
+                    linkSubStep = 0; resultOrder = [];
+                    addLog(`List: [${initVals.join(',')}], n=${n}`, 'info');
+                    if (n <= 2) {
+                        addLog(`n ≤ 2 → already reordered.`, 'success');
+                        resultOrder = [...initVals];
+                        phase = 'done'; isDone = true;
+                        $('statusInd').className = 'status-ind si-done';
+                        $('statusInd').textContent = `✅ Done! [${resultOrder.join(' → ')}]`;
+                        render(); stopExec(); return;
+                    }
+                    addLog(`Phase 1: Extract nodes to array...`, 'purple');
+                    phase = 'extract';
+                    extractIdx = 0;
+                    $('statusInd').className = 'status-ind si-extract';
+                    $('statusInd').textContent = 'Phase 1: Extracting nodes...';
+                    render();
+                    break;
+                }
+                case 'extract': {
+                    if (extractIdx >= n) {
+                        addLog(`nodes = [${nodesArr.join(',')}]`, 'success');
+                        addLog(`Phase 2: Two-pointer relinking...`, 'purple');
+                        l = 0; r = n - 1;
+                        phase = 'relink-l';
+                        $('statusInd').className = 'status-ind si-relink';
+                        $('statusInd').textContent = 'Phase 2: Two-pointer relinking...';
+                        $('actionBox').innerHTML = `<span style="color:#3498db">l=${l}</span> <span style="color:#888">⇄</span> <span style="color:#e74c3c">r=${r}</span>`;
+                        render();
+                        return;
+                    }
+                    nodesArr.push(initVals[extractIdx]);
+                    addLog(`  Collect node[${extractIdx}] = ${initVals[extractIdx]}`, 'info');
+                    render();
+                    extractIdx++;
+                    break;
+                }
+                case 'relink-l': {
+                    if (l >= r) {
+                        // Last node
+                        linkOrder.push(nodesArr[l]);
+                        linkedSet.add(l);
+                        addLog(`  Final node: nodes[${l}]=${nodesArr[l]}`, 'success');
+                        phase = 'terminate';
+                        render();
+                        doStep();
+                        return;
+                    }
+                    // Link: nodes[l].next = nodes[r]
+                    addLog(`  nodes[${l}].next = nodes[${r}] → ${nodesArr[l]}→${nodesArr[r]}`, 'teal');
+                    linkOrder.push(nodesArr[l]);
+                    linkedSet.add(l);
+                    $('stLink').textContent = `${nodesArr[l]}.next → ${nodesArr[r]}`;
+                    $('stDetail').textContent = `l(${l})→r(${r})`;
+                    $('actionBox').innerHTML = `<span style="color:#3498db">nodes[${l}]=${nodesArr[l]}</span> <span style="color:#2ecc71">.next →</span> <span style="color:#e74c3c">nodes[${r}]=${nodesArr[r]}</span>`;
+                    l++;
+                    if (l === r) {
+                        // They met — add the last node
+                        linkOrder.push(nodesArr[r]);
+                        linkedSet.add(r);
+                        addLog(`  l == r → final node: nodes[${r}]=${nodesArr[r]}`, 'success');
+                        phase = 'terminate';
+                        render();
+                        doStep();
+                        return;
+                    }
+                    phase = 'relink-r';
+                    render();
+                    break;
+                }
+                case 'relink-r': {
+                    // Link: nodes[r].next = nodes[l]
+                    addLog(`  nodes[${r}].next = nodes[${l}] → ${nodesArr[r]}→${nodesArr[l]}`, 'teal');
+                    linkOrder.push(nodesArr[r]);
+                    linkedSet.add(r);
+                    $('stLink').textContent = `${nodesArr[r]}.next → ${nodesArr[l]}`;
+                    $('stDetail').textContent = `r(${r})→l(${l})`;
+                    $('actionBox').innerHTML = `<span style="color:#e74c3c">nodes[${r}]=${nodesArr[r]}</span> <span style="color:#2ecc71">.next →</span> <span style="color:#3498db">nodes[${l}]=${nodesArr[l]}</span>`;
+                    r--;
+                    phase = 'relink-l';
+                    render();
+                    break;
+                }
+                case 'terminate': {
+                    addLog(`  nodes[${l}].next = null (terminate list)`, 'warning');
+                    resultOrder = [...linkOrder];
+                    addLog(`✅ Reordered: [${resultOrder.join(' → ')}]`, 'success');
+                    phase = 'done'; isDone = true;
+                    $('statusInd').className = 'status-ind si-done';
+                    $('statusInd').textContent = `✅ Done! [${resultOrder.join(' → ')}]`;
+                    $('actionBox').innerHTML = `<span style="color:#2ecc71">✅ ${resultOrder.join(' → ')}</span>`;
+                    $('stLink').textContent = 'null (terminated)';
+                    render(); stopExec();
+                    return;
+                }
+            }
+        }
+
+        function play() { if (isRunning || isDone) return; isRunning = true; $('playBtn').disabled = true; $('pauseBtn').disabled = false; $('stepBtn').disabled = true; runLoop() }
+        function pause() { isRunning = false; $('playBtn').disabled = false; $('pauseBtn').disabled = true; $('stepBtn').disabled = false }
+        function stopExec() { isRunning = false; $('playBtn').disabled = true; $('pauseBtn').disabled = true; $('stepBtn').disabled = true }
+        function runLoop() { if (!isRunning) return; doStep(); if (isRunning && !isDone) setTimeout(runLoop, 400 / speed) }
+
+        function init() {
+            n = initVals.length; nodesArr = []; extractIdx = -1;
+            l = -1; r = -1; linkOrder = []; linkedSet = new Set();
+            linkSubStep = 0; resultOrder = [];
+            phase = 'init'; stepCount = 0; isDone = false;
+            $('statusInd').className = 'status-ind si-neutral';
+            $('statusInd').textContent = 'Ready — press Play or Step';
+            $('actionBox').innerHTML = '<span style="color:#555">—</span>';
+            $('stLink').textContent = '—'; $('stDetail').textContent = '—'; $('stOrder').textContent = '—';
+            $('playBtn').disabled = false; $('pauseBtn').disabled = true; $('stepBtn').disabled = false;
+            clearLog(); addLog('Store all nodes → two-pointer relink from ends.', 'info');
+            render();
+        }
+
+        $('playBtn').addEventListener('click', play);
+        $('pauseBtn').addEventListener('click', pause);
+        $('stepBtn').addEventListener('click', () => { if (!isDone) doStep() });
+        $('resetBtn').addEventListener('click', () => { isRunning = false; init() });
+        $('speedSlider').addEventListener('input', e => { speed = parseInt(e.target.value); $('speedValue').textContent = speed + 'x' });
+        $('applyBtn').addEventListener('click', () => {
+            const lv = $('listInput').value.trim();
+            if (!lv) { alert('Values required.'); return }
+            const vs = lv.split(',').map(x => parseInt(x.trim())).filter(x => !isNaN(x));
+            if (!vs.length) { alert('Need at least one value.'); return }
+            initVals = [...vs]; isRunning = false; init();
+        });
+
+        init();
+    </script>
+</body>
+
+</html>

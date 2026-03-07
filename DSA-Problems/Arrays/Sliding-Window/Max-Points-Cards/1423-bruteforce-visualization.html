@@ -1,0 +1,536 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Max Points from Cards - Brute Force (Recursion)</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #141e30 0%, #243b55 100%);
+            min-height: 100vh;
+            padding: 20px;
+            color: #e0e0e0;
+        }
+        .container {
+            max-width: 1150px;
+            margin: 0 auto;
+            background: #1e272e;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+            overflow: hidden;
+        }
+        header {
+            background: linear-gradient(135deg, #e17055 0%, #d63031 100%);
+            color: white;
+            padding: 22px;
+            text-align: center;
+        }
+        h1 { font-size: 1.4em; margin-bottom: 6px; }
+        .subtitle { font-size: 0.95em; opacity: 0.9; }
+        .complexity-badge {
+            display: inline-block;
+            background: rgba(255,255,255,0.18);
+            padding: 5px 14px;
+            border-radius: 15px;
+            margin-top: 6px;
+            font-size: 0.82em;
+        }
+        .main-content {
+            display: grid;
+            grid-template-columns: 1fr 270px;
+            gap: 16px;
+            padding: 16px;
+        }
+        .card {
+            background: #2d3436;
+            border-radius: 12px;
+            padding: 14px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+            margin-bottom: 14px;
+        }
+        .card-title {
+            font-size: 0.9em;
+            font-weight: 600;
+            margin-bottom: 10px;
+            color: #fab1a0;
+        }
+
+        /* Controls */
+        .controls { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+        button {
+            padding: 7px 14px;
+            border: none;
+            border-radius: 8px;
+            font-size: 0.82em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        button:hover { transform: translateY(-2px); filter: brightness(1.15); }
+        button:disabled { opacity: 0.4; cursor: not-allowed; transform: none; }
+        .btn-primary { background: linear-gradient(135deg, #e17055 0%, #d63031 100%); color: white; }
+        .btn-success { background: linear-gradient(135deg, #00b894 0%, #00cec9 100%); color: white; }
+        .btn-warning { background: linear-gradient(135deg, #fdcb6e 0%, #e17055 100%); color: white; }
+        .btn-secondary { background: #636e72; color: white; }
+        .speed-control { display: flex; align-items: center; gap: 6px; flex: 1; min-width: 130px; font-size: 0.82em; }
+        .speed-control input[type="range"] { flex: 1; height: 4px; accent-color: #e17055; }
+
+        /* Cards Row */
+        .cards-row {
+            display: flex;
+            justify-content: center;
+            gap: 6px;
+            padding: 16px 8px;
+            background: #1e272e;
+            border: 1px solid #3d3d3d;
+            border-radius: 10px;
+            position: relative;
+            min-height: 70px;
+            flex-wrap: wrap;
+        }
+        .game-card {
+            width: 50px;
+            height: 60px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 1.1em;
+            color: white;
+            position: relative;
+            transition: all 0.35s ease;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+            background: linear-gradient(145deg, #485460, #636e72);
+        }
+        .game-card.available {
+            background: linear-gradient(145deg, #0984e3, #74b9ff);
+        }
+        .game-card.taken-left {
+            background: linear-gradient(145deg, #00b894, #55efc4);
+            transform: translateY(-10px) scale(0.9);
+            opacity: 0.7;
+        }
+        .game-card.taken-right {
+            background: linear-gradient(145deg, #6c5ce7, #a29bfe);
+            transform: translateY(-10px) scale(0.9);
+            opacity: 0.7;
+        }
+        .game-card.highlight-left {
+            border: 3px solid #55efc4;
+            animation: pulseGlow 0.8s infinite alternate;
+        }
+        .game-card.highlight-right {
+            border: 3px solid #a29bfe;
+            animation: pulseGlow 0.8s infinite alternate;
+        }
+        @keyframes pulseGlow {
+            from { box-shadow: 0 0 5px rgba(85, 239, 196, 0.3); }
+            to   { box-shadow: 0 0 18px rgba(85, 239, 196, 0.7); }
+        }
+        .card-idx {
+            position: absolute;
+            bottom: -18px;
+            font-size: 0.6em;
+            color: #636e72;
+            width: 100%;
+            text-align: center;
+        }
+
+        /* Recursion Tree */
+        .tree-container {
+            background: #1e272e;
+            border: 1px solid #3d3d3d;
+            border-radius: 10px;
+            overflow-x: auto;
+            overflow-y: auto;
+            max-height: 220px;
+            padding: 10px;
+            position: relative;
+        }
+        .tree-node {
+            display: inline-block;
+            padding: 4px 8px;
+            border-radius: 6px;
+            font-size: 0.7em;
+            font-family: 'Courier New', monospace;
+            margin: 2px;
+            transition: all 0.3s;
+        }
+        .tree-node.active { background: #e17055; color: white; }
+        .tree-node.done { background: #00b894; color: white; }
+        .tree-node.best { background: #fdcb6e; color: #2d3436; border: 2px solid #f39c12; }
+        .tree-node.pending { background: #3d3d3d; color: #b2bec3; }
+
+        /* State & Log */
+        .state-display { background: #1e272e; border-radius: 8px; padding: 10px; font-family: 'Courier New', monospace; font-size: 0.82em; }
+        .state-row { display: flex; justify-content: space-between; padding: 4px 0; border-bottom: 1px solid #3d3d3d; }
+        .state-val { color: #fab1a0; font-weight: bold; }
+
+        .log-container {
+            background: #1e272e; border-radius: 8px; padding: 8px;
+            max-height: 190px; overflow-y: auto;
+            font-family: 'Courier New', monospace; font-size: 0.6em;
+        }
+        .log-entry { padding: 3px 6px; margin: 2px 0; border-radius: 4px; border-left: 3px solid #636e72; background: #2d3436; }
+        .log-entry.left-pick { border-left-color: #00b894; }
+        .log-entry.right-pick { border-left-color: #6c5ce7; }
+        .log-entry.result { border-left-color: #fdcb6e; background: #3d3436; }
+        .log-entry.best { border-left-color: #e17055; background: #3d2d2d; }
+
+        .max-display {
+            text-align: center;
+            padding: 10px;
+            background: linear-gradient(135deg, #2d3436, #1e272e);
+            border: 1px solid #e17055;
+            color: white;
+            border-radius: 8px;
+            margin-top: 10px;
+            font-size: 1.1em;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Maximum Points from Cards</h1>
+            <div class="subtitle">Brute Force: Recursion (Try All Combinations)</div>
+            <div class="complexity-badge">Time: O(2^k) | Space: O(k)</div>
+        </header>
+
+        <div class="main-content">
+            <div class="left-panel">
+                <div class="card">
+                    <div class="card-title">⚙️ Controls</div>
+                    <div class="controls">
+                        <button class="btn-primary" id="playBtn">▶ Play</button>
+                        <button class="btn-warning" id="pauseBtn" disabled>⏸ Pause</button>
+                        <button class="btn-success" id="stepBtn">⏭ Step</button>
+                        <button class="btn-secondary" id="resetBtn">↺ Reset</button>
+                        <div class="speed-control">
+                            <label>Speed:</label>
+                            <input type="range" id="speedSlider" min="1" max="10" value="5">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-title">🃏 Cards (k = <span id="kDisplay">3</span>)</div>
+                    <div class="cards-row" id="cardsRow"></div>
+                </div>
+
+                <div class="card">
+                    <div class="card-title">🌲 Recursion Tree</div>
+                    <div class="tree-container" id="treeContainer"></div>
+                </div>
+            </div>
+
+            <div class="right-panel">
+                <div class="card">
+                    <div class="card-title">📊 State</div>
+                    <div class="state-display">
+                        <div class="state-row"><span>Depth:</span><span class="state-val" id="depthVal">-</span></div>
+                        <div class="state-row"><span>Left ptr:</span><span class="state-val" id="leftVal">-</span></div>
+                        <div class="state-row"><span>Right ptr:</span><span class="state-val" id="rightVal">-</span></div>
+                        <div class="state-row"><span>Remaining:</span><span class="state-val" id="remVal">-</span></div>
+                        <div class="state-row"><span>Path Sum:</span><span class="state-val" id="pathSum">-</span></div>
+                        <div class="state-row"><span>Action:</span><span class="state-val" id="actionVal">-</span></div>
+                    </div>
+                    <div class="max-display">
+                        Global Max: <span id="maxVal">0</span>
+                    </div>
+                </div>
+
+                <div class="card" style="flex-grow: 1; display: flex; flex-direction: column;">
+                    <div class="card-title">📝 Execution Log</div>
+                    <div class="log-container" id="logContainer"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ── Data ───────────────────────────────────────────────
+        const cardPoints = [1, 2, 3, 4, 5, 6, 1];
+        const K = 3;
+        const N = cardPoints.length;
+
+        // ── Pre-generate the entire recursion trace ───────────
+        // Each "event" is one thing the animation shows.
+        // Types: 'enter', 'pickLeft', 'pickRight', 'leaf', 'return'
+        let events = [];
+        let globalBest = 0;
+
+        function buildTrace() {
+            events = [];
+            globalBest = 0;
+            traceRecurse(0, N - 1, K, 0, []);
+        }
+
+        function traceRecurse(l, r, rem, sumSoFar, path) {
+            const nodeId = events.length;
+            events.push({ type: 'enter', l, r, rem, sumSoFar, path: [...path], nodeId });
+
+            if (rem === 0) {
+                events.push({ type: 'leaf', l, r, sumSoFar, path: [...path], nodeId });
+                if (sumSoFar > globalBest) {
+                    globalBest = sumSoFar;
+                    events.push({ type: 'newBest', sumSoFar, path: [...path], nodeId });
+                }
+                events.push({ type: 'return', val: sumSoFar, nodeId });
+                return sumSoFar;
+            }
+
+            // Pick left
+            events.push({ type: 'pickLeft', idx: l, val: cardPoints[l], l, r, rem, sumSoFar, nodeId });
+            const leftResult = traceRecurse(l + 1, r, rem - 1, sumSoFar + cardPoints[l], [...path, { side: 'L', idx: l }]);
+
+            // Pick right
+            events.push({ type: 'pickRight', idx: r, val: cardPoints[r], l, r, rem, sumSoFar, nodeId });
+            const rightResult = traceRecurse(l, r - 1, rem - 1, sumSoFar + cardPoints[r], [...path, { side: 'R', idx: r }]);
+
+            const best = Math.max(leftResult, rightResult);
+            events.push({ type: 'return', val: best, l, r, rem, nodeId });
+            return best;
+        }
+
+        buildTrace();
+
+        // ── Animation State ───────────────────────────────────
+        let eventIdx = 0;
+        let maxScore = 0;
+        let currentPath = [];
+        let currentEvent = null;
+        let highlightLeft = -1;
+        let highlightRight = -1;
+        let takenCards = {};   // idx -> 'left' | 'right'
+        let treeNodes = [];    // { text, status: 'pending'|'active'|'done'|'best', depth }
+
+        let isRunning = false;
+        let timer = null;
+        let speed = 5;
+        let stepCount = 0;
+
+        function init() {
+            eventIdx = 0;
+            maxScore = 0;
+            currentPath = [];
+            currentEvent = null;
+            highlightLeft = -1;
+            highlightRight = -1;
+            takenCards = {};
+            treeNodes = [];
+            isRunning = false;
+            stepCount = 0;
+            if (timer) clearTimeout(timer);
+
+            clearLog();
+            addLog(`Cards: [${cardPoints.join(', ')}], k=${K}`, 'info');
+            render();
+            updateControls();
+        }
+
+        function step() {
+            if (eventIdx >= events.length) {
+                addLog(`✅ DONE. Maximum Score = ${maxScore}`, 'best');
+                stop();
+                render();
+                return;
+            }
+
+            stepCount++;
+            const ev = events[eventIdx];
+            currentEvent = ev;
+            eventIdx++;
+
+            // Reset highlights each step
+            highlightLeft = -1;
+            highlightRight = -1;
+
+            switch (ev.type) {
+                case 'enter':
+                    currentPath = ev.path;
+                    rebuildTaken(ev.path);
+                    treeNodes.push({
+                        text: `(${ev.l},${ev.r}) rem=${ev.rem}`,
+                        status: 'active',
+                        depth: K - ev.rem,
+                        nodeId: ev.nodeId
+                    });
+                    addLog(`Enter solve(L=${ev.l}, R=${ev.r}, rem=${ev.rem}). Sum so far=${ev.sumSoFar}`, 'info');
+                    break;
+
+                case 'leaf':
+                    currentPath = ev.path;
+                    rebuildTaken(ev.path);
+                    addLog(`🍃 Leaf reached. Total sum = ${ev.sumSoFar}`, 'result');
+                    break;
+
+                case 'newBest':
+                    maxScore = ev.sumSoFar;
+                    addLog(`🏆 New best! ${ev.sumSoFar}`, 'best');
+                    // Mark tree node as best
+                    for (const tn of treeNodes) {
+                        if (tn.nodeId === ev.nodeId) tn.status = 'best';
+                    }
+                    break;
+
+                case 'pickLeft':
+                    highlightLeft = ev.idx;
+                    currentPath = ev.path || currentPath;
+                    addLog(`➡️ Try take LEFT card[${ev.idx}] = ${ev.val}`, 'left-pick');
+                    break;
+
+                case 'pickRight':
+                    highlightRight = ev.idx;
+                    currentPath = ev.path || currentPath;
+                    addLog(`⬅️ Try take RIGHT card[${ev.idx}] = ${ev.val}`, 'right-pick');
+                    break;
+
+                case 'return':
+                    // Mark tree node as done
+                    for (const tn of treeNodes) {
+                        if (tn.nodeId === ev.nodeId && tn.status === 'active') {
+                            tn.status = 'done';
+                        }
+                    }
+                    addLog(`↩️ Return ${ev.val}`, 'result');
+                    break;
+            }
+
+            render();
+        }
+
+        function rebuildTaken(path) {
+            takenCards = {};
+            for (const p of path) {
+                takenCards[p.idx] = p.side === 'L' ? 'left' : 'right';
+            }
+        }
+
+        // ── Rendering ─────────────────────────────────────────
+        function render() {
+            renderCards();
+            renderTree();
+            renderState();
+        }
+
+        function renderCards() {
+            const row = document.getElementById('cardsRow');
+            row.innerHTML = '';
+            for (let idx = 0; idx < N; idx++) {
+                const el = document.createElement('div');
+                let cls = 'game-card';
+
+                if (takenCards[idx] === 'left') cls += ' taken-left';
+                else if (takenCards[idx] === 'right') cls += ' taken-right';
+                else cls += ' available';
+
+                if (idx === highlightLeft) cls += ' highlight-left';
+                if (idx === highlightRight) cls += ' highlight-right';
+
+                el.className = cls;
+                el.textContent = cardPoints[idx];
+
+                const lbl = document.createElement('div');
+                lbl.className = 'card-idx';
+                lbl.textContent = idx;
+                el.appendChild(lbl);
+
+                row.appendChild(el);
+            }
+        }
+
+        function renderTree() {
+            const tc = document.getElementById('treeContainer');
+            tc.innerHTML = '';
+            for (const tn of treeNodes) {
+                const el = document.createElement('span');
+                el.className = `tree-node ${tn.status}`;
+                el.textContent = tn.text;
+                el.style.marginLeft = `${tn.depth * 12}px`;
+                tc.appendChild(el);
+                tc.appendChild(document.createElement('br'));
+            }
+            tc.scrollTop = tc.scrollHeight;
+        }
+
+        function renderState() {
+            const ev = currentEvent;
+            if (!ev) {
+                document.getElementById('depthVal').textContent = '-';
+                document.getElementById('leftVal').textContent = '-';
+                document.getElementById('rightVal').textContent = '-';
+                document.getElementById('remVal').textContent = '-';
+                document.getElementById('pathSum').textContent = '-';
+                document.getElementById('actionVal').textContent = '-';
+            } else {
+                const depth = ev.path ? (K - (ev.rem !== undefined ? ev.rem : 0)) : '-';
+                document.getElementById('depthVal').textContent = depth !== '-' ? depth : (ev.rem !== undefined ? K - ev.rem : '-');
+                document.getElementById('leftVal').textContent = ev.l !== undefined ? ev.l : '-';
+                document.getElementById('rightVal').textContent = ev.r !== undefined ? ev.r : '-';
+                document.getElementById('remVal').textContent = ev.rem !== undefined ? ev.rem : '-';
+                document.getElementById('pathSum').textContent = ev.sumSoFar !== undefined ? ev.sumSoFar : (ev.val !== undefined ? ev.val : '-');
+
+                const actionMap = {
+                    enter: 'Entering call',
+                    leaf: 'Leaf (base case)',
+                    newBest: '🏆 New best found!',
+                    pickLeft: `Take LEFT [${ev.idx}]`,
+                    pickRight: `Take RIGHT [${ev.idx}]`,
+                    return: `Return ${ev.val}`
+                };
+                document.getElementById('actionVal').textContent = actionMap[ev.type] || '-';
+            }
+            document.getElementById('maxVal').textContent = maxScore;
+        }
+
+        // ── Log ───────────────────────────────────────────────
+        function addLog(msg, type = 'info') {
+            const log = document.getElementById('logContainer');
+            log.innerHTML += `<div class="log-entry ${type}">[${stepCount}] ${msg}</div>`;
+            log.scrollTop = log.scrollHeight;
+        }
+        function clearLog() { document.getElementById('logContainer').innerHTML = ''; }
+
+        // ── Playback Controls ─────────────────────────────────
+        function play() {
+            if (isRunning) return;
+            isRunning = true;
+            updateControls();
+            runLoop();
+        }
+        function runLoop() {
+            if (!isRunning) return;
+            if (eventIdx >= events.length) { stop(); return; }
+            step();
+            const delay = 1100 - (speed * 100);
+            timer = setTimeout(runLoop, Math.max(60, delay));
+        }
+        function stop() {
+            isRunning = false;
+            if (timer) clearTimeout(timer);
+            updateControls();
+        }
+        function reset() { stop(); init(); }
+        function updateControls() {
+            const done = eventIdx >= events.length;
+            document.getElementById('playBtn').disabled = isRunning || done;
+            document.getElementById('pauseBtn').disabled = !isRunning;
+            document.getElementById('stepBtn').disabled = isRunning || done;
+            document.getElementById('resetBtn').disabled = isRunning;
+        }
+
+        document.getElementById('playBtn').addEventListener('click', play);
+        document.getElementById('pauseBtn').addEventListener('click', stop);
+        document.getElementById('stepBtn').addEventListener('click', step);
+        document.getElementById('resetBtn').addEventListener('click', reset);
+        document.getElementById('speedSlider').addEventListener('input', e => speed = parseInt(e.target.value));
+
+        init();
+    </script>
+</body>
+</html>

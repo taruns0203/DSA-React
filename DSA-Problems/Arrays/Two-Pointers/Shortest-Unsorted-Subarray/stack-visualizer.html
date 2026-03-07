@@ -1,0 +1,1006 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>581 · Shortest Unsorted Subarray — Monotonic Stack</title>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap"
+        rel="stylesheet" />
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box
+        }
+
+        :root {
+            --bg: #0f1117;
+            --surface: #181a24;
+            --surface2: #1e2130;
+            --surface3: #252838;
+            --border: #2e3148;
+            --text: #e2e4f0;
+            --text2: #9498b3;
+            --text3: #5f6380;
+            --accent: #7c6aff;
+            --accent2: #a78bfa;
+            --accent-glow: rgba(124, 106, 255, .25);
+            --green: #34d399;
+            --green-bg: rgba(52, 211, 153, .12);
+            --red: #f87171;
+            --red-bg: rgba(248, 113, 113, .12);
+            --yellow: #fbbf24;
+            --yellow-bg: rgba(251, 191, 36, .12);
+            --blue: #60a5fa;
+            --blue-bg: rgba(96, 165, 250, .12);
+            --orange: #fb923c;
+            --orange-bg: rgba(251, 146, 60, .12);
+            --cyan: #22d3ee;
+            --cyan-bg: rgba(34, 211, 238, .1);
+            --pink: #f472b6;
+            --pink-bg: rgba(244, 114, 182, .12);
+            --teal: #2dd4bf;
+            --teal-bg: rgba(45, 212, 191, .1);
+            --radius: 12px;
+            --radius-sm: 8px;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            min-height: 100vh;
+            padding: 20px 24px 40px
+        }
+
+        h1 {
+            font-size: 1.15rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, var(--cyan), var(--blue));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            letter-spacing: -.02em
+        }
+
+        .subtitle {
+            font-size: .74rem;
+            color: var(--text2);
+            margin-top: 2px;
+            font-weight: 500
+        }
+
+        header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-bottom: 16px
+        }
+
+        .badge {
+            background: var(--blue-bg);
+            color: var(--blue);
+            font-size: .66rem;
+            font-weight: 700;
+            padding: 3px 10px;
+            border-radius: 20px;
+            letter-spacing: .04em;
+            text-transform: uppercase
+        }
+
+        .input-panel {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 14px 18px;
+            margin-bottom: 14px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            align-items: flex-end
+        }
+
+        .input-group {
+            display: flex;
+            flex-direction: column;
+            gap: 4px
+        }
+
+        .input-group label {
+            font-size: .66rem;
+            font-weight: 600;
+            color: var(--text2);
+            text-transform: uppercase;
+            letter-spacing: .06em
+        }
+
+        .input-group input {
+            background: var(--surface2);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-sm);
+            color: var(--text);
+            font-family: 'JetBrains Mono', monospace;
+            font-size: .85rem;
+            padding: 7px 11px;
+            outline: none;
+            transition: border .2s;
+            width: 250px
+        }
+
+        .input-group input:focus {
+            border-color: var(--accent)
+        }
+
+        .hint {
+            font-size: .5rem;
+            color: var(--text3);
+            margin-top: 1px
+        }
+
+        .btn {
+            font-family: 'Inter', sans-serif;
+            font-size: .74rem;
+            font-weight: 600;
+            border: none;
+            border-radius: var(--radius-sm);
+            padding: 7px 16px;
+            cursor: pointer;
+            transition: all .18s;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px
+        }
+
+        .btn-primary {
+            background: var(--accent);
+            color: #fff
+        }
+
+        .btn-primary:hover {
+            background: #6b59e6;
+            transform: translateY(-1px)
+        }
+
+        .btn-secondary {
+            background: var(--surface2);
+            color: var(--text);
+            border: 1px solid var(--border)
+        }
+
+        .btn-secondary:hover {
+            border-color: var(--accent);
+            color: var(--accent2)
+        }
+
+        .btn-icon {
+            width: 33px;
+            height: 33px;
+            padding: 0;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1rem
+        }
+
+        .controls {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 9px;
+            align-items: center;
+            margin-bottom: 16px
+        }
+
+        .speed-group {
+            display: flex;
+            align-items: center;
+            gap: 7px;
+            margin-left: auto
+        }
+
+        .speed-group label {
+            font-size: .66rem;
+            font-weight: 600;
+            color: var(--text2);
+            text-transform: uppercase;
+            letter-spacing: .06em
+        }
+
+        .speed-group input[type=range] {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 100px;
+            height: 5px;
+            background: var(--surface3);
+            border-radius: 3px;
+            outline: none
+        }
+
+        .speed-group input[type=range]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 15px;
+            height: 15px;
+            border-radius: 50%;
+            background: var(--accent);
+            cursor: pointer;
+            border: 2px solid var(--bg)
+        }
+
+        .speed-val {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: .73rem;
+            color: var(--accent2);
+            min-width: 28px
+        }
+
+        .step-counter {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: .76rem;
+            color: var(--text2);
+            background: var(--surface2);
+            padding: 4px 11px;
+            border-radius: 20px;
+            border: 1px solid var(--border)
+        }
+
+        .main {
+            display: grid;
+            grid-template-columns: 1fr 280px;
+            gap: 14px
+        }
+
+        @media(max-width:900px) {
+            .main {
+                grid-template-columns: 1fr
+            }
+        }
+
+        .viz-panel {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 18px;
+            overflow-x: auto
+        }
+
+        .section-label {
+            font-size: .64rem;
+            font-weight: 700;
+            color: var(--text3);
+            text-transform: uppercase;
+            letter-spacing: .08em;
+            margin-bottom: 8px
+        }
+
+        .phase-banner {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 5px 14px;
+            border-radius: 20px;
+            font-size: .69rem;
+            font-weight: 700;
+            margin-bottom: 14px;
+            text-transform: uppercase;
+            letter-spacing: .05em;
+            transition: all .3s
+        }
+
+        .pb-pass1 {
+            background: var(--cyan-bg);
+            color: var(--cyan);
+            border: 1px solid rgba(34, 211, 238, .2)
+        }
+
+        .pb-pass2 {
+            background: var(--pink-bg);
+            color: var(--pink);
+            border: 1px solid rgba(244, 114, 182, .2)
+        }
+
+        .pb-push {
+            background: var(--blue-bg);
+            color: var(--blue);
+            border: 1px solid rgba(96, 165, 250, .2)
+        }
+
+        .pb-pop {
+            background: var(--orange-bg);
+            color: var(--orange);
+            border: 1px solid rgba(251, 146, 60, .2)
+        }
+
+        .pb-done {
+            background: var(--green-bg);
+            color: var(--green);
+            border: 1px solid rgba(52, 211, 153, .2)
+        }
+
+        .pass-label {
+            font-size: .62rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: .06em;
+            margin: 10px 0 6px;
+            padding: 4px 12px;
+            border-radius: 16px;
+            display: inline-block
+        }
+
+        .pl-1 {
+            background: var(--cyan-bg);
+            color: var(--cyan);
+            border: 1px solid rgba(34, 211, 238, .2)
+        }
+
+        .pl-2 {
+            background: var(--pink-bg);
+            color: var(--pink);
+            border: 1px solid rgba(244, 114, 182, .2)
+        }
+
+        .arr-row {
+            display: flex;
+            gap: 3px;
+            flex-wrap: wrap;
+            margin-bottom: 10px
+        }
+
+        .arr-cell {
+            min-width: 38px;
+            height: 38px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: .82rem;
+            font-weight: 700;
+            border-radius: 6px;
+            background: var(--surface2);
+            border: 2px solid var(--border);
+            padding: 0 4px;
+            transition: all .25s;
+            position: relative
+        }
+
+        .arr-cell .idx {
+            position: absolute;
+            top: -12px;
+            font-size: .42rem;
+            font-weight: 500;
+            color: var(--text3)
+        }
+
+        .arr-cell.ac-current {
+            border-color: var(--yellow);
+            box-shadow: 0 0 10px rgba(251, 191, 36, .3);
+            background: var(--yellow-bg);
+            transform: scale(1.06)
+        }
+
+        .arr-cell.ac-on-stack {
+            border-bottom: 3px solid var(--accent)
+        }
+
+        .arr-cell.ac-popped {
+            border-color: var(--orange);
+            background: var(--orange-bg);
+            color: var(--orange);
+            animation: popPulse .35s
+        }
+
+        .arr-cell.ac-done {
+            opacity: .35
+        }
+
+        .arr-cell.ac-in-range {
+            border-color: var(--pink);
+            background: var(--pink-bg);
+            color: var(--pink);
+            box-shadow: 0 0 5px rgba(244, 114, 182, .15)
+        }
+
+        .arr-cell.ac-outside {
+            border-color: var(--green);
+            background: var(--green-bg);
+            color: var(--green);
+            opacity: .5
+        }
+
+        @keyframes popPulse {
+            0% {
+                transform: scale(1)
+            }
+
+            50% {
+                transform: scale(1.12)
+            }
+
+            100% {
+                transform: scale(1)
+            }
+        }
+
+        .stack-section {
+            display: flex;
+            gap: 14px;
+            align-items: flex-start;
+            margin: 8px 0 12px;
+            flex-wrap: wrap
+        }
+
+        .stack-box {
+            background: var(--surface2);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-sm);
+            padding: 10px 14px;
+            min-width: 160px;
+            min-height: 80px
+        }
+
+        .stack-title {
+            font-size: .56rem;
+            font-weight: 700;
+            color: var(--text3);
+            text-transform: uppercase;
+            margin-bottom: 5px
+        }
+
+        .stack-items {
+            display: flex;
+            gap: 3px;
+            flex-wrap: wrap
+        }
+
+        .stack-item {
+            padding: 4px 8px;
+            border-radius: 5px;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: .7rem;
+            font-weight: 700;
+            border: 1.5px solid var(--border);
+            background: var(--surface3);
+            color: var(--text2);
+            transition: all .2s
+        }
+
+        .si-top {
+            border-color: var(--accent);
+            box-shadow: 0 0 6px var(--accent-glow);
+            color: var(--accent2)
+        }
+
+        .si-popping {
+            border-color: var(--orange);
+            color: var(--orange);
+            animation: popPulse .3s
+        }
+
+        .boundary-bar {
+            margin: 8px 0;
+            display: flex;
+            gap: 14px;
+            flex-wrap: wrap
+        }
+
+        .bnd-chip {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            padding: 5px 14px;
+            border-radius: 20px;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: .72rem;
+            font-weight: 700;
+            border: 1.5px solid var(--border);
+            background: var(--surface2)
+        }
+
+        .bnd-left {
+            color: var(--cyan);
+            border-color: rgba(34, 211, 238, .3)
+        }
+
+        .bnd-right {
+            color: var(--pink);
+            border-color: rgba(244, 114, 182, .3)
+        }
+
+        .bnd-len {
+            color: var(--green);
+            border-color: rgba(52, 211, 153, .3)
+        }
+
+        .decision-bar {
+            margin: 8px 0;
+            background: var(--surface2);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-sm);
+            padding: 10px 14px;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: .72rem;
+            color: var(--text2);
+            min-height: 36px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            flex-wrap: wrap
+        }
+
+        .result-box {
+            margin-top: 8px;
+            background: var(--surface2);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-sm);
+            padding: 12px 16px;
+            display: flex;
+            align-items: center;
+            gap: 12px
+        }
+
+        .result-label {
+            font-size: .7rem;
+            font-weight: 700;
+            color: var(--text3);
+            text-transform: uppercase;
+            letter-spacing: .06em
+        }
+
+        .result-val {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 1.3rem;
+            font-weight: 800;
+            color: var(--green)
+        }
+
+        .side {
+            display: flex;
+            flex-direction: column;
+            gap: 12px
+        }
+
+        .state-panel,
+        .log-panel {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 14px
+        }
+
+        .state-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 3px 0;
+            border-bottom: 1px solid var(--border)
+        }
+
+        .state-row:last-child {
+            border-bottom: none
+        }
+
+        .state-key {
+            font-size: .68rem;
+            font-weight: 600;
+            color: var(--text2)
+        }
+
+        .sv {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: .74rem;
+            color: var(--accent2);
+            text-align: right;
+            max-width: 130px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap
+        }
+
+        .sv.green {
+            color: var(--green)
+        }
+
+        .sv.red {
+            color: var(--red)
+        }
+
+        .sv.yellow {
+            color: var(--yellow)
+        }
+
+        .sv.cyan {
+            color: var(--cyan)
+        }
+
+        .sv.blue {
+            color: var(--blue)
+        }
+
+        .sv.orange {
+            color: var(--orange)
+        }
+
+        .sv.pink {
+            color: var(--pink)
+        }
+
+        .sv.teal {
+            color: var(--teal)
+        }
+
+        .log-panel {
+            flex: 1;
+            min-height: 180px;
+            max-height: 400px;
+            display: flex;
+            flex-direction: column
+        }
+
+        .log-entries {
+            flex: 1;
+            overflow-y: auto;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: .62rem;
+            line-height: 1.55;
+            color: var(--text2)
+        }
+
+        .log-entries::-webkit-scrollbar {
+            width: 4px
+        }
+
+        .log-entries::-webkit-scrollbar-track {
+            background: transparent
+        }
+
+        .log-entries::-webkit-scrollbar-thumb {
+            background: var(--border);
+            border-radius: 3px
+        }
+
+        .log-entry {
+            padding: 2px 0;
+            border-bottom: 1px solid rgba(46, 49, 72, .35)
+        }
+
+        .log-entry .log-step {
+            color: var(--text3);
+            margin-right: 5px
+        }
+
+        .log-entry.push {
+            color: var(--blue)
+        }
+
+        .log-entry.pop {
+            color: var(--orange)
+        }
+
+        .log-entry.pass {
+            color: var(--accent2)
+        }
+
+        .log-entry.done {
+            color: var(--green);
+            font-weight: 600
+        }
+
+        .empty-msg {
+            color: var(--text3);
+            font-style: italic;
+            font-size: .76rem;
+            text-align: center;
+            padding: 24px 0
+        }
+    </style>
+</head>
+
+<body>
+
+    <header>
+        <div>
+            <h1>581 · Shortest Unsorted Subarray — Monotonic Stack</h1>
+            <div class="subtitle">Increasing stack L→R finds left, decreasing stack R→L finds right — O(n)</div>
+        </div>
+        <span class="badge">O(n) Stack</span>
+    </header>
+
+    <div class="input-panel">
+        <div class="input-group"><label>nums</label><input type="text" id="inputNums" value="2, 6, 4, 8, 10, 9, 15"
+                spellcheck="false" />
+            <div class="hint">Comma-separated integers</div>
+        </div>
+        <button class="btn btn-primary" onclick="loadInputs()">🔄 Load &amp; Reset</button>
+    </div>
+
+    <div class="controls">
+        <button class="btn btn-secondary btn-icon" onclick="stepBack()" title="←">⏮</button>
+        <button class="btn btn-primary btn-icon" id="btnPlayPause" onclick="togglePlay()" title="Space">▶</button>
+        <button class="btn btn-secondary btn-icon" onclick="stepForward()" title="→">⏭</button>
+        <button class="btn btn-secondary" onclick="resetViz()">↺ Reset</button>
+        <span class="step-counter" id="stepCounter">Step 0 / 0</span>
+        <div class="speed-group">
+            <label>Speed</label>
+            <input type="range" id="speedSlider" min="1" max="10" value="5" oninput="updateSpeed()" />
+            <span class="speed-val" id="speedVal">5×</span>
+        </div>
+    </div>
+
+    <div class="main">
+        <div class="viz-panel">
+            <div id="phaseBanner" class="phase-banner pb-pass1">Ready</div>
+
+            <div class="section-label">nums</div>
+            <div class="arr-row" id="arrRow"></div>
+
+            <div class="stack-section">
+                <div class="stack-box">
+                    <div class="stack-title" id="stackTitle">📦 Stack (indices)</div>
+                    <div class="stack-items" id="stackItems"><span
+                            style="color:var(--text3);font-size:.65rem;font-style:italic">empty</span></div>
+                </div>
+            </div>
+
+            <div class="boundary-bar">
+                <div class="bnd-chip bnd-left">left: <span id="bndLeft">n</span></div>
+                <div class="bnd-chip bnd-right">right: <span id="bndRight">0</span></div>
+                <div class="bnd-chip bnd-len">length: <span id="bndLen">0</span></div>
+            </div>
+
+            <div class="decision-bar" id="decisionBar">
+                <span style="color:var(--text3);font-style:italic">Actions will appear here</span>
+            </div>
+
+            <div class="result-box">
+                <span class="result-label">Answer</span>
+                <span class="result-val" id="resultDisplay">—</span>
+            </div>
+        </div>
+
+        <div class="side">
+            <div class="state-panel">
+                <div class="section-label">Current State</div>
+                <div class="state-row"><span class="state-key">Pass</span><span class="sv" id="stPass">—</span></div>
+                <div class="state-row"><span class="state-key">Index i</span><span class="sv yellow" id="stI">—</span>
+                </div>
+                <div class="state-row"><span class="state-key">nums[i]</span><span class="sv blue" id="stVal">—</span>
+                </div>
+                <div class="state-row"><span class="state-key">Action</span><span class="sv" id="stAction">—</span>
+                </div>
+                <div class="state-row"><span class="state-key">Stack top</span><span class="sv orange"
+                        id="stTop">—</span></div>
+                <div class="state-row"><span class="state-key">Popped idx</span><span class="sv orange"
+                        id="stPopped">—</span></div>
+                <div class="state-row"><span class="state-key">left</span><span class="sv cyan" id="stLeft">n</span>
+                </div>
+                <div class="state-row"><span class="state-key">right</span><span class="sv pink" id="stRight">0</span>
+                </div>
+            </div>
+            <div class="log-panel">
+                <div class="section-label">Execution Log</div>
+                <div class="log-entries" id="logEntries">
+                    <div class="empty-msg">Press ▶ or ⏭ to begin</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const esc = t => t.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+        let nums = [], steps = [], current = -1, playing = false, timer = null, speed = 5;
+
+        function buildSteps() {
+            steps = [];
+            const n = nums.length;
+            let left = n, right = 0;
+            let stack = [];
+
+            // Pass 1 header
+            steps.push({
+                type: 'pass-start', pass: 1, i: -1, stack: [], left, right, poppedIdx: -1,
+                branch: 'Pass 1: L→R with increasing stack to find LEFT boundary',
+                msg: '═══ Pass 1: L→R increasing stack → find LEFT ═══', cls: 'pass'
+            });
+
+            for (let i = 0; i < n; i++) {
+                // Check for pops
+                while (stack.length && nums[stack[stack.length - 1]] > nums[i]) {
+                    const popped = stack.pop();
+                    left = Math.min(left, popped);
+                    steps.push({
+                        type: 'pop', pass: 1, i, stack: [...stack], left, right, poppedIdx: popped,
+                        branch: `nums[${stack.length ? stack[stack.length - 1] : 'top'}→${popped}]=${nums[popped]} > nums[${i}]=${nums[i]} → POP ${popped}, left=min(${left === popped ? 'n' : left + 1},${popped})=${left}`,
+                        msg: `i=${i}: pop idx ${popped} (${nums[popped]}>${nums[i]}), left→${left}`, cls: 'pop'
+                    });
+                }
+                stack.push(i);
+                steps.push({
+                    type: 'push', pass: 1, i, stack: [...stack], left, right, poppedIdx: -1,
+                    branch: `Push idx ${i} (nums[${i}]=${nums[i]})`,
+                    msg: `i=${i}: push ${i} → stack=[${stack.join(',')}]`, cls: 'push'
+                });
+            }
+
+            // Pass 2 header
+            stack = [];
+            steps.push({
+                type: 'pass-start', pass: 2, i: -1, stack: [], left, right, poppedIdx: -1,
+                branch: 'Pass 2: R→L with decreasing stack to find RIGHT boundary',
+                msg: '═══ Pass 2: R→L decreasing stack → find RIGHT ═══', cls: 'pass'
+            });
+
+            for (let i = n - 1; i >= 0; i--) {
+                while (stack.length && nums[stack[stack.length - 1]] < nums[i]) {
+                    const popped = stack.pop();
+                    right = Math.max(right, popped);
+                    steps.push({
+                        type: 'pop', pass: 2, i, stack: [...stack], left, right, poppedIdx: popped,
+                        branch: `nums[${popped}]=${nums[popped]} < nums[${i}]=${nums[i]} → POP ${popped}, right=max(${right === popped ? '0' : right - 1},${popped})=${right}`,
+                        msg: `i=${i}: pop idx ${popped} (${nums[popped]}<${nums[i]}), right→${right}`, cls: 'pop'
+                    });
+                }
+                stack.push(i);
+                steps.push({
+                    type: 'push', pass: 2, i, stack: [...stack], left, right, poppedIdx: -1,
+                    branch: `Push idx ${i} (nums[${i}]=${nums[i]})`,
+                    msg: `i=${i}: push ${i} → stack=[${stack.join(',')}]`, cls: 'push'
+                });
+            }
+
+            const len = right > left ? right - left + 1 : 0;
+            steps.push({
+                type: 'done', pass: 0, i: -1, stack: [], left, right, poppedIdx: -1, len,
+                branch: right > left ? `right(${right}) > left(${left}) → ${right}-${left}+1 = ${len}` : 'right ≤ left → already sorted → 0',
+                msg: right > left ? `✅ Length = ${right}-${left}+1 = ${len}` : '✅ Already sorted → 0', cls: 'done'
+            });
+        }
+
+        function buildArrRow() {
+            const el = document.getElementById('arrRow');
+            el.innerHTML = '';
+            nums.forEach((v, i) => {
+                const d = document.createElement('div'); d.className = 'arr-cell'; d.id = `ac-${i}`;
+                d.innerHTML = `<span class="idx">${i}</span>${v}`;
+                el.appendChild(d);
+            });
+        }
+
+        function renderStep(si) {
+            const st = steps[si];
+
+            // Phase
+            const pb = document.getElementById('phaseBanner');
+            if (st.type === 'pass-start' && st.pass === 1) { pb.className = 'phase-banner pb-pass1'; pb.textContent = 'Pass 1: L→R Increasing Stack'; }
+            else if (st.type === 'pass-start' && st.pass === 2) { pb.className = 'phase-banner pb-pass2'; pb.textContent = 'Pass 2: R→L Decreasing Stack'; }
+            else if (st.type === 'push') { pb.className = st.pass === 1 ? 'phase-banner pb-push' : 'phase-banner pb-push'; pb.textContent = `Pass ${st.pass}: Push idx ${st.i}`; }
+            else if (st.type === 'pop') { pb.className = 'phase-banner pb-pop'; pb.textContent = `Pass ${st.pass}: Pop idx ${st.poppedIdx} — violation!`; }
+            else { pb.className = 'phase-banner pb-done'; pb.textContent = st.len > 0 ? `✅ Subarray [${st.left}..${st.right}]` : '✅ Already Sorted'; }
+
+            // Array
+            buildArrRow();
+            if (st.type === 'push' || st.type === 'pop') {
+                const ac = document.getElementById(`ac-${st.i}`);
+                if (ac) ac.classList.add('ac-current');
+                // Mark on-stack
+                st.stack.forEach(idx => {
+                    const c = document.getElementById(`ac-${idx}`);
+                    if (c && idx !== st.i) c.classList.add('ac-on-stack');
+                });
+                // Mark popped
+                if (st.type === 'pop' && st.poppedIdx >= 0) {
+                    const c = document.getElementById(`ac-${st.poppedIdx}`);
+                    if (c) c.classList.add('ac-popped');
+                }
+            }
+            if (st.type === 'done' && st.len > 0) {
+                for (let k = 0; k < nums.length; k++) {
+                    const c = document.getElementById(`ac-${k}`);
+                    if (k >= st.left && k <= st.right) c.classList.add('ac-in-range');
+                    else c.classList.add('ac-outside');
+                }
+            }
+
+            // Stack
+            const si_el = document.getElementById('stackItems');
+            const stTitle = document.getElementById('stackTitle');
+            stTitle.textContent = st.pass === 2 ? '📦 Stack (indices, decreasing)' : '📦 Stack (indices, increasing)';
+            if (st.stack.length === 0) {
+                si_el.innerHTML = '<span style="color:var(--text3);font-size:.65rem;font-style:italic">empty</span>';
+            } else {
+                si_el.innerHTML = '';
+                st.stack.forEach((idx, k) => {
+                    const d = document.createElement('div'); d.className = 'stack-item';
+                    d.textContent = `${idx}:${nums[idx]}`;
+                    if (k === st.stack.length - 1) d.classList.add('si-top');
+                    si_el.appendChild(d);
+                });
+            }
+
+            // Boundaries
+            document.getElementById('bndLeft').textContent = st.left >= nums.length ? 'n' : st.left;
+            document.getElementById('bndRight').textContent = st.right;
+            const len = st.type === 'done' ? st.len : (st.right > st.left ? st.right - st.left + 1 : 0);
+            document.getElementById('bndLen').textContent = len;
+
+            // Decision
+            const db = document.getElementById('decisionBar');
+            let dc = 'var(--text2)';
+            if (st.type === 'push') dc = 'var(--blue)';
+            else if (st.type === 'pop') dc = 'var(--orange)';
+            else if (st.type === 'pass-start') dc = 'var(--accent2)';
+            else dc = 'var(--green)';
+            db.innerHTML = `<span style="color:${dc};font-weight:600">${esc(st.branch)}</span>`;
+
+            // Result
+            const rv = document.getElementById('resultDisplay');
+            if (st.type === 'done') { rv.textContent = st.len; } else { rv.textContent = '—'; }
+
+            // State
+            document.getElementById('stPass').textContent = st.pass || '—';
+            document.getElementById('stI').textContent = st.i >= 0 ? st.i : '—';
+            document.getElementById('stVal').textContent = st.i >= 0 ? nums[st.i] : '—';
+            const actEl = document.getElementById('stAction');
+            if (st.type === 'push') { actEl.textContent = 'Push'; actEl.className = 'sv blue'; }
+            else if (st.type === 'pop') { actEl.textContent = 'Pop!'; actEl.className = 'sv orange'; }
+            else { actEl.textContent = '—'; actEl.className = 'sv'; }
+            document.getElementById('stTop').textContent = st.stack.length ? `${st.stack[st.stack.length - 1]}:${nums[st.stack[st.stack.length - 1]]}` : '—';
+            document.getElementById('stPopped').textContent = st.poppedIdx >= 0 ? `${st.poppedIdx}:${nums[st.poppedIdx]}` : '—';
+            document.getElementById('stLeft').textContent = st.left >= nums.length ? 'n' : st.left;
+            document.getElementById('stRight').textContent = st.right;
+        }
+
+        function stepForward() { if (current >= steps.length - 1) { stopPlay(); return; } current++; renderStep(current); addLog(steps[current]); updateStepCounter(); if (current >= steps.length - 1) stopPlay(); }
+        function stepBack() { if (current <= 0) { resetViz(); return; } current--; clearLog(); for (let i = 0; i <= current; i++)addLog(steps[i]); renderStep(current); updateStepCounter(); }
+        function togglePlay() { playing ? stopPlay() : startPlay(); }
+        function startPlay() { if (current >= steps.length - 1) resetViz(); playing = true; document.getElementById('btnPlayPause').textContent = '⏸'; tick(); }
+        function stopPlay() { playing = false; document.getElementById('btnPlayPause').textContent = '▶'; if (timer) { clearTimeout(timer); timer = null; } }
+        function tick() { if (!playing) return; stepForward(); if (playing) { timer = setTimeout(tick, Math.max(100, 1300 - speed * 115)); } }
+        function updateSpeed() { speed = +document.getElementById('speedSlider').value; document.getElementById('speedVal').textContent = speed + '×'; }
+        function updateStepCounter() { document.getElementById('stepCounter').textContent = `Step ${Math.max(0, current + 1)} / ${steps.length}`; }
+
+        function clearLog() { document.getElementById('logEntries').innerHTML = ''; }
+        function addLog(st) {
+            const c = document.getElementById('logEntries');
+            const em = c.querySelector('.empty-msg'); if (em) em.remove();
+            const d = document.createElement('div'); d.className = `log-entry ${st.cls || ''}`;
+            d.innerHTML = `<span class="log-step">[${current + 1}]</span>${esc(st.msg)}`;
+            c.appendChild(d); c.scrollTop = c.scrollHeight;
+        }
+
+        function loadInputs() {
+            const raw = document.getElementById('inputNums').value;
+            nums = raw.split(',').map(s => parseInt(s.trim())).filter(n => !isNaN(n));
+            buildSteps(); resetViz();
+        }
+        function resetViz() {
+            stopPlay(); current = -1;
+            buildArrRow();
+            document.getElementById('stackItems').innerHTML = '<span style="color:var(--text3);font-size:.65rem;font-style:italic">empty</span>';
+            document.getElementById('stackTitle').textContent = '📦 Stack (indices)';
+            document.getElementById('bndLeft').textContent = 'n'; document.getElementById('bndRight').textContent = '0'; document.getElementById('bndLen').textContent = '0';
+            document.getElementById('decisionBar').innerHTML = '<span style="color:var(--text3);font-style:italic">Actions will appear here</span>';
+            document.getElementById('resultDisplay').textContent = '—';
+            document.getElementById('phaseBanner').className = 'phase-banner pb-pass1'; document.getElementById('phaseBanner').textContent = 'Ready';
+            updateStepCounter(); clearLog();
+            ['stPass', 'stI', 'stVal', 'stAction', 'stTop', 'stPopped'].forEach(id => { document.getElementById(id).textContent = '—'; document.getElementById(id).className = 'sv'; });
+            document.getElementById('stI').className = 'sv yellow'; document.getElementById('stVal').className = 'sv blue';
+            document.getElementById('stTop').className = 'sv orange'; document.getElementById('stPopped').className = 'sv orange';
+            document.getElementById('stLeft').textContent = 'n'; document.getElementById('stLeft').className = 'sv cyan';
+            document.getElementById('stRight').textContent = '0'; document.getElementById('stRight').className = 'sv pink';
+        }
+
+        document.addEventListener('keydown', e => {
+            if (e.target.tagName === 'INPUT') return;
+            if (e.key === 'ArrowRight' || e.key === 'l') stepForward();
+            else if (e.key === 'ArrowLeft' || e.key === 'h') stepBack();
+            else if (e.key === ' ') { e.preventDefault(); togglePlay(); }
+            else if (e.key === 'r') resetViz();
+        });
+
+        loadInputs();
+    </script>
+</body>
+
+</html>

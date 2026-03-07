@@ -49,6 +49,5 @@ function normalizeTechnique(base) {
   };
 }
 
-export const stackTechniques = TECHNIQUE_ORDER.map(normalizeTechnique).filter(
-  Boolean,
-);
+export const stackTechniques =
+  TECHNIQUE_ORDER.map(normalizeTechnique).filter(Boolean);

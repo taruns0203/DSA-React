@@ -1,0 +1,853 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Largest Number — Brute-Force Visualization</title>
+<style>
+  :root {
+    --bg: #0f172a;
+    --surface: #1e293b;
+    --surface2: #334155;
+    --border: #475569;
+    --text: #e2e8f0;
+    --text-dim: #94a3b8;
+    --accent: #38bdf8;
+    --accent2: #818cf8;
+    --green: #4ade80;
+    --red: #f87171;
+    --orange: #fb923c;
+    --yellow: #facc15;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    padding: 20px;
+  }
+  h1 {
+    text-align: center;
+    font-size: 1.6rem;
+    margin-bottom: 6px;
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+  .subtitle {
+    text-align: center;
+    color: var(--text-dim);
+    font-size: 0.85rem;
+    margin-bottom: 20px;
+  }
+
+  /* Layout */
+  .container {
+    max-width: 1200px;
+    margin: 0 auto;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    grid-template-rows: auto auto 1fr;
+    gap: 16px;
+  }
+  .input-panel { grid-column: 1 / -1; }
+  .controls-panel { grid-column: 1 / -1; }
+  .viz-panel { grid-column: 1 / -1; }
+  .state-panel { grid-column: 1; }
+  .log-panel { grid-column: 2; }
+
+  /* Panels */
+  .panel {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 16px;
+  }
+  .panel-title {
+    font-size: 0.8rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: var(--accent);
+    margin-bottom: 10px;
+    font-weight: 700;
+  }
+
+  /* Input */
+  .input-row {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    flex-wrap: wrap;
+  }
+  .input-row label {
+    font-size: 0.85rem;
+    color: var(--text-dim);
+  }
+  .input-row input[type="text"] {
+    flex: 1;
+    min-width: 200px;
+    padding: 8px 14px;
+    border-radius: 8px;
+    border: 1px solid var(--border);
+    background: var(--surface2);
+    color: var(--text);
+    font-size: 0.95rem;
+    outline: none;
+  }
+  .input-row input[type="text"]:focus {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 2px rgba(56, 189, 248, 0.2);
+  }
+
+  /* Buttons */
+  .btn {
+    padding: 8px 18px;
+    border: none;
+    border-radius: 8px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.15s;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .btn:hover { transform: translateY(-1px); filter: brightness(1.1); }
+  .btn:active { transform: translateY(0); }
+  .btn:disabled { opacity: 0.4; cursor: not-allowed; transform: none; }
+  .btn-primary { background: var(--accent); color: #0f172a; }
+  .btn-secondary { background: var(--surface2); color: var(--text); border: 1px solid var(--border); }
+  .btn-green { background: var(--green); color: #0f172a; }
+  .btn-orange { background: var(--orange); color: #0f172a; }
+  .btn-red { background: var(--red); color: #0f172a; }
+
+  /* Controls */
+  .controls-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex-wrap: wrap;
+  }
+  .speed-control {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-left: auto;
+  }
+  .speed-control label {
+    font-size: 0.8rem;
+    color: var(--text-dim);
+  }
+  .speed-control input[type="range"] {
+    width: 120px;
+    accent-color: var(--accent);
+  }
+  .speed-val {
+    font-size: 0.8rem;
+    color: var(--accent);
+    min-width: 36px;
+  }
+  .step-counter {
+    font-size: 0.8rem;
+    color: var(--text-dim);
+    padding: 4px 12px;
+    background: var(--surface2);
+    border-radius: 6px;
+  }
+
+  /* Visualization area */
+  .viz-content {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+  }
+  .viz-section-title {
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: var(--text-dim);
+    margin-bottom: 6px;
+  }
+
+  /* Array display */
+  .array-row {
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+    align-items: center;
+  }
+  .array-cell {
+    width: 52px;
+    height: 44px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 8px;
+    font-weight: 700;
+    font-size: 1rem;
+    border: 2px solid var(--border);
+    background: var(--surface2);
+    transition: all 0.3s;
+    position: relative;
+  }
+  .array-cell.highlight {
+    border-color: var(--accent);
+    background: rgba(56, 189, 248, 0.15);
+    box-shadow: 0 0 12px rgba(56, 189, 248, 0.3);
+  }
+  .array-cell.active {
+    border-color: var(--yellow);
+    background: rgba(250, 204, 21, 0.15);
+    box-shadow: 0 0 12px rgba(250, 204, 21, 0.3);
+  }
+  .array-cell.best {
+    border-color: var(--green);
+    background: rgba(74, 222, 128, 0.15);
+    box-shadow: 0 0 12px rgba(74, 222, 128, 0.3);
+  }
+  .array-cell .idx {
+    position: absolute;
+    top: -16px;
+    font-size: 0.6rem;
+    color: var(--text-dim);
+  }
+
+  /* Permutation display */
+  .perm-display {
+    display: flex;
+    gap: 4px;
+    flex-wrap: wrap;
+    align-items: center;
+    min-height: 44px;
+  }
+  .perm-cell {
+    padding: 6px 12px;
+    border-radius: 6px;
+    font-weight: 700;
+    font-size: 0.95rem;
+    border: 2px solid var(--accent2);
+    background: rgba(129, 140, 248, 0.12);
+    color: var(--accent2);
+  }
+  .arrow {
+    font-size: 1.2rem;
+    color: var(--text-dim);
+  }
+  .concat-result {
+    padding: 8px 16px;
+    border-radius: 8px;
+    font-size: 1.1rem;
+    font-weight: 700;
+    font-family: 'Courier New', monospace;
+    background: var(--surface2);
+    border: 2px solid var(--border);
+    min-width: 80px;
+    text-align: center;
+    transition: all 0.3s;
+  }
+  .concat-result.is-best {
+    border-color: var(--green);
+    color: var(--green);
+    background: rgba(74, 222, 128, 0.1);
+    box-shadow: 0 0 16px rgba(74, 222, 128, 0.2);
+  }
+  .concat-result.not-best {
+    border-color: var(--red);
+    color: var(--red);
+    opacity: 0.7;
+  }
+  .compare-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex-wrap: wrap;
+  }
+  .vs-label {
+    font-size: 0.8rem;
+    color: var(--text-dim);
+    font-weight: 600;
+  }
+
+  /* State panel */
+  .state-grid {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: 6px 14px;
+    font-size: 0.85rem;
+  }
+  .state-key {
+    color: var(--accent);
+    font-weight: 600;
+    font-family: 'Courier New', monospace;
+  }
+  .state-val {
+    color: var(--text);
+    font-family: 'Courier New', monospace;
+    word-break: break-all;
+  }
+
+  /* Log */
+  .log-entries {
+    max-height: 320px;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+    font-size: 0.8rem;
+    font-family: 'Courier New', monospace;
+  }
+  .log-entries::-webkit-scrollbar { width: 6px; }
+  .log-entries::-webkit-scrollbar-track { background: var(--surface); }
+  .log-entries::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+  .log-entry {
+    padding: 3px 8px;
+    border-radius: 4px;
+    line-height: 1.5;
+    white-space: pre-wrap;
+  }
+  .log-entry.info { color: var(--text-dim); }
+  .log-entry.action { color: var(--accent); }
+  .log-entry.compare { color: var(--yellow); }
+  .log-entry.success { color: var(--green); }
+  .log-entry.fail { color: var(--red); }
+  .log-entry.result { color: var(--orange); font-weight: 700; }
+  .log-entry.highlight-log {
+    background: rgba(56, 189, 248, 0.08);
+  }
+
+  /* Progress bar */
+  .progress-bar {
+    width: 100%;
+    height: 4px;
+    background: var(--surface2);
+    border-radius: 2px;
+    overflow: hidden;
+    margin-top: 8px;
+  }
+  .progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--accent), var(--accent2));
+    border-radius: 2px;
+    transition: width 0.3s;
+  }
+
+  /* Warning */
+  .warning-box {
+    background: rgba(251, 146, 60, 0.1);
+    border: 1px solid var(--orange);
+    border-radius: 8px;
+    padding: 10px 14px;
+    font-size: 0.82rem;
+    color: var(--orange);
+    display: none;
+  }
+  .warning-box.show { display: block; }
+
+  /* Responsive */
+  @media (max-width: 768px) {
+    .container {
+      grid-template-columns: 1fr;
+    }
+    .state-panel, .log-panel { grid-column: 1; }
+  }
+</style>
+</head>
+<body>
+  <h1>179. Largest Number — Brute-Force</h1>
+  <p class="subtitle">Generate all permutations, concatenate each, and find the largest</p>
+
+  <div class="container">
+    <!-- Input -->
+    <div class="input-panel panel">
+      <div class="panel-title">Input</div>
+      <div class="input-row">
+        <label>nums =</label>
+        <input type="text" id="inputNums" value="3, 30, 34, 5, 9" placeholder="e.g. 3, 30, 34, 5, 9">
+        <button class="btn btn-primary" id="btnLoad" onclick="loadInput()">Load</button>
+        <button class="btn btn-red" id="btnReset" onclick="resetAll()">⟳ Reset</button>
+      </div>
+      <div class="warning-box" id="warning"></div>
+    </div>
+
+    <!-- Controls -->
+    <div class="controls-panel panel">
+      <div class="panel-title">Controls</div>
+      <div class="controls-row">
+        <button class="btn btn-green" id="btnPlay" onclick="togglePlay()" disabled>▶ Play</button>
+        <button class="btn btn-secondary" id="btnStep" onclick="stepForward()" disabled>⏭ Step</button>
+        <button class="btn btn-secondary" id="btnSkip" onclick="skipToEnd()" disabled>⏩ Skip to End</button>
+        <span class="step-counter" id="stepCounter">Step 0 / 0</span>
+        <div class="speed-control">
+          <label>Speed:</label>
+          <input type="range" id="speedSlider" min="1" max="10" value="5" oninput="updateSpeed()">
+          <span class="speed-val" id="speedVal">5x</span>
+        </div>
+      </div>
+      <div class="progress-bar"><div class="progress-fill" id="progressFill" style="width:0%"></div></div>
+    </div>
+
+    <!-- Visualization -->
+    <div class="viz-panel panel">
+      <div class="panel-title">Visualization</div>
+      <div class="viz-content">
+        <div>
+          <div class="viz-section-title">Original Array (as strings)</div>
+          <div class="array-row" id="origArray"></div>
+        </div>
+        <div>
+          <div class="viz-section-title">Current Permutation (#<span id="permNumLabel">-</span> of <span id="permTotalLabel">-</span>)</div>
+          <div class="perm-display" id="permDisplay"></div>
+        </div>
+        <div>
+          <div class="viz-section-title">Concatenation &amp; Comparison</div>
+          <div class="compare-row">
+            <div>
+              <div class="viz-section-title" style="margin-bottom:4px">Candidate</div>
+              <div class="concat-result" id="candidateVal">—</div>
+            </div>
+            <div class="vs-label" id="vsLabel"></div>
+            <div>
+              <div class="viz-section-title" style="margin-bottom:4px">Current Best</div>
+              <div class="concat-result is-best" id="bestVal">—</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- State -->
+    <div class="state-panel panel">
+      <div class="panel-title">Variable State</div>
+      <div class="state-grid" id="stateGrid">
+        <span class="state-key">nums</span><span class="state-val" id="stNums">—</span>
+        <span class="state-key">strNums</span><span class="state-val" id="stStrNums">—</span>
+        <span class="state-key">permIndex</span><span class="state-val" id="stPermIdx">—</span>
+        <span class="state-key">candidate</span><span class="state-val" id="stCandidate">—</span>
+        <span class="state-key">best</span><span class="state-val" id="stBest">—</span>
+        <span class="state-key">totalPerms</span><span class="state-val" id="stTotal">—</span>
+        <span class="state-key">status</span><span class="state-val" id="stStatus">idle</span>
+      </div>
+    </div>
+
+    <!-- Log -->
+    <div class="log-panel panel">
+      <div class="panel-title">Execution Log</div>
+      <div class="log-entries" id="logEntries"></div>
+    </div>
+  </div>
+
+<script>
+// ─── State ───
+let nums = [];
+let strNums = [];
+let permutations = [];
+let steps = [];
+let currentStep = 0;
+let isPlaying = false;
+let playTimer = null;
+let speed = 5;
+
+// ─── Permutation generator (Heap's algorithm, iterative) ───
+function generatePermutations(arr) {
+  const result = [];
+  const n = arr.length;
+  const c = new Array(n).fill(0);
+  result.push([...arr]);
+  let i = 0;
+  while (i < n) {
+    if (c[i] < i) {
+      if (i % 2 === 0) [arr[0], arr[i]] = [arr[i], arr[0]];
+      else [arr[c[i]], arr[i]] = [arr[i], arr[c[i]]];
+      result.push([...arr]);
+      c[i]++;
+      i = 0;
+    } else {
+      c[i] = 0;
+      i++;
+    }
+  }
+  return result;
+}
+
+// ─── Build steps for animation ───
+function buildSteps() {
+  steps = [];
+  const perms = permutations;
+  let best = "";
+  let bestIdx = -1;
+
+  // Step: init
+  steps.push({
+    type: 'init',
+    strNums: [...strNums],
+    totalPerms: perms.length,
+    log: `Converted nums to strings: [${strNums.map(s => '"'+s+'"').join(', ')}]`,
+    logType: 'info'
+  });
+
+  steps.push({
+    type: 'init2',
+    totalPerms: perms.length,
+    log: `Total permutations to check: ${perms.length} (${strNums.length}! = ${perms.length})`,
+    logType: 'info'
+  });
+
+  for (let i = 0; i < perms.length; i++) {
+    const perm = perms[i];
+    const candidate = perm.join('');
+
+    // Show permutation
+    steps.push({
+      type: 'show_perm',
+      permIndex: i,
+      perm: [...perm],
+      candidate: candidate,
+      best: best,
+      bestIdx: bestIdx,
+      log: `Perm #${i + 1}: [${perm.map(s => '"'+s+'"').join(', ')}] → "${candidate}"`,
+      logType: 'action'
+    });
+
+    // Compare
+    const isBetter = candidate > best || best === "";
+    steps.push({
+      type: 'compare',
+      permIndex: i,
+      perm: [...perm],
+      candidate: candidate,
+      best: best,
+      isBetter: isBetter,
+      log: isBetter
+        ? (best === "" ? `First candidate → best = "${candidate}"` : `"${candidate}" > "${best}" → New best!`)
+        : `"${candidate}" ≤ "${best}" → No update`,
+      logType: isBetter ? 'success' : 'fail'
+    });
+
+    if (isBetter) {
+      best = candidate;
+      bestIdx = i;
+      steps.push({
+        type: 'update_best',
+        permIndex: i,
+        perm: [...perm],
+        candidate: candidate,
+        best: best,
+        bestIdx: bestIdx,
+        log: `best updated → "${best}"`,
+        logType: 'success'
+      });
+    }
+  }
+
+  // Final
+  const finalResult = best[0] === '0' ? '0' : best;
+  steps.push({
+    type: 'done',
+    best: best,
+    finalResult: finalResult,
+    bestIdx: bestIdx,
+    log: best[0] === '0'
+      ? `All zeros detected → return "0"`
+      : `✓ Final answer: "${finalResult}"`,
+    logType: 'result'
+  });
+}
+
+// ─── Rendering ───
+function renderOrigArray() {
+  const el = document.getElementById('origArray');
+  el.innerHTML = strNums.map((s, i) =>
+    `<div class="array-cell" id="origCell${i}"><span class="idx">${i}</span>${s}</div>`
+  ).join('');
+}
+
+function renderPermutation(perm, permIndex) {
+  const el = document.getElementById('permDisplay');
+  if (!perm) { el.innerHTML = '<span style="color:var(--text-dim)">—</span>'; return; }
+  el.innerHTML = perm.map((s, i) =>
+    `<div class="perm-cell">${s}</div>${i < perm.length - 1 ? '<span class="arrow">+</span>' : ''}`
+  ).join('');
+  document.getElementById('permNumLabel').textContent = permIndex + 1;
+}
+
+function renderState(step) {
+  document.getElementById('stNums').textContent = `[${nums.join(', ')}]`;
+  document.getElementById('stStrNums').textContent = `[${strNums.map(s=>'"'+s+'"').join(', ')}]`;
+  document.getElementById('stTotal').textContent = permutations.length;
+
+  if (step) {
+    document.getElementById('stPermIdx').textContent =
+      step.permIndex !== undefined ? step.permIndex + 1 : '—';
+    document.getElementById('stCandidate').textContent =
+      step.candidate !== undefined ? `"${step.candidate}"` : '—';
+    document.getElementById('stBest').textContent =
+      step.best !== undefined && step.best !== '' ? `"${step.best}"` : '""';
+    document.getElementById('stStatus').textContent = step.type;
+  }
+}
+
+function renderStep(idx) {
+  if (idx < 0 || idx >= steps.length) return;
+  const step = steps[idx];
+
+  // Permutation display
+  if (step.perm) {
+    renderPermutation(step.perm, step.permIndex);
+  } else if (step.type === 'init' || step.type === 'init2') {
+    document.getElementById('permDisplay').innerHTML = '<span style="color:var(--text-dim)">Waiting...</span>';
+    document.getElementById('permNumLabel').textContent = '-';
+  }
+  document.getElementById('permTotalLabel').textContent = permutations.length;
+
+  // Candidate / Best display
+  const candidateEl = document.getElementById('candidateVal');
+  const bestEl = document.getElementById('bestVal');
+  const vsEl = document.getElementById('vsLabel');
+
+  candidateEl.className = 'concat-result';
+  bestEl.className = 'concat-result';
+
+  if (step.candidate !== undefined) {
+    candidateEl.textContent = `"${step.candidate}"`;
+  } else {
+    candidateEl.textContent = '—';
+  }
+  if (step.best !== undefined && step.best !== '') {
+    bestEl.textContent = `"${step.best}"`;
+    bestEl.classList.add('is-best');
+  } else {
+    bestEl.textContent = '""';
+  }
+
+  if (step.type === 'compare') {
+    vsEl.textContent = step.isBetter ? '>' : '≤';
+    if (step.isBetter) {
+      candidateEl.classList.add('is-best');
+      bestEl.classList.remove('is-best');
+      bestEl.classList.add('not-best');
+    } else {
+      candidateEl.classList.add('not-best');
+    }
+  } else if (step.type === 'update_best') {
+    vsEl.textContent = '→ new best';
+    bestEl.textContent = `"${step.best}"`;
+    bestEl.classList.add('is-best');
+  } else if (step.type === 'done') {
+    vsEl.textContent = '';
+    candidateEl.textContent = '';
+    bestEl.textContent = `"${step.finalResult}"`;
+    bestEl.classList.add('is-best');
+  } else {
+    vsEl.textContent = 'vs';
+  }
+
+  // Highlight original array cells that match current permutation position
+  document.querySelectorAll('.array-cell').forEach(c => c.className = 'array-cell');
+  if (step.perm && step.type === 'show_perm') {
+    step.perm.forEach((val) => {
+      const idx = strNums.indexOf(val);
+      const cell = document.getElementById(`origCell${idx}`);
+      if (cell) cell.classList.add('highlight');
+    });
+  }
+
+  // State panel
+  renderState(step);
+
+  // Log
+  addLog(step.log, step.logType, idx);
+
+  // Progress
+  const pct = ((idx + 1) / steps.length) * 100;
+  document.getElementById('progressFill').style.width = pct + '%';
+  document.getElementById('stepCounter').textContent = `Step ${idx + 1} / ${steps.length}`;
+}
+
+function addLog(msg, type, stepIdx) {
+  const el = document.getElementById('logEntries');
+  // Remove previous highlight
+  el.querySelectorAll('.highlight-log').forEach(e => e.classList.remove('highlight-log'));
+  const div = document.createElement('div');
+  div.className = `log-entry ${type || 'info'} highlight-log`;
+  div.textContent = `[${String(stepIdx + 1).padStart(3)}] ${msg}`;
+  el.appendChild(div);
+  el.scrollTop = el.scrollHeight;
+}
+
+// ─── Controls ───
+function loadInput() {
+  const raw = document.getElementById('inputNums').value.trim();
+  const warn = document.getElementById('warning');
+  warn.className = 'warning-box';
+  warn.textContent = '';
+
+  // Parse
+  const parsed = raw.split(/[\s,]+/).map(s => parseInt(s, 10)).filter(n => !isNaN(n) && n >= 0);
+  if (parsed.length === 0) {
+    warn.textContent = 'Please enter at least one non-negative integer.';
+    warn.className = 'warning-box show';
+    return;
+  }
+  if (parsed.length > 7) {
+    warn.textContent = `Warning: ${parsed.length} elements → ${factorial(parsed.length).toLocaleString()} permutations. Limiting to first 7 elements to keep the browser responsive.`;
+    warn.className = 'warning-box show';
+    parsed.length = 7;
+  }
+
+  nums = parsed;
+  strNums = nums.map(String);
+  permutations = generatePermutations([...strNums]);
+  buildSteps();
+  currentStep = 0;
+  isPlaying = false;
+  clearInterval(playTimer);
+
+  // Reset UI
+  document.getElementById('logEntries').innerHTML = '';
+  document.getElementById('progressFill').style.width = '0%';
+  document.getElementById('stepCounter').textContent = `Step 0 / ${steps.length}`;
+  document.getElementById('candidateVal').textContent = '—';
+  document.getElementById('candidateVal').className = 'concat-result';
+  document.getElementById('bestVal').textContent = '""';
+  document.getElementById('bestVal').className = 'concat-result is-best';
+  document.getElementById('vsLabel').textContent = 'vs';
+  document.getElementById('permDisplay').innerHTML = '<span style="color:var(--text-dim)">Ready — press Play or Step</span>';
+  document.getElementById('permNumLabel').textContent = '-';
+  document.getElementById('permTotalLabel').textContent = permutations.length;
+
+  renderOrigArray();
+  renderState(null);
+  document.getElementById('stBest').textContent = '""';
+  document.getElementById('stPermIdx').textContent = '—';
+  document.getElementById('stCandidate').textContent = '—';
+  document.getElementById('stStatus').textContent = 'ready';
+
+  enableControls(true);
+  updatePlayBtn();
+
+  addLog(`Loaded input: [${nums.join(', ')}]`, 'info', -1);
+  addLog(`${permutations.length} permutations to evaluate`, 'info', -1);
+}
+
+function togglePlay() {
+  if (currentStep >= steps.length) {
+    // Restart
+    currentStep = 0;
+    document.getElementById('logEntries').innerHTML = '';
+  }
+  isPlaying = !isPlaying;
+  updatePlayBtn();
+  if (isPlaying) {
+    runPlay();
+  } else {
+    clearInterval(playTimer);
+  }
+}
+
+function runPlay() {
+  clearInterval(playTimer);
+  const delay = Math.max(50, 1200 - speed * 110);
+  playTimer = setInterval(() => {
+    if (currentStep >= steps.length) {
+      isPlaying = false;
+      updatePlayBtn();
+      clearInterval(playTimer);
+      return;
+    }
+    renderStep(currentStep);
+    currentStep++;
+  }, delay);
+}
+
+function stepForward() {
+  if (currentStep >= steps.length) return;
+  isPlaying = false;
+  clearInterval(playTimer);
+  updatePlayBtn();
+  renderStep(currentStep);
+  currentStep++;
+  if (currentStep >= steps.length) {
+    document.getElementById('stStatus').textContent = 'done';
+  }
+}
+
+function skipToEnd() {
+  isPlaying = false;
+  clearInterval(playTimer);
+  updatePlayBtn();
+  while (currentStep < steps.length) {
+    renderStep(currentStep);
+    currentStep++;
+  }
+  document.getElementById('stStatus').textContent = 'done';
+}
+
+function resetAll() {
+  isPlaying = false;
+  clearInterval(playTimer);
+  currentStep = 0;
+  nums = [];
+  strNums = [];
+  permutations = [];
+  steps = [];
+
+  document.getElementById('logEntries').innerHTML = '';
+  document.getElementById('origArray').innerHTML = '';
+  document.getElementById('permDisplay').innerHTML = '<span style="color:var(--text-dim)">—</span>';
+  document.getElementById('permNumLabel').textContent = '-';
+  document.getElementById('permTotalLabel').textContent = '-';
+  document.getElementById('candidateVal').textContent = '—';
+  document.getElementById('candidateVal').className = 'concat-result';
+  document.getElementById('bestVal').textContent = '—';
+  document.getElementById('bestVal').className = 'concat-result';
+  document.getElementById('vsLabel').textContent = 'vs';
+  document.getElementById('progressFill').style.width = '0%';
+  document.getElementById('stepCounter').textContent = 'Step 0 / 0';
+  document.getElementById('stNums').textContent = '—';
+  document.getElementById('stStrNums').textContent = '—';
+  document.getElementById('stPermIdx').textContent = '—';
+  document.getElementById('stCandidate').textContent = '—';
+  document.getElementById('stBest').textContent = '—';
+  document.getElementById('stTotal').textContent = '—';
+  document.getElementById('stStatus').textContent = 'idle';
+  document.getElementById('warning').className = 'warning-box';
+
+  enableControls(false);
+  updatePlayBtn();
+}
+
+function updateSpeed() {
+  speed = parseInt(document.getElementById('speedSlider').value);
+  document.getElementById('speedVal').textContent = speed + 'x';
+  if (isPlaying) runPlay(); // restart timer with new speed
+}
+
+function enableControls(enabled) {
+  document.getElementById('btnPlay').disabled = !enabled;
+  document.getElementById('btnStep').disabled = !enabled;
+  document.getElementById('btnSkip').disabled = !enabled;
+}
+
+function updatePlayBtn() {
+  const btn = document.getElementById('btnPlay');
+  if (isPlaying) {
+    btn.textContent = '⏸ Pause';
+    btn.className = 'btn btn-orange';
+  } else {
+    btn.textContent = currentStep >= steps.length && steps.length > 0 ? '⟳ Replay' : '▶ Play';
+    btn.className = 'btn btn-green';
+  }
+}
+
+function factorial(n) {
+  let r = 1;
+  for (let i = 2; i <= n; i++) r *= i;
+  return r;
+}
+
+// Auto-load default
+window.addEventListener('DOMContentLoaded', () => loadInput());
+</script>
+</body>
+</html>

@@ -1,0 +1,1239 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LeetCode 1200 — Brute Force Visualizer</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=DM+Sans:wght@400;500;600;700&family=Fraunces:opsz,wght@9..144,400;9..144,600;9..144,700&display=swap');
+
+        :root {
+            --bg-primary: #0f0f0f;
+            --bg-secondary: #1a1a1a;
+            --bg-tertiary: #242424;
+            --bg-elevated: #2a2a2a;
+            --border: #333;
+            --border-active: #555;
+            --text-primary: #e8e4de;
+            --text-secondary: #9a958d;
+            --text-muted: #6b6560;
+            --amber: #d4a053;
+            --amber-dim: #b8863a;
+            --amber-glow: rgba(212, 160, 83, 0.12);
+            --amber-glow-strong: rgba(212, 160, 83, 0.25);
+            --green: #6abf69;
+            --green-dim: rgba(106, 191, 105, 0.15);
+            --red: #e06c60;
+            --red-dim: rgba(224, 108, 96, 0.15);
+            --blue: #5b9fd4;
+            --blue-dim: rgba(91, 159, 212, 0.15);
+            --purple: #a78bda;
+            --purple-dim: rgba(167, 139, 218, 0.15);
+            --cyan: #5bbfbf;
+            --font-display: 'Fraunces', serif;
+            --font-body: 'DM Sans', sans-serif;
+            --font-mono: 'JetBrains Mono', monospace;
+            --radius: 10px;
+            --radius-sm: 6px;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            font-family: var(--font-body);
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        .noise-overlay {
+            position: fixed;
+            inset: 0;
+            z-index: 0;
+            pointer-events: none;
+            opacity: 0.03;
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+        }
+
+        .app {
+            position: relative;
+            z-index: 1;
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 24px;
+        }
+
+        /* ── HEADER ── */
+        .header {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            margin-bottom: 28px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .header-badge {
+            background: var(--amber-glow);
+            border: 1px solid var(--amber-dim);
+            color: var(--amber);
+            font-family: var(--font-mono);
+            font-size: 11px;
+            font-weight: 600;
+            padding: 4px 10px;
+            border-radius: 4px;
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+            white-space: nowrap;
+        }
+
+        .header h1 {
+            font-family: var(--font-display);
+            font-size: 22px;
+            font-weight: 700;
+            color: var(--text-primary);
+            line-height: 1.2;
+        }
+
+        .header h1 span {
+            color: var(--amber);
+        }
+
+        .header-sub {
+            font-size: 13px;
+            color: var(--text-muted);
+            margin-left: auto;
+            font-family: var(--font-mono);
+        }
+
+        /* ── INPUT BAR ── */
+        .input-bar {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .input-bar label {
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 0.8px;
+            font-family: var(--font-mono);
+        }
+
+        .input-bar input[type="text"] {
+            flex: 1;
+            min-width: 200px;
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            color: var(--text-primary);
+            font-family: var(--font-mono);
+            font-size: 14px;
+            padding: 10px 14px;
+            border-radius: var(--radius-sm);
+            outline: none;
+            transition: border-color 0.2s;
+        }
+
+        .input-bar input:focus {
+            border-color: var(--amber-dim);
+        }
+
+        .input-bar .presets {
+            display: flex;
+            gap: 6px;
+        }
+
+        /* ── BUTTONS ── */
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 9px 16px;
+            border-radius: var(--radius-sm);
+            font-family: var(--font-mono);
+            font-size: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            border: 1px solid var(--border);
+            background: var(--bg-tertiary);
+            color: var(--text-secondary);
+            transition: all 0.15s;
+            letter-spacing: 0.3px;
+            white-space: nowrap;
+        }
+
+        .btn:hover {
+            background: var(--bg-elevated);
+            color: var(--text-primary);
+            border-color: var(--border-active);
+        }
+
+        .btn:active {
+            transform: scale(0.97);
+        }
+
+        .btn-amber {
+            background: var(--amber-glow);
+            border-color: var(--amber-dim);
+            color: var(--amber);
+        }
+
+        .btn-amber:hover {
+            background: var(--amber-glow-strong);
+            color: var(--amber);
+            border-color: var(--amber);
+        }
+
+        .btn-sm {
+            padding: 6px 12px;
+            font-size: 11px;
+        }
+
+        /* ── CONTROLS BAR ── */
+        .controls-bar {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 20px;
+            padding: 12px 16px;
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            flex-wrap: wrap;
+        }
+
+        .controls-bar .sep {
+            width: 1px;
+            height: 28px;
+            background: var(--border);
+            margin: 0 4px;
+        }
+
+        .speed-group {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .speed-group label {
+            font-size: 11px;
+            color: var(--text-muted);
+            font-family: var(--font-mono);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .speed-group input[type="range"] {
+            width: 100px;
+            accent-color: var(--amber);
+        }
+
+        .speed-val {
+            font-family: var(--font-mono);
+            font-size: 12px;
+            color: var(--amber);
+            min-width: 40px;
+        }
+
+        .step-counter {
+            font-family: var(--font-mono);
+            font-size: 12px;
+            color: var(--text-muted);
+            margin-left: auto;
+        }
+
+        .step-counter strong {
+            color: var(--text-secondary);
+        }
+
+        /* ── PHASE INDICATOR ── */
+        .phase-indicator {
+            display: flex;
+            gap: 0;
+            margin-bottom: 20px;
+            border-radius: var(--radius);
+            overflow: hidden;
+            border: 1px solid var(--border);
+        }
+
+        .phase-tab {
+            flex: 1;
+            padding: 10px 16px;
+            font-family: var(--font-mono);
+            font-size: 12px;
+            font-weight: 600;
+            text-align: center;
+            background: var(--bg-secondary);
+            color: var(--text-muted);
+            border-right: 1px solid var(--border);
+            transition: all 0.3s;
+            letter-spacing: 0.3px;
+        }
+
+        .phase-tab:last-child {
+            border-right: none;
+        }
+
+        .phase-tab.active {
+            background: var(--amber-glow);
+            color: var(--amber);
+        }
+
+        .phase-tab.done {
+            background: var(--green-dim);
+            color: var(--green);
+        }
+
+        /* ── MAIN LAYOUT ── */
+        .main-grid {
+            display: grid;
+            grid-template-columns: 1fr 340px;
+            gap: 20px;
+        }
+
+        /* ── PANEL ── */
+        .panel {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            overflow: hidden;
+        }
+
+        .panel-header {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 12px 16px;
+            border-bottom: 1px solid var(--border);
+            background: var(--bg-tertiary);
+        }
+
+        .panel-header .dot {
+            width: 7px;
+            height: 7px;
+            border-radius: 50%;
+            background: var(--amber);
+        }
+
+        .panel-header h3 {
+            font-family: var(--font-mono);
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 0.8px;
+        }
+
+        .panel-body {
+            padding: 20px;
+        }
+
+        /* ── ARRAY VISUALIZATION ── */
+        .array-section {
+            margin-bottom: 24px;
+        }
+
+        .array-label {
+            font-family: var(--font-mono);
+            font-size: 11px;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.8px;
+            margin-bottom: 10px;
+        }
+
+        .array-row {
+            display: flex;
+            gap: 6px;
+            flex-wrap: wrap;
+            align-items: flex-end;
+            min-height: 68px;
+        }
+
+        .array-cell-wrap {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .ptr-label {
+            font-family: var(--font-mono);
+            font-size: 10px;
+            font-weight: 700;
+            padding: 2px 6px;
+            border-radius: 3px;
+            letter-spacing: 0.5px;
+            min-height: 18px;
+            transition: all 0.2s;
+        }
+
+        .ptr-i {
+            background: var(--blue-dim);
+            color: var(--blue);
+        }
+
+        .ptr-j {
+            background: var(--purple-dim);
+            color: var(--purple);
+        }
+
+        .ptr-ij {
+            background: linear-gradient(90deg, var(--blue-dim), var(--purple-dim));
+            color: var(--cyan);
+        }
+
+        .array-cell {
+            width: 52px;
+            height: 44px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: var(--bg-tertiary);
+            border: 2px solid var(--border);
+            border-radius: var(--radius-sm);
+            font-family: var(--font-mono);
+            font-size: 15px;
+            font-weight: 600;
+            color: var(--text-primary);
+            transition: all 0.25s;
+            position: relative;
+        }
+
+        .array-cell.highlight-i {
+            border-color: var(--blue);
+            background: var(--blue-dim);
+            box-shadow: 0 0 12px rgba(91, 159, 212, 0.2);
+        }
+
+        .array-cell.highlight-j {
+            border-color: var(--purple);
+            background: var(--purple-dim);
+            box-shadow: 0 0 12px rgba(167, 139, 218, 0.2);
+        }
+
+        .array-cell.highlight-both {
+            border-color: var(--cyan);
+            background: rgba(91, 191, 191, 0.12);
+            box-shadow: 0 0 12px rgba(91, 191, 191, 0.2);
+        }
+
+        .array-cell.in-result {
+            border-color: var(--green);
+            background: var(--green-dim);
+        }
+
+        .idx-label {
+            font-family: var(--font-mono);
+            font-size: 9px;
+            color: var(--text-muted);
+        }
+
+        /* ── PAIR COMPARISON DISPLAY ── */
+        .comparison-display {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            padding: 16px;
+            background: var(--bg-primary);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            margin-bottom: 20px;
+            min-height: 70px;
+            transition: all 0.3s;
+        }
+
+        .comp-val {
+            font-family: var(--font-mono);
+            font-size: 24px;
+            font-weight: 700;
+            padding: 6px 16px;
+            border-radius: var(--radius-sm);
+            min-width: 60px;
+            text-align: center;
+        }
+
+        .comp-val.val-i {
+            background: var(--blue-dim);
+            color: var(--blue);
+        }
+
+        .comp-val.val-j {
+            background: var(--purple-dim);
+            color: var(--purple);
+        }
+
+        .comp-op {
+            font-family: var(--font-mono);
+            font-size: 14px;
+            color: var(--text-muted);
+        }
+
+        .comp-result {
+            font-family: var(--font-mono);
+            font-size: 18px;
+            font-weight: 700;
+            padding: 6px 14px;
+            border-radius: var(--radius-sm);
+        }
+
+        .comp-result.is-new-min {
+            background: var(--amber-glow-strong);
+            color: var(--amber);
+            animation: pulse-amber 0.4s ease;
+        }
+
+        .comp-result.is-match {
+            background: var(--green-dim);
+            color: var(--green);
+            animation: pulse-green 0.4s ease;
+        }
+
+        .comp-result.is-skip {
+            background: var(--bg-tertiary);
+            color: var(--text-muted);
+        }
+
+        @keyframes pulse-amber {
+            0% {
+                transform: scale(1);
+            }
+
+            50% {
+                transform: scale(1.1);
+            }
+
+            100% {
+                transform: scale(1);
+            }
+        }
+
+        @keyframes pulse-green {
+            0% {
+                transform: scale(1);
+            }
+
+            50% {
+                transform: scale(1.1);
+            }
+
+            100% {
+                transform: scale(1);
+            }
+        }
+
+        /* ── VARIABLES PANEL ── */
+        .var-grid {
+            display: grid;
+            gap: 10px;
+        }
+
+        .var-row {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 8px 12px;
+            background: var(--bg-primary);
+            border-radius: var(--radius-sm);
+            border: 1px solid transparent;
+            transition: all 0.3s;
+        }
+
+        .var-row.changed {
+            border-color: var(--amber-dim);
+            background: var(--amber-glow);
+        }
+
+        .var-name {
+            font-family: var(--font-mono);
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--text-muted);
+            min-width: 80px;
+        }
+
+        .var-value {
+            font-family: var(--font-mono);
+            font-size: 14px;
+            font-weight: 700;
+            color: var(--text-primary);
+        }
+
+        .var-value.amber {
+            color: var(--amber);
+        }
+
+        .var-value.green {
+            color: var(--green);
+        }
+
+        /* ── RESULT PAIRS ── */
+        .result-section {
+            margin-top: 16px;
+        }
+
+        .result-pairs {
+            display: flex;
+            gap: 6px;
+            flex-wrap: wrap;
+            min-height: 36px;
+            padding: 10px;
+            background: var(--bg-primary);
+            border-radius: var(--radius-sm);
+            border: 1px solid var(--border);
+        }
+
+        .result-pair {
+            font-family: var(--font-mono);
+            font-size: 13px;
+            font-weight: 600;
+            padding: 4px 10px;
+            border-radius: 4px;
+            background: var(--green-dim);
+            color: var(--green);
+            border: 1px solid rgba(106, 191, 105, 0.3);
+            animation: fadeIn 0.3s ease;
+        }
+
+        .result-empty {
+            font-family: var(--font-mono);
+            font-size: 12px;
+            color: var(--text-muted);
+            font-style: italic;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(-4px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* ── EXECUTION LOG ── */
+        .log-panel .panel-body {
+            padding: 0;
+            max-height: 480px;
+            overflow-y: auto;
+        }
+
+        .log-panel .panel-body::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .log-panel .panel-body::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        .log-panel .panel-body::-webkit-scrollbar-thumb {
+            background: var(--border);
+            border-radius: 3px;
+        }
+
+        .log-entry {
+            padding: 8px 16px;
+            font-family: var(--font-mono);
+            font-size: 11.5px;
+            line-height: 1.5;
+            color: var(--text-secondary);
+            border-bottom: 1px solid rgba(51, 51, 51, 0.5);
+            transition: background 0.2s;
+        }
+
+        .log-entry:last-child {
+            border-bottom: none;
+        }
+
+        .log-entry.highlight {
+            background: var(--amber-glow);
+        }
+
+        .log-entry .log-step {
+            color: var(--text-muted);
+            margin-right: 8px;
+            font-size: 10px;
+        }
+
+        .log-entry .log-text {
+            color: var(--text-secondary);
+        }
+
+        .log-entry .val {
+            color: var(--amber);
+            font-weight: 600;
+        }
+
+        .log-entry .new-min {
+            color: var(--amber);
+            font-weight: 700;
+        }
+
+        .log-entry .match {
+            color: var(--green);
+            font-weight: 700;
+        }
+
+        .log-entry .skip-text {
+            color: var(--text-muted);
+        }
+
+        .log-entry .phase-label {
+            color: var(--cyan);
+            font-weight: 700;
+            text-transform: uppercase;
+            font-size: 10px;
+            letter-spacing: 0.5px;
+        }
+
+        /* ── COMPLEXITY BADGE ── */
+        .complexity-row {
+            display: flex;
+            gap: 8px;
+            margin-top: 12px;
+            flex-wrap: wrap;
+        }
+
+        .complexity-badge {
+            font-family: var(--font-mono);
+            font-size: 11px;
+            font-weight: 600;
+            padding: 4px 10px;
+            border-radius: 4px;
+            background: var(--red-dim);
+            color: var(--red);
+            border: 1px solid rgba(224, 108, 96, 0.3);
+        }
+
+        /* ── DONE OVERLAY ── */
+        .done-banner {
+            display: none;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            padding: 14px 20px;
+            background: var(--green-dim);
+            border: 1px solid rgba(106, 191, 105, 0.4);
+            border-radius: var(--radius);
+            margin-bottom: 20px;
+            animation: fadeIn 0.4s ease;
+        }
+
+        .done-banner.show {
+            display: flex;
+        }
+
+        .done-banner .check {
+            font-size: 20px;
+            color: var(--green);
+        }
+
+        .done-banner p {
+            font-family: var(--font-mono);
+            font-size: 13px;
+            color: var(--green);
+            font-weight: 600;
+        }
+
+        /* ── RESPONSIVE ── */
+        @media (max-width: 900px) {
+            .main-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .app {
+                padding: 16px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="noise-overlay"></div>
+    <div class="app">
+
+        <!-- HEADER -->
+        <div class="header">
+            <div class="header-badge">Brute Force</div>
+            <h1>1200. Minimum Absolute <span>Difference</span></h1>
+            <div class="header-sub">O(n²) · Two-Pass</div>
+        </div>
+
+        <!-- INPUT BAR -->
+        <div class="input-bar">
+            <label>Input Array</label>
+            <input type="text" id="arrInput" value="4, 2, 1, 3" placeholder="e.g. 4, 2, 1, 3" />
+            <div class="presets">
+                <button class="btn btn-sm" onclick="loadPreset(0)">Ex 1</button>
+                <button class="btn btn-sm" onclick="loadPreset(1)">Ex 2</button>
+                <button class="btn btn-sm" onclick="loadPreset(2)">Ex 3</button>
+            </div>
+            <button class="btn btn-amber" onclick="resetAndLoad()">▶ Load &amp; Reset</button>
+        </div>
+
+        <!-- CONTROLS -->
+        <div class="controls-bar">
+            <button class="btn btn-amber" id="playBtn" onclick="togglePlay()">▶ Play</button>
+            <button class="btn" id="stepBtn" onclick="stepForward()">⏭ Step</button>
+            <button class="btn" onclick="resetViz()">↺ Reset</button>
+            <div class="sep"></div>
+            <div class="speed-group">
+                <label>Speed</label>
+                <input type="range" id="speedSlider" min="1" max="10" value="5" oninput="updateSpeed()" />
+                <span class="speed-val" id="speedVal">1.0×</span>
+            </div>
+            <div class="step-counter">
+                Step <strong id="stepNum">0</strong> / <strong id="totalSteps">0</strong>
+            </div>
+        </div>
+
+        <!-- PHASE INDICATOR -->
+        <div class="phase-indicator">
+            <div class="phase-tab" id="phase0">① Init</div>
+            <div class="phase-tab" id="phase1">② Pass 1 — Find minDiff</div>
+            <div class="phase-tab" id="phase2">③ Pass 2 — Collect Pairs</div>
+            <div class="phase-tab" id="phase3">④ Done</div>
+        </div>
+
+        <div class="done-banner" id="doneBanner">
+            <span class="check">✓</span>
+            <p id="doneText">Algorithm complete!</p>
+        </div>
+
+        <!-- MAIN CONTENT -->
+        <div class="main-grid">
+            <div class="viz-col">
+                <!-- Array Display -->
+                <div class="panel" style="margin-bottom: 20px;">
+                    <div class="panel-header">
+                        <div class="dot"></div>
+                        <h3>Array State</h3>
+                    </div>
+                    <div class="panel-body">
+                        <div class="array-section">
+                            <div class="array-label">arr[]</div>
+                            <div class="array-row" id="arrayRow"></div>
+                        </div>
+
+                        <!-- Comparison Display -->
+                        <div class="array-label" style="margin-top:16px">Current Comparison</div>
+                        <div class="comparison-display" id="compDisplay">
+                            <span style="font-family:var(--font-mono);font-size:13px;color:var(--text-muted)">Press Play
+                                or Step to begin</span>
+                        </div>
+
+                        <!-- Result pairs -->
+                        <div class="result-section">
+                            <div class="array-label">Result Pairs</div>
+                            <div class="result-pairs" id="resultPairs">
+                                <span class="result-empty">No pairs collected yet</span>
+                            </div>
+                        </div>
+
+                        <div class="complexity-row">
+                            <span class="complexity-badge">Time: O(n²)</span>
+                            <span class="complexity-badge">Space: O(n)</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Variables Panel -->
+                <div class="panel">
+                    <div class="panel-header">
+                        <div class="dot"></div>
+                        <h3>Variables</h3>
+                    </div>
+                    <div class="panel-body">
+                        <div class="var-grid" id="varGrid">
+                            <div class="var-row" id="var-n"><span class="var-name">n</span><span class="var-value"
+                                    id="val-n">—</span></div>
+                            <div class="var-row" id="var-i"><span class="var-name">i</span><span class="var-value"
+                                    id="val-i">—</span></div>
+                            <div class="var-row" id="var-j"><span class="var-name">j</span><span class="var-value"
+                                    id="val-j">—</span></div>
+                            <div class="var-row" id="var-diff"><span class="var-name">|diff|</span><span
+                                    class="var-value" id="val-diff">—</span></div>
+                            <div class="var-row" id="var-minDiff"><span class="var-name">minDiff</span><span
+                                    class="var-value amber" id="val-minDiff">—</span></div>
+                            <div class="var-row" id="var-phase"><span class="var-name">phase</span><span
+                                    class="var-value" id="val-phase">—</span></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- EXECUTION LOG -->
+            <div class="panel log-panel">
+                <div class="panel-header">
+                    <div class="dot"></div>
+                    <h3>Execution Log</h3>
+                </div>
+                <div class="panel-body" id="logBody"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const PRESETS = [
+            [4, 2, 1, 3],
+            [1, 3, 6, 10, 15],
+            [3, 8, -10, 23, 19, -4, -14, 27]
+        ];
+
+        let arr = [];
+        let steps = [];
+        let currentStep = -1;
+        let playing = false;
+        let playTimer = null;
+        let speedMs = 600;
+
+        function loadPreset(idx) {
+            document.getElementById('arrInput').value = PRESETS[idx].join(', ');
+            resetAndLoad();
+        }
+
+        function parseInput() {
+            const raw = document.getElementById('arrInput').value.trim();
+            const nums = raw.split(/[,\s]+/).map(s => parseInt(s.trim(), 10)).filter(n => !isNaN(n));
+            return nums;
+        }
+
+        function resetAndLoad() {
+            stopPlay();
+            arr = parseInput();
+            if (arr.length < 2) { alert('Need at least 2 numbers.'); return; }
+            steps = generateSteps(arr);
+            currentStep = -1;
+            document.getElementById('totalSteps').textContent = steps.length;
+            document.getElementById('stepNum').textContent = '0';
+            clearLog();
+            renderInitial();
+            clearHighlights();
+            document.getElementById('doneBanner').classList.remove('show');
+            setPhase(-1);
+            updateVarDisplay({ n: '—', i: '—', j: '—', diff: '—', minDiff: '—', phase: '—' }, []);
+            document.getElementById('compDisplay').innerHTML =
+                '<span style="font-family:var(--font-mono);font-size:13px;color:var(--text-muted)">Press Play or Step to begin</span>';
+            document.getElementById('resultPairs').innerHTML = '<span class="result-empty">No pairs collected yet</span>';
+        }
+
+        function resetViz() {
+            stopPlay();
+            currentStep = -1;
+            document.getElementById('stepNum').textContent = '0';
+            clearLog();
+            renderInitial();
+            clearHighlights();
+            document.getElementById('doneBanner').classList.remove('show');
+            setPhase(-1);
+            updateVarDisplay({ n: '—', i: '—', j: '—', diff: '—', minDiff: '—', phase: '—' }, []);
+            document.getElementById('compDisplay').innerHTML =
+                '<span style="font-family:var(--font-mono);font-size:13px;color:var(--text-muted)">Press Play or Step to begin</span>';
+            document.getElementById('resultPairs').innerHTML = '<span class="result-empty">No pairs collected yet</span>';
+        }
+
+        /* ── STEP GENERATION ── */
+        function generateSteps(a) {
+            const n = a.length;
+            const st = [];
+
+            // INIT
+            st.push({
+                type: 'init', phase: 0,
+                vars: { n, i: '—', j: '—', diff: '—', minDiff: '∞', phase: 'Init' },
+                changed: ['n', 'minDiff', 'phase'],
+                hi: -1, hj: -1,
+                log: `<span class="phase-label">Initialize</span> n=<span class="val">${n}</span>, minDiff=<span class="val">∞</span>`,
+                comp: null, resultPairs: []
+            });
+
+            // PASS 1
+            let minDiff = Infinity;
+            for (let i = 0; i < n; i++) {
+                for (let j = i + 1; j < n; j++) {
+                    const diff = Math.abs(a[i] - a[j]);
+                    const isNewMin = diff < minDiff;
+                    if (isNewMin) minDiff = diff;
+
+                    st.push({
+                        type: 'pass1', phase: 1,
+                        vars: { n, i, j, diff, minDiff: minDiff === Infinity ? '∞' : minDiff, phase: 'Pass 1' },
+                        changed: isNewMin ? ['i', 'j', 'diff', 'minDiff'] : ['i', 'j', 'diff'],
+                        hi: i, hj: j,
+                        log: isNewMin
+                            ? `Compare |arr[${i}]−arr[${j}]| = |${a[i]}−${a[j]}| = <span class="val">${diff}</span> → <span class="new-min">New minDiff = ${minDiff}</span>`
+                            : `Compare |arr[${i}]−arr[${j}]| = |${a[i]}−${a[j]}| = <span class="val">${diff}</span> <span class="skip-text">≥ ${minDiff}, skip</span>`,
+                        comp: { ai: a[i], aj: a[j], diff, isNewMin, isMatch: false },
+                        resultPairs: []
+                    });
+                }
+            }
+
+            // Transition to Pass 2
+            st.push({
+                type: 'transition', phase: 2,
+                vars: { n, i: '—', j: '—', diff: '—', minDiff, phase: 'Pass 2' },
+                changed: ['phase'],
+                hi: -1, hj: -1,
+                log: `<span class="phase-label">Pass 2</span> Collecting all pairs with diff = <span class="val">${minDiff}</span>`,
+                comp: null, resultPairs: []
+            });
+
+            // PASS 2
+            const resultPairs = [];
+            for (let i = 0; i < n; i++) {
+                for (let j = i + 1; j < n; j++) {
+                    const diff = Math.abs(a[i] - a[j]);
+                    const isMatch = diff === minDiff;
+                    if (isMatch) {
+                        const lo = Math.min(a[i], a[j]);
+                        const hi2 = Math.max(a[i], a[j]);
+                        resultPairs.push([lo, hi2]);
+                    }
+
+                    st.push({
+                        type: 'pass2', phase: 2,
+                        vars: { n, i, j, diff, minDiff, phase: 'Pass 2' },
+                        changed: isMatch ? ['i', 'j', 'diff'] : ['i', 'j', 'diff'],
+                        hi: i, hj: j,
+                        log: isMatch
+                            ? `|arr[${i}]−arr[${j}]| = |${a[i]}−${a[j]}| = <span class="val">${diff}</span> == ${minDiff} → <span class="match">Collect [${Math.min(a[i], a[j])}, ${Math.max(a[i], a[j])}]</span>`
+                            : `|arr[${i}]−arr[${j}]| = |${a[i]}−${a[j]}| = <span class="val">${diff}</span> <span class="skip-text">≠ ${minDiff}, skip</span>`,
+                        comp: { ai: a[i], aj: a[j], diff, isNewMin: false, isMatch },
+                        resultPairs: resultPairs.map(p => [...p])
+                    });
+                }
+            }
+
+            // Sort result
+            resultPairs.sort((a, b) => a[0] - b[0] || a[1] - b[1]);
+
+            // DONE
+            st.push({
+                type: 'done', phase: 3,
+                vars: { n, i: '—', j: '—', diff: '—', minDiff, phase: 'Done' },
+                changed: ['phase'],
+                hi: -1, hj: -1,
+                log: `<span class="phase-label">Done!</span> Sorted result: [${resultPairs.map(p => `[${p}]`).join(', ')}]`,
+                comp: null,
+                resultPairs: resultPairs.map(p => [...p])
+            });
+
+            return st;
+        }
+
+        /* ── RENDERING ── */
+        function renderInitial() {
+            const row = document.getElementById('arrayRow');
+            row.innerHTML = '';
+            arr.forEach((val, idx) => {
+                const wrap = document.createElement('div');
+                wrap.className = 'array-cell-wrap';
+                wrap.innerHTML = `
+      <div class="ptr-label" id="ptr-${idx}">&nbsp;</div>
+      <div class="array-cell" id="cell-${idx}">${val}</div>
+      <span class="idx-label">${idx}</span>`;
+                row.appendChild(wrap);
+            });
+        }
+
+        function clearHighlights() {
+            arr.forEach((_, idx) => {
+                const cell = document.getElementById(`cell-${idx}`);
+                if (cell) cell.className = 'array-cell';
+                const ptr = document.getElementById(`ptr-${idx}`);
+                if (ptr) { ptr.className = 'ptr-label'; ptr.innerHTML = '&nbsp;'; }
+            });
+        }
+
+        function applyStep(s) {
+            clearHighlights();
+
+            // Highlight cells
+            if (s.hi >= 0 && s.hj >= 0) {
+                if (s.hi === s.hj) {
+                    document.getElementById(`cell-${s.hi}`).classList.add('highlight-both');
+                } else {
+                    document.getElementById(`cell-${s.hi}`).classList.add('highlight-i');
+                    document.getElementById(`cell-${s.hj}`).classList.add('highlight-j');
+                }
+                // Pointer labels
+                const ptri = document.getElementById(`ptr-${s.hi}`);
+                const ptrj = document.getElementById(`ptr-${s.hj}`);
+                if (s.hi === s.hj) {
+                    ptri.className = 'ptr-label ptr-ij'; ptri.textContent = 'i,j';
+                } else {
+                    ptri.className = 'ptr-label ptr-i'; ptri.textContent = 'i';
+                    ptrj.className = 'ptr-label ptr-j'; ptrj.textContent = 'j';
+                }
+            }
+
+            // Highlight result cells in pass2/done
+            if (s.resultPairs && s.resultPairs.length > 0 && (s.phase === 2 || s.phase === 3)) {
+                const resultVals = new Set();
+                s.resultPairs.forEach(p => { resultVals.add(p[0]); resultVals.add(p[1]); });
+                arr.forEach((val, idx) => {
+                    if (resultVals.has(val)) {
+                        const cell = document.getElementById(`cell-${idx}`);
+                        if (!cell.classList.contains('highlight-i') && !cell.classList.contains('highlight-j'))
+                            cell.classList.add('in-result');
+                    }
+                });
+            }
+
+            // Variables
+            updateVarDisplay(s.vars, s.changed);
+
+            // Comparison
+            renderComparison(s.comp);
+
+            // Result pairs
+            renderResultPairs(s.resultPairs);
+
+            // Phase
+            setPhase(s.phase);
+
+            // Log
+            addLog(s.log, currentStep + 1);
+
+            // Done
+            if (s.type === 'done') {
+                const banner = document.getElementById('doneBanner');
+                banner.classList.add('show');
+                document.getElementById('doneText').textContent =
+                    `Complete! minDiff = ${s.vars.minDiff}, ${s.resultPairs.length} pair(s) found.`;
+                stopPlay();
+            }
+        }
+
+        function updateVarDisplay(vars, changed) {
+            const map = { n: 'val-n', i: 'val-i', j: 'val-j', diff: 'val-diff', minDiff: 'val-minDiff', phase: 'val-phase' };
+            const rowMap = { n: 'var-n', i: 'var-i', j: 'var-j', diff: 'var-diff', minDiff: 'var-minDiff', phase: 'var-phase' };
+            for (const [k, elId] of Object.entries(map)) {
+                const el = document.getElementById(elId);
+                if (el) el.textContent = vars[k] !== undefined ? vars[k] : '—';
+                const row = document.getElementById(rowMap[k]);
+                if (row) {
+                    row.classList.remove('changed');
+                    if (changed && changed.includes(k)) {
+                        void row.offsetWidth;
+                        row.classList.add('changed');
+                    }
+                }
+            }
+        }
+
+        function renderComparison(comp) {
+            const el = document.getElementById('compDisplay');
+            if (!comp) {
+                el.innerHTML = '<span style="font-family:var(--font-mono);font-size:13px;color:var(--text-muted)">—</span>';
+                return;
+            }
+            const resultClass = comp.isNewMin ? 'is-new-min' : comp.isMatch ? 'is-match' : 'is-skip';
+            const resultLabel = comp.isNewMin ? '★ NEW MIN' : comp.isMatch ? '✓ MATCH' : 'skip';
+            el.innerHTML = `
+    <span class="comp-val val-i">${comp.ai}</span>
+    <span class="comp-op">−</span>
+    <span class="comp-val val-j">${comp.aj}</span>
+    <span class="comp-op">=</span>
+    <span class="comp-result ${resultClass}">${comp.diff}</span>
+    <span class="comp-op" style="margin-left:4px;font-size:11px">${resultLabel}</span>`;
+        }
+
+        function renderResultPairs(pairs) {
+            const el = document.getElementById('resultPairs');
+            if (!pairs || pairs.length === 0) {
+                el.innerHTML = '<span class="result-empty">No pairs collected yet</span>';
+                return;
+            }
+            el.innerHTML = pairs.map(p => `<span class="result-pair">[${p[0]}, ${p[1]}]</span>`).join('');
+        }
+
+        function setPhase(p) {
+            for (let i = 0; i < 4; i++) {
+                const tab = document.getElementById(`phase${i}`);
+                tab.className = 'phase-tab';
+                if (i < p) tab.classList.add('done');
+                if (i === p) tab.classList.add('active');
+            }
+        }
+
+        function addLog(html, stepNum) {
+            const body = document.getElementById('logBody');
+            // Remove highlight from previous
+            const prev = body.querySelector('.log-entry.highlight');
+            if (prev) prev.classList.remove('highlight');
+
+            const entry = document.createElement('div');
+            entry.className = 'log-entry highlight';
+            entry.innerHTML = `<span class="log-step">#${stepNum}</span><span class="log-text">${html}</span>`;
+            body.appendChild(entry);
+            body.scrollTop = body.scrollHeight;
+        }
+
+        function clearLog() {
+            document.getElementById('logBody').innerHTML = '';
+        }
+
+        /* ── CONTROLS ── */
+        function stepForward() {
+            if (currentStep >= steps.length - 1) return;
+            currentStep++;
+            document.getElementById('stepNum').textContent = currentStep + 1;
+            applyStep(steps[currentStep]);
+        }
+
+        function togglePlay() {
+            if (playing) { stopPlay(); }
+            else { startPlay(); }
+        }
+
+        function startPlay() {
+            if (currentStep >= steps.length - 1) { resetViz(); }
+            playing = true;
+            document.getElementById('playBtn').textContent = '⏸ Pause';
+            document.getElementById('playBtn').classList.add('btn-amber');
+            tick();
+        }
+
+        function stopPlay() {
+            playing = false;
+            if (playTimer) { clearTimeout(playTimer); playTimer = null; }
+            document.getElementById('playBtn').textContent = '▶ Play';
+        }
+
+        function tick() {
+            if (!playing) return;
+            stepForward();
+            if (currentStep >= steps.length - 1) { stopPlay(); return; }
+            playTimer = setTimeout(tick, speedMs);
+        }
+
+        function updateSpeed() {
+            const v = parseInt(document.getElementById('speedSlider').value);
+            const multiplier = v / 5;
+            speedMs = Math.max(50, 600 / multiplier);
+            document.getElementById('speedVal').textContent = multiplier.toFixed(1) + '×';
+        }
+
+        /* ── INIT ── */
+        updateSpeed();
+        resetAndLoad();
+    </script>
+</body>
+
+</html>

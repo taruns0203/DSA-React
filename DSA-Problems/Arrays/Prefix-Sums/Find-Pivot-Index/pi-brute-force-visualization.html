@@ -1,0 +1,423 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Find Pivot Index - Brute Force Visualization</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+      min-height: 100vh; color: #e0e0e0; padding: 20px;
+    }
+    .container { max-width: 1400px; margin: 0 auto; }
+    .back-btn { display: inline-flex; align-items: center; gap: 8px; color: #a0a0a0; text-decoration: none; margin-bottom: 20px; font-size: 0.9rem; }
+    .back-btn:hover { color: #ff6b6b; }
+    h1 { text-align: center; font-size: 1.6rem; color: #ff6b6b; margin-bottom: 8px; text-shadow: 0 0 20px rgba(255,107,107,0.5); }
+    .subtitle { text-align: center; color: #a0a0a0; margin-bottom: 25px; font-size: 0.9rem; }
+    .complexity-badge { display: inline-block; background: rgba(255,107,107,0.15); color: #ff6b6b; padding: 4px 12px; border-radius: 20px; font-size: 0.8rem; font-weight: 600; font-family: 'Consolas', monospace; }
+    .panel { background: rgba(255,255,255,0.05); border-radius: 12px; padding: 18px; border: 1px solid rgba(255,255,255,0.1); margin-bottom: 18px; }
+    .panel-title { font-size: 0.9rem; color: #ff6b6b; margin-bottom: 12px; font-weight: 600; display: flex; align-items: center; gap: 8px; }
+    .controls { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; margin-bottom: 12px; }
+    .btn { padding: 10px 18px; border: none; border-radius: 8px; cursor: pointer; font-weight: 600; font-size: 0.85rem; transition: all 0.3s; display: flex; align-items: center; gap: 6px; }
+    .btn-primary { background: linear-gradient(135deg, #ff6b6b, #ee5a5a); color: #fff; }
+    .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 4px 15px rgba(255,107,107,0.4); }
+    .btn-secondary { background: rgba(255,255,255,0.1); color: #e0e0e0; border: 1px solid rgba(255,255,255,0.2); }
+    .btn-success { background: linear-gradient(135deg, #00ff88, #00cc6a); color: #1a1a2e; }
+    .btn-warning { background: linear-gradient(135deg, #ffd93d, #ffb800); color: #1a1a2e; }
+    .btn:disabled { opacity: 0.5; cursor: not-allowed; }
+    .speed-control { display: flex; align-items: center; gap: 10px; margin-left: auto; }
+    .speed-slider { width: 100px; height: 6px; -webkit-appearance: none; background: rgba(255,255,255,0.2); border-radius: 3px; }
+    .speed-slider::-webkit-slider-thumb { -webkit-appearance: none; width: 16px; height: 16px; background: #ff6b6b; border-radius: 50%; cursor: pointer; }
+    .input-group { display: flex; flex-direction: column; gap: 5px; }
+    .input-group label { font-size: 0.75rem; color: #a0a0a0; }
+    .input-group input { padding: 8px 10px; border: 1px solid rgba(255,255,255,0.2); border-radius: 6px; background: rgba(255,255,255,0.05); color: #fff; font-size: 0.8rem; font-family: 'Consolas', monospace; }
+    .main-layout { display: grid; grid-template-columns: 1fr 280px; gap: 18px; }
+    @media (max-width: 900px) { .main-layout { grid-template-columns: 1fr; } }
+
+    /* Array Display */
+    .array-container { margin: 15px 0; }
+    .array-wrapper { display: flex; justify-content: center; align-items: flex-end; gap: 4px; min-height: 120px; }
+    .array-cell { display: flex; flex-direction: column; align-items: center; }
+    .cell-index { font-size: 0.65rem; color: #666; margin-bottom: 4px; font-family: 'Consolas', monospace; }
+    .cell-box { width: 55px; height: 55px; display: flex; align-items: center; justify-content: center; border-radius: 8px; font-weight: 700; font-size: 1rem; transition: all 0.3s; border: 2px solid rgba(255,255,255,0.2); background: rgba(0,217,255,0.1); color: #00d9ff; }
+    .cell-box.pivot { background: rgba(168,85,247,0.3); border-color: #a855f7; color: #a855f7; animation: pulse 0.5s infinite; }
+    .cell-box.left-sum { background: rgba(255,217,61,0.2); border-color: #ffd93d; color: #ffd93d; }
+    .cell-box.right-sum { background: rgba(0,255,136,0.2); border-color: #00ff88; color: #00ff88; }
+    @keyframes pulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.05); } }
+
+    /* Sum Display */
+    .sum-display { margin: 15px 0; display: flex; gap: 15px; justify-content: center; flex-wrap: wrap; }
+    .sum-box { padding: 12px 20px; border-radius: 10px; text-align: center; min-width: 140px; }
+    .sum-box.left { background: rgba(255,217,61,0.1); border: 2px solid rgba(255,217,61,0.4); }
+    .sum-box.right { background: rgba(0,255,136,0.1); border: 2px solid rgba(0,255,136,0.4); }
+    .sum-box.pivot { background: rgba(168,85,247,0.1); border: 2px solid rgba(168,85,247,0.4); }
+    .sum-label { font-size: 0.7rem; color: #a0a0a0; margin-bottom: 4px; }
+    .sum-value { font-size: 1.3rem; font-weight: 700; font-family: 'Consolas', monospace; }
+    .sum-box.left .sum-value { color: #ffd93d; }
+    .sum-box.right .sum-value { color: #00ff88; }
+    .sum-box.pivot .sum-value { color: #a855f7; }
+
+    /* Calculation Display */
+    .calc-display { margin: 12px 0; padding: 12px; background: rgba(0,217,255,0.05); border: 1px solid rgba(0,217,255,0.2); border-radius: 8px; }
+    .calc-title { font-size: 0.7rem; color: #00d9ff; margin-bottom: 6px; text-align: center; }
+    .calc-expression { font-family: 'Consolas', monospace; font-size: 0.85rem; text-align: center; color: #e0e0e0; }
+
+    /* Result */
+    .result-box { margin: 12px 0; padding: 15px; border-radius: 10px; text-align: center; display: none; }
+    .result-box.show { display: block; }
+    .result-box.success { background: rgba(0,255,136,0.1); border: 2px solid #00ff88; }
+    .result-box.fail { background: rgba(255,107,107,0.1); border: 2px solid #ff6b6b; }
+    .result-title { font-size: 1rem; font-weight: 700; }
+    .result-value { font-size: 1.3rem; font-family: 'Consolas', monospace; margin-top: 5px; }
+
+    /* State & Log */
+    .state-item { display: flex; justify-content: space-between; padding: 4px 0; border-bottom: 1px solid rgba(255,255,255,0.1); font-size: 0.7rem; }
+    .state-label { color: #a0a0a0; }
+    .state-value { font-weight: 600; color: #ff6b6b; font-family: 'Consolas', monospace; }
+    .log-container { max-height: 140px; overflow-y: auto; font-family: 'Consolas', monospace; font-size: 0.55rem; }
+    .log-entry { padding: 2px 0; border-bottom: 1px solid rgba(255,255,255,0.05); }
+    .log-step { color: #ff6b6b; }
+    .log-message.check { color: #a855f7; }
+    .log-message.calc { color: #00d9ff; }
+    .log-message.found { color: #00ff88; font-weight: 700; }
+    .log-message.continue { color: #666; }
+
+    ::-webkit-scrollbar { width: 4px; }
+    ::-webkit-scrollbar-track { background: rgba(255,255,255,0.05); }
+    ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.2); border-radius: 2px; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <a href="./724-find-pivot-index-explanation.md" class="back-btn">← Back to Explanation</a>
+    
+    <h1>🔍 Brute Force Approach</h1>
+    <p class="subtitle">
+      Calculate left/right sums for each index
+      <span class="complexity-badge">O(n²) nested loops</span>
+    </p>
+
+    <div class="panel">
+      <div class="controls">
+        <button id="playBtn" class="btn btn-primary" onclick="togglePlay()">
+          <span id="playIcon">▶</span> <span id="playText">Play</span>
+        </button>
+        <button id="stepBtn" class="btn btn-secondary" onclick="step()">⏭ Step</button>
+        <button id="resetBtn" class="btn btn-warning" onclick="reset()">🔄 Reset</button>
+        <div class="speed-control">
+          <span style="font-size:0.8rem;color:#a0a0a0">Speed:</span>
+          <input type="range" id="speedSlider" class="speed-slider" min="1" max="10" value="5" onchange="updateSpeed()">
+          <span id="speedValue">1x</span>
+        </div>
+      </div>
+      <div style="display:flex;gap:15px;align-items:flex-end;flex-wrap:wrap">
+        <div class="input-group">
+          <label>Array (comma-separated):</label>
+          <input type="text" id="arrayInput" value="1,7,3,6,5,6" style="width:200px">
+        </div>
+        <button class="btn btn-success" onclick="startVisualization()">▶ Start</button>
+      </div>
+    </div>
+
+    <div class="main-layout">
+      <div class="visualization-area">
+        <div class="panel">
+          <div class="panel-title">📊 Array</div>
+          <div class="array-container">
+            <div class="array-wrapper" id="arrayDisplay"></div>
+          </div>
+
+          <div class="sum-display">
+            <div class="sum-box left">
+              <div class="sum-label">Left Sum</div>
+              <div class="sum-value" id="leftSumValue">-</div>
+            </div>
+            <div class="sum-box pivot">
+              <div class="sum-label">Pivot Index</div>
+              <div class="sum-value" id="pivotValue">-</div>
+            </div>
+            <div class="sum-box right">
+              <div class="sum-label">Right Sum</div>
+              <div class="sum-value" id="rightSumValue">-</div>
+            </div>
+          </div>
+
+          <div class="calc-display">
+            <div class="calc-title">Current Calculation</div>
+            <div class="calc-expression" id="calcExpression">-</div>
+          </div>
+
+          <div id="resultBox" class="result-box">
+            <div class="result-title" id="resultTitle">-</div>
+            <div class="result-value" id="resultValue">-</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="sidebar">
+        <div class="panel">
+          <div class="panel-title">📋 Current State</div>
+          <div class="state-item">
+            <span class="state-label">Phase:</span>
+            <span class="state-value" id="phaseState">-</span>
+          </div>
+          <div class="state-item">
+            <span class="state-label">Index i:</span>
+            <span class="state-value" id="indexState">-</span>
+          </div>
+          <div class="state-item">
+            <span class="state-label">Left Sum:</span>
+            <span class="state-value" id="leftState">-</span>
+          </div>
+          <div class="state-item">
+            <span class="state-label">Right Sum:</span>
+            <span class="state-value" id="rightState">-</span>
+          </div>
+          <div class="state-item">
+            <span class="state-label">Match:</span>
+            <span class="state-value" id="matchState">-</span>
+          </div>
+        </div>
+
+        <div class="panel">
+          <div class="panel-title">📝 Execution Log</div>
+          <div class="log-container" id="logContainer"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    let nums = [];
+    let steps = [], currentStep = 0, isPlaying = false, playInterval = null, speed = 400;
+
+    function generateSteps() {
+      steps = [];
+      const n = nums.length;
+
+      steps.push({ type: 'init', message: 'Start checking each index as potential pivot' });
+
+      for (let i = 0; i < n; i++) {
+        // Check index i as pivot
+        steps.push({ 
+          type: 'check-index', i, 
+          message: `Check index ${i} as pivot`
+        });
+
+        // Calculate left sum
+        let leftSum = 0;
+        const leftIndices = [];
+        for (let j = 0; j < i; j++) {
+          leftIndices.push(j);
+          leftSum += nums[j];
+          steps.push({
+            type: 'calc-left', i, j, leftSum, leftIndices: [...leftIndices],
+            message: `Left sum: adding nums[${j}]=${nums[j]}, total=${leftSum}`
+          });
+        }
+
+        const finalLeftSum = leftSum;
+        steps.push({
+          type: 'left-done', i, leftSum: finalLeftSum,
+          message: `Left sum complete: ${finalLeftSum}`
+        });
+
+        // Calculate right sum
+        let rightSum = 0;
+        const rightIndices = [];
+        for (let k = i + 1; k < n; k++) {
+          rightIndices.push(k);
+          rightSum += nums[k];
+          steps.push({
+            type: 'calc-right', i, k, rightSum, rightIndices: [...rightIndices], leftSum: finalLeftSum,
+            message: `Right sum: adding nums[${k}]=${nums[k]}, total=${rightSum}`
+          });
+        }
+
+        const finalRightSum = rightSum;
+        steps.push({
+          type: 'right-done', i, leftSum: finalLeftSum, rightSum: finalRightSum,
+          message: `Right sum complete: ${finalRightSum}`
+        });
+
+        // Check if equal
+        if (finalLeftSum === finalRightSum) {
+          steps.push({
+            type: 'found', i, leftSum: finalLeftSum, rightSum: finalRightSum,
+            message: `✓ Found pivot! Left=${finalLeftSum}, Right=${finalRightSum}`
+          });
+          steps.push({
+            type: 'done', result: i, leftSum: finalLeftSum, rightSum: finalRightSum,
+            message: `Return ${i}`
+          });
+          return;
+        } else {
+          steps.push({
+            type: 'not-equal', i, leftSum: finalLeftSum, rightSum: finalRightSum,
+            message: `✗ Not equal: ${finalLeftSum} ≠ ${finalRightSum}, continue`
+          });
+        }
+      }
+
+      steps.push({
+        type: 'done', result: -1,
+        message: 'No pivot found, return -1'
+      });
+    }
+
+    function renderArray(step) {
+      const container = document.getElementById('arrayDisplay');
+      const currentIndex = step?.i;
+      const leftIndices = new Set(step?.leftIndices || []);
+      const rightIndices = new Set(step?.rightIndices || []);
+
+      let html = '';
+      for (let i = 0; i < nums.length; i++) {
+        let cellClass = 'cell-box';
+        if (i === currentIndex) cellClass += ' pivot';
+        else if (leftIndices.has(i)) cellClass += ' left-sum';
+        else if (rightIndices.has(i)) cellClass += ' right-sum';
+
+        html += `
+          <div class="array-cell">
+            <div class="cell-index">i=${i}</div>
+            <div class="${cellClass}">${nums[i]}</div>
+          </div>
+        `;
+      }
+      container.innerHTML = html;
+    }
+
+    function renderSums(step) {
+      document.getElementById('leftSumValue').textContent = step?.leftSum !== undefined ? step.leftSum : '-';
+      document.getElementById('rightSumValue').textContent = step?.rightSum !== undefined ? step.rightSum : '-';
+      document.getElementById('pivotValue').textContent = step?.i !== undefined ? step.i : '-';
+    }
+
+    function renderCalculation(step) {
+      const calc = document.getElementById('calcExpression');
+      
+      if (step?.type === 'calc-left') {
+        const indices = step.leftIndices.map(idx => `nums[${idx}]`).join(' + ');
+        calc.textContent = `Left: ${indices || '0'} = ${step.leftSum}`;
+      } else if (step?.type === 'calc-right') {
+        const indices = step.rightIndices.map(idx => `nums[${idx}]`).join(' + ');
+        calc.textContent = `Right: ${indices || '0'} = ${step.rightSum}`;
+      } else if (step?.type === 'left-done') {
+        calc.textContent = `Left Sum = ${step.leftSum}`;
+      } else if (step?.type === 'right-done') {
+        calc.textContent = `Right Sum = ${step.rightSum}`;
+      } else if (step?.type === 'found' || step?.type === 'not-equal') {
+        calc.textContent = `${step.leftSum} ${step.leftSum === step.rightSum ? '=' : '≠'} ${step.rightSum}`;
+      } else {
+        calc.textContent = '-';
+      }
+    }
+
+    function renderResult(step) {
+      const box = document.getElementById('resultBox');
+      if (step?.type === 'done') {
+        box.classList.add('show');
+        box.className = 'result-box show ' + (step.result === -1 ? 'fail' : 'success');
+        document.getElementById('resultTitle').textContent = step.result === -1 ? '✗ No Pivot Found' : '✓ Pivot Found';
+        document.getElementById('resultValue').textContent = step.result;
+        document.getElementById('resultValue').style.color = step.result === -1 ? '#ff6b6b' : '#00ff88';
+      } else {
+        box.classList.remove('show');
+      }
+    }
+
+    function startVisualization() {
+      const input = document.getElementById('arrayInput').value;
+      nums = input.split(',').map(x => parseInt(x.trim())).filter(x => !isNaN(x));
+      
+      if (nums.length === 0) {
+        alert('Please enter a valid array');
+        return;
+      }
+
+      generateSteps();
+      currentStep = 0;
+      renderArray(null);
+      renderSums(null);
+      renderCalculation(null);
+      renderResult(null);
+      clearLog();
+      document.getElementById('playBtn').disabled = false;
+      document.getElementById('stepBtn').disabled = false;
+    }
+
+    function updateDisplay() {
+      if (currentStep >= steps.length) { stopPlay(); return; }
+      const step = steps[currentStep];
+      renderArray(step);
+      renderSums(step);
+      renderCalculation(step);
+      renderResult(step);
+      
+      document.getElementById('phaseState').textContent = 
+        step.type === 'init' ? 'Initialize' :
+        step.type === 'check-index' ? 'Check Index' :
+        step.type.startsWith('calc-left') ? 'Calc Left' :
+        step.type === 'left-done' ? 'Left Done' :
+        step.type.startsWith('calc-right') ? 'Calc Right' :
+        step.type === 'right-done' ? 'Right Done' :
+        step.type === 'found' ? 'Found!' :
+        step.type === 'not-equal' ? 'Not Equal' :
+        step.type === 'done' ? 'Complete' : '-';
+      
+      document.getElementById('indexState').textContent = step.i !== undefined ? step.i : '-';
+      document.getElementById('leftState').textContent = step.leftSum !== undefined ? step.leftSum : '-';
+      document.getElementById('rightState').textContent = step.rightSum !== undefined ? step.rightSum : '-';
+      document.getElementById('matchState').textContent = 
+        step.type === 'found' ? 'Yes' :
+        step.type === 'not-equal' ? 'No' : '-';
+      
+      addLogEntry(currentStep + 1, step.message, step.type);
+    }
+
+    function addLogEntry(num, msg, type) {
+      const container = document.getElementById('logContainer');
+      let cls = type === 'found' || type === 'done' ? 'found' : 
+                type === 'check-index' ? 'check' : 
+                type.startsWith('calc') || type.includes('done') ? 'calc' : 
+                type === 'not-equal' ? 'continue' : '';
+      container.innerHTML += `<div class="log-entry"><span class="log-step">${num}.</span> <span class="log-message ${cls}">${msg}</span></div>`;
+      container.scrollTop = container.scrollHeight;
+    }
+
+    function clearLog() { document.getElementById('logContainer').innerHTML = ''; }
+    function step() { if (currentStep < steps.length) { updateDisplay(); currentStep++; } }
+    function togglePlay() { isPlaying ? stopPlay() : startPlay(); }
+    function startPlay() {
+      if (currentStep >= steps.length) { reset(); startVisualization(); }
+      isPlaying = true;
+      document.getElementById('playIcon').textContent = '⏸';
+      document.getElementById('playText').textContent = 'Pause';
+      document.getElementById('stepBtn').disabled = true;
+      playInterval = setInterval(() => { if (currentStep < steps.length) step(); else stopPlay(); }, speed);
+    }
+    function stopPlay() {
+      isPlaying = false;
+      document.getElementById('playIcon').textContent = '▶';
+      document.getElementById('playText').textContent = 'Play';
+      document.getElementById('stepBtn').disabled = false;
+      if (playInterval) { clearInterval(playInterval); playInterval = null; }
+    }
+    function reset() {
+      stopPlay(); currentStep = 0;
+      renderArray(null); renderSums(null); renderCalculation(null); renderResult(null); clearLog();
+      ['phaseState','indexState','leftState','rightState','matchState'].forEach(id => document.getElementById(id).textContent = '-');
+    }
+    function updateSpeed() {
+      const v = document.getElementById('speedSlider').value;
+      speed = 800 - (v * 70);
+      document.getElementById('speedValue').textContent = (v / 5).toFixed(1) + 'x';
+      if (isPlaying) { stopPlay(); startPlay(); }
+    }
+    document.addEventListener('DOMContentLoaded', updateSpeed);
+  </script>
+</body>
+</html>

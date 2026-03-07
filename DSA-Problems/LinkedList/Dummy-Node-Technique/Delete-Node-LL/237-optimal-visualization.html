@@ -1,0 +1,911 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>237 - Optimal: Copy-and-Skip (Delete Node)</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #0a1628 0%, #1a3a4a 50%, #0d2137 100%);
+            min-height: 100vh;
+            padding: 18px;
+            color: #e0e0e0
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: rgba(20, 30, 50, .95);
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, .5), 0 0 40px rgba(26, 188, 156, .07);
+            overflow: hidden;
+            border: 1px solid rgba(255, 255, 255, .06)
+        }
+
+        header {
+            background: linear-gradient(135deg, #16a085, #1abc9c);
+            color: #fff;
+            padding: 22px;
+            text-align: center
+        }
+
+        h1 {
+            font-size: 1.15em;
+            margin-bottom: 5px
+        }
+
+        .subtitle {
+            font-size: .84em;
+            opacity: .92
+        }
+
+        .badge {
+            display: inline-block;
+            background: rgba(255, 255, 255, .2);
+            padding: 5px 14px;
+            border-radius: 15px;
+            margin-top: 7px;
+            font-size: .78em
+        }
+
+        .main-content {
+            display: grid;
+            grid-template-columns: 1fr 290px;
+            gap: 16px;
+            padding: 18px
+        }
+
+        .card {
+            background: rgba(30, 45, 65, .85);
+            border-radius: 14px;
+            padding: 15px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, .2);
+            margin-bottom: 14px;
+            border: 1px solid rgba(255, 255, 255, .05)
+        }
+
+        .card-title {
+            font-size: .88em;
+            font-weight: 600;
+            margin-bottom: 10px;
+            color: #1abc9c
+        }
+
+        button {
+            padding: 7px 14px;
+            border: none;
+            border-radius: 8px;
+            font-size: .82em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all .3s
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, .3)
+        }
+
+        button:disabled {
+            opacity: .4;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #16a085, #1abc9c);
+            color: #fff
+        }
+
+        .btn-success {
+            background: linear-gradient(135deg, #27ae60, #2ecc71);
+            color: #fff
+        }
+
+        .btn-warning {
+            background: linear-gradient(135deg, #f39c12, #e67e22);
+            color: #fff
+        }
+
+        .btn-secondary {
+            background: rgba(100, 100, 140, .7);
+            color: #fff
+        }
+
+        .btn-info {
+            background: linear-gradient(135deg, #3498db, #2980b9);
+            color: #fff
+        }
+
+        .controls {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            align-items: center
+        }
+
+        .speed-control {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            flex: 1;
+            min-width: 140px
+        }
+
+        .speed-control label {
+            font-size: .8em;
+            color: #aaa
+        }
+
+        .speed-control input[type="range"] {
+            flex: 1;
+            height: 5px;
+            accent-color: #1abc9c
+        }
+
+        .speed-control span {
+            font-size: .8em;
+            color: #1abc9c;
+            min-width: 24px
+        }
+
+        .input-section {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+            flex-wrap: wrap
+        }
+
+        .input-section input {
+            padding: 7px 10px;
+            border-radius: 8px;
+            border: 1px solid rgba(255, 255, 255, .15);
+            background: rgba(15, 25, 40, .8);
+            color: #e0e0e0;
+            font-size: .82em;
+            font-family: 'Courier New', monospace;
+        }
+
+        .input-section input:focus {
+            outline: none;
+            border-color: #1abc9c
+        }
+
+        .input-section label {
+            font-size: .82em;
+            color: #aaa
+        }
+
+        .ll-row {
+            display: flex;
+            gap: 0;
+            padding: 14px;
+            background: rgba(15, 25, 40, .4);
+            border-radius: 10px;
+            min-height: 70px;
+            align-items: center;
+            justify-content: center;
+            flex-wrap: wrap;
+            overflow-x: auto;
+            position: relative;
+        }
+
+        .nd {
+            width: 58px;
+            height: 58px;
+            border-radius: 13px;
+            display: inline-flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 1.3em;
+            border: 2.5px solid rgba(150, 150, 200, .12);
+            background: rgba(50, 70, 100, .06);
+            font-family: 'Courier New', monospace;
+            color: #777;
+            transition: all .5s;
+            position: relative;
+        }
+
+        .nd-sub {
+            font-size: .32em;
+            color: #555;
+            margin-top: 2px;
+            font-weight: 600
+        }
+
+        .nd.no-access {
+            border-style: dashed;
+            border-color: rgba(150, 150, 200, .08);
+            color: #444;
+            opacity: .45
+        }
+
+        .nd.target {
+            border-color: #e74c3c;
+            background: rgba(231, 76, 60, .15);
+            color: #e74c3c;
+            box-shadow: 0 0 18px rgba(231, 76, 60, .3);
+            transform: scale(1.12)
+        }
+
+        .nd.next-nd {
+            border-color: #3498db;
+            background: rgba(52, 152, 219, .12);
+            color: #3498db;
+            box-shadow: 0 0 12px rgba(52, 152, 219, .2)
+        }
+
+        .nd.copying {
+            border-color: #f39c12;
+            background: rgba(243, 156, 18, .15);
+            color: #f39c12;
+            box-shadow: 0 0 16px rgba(243, 156, 18, .25);
+            transform: scale(1.08)
+        }
+
+        .nd.overwritten {
+            border-color: #2ecc71;
+            background: rgba(46, 204, 113, .14);
+            color: #2ecc71;
+            box-shadow: 0 0 14px rgba(46, 204, 113, .2);
+            transform: scale(1.08)
+        }
+
+        .nd.skipped {
+            border-color: #e74c3c;
+            background: rgba(231, 76, 60, .12);
+            color: #e74c3c;
+            opacity: .35;
+            transform: scale(.7);
+            border-style: dashed
+        }
+
+        .nd.done-nd {
+            border-color: #1abc9c;
+            background: rgba(26, 188, 156, .08);
+            color: #1abc9c
+        }
+
+        .arrow {
+            color: #555;
+            font-size: .72em;
+            margin: 0 3px;
+            display: inline-block;
+            vertical-align: middle;
+            transition: all .5s
+        }
+
+        .arrow.done-a {
+            color: #1abc9c
+        }
+
+        .arrow.skip-a {
+            color: #2ecc71;
+            font-weight: 700;
+            font-size: .9em
+        }
+
+        .arrow.cross-a {
+            color: #e74c3c;
+            text-decoration: line-through;
+            opacity: .4
+        }
+
+        .del-badge {
+            display: inline-block;
+            padding: 5px 14px;
+            border-radius: 8px;
+            background: rgba(231, 76, 60, .15);
+            border: 1px solid rgba(231, 76, 60, .3);
+            color: #e74c3c;
+            font-weight: 700;
+            font-size: .85em;
+            font-family: 'Courier New', monospace;
+            margin-left: 8px
+        }
+
+        .trick-box {
+            padding: 16px;
+            background: rgba(15, 25, 40, .5);
+            border-radius: 10px;
+            text-align: center;
+            min-height: 80px;
+            font-family: 'Courier New', monospace;
+            font-size: .85em;
+            line-height: 2;
+        }
+
+        .trick-line {
+            padding: 4px 10px;
+            border-radius: 5px;
+            display: inline-block;
+            margin: 2px;
+            transition: all .4s
+        }
+
+        .trick-line.active {
+            background: rgba(26, 188, 156, .15);
+            color: #1abc9c;
+            transform: scale(1.06)
+        }
+
+        .trick-line.done-line {
+            background: rgba(46, 204, 113, .1);
+            color: #2ecc71
+        }
+
+        .trick-line .kw {
+            color: #c678dd
+        }
+
+        .trick-line .op {
+            color: #f39c12
+        }
+
+        .copy-arrow-container {
+            position: relative;
+            min-height: 30px;
+            margin: 6px 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .copy-label {
+            font-size: .75em;
+            font-family: 'Courier New', monospace;
+            color: #f39c12;
+            font-weight: 700;
+            padding: 3px 10px;
+            background: rgba(243, 156, 18, .08);
+            border-radius: 6px;
+            border: 1px solid rgba(243, 156, 18, .2);
+            animation: pulseGlow 1.2s infinite alternate;
+        }
+
+        @keyframes pulseGlow {
+            from {
+                box-shadow: 0 0 4px rgba(243, 156, 18, .1)
+            }
+
+            to {
+                box-shadow: 0 0 12px rgba(243, 156, 18, .3)
+            }
+        }
+
+        .op-panel {
+            padding: 12px;
+            background: rgba(15, 25, 40, .5);
+            border-radius: 8px;
+            text-align: center;
+            min-height: 55px;
+            font-size: .82em;
+            line-height: 1.8;
+            font-family: 'Courier New', monospace;
+        }
+
+        .status-ind {
+            text-align: center;
+            padding: 11px;
+            border-radius: 10px;
+            font-weight: 700;
+            font-size: .85em;
+            transition: all .3s
+        }
+
+        .si-neutral {
+            background: rgba(100, 100, 140, .12);
+            color: #888
+        }
+
+        .si-run {
+            background: rgba(26, 188, 156, .06);
+            color: #1abc9c;
+            border: 1px solid rgba(26, 188, 156, .12)
+        }
+
+        .si-done {
+            background: rgba(46, 204, 113, .12);
+            color: #2ecc71;
+            border: 1px solid rgba(46, 204, 113, .25)
+        }
+
+        .state-display {
+            background: rgba(15, 25, 40, .5);
+            border-radius: 8px;
+            padding: 10px;
+            font-family: 'Courier New', monospace;
+            font-size: .68em
+        }
+
+        .state-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 4px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, .05)
+        }
+
+        .state-row:last-child {
+            border-bottom: none
+        }
+
+        .state-label {
+            font-weight: 600;
+            color: #1abc9c
+        }
+
+        .state-val {
+            color: #ccc;
+            text-align: right;
+            max-width: 155px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap
+        }
+
+        .log-container {
+            background: rgba(15, 25, 40, .5);
+            border-radius: 8px;
+            padding: 10px;
+            max-height: 260px;
+            overflow-y: auto;
+            font-family: 'Courier New', monospace;
+            font-size: .54em
+        }
+
+        .log-entry {
+            padding: 3px 7px;
+            margin: 2px 0;
+            border-radius: 4px;
+            border-left: 3px solid #555;
+            background: rgba(30, 45, 65, .5);
+            line-height: 1.5
+        }
+
+        .log-entry.success {
+            border-left-color: #2ecc71;
+            background: rgba(46, 204, 113, .08);
+            color: #2ecc71
+        }
+
+        .log-entry.warning {
+            border-left-color: #f39c12;
+            background: rgba(243, 156, 18, .08);
+            color: #f39c12
+        }
+
+        .log-entry.info {
+            border-left-color: #3498db;
+            background: rgba(52, 152, 219, .08);
+            color: #8ec8f0
+        }
+
+        .log-entry.error {
+            border-left-color: #e74c3c;
+            background: rgba(231, 76, 60, .08);
+            color: #e74c3c
+        }
+
+        .log-entry.teal {
+            border-left-color: #1abc9c;
+            background: rgba(26, 188, 156, .08);
+            color: #1abc9c
+        }
+
+        .log-entry.orange {
+            border-left-color: #e67e22;
+            background: rgba(230, 126, 34, .08);
+            color: #e67e22
+        }
+
+        .log-container::-webkit-scrollbar {
+            width: 5px
+        }
+
+        .log-container::-webkit-scrollbar-track {
+            background: transparent
+        }
+
+        .log-container::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, .15);
+            border-radius: 3px
+        }
+
+        @media(max-width:960px) {
+            .main-content {
+                grid-template-columns: 1fr
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <header>
+            <h1>🗑️ Delete Node in a Linked List</h1>
+            <div class="subtitle">Optimal — Copy-and-Skip (The O(1) Trick)</div>
+            <div class="badge">Time: O(1) | Space: O(1) — just 2 assignments, no traversal</div>
+        </header>
+        <div class="main-content">
+            <div class="left-panel">
+                <div class="card">
+                    <div class="card-title">⚙️ Controls</div>
+                    <div class="controls">
+                        <button class="btn-primary" id="playBtn">▶️ Play</button>
+                        <button class="btn-warning" id="pauseBtn" disabled>⏸️ Pause</button>
+                        <button class="btn-success" id="stepBtn">⏭️ Step</button>
+                        <button class="btn-secondary" id="resetBtn">🔄 Reset</button>
+                        <div class="speed-control">
+                            <label>Speed:</label>
+                            <input type="range" id="speedSlider" min="1" max="10" value="4">
+                            <span id="speedValue">4x</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="card">
+                    <div class="card-title">✏️ Custom Input</div>
+                    <div class="input-section">
+                        <label>List:</label>
+                        <input type="text" id="listInput" value="4,5,1,9" placeholder="values" style="flex:1">
+                        <label>Delete val:</label>
+                        <input type="text" id="delInput" value="5" placeholder="val" style="width:50px">
+                        <button class="btn-info" id="applyBtn">Apply</button>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-title">💡 The Trick (2 Lines of Code)</div>
+                    <div class="trick-box">
+                        <div class="trick-line" id="tL0"><span class="kw">node</span>.val <span class="op">=</span>
+                            node.next.val &nbsp; <span style="color:#5c6370">// copy</span></div><br>
+                        <div class="trick-line" id="tL1"><span class="kw">node</span>.next <span class="op">=</span>
+                            node.next.next <span style="color:#5c6370">// skip</span></div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-title">🔗 Linked List <span class="del-badge">delete node(<span
+                                id="delDisp">5</span>)</span></div>
+                    <div class="ll-row" id="listDisplay"></div>
+                    <div class="copy-arrow-container" id="copyArrow"></div>
+                </div>
+
+                <div class="card">
+                    <div class="card-title">🔀 Current Operation</div>
+                    <div class="op-panel" id="opPanel"><span style="color:#555">— press Play or Step —</span></div>
+                </div>
+
+                <div class="card">
+                    <div class="card-title">✅ Final Result</div>
+                    <div class="ll-row" id="resultDisplay"><span style="color:#555">—</span></div>
+                </div>
+
+                <div class="card">
+                    <div class="status-ind si-neutral" id="statusInd">Ready — press Play or Step</div>
+                </div>
+            </div>
+
+            <div class="right-panel">
+                <div class="card">
+                    <div class="card-title">📋 Current State</div>
+                    <div class="state-display">
+                        <div class="state-row"><span class="state-label">Phase:</span><span class="state-val"
+                                id="stPhase">init</span></div>
+                        <div class="state-row"><span class="state-label">Delete val:</span><span class="state-val"
+                                id="stDelVal">—</span></div>
+                        <div class="state-row"><span class="state-label">node:</span><span class="state-val"
+                                id="stNode">—</span></div>
+                        <div class="state-row"><span class="state-label">node.val:</span><span class="state-val"
+                                id="stNodeVal">—</span></div>
+                        <div class="state-row"><span class="state-label">node.next:</span><span class="state-val"
+                                id="stNextNode">—</span></div>
+                        <div class="state-row"><span class="state-label">node.next.val:</span><span class="state-val"
+                                id="stNextVal">—</span></div>
+                        <div class="state-row"><span class="state-label">node.next.next:</span><span class="state-val"
+                                id="stNextNext">—</span></div>
+                        <div class="state-row"><span class="state-label">List:</span><span class="state-val"
+                                id="stList">—</span></div>
+                    </div>
+                </div>
+                <div class="card" style="flex:1">
+                    <div class="card-title">📝 Execution Log</div>
+                    <div class="log-container" id="logContainer">
+                        <div class="log-entry teal">Copy next value into node, skip next. O(1)!</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let initVals = [4, 5, 1, 9];
+        let DEL_VAL = 5;
+
+        let list = [];
+        let nodeStates = {};
+        let arrowStates = {};
+        let delIdx = -1;
+        let skippedIdx = -1;
+
+        let steps = [], stepIdx = 0, stepCount = 0;
+        let isRunning = false, speed = 4, isDone = false, phase = 'init';
+
+        const $ = id => document.getElementById(id);
+        const logC = $('logContainer');
+        function addLog(m, t = 'info') { logC.innerHTML += `<div class="log-entry ${t}">[${stepCount}] ${m}</div>`; logC.scrollTop = logC.scrollHeight }
+        function clearLog() { logC.innerHTML = '' }
+
+        function setTrickLine(line) {
+            $('tL0').className = 'trick-line' + (line === 0 ? ' active' : (line > 0 ? ' done-line' : ''));
+            $('tL1').className = 'trick-line' + (line === 1 ? ' active' : (line > 1 ? ' done-line' : ''));
+        }
+
+        /* ── Build steps ─────────────────────────── */
+        function buildSteps() {
+            steps = [];
+            const di = initVals.indexOf(DEL_VAL);
+            if (di === -1 || initVals.length < 2) { steps.push({ type: 'error' }); return; }
+            if (di === initVals.length - 1) { steps.push({ type: 'error-tail' }); return; }
+
+            steps.push({ type: 'identify', delIdx: di });
+            steps.push({ type: 'no-access', delIdx: di });
+            steps.push({ type: 'show-next', delIdx: di, nextIdx: di + 1 });
+            steps.push({ type: 'copy-val', delIdx: di, nextIdx: di + 1, newVal: initVals[di + 1] });
+            steps.push({ type: 'skip-next', delIdx: di, nextIdx: di + 1, nextNextIdx: di + 2 < initVals.length ? di + 2 : null });
+            steps.push({ type: 'done' });
+        }
+
+        /* ── Render ───────────────────────────────── */
+        function renderList() {
+            let h = '';
+            for (let i = 0; i < list.length; i++) {
+                if (skippedIdx === i) continue;
+
+                let cls = 'nd';
+                if (nodeStates[i]) cls += ' ' + nodeStates[i];
+                if (isDone) cls = 'nd done-nd';
+
+                let lbl = '';
+                if (!isDone) {
+                    if (nodeStates[i] === 'target') lbl = '❌ node';
+                    else if (nodeStates[i] === 'next-nd') lbl = 'node.next';
+                    else if (nodeStates[i] === 'copying') lbl = '📋 COPY';
+                    else if (nodeStates[i] === 'overwritten') lbl = '✅ copied';
+                    else if (i < delIdx) lbl = '🔒';
+                }
+
+                h += `<div class="${cls}">${list[i]}<span class="nd-sub">${lbl}</span></div>`;
+
+                // Arrow to next visible node
+                let nextVisible = i + 1;
+                while (nextVisible < list.length && nextVisible === skippedIdx) nextVisible++;
+                if (nextVisible < list.length) {
+                    let ac = 'arrow';
+                    if (isDone) ac += ' done-a';
+                    if (arrowStates[i] === 'skip') ac = 'arrow skip-a';
+                    if (arrowStates[i] === 'cross') ac = 'arrow cross-a';
+                    const arrowChar = arrowStates[i] === 'skip' ? '⟹' : '→';
+                    h += `<span class="${ac}">${arrowChar}</span>`;
+                }
+            }
+            if (list.length > 0 && skippedIdx !== list.length - 1) {
+                h += `<span class="arrow" style="opacity:.4">→∅</span>`;
+            } else if (skippedIdx === list.length - 1) {
+                h += `<span class="arrow" style="opacity:.4">→∅</span>`;
+            }
+            $('listDisplay').innerHTML = h;
+        }
+
+        function renderCopyArrow(show, fromVal, toNode) {
+            if (!show) { $('copyArrow').innerHTML = ''; return; }
+            $('copyArrow').innerHTML = `<div class="copy-label">📋 COPY: node.val ← node.next.val (${fromVal})</div>`;
+        }
+
+        function renderResult() {
+            if (!isDone) { $('resultDisplay').innerHTML = '<span style="color:#555">—</span>'; return; }
+            const res = list.filter((_, i) => i !== skippedIdx);
+            let h = '';
+            for (let i = 0; i < res.length; i++) {
+                h += `<div class="nd done-nd">${res[i]}</div>`;
+                if (i < res.length - 1) h += `<span class="arrow done-a">→</span>`;
+            }
+            h += `<span class="arrow" style="opacity:.4">→∅</span>`;
+            $('resultDisplay').innerHTML = h;
+        }
+
+        function renderState() {
+            $('stPhase').textContent = phase;
+            $('stDelVal').textContent = DEL_VAL;
+            const vis = list.filter((_, i) => i !== skippedIdx);
+            $('stList').textContent = '[' + vis.join(',') + ']';
+        }
+
+        function render() { renderList(); renderResult(); renderState(); }
+
+        /* ── Execute step ──────────────────────────── */
+        function doStep() {
+            if (isDone || stepIdx >= steps.length) { stopExec(); return; }
+            stepCount++;
+            const s = steps[stepIdx++];
+
+            nodeStates = {};
+            arrowStates = {};
+            renderCopyArrow(false);
+
+            switch (s.type) {
+                case 'identify':
+                    list = [...initVals];
+                    delIdx = s.delIdx;
+                    phase = 'identify';
+                    nodeStates[s.delIdx] = 'target';
+                    addLog(`━━ Delete node(${DEL_VAL}) — The O(1) Trick ━━`, 'teal');
+                    addLog(`We only have a pointer to node(${DEL_VAL}). No head!`, 'warning');
+                    $('statusInd').className = 'status-ind si-run';
+                    $('statusInd').textContent = 'Identifying target node...';
+                    $('stNode').textContent = `node(${DEL_VAL})`;
+                    $('stNodeVal').textContent = DEL_VAL;
+                    $('opPanel').innerHTML = `<span style="color:#e74c3c;font-weight:700">❌ Target: node(${DEL_VAL})</span><br><span style="color:#aaa">We can't unlink this — no previous pointer!</span>`;
+                    break;
+
+                case 'no-access':
+                    nodeStates[s.delIdx] = 'target';
+                    for (let i = 0; i < s.delIdx; i++) nodeStates[i] = 'no-access';
+                    addLog(`🔒 Nodes before node(${DEL_VAL}) are inaccessible.`, 'warning');
+                    addLog(`💡 Trick: make node impersonate its successor!`, 'teal');
+                    $('opPanel').innerHTML =
+                        `<span style="color:#f39c12">🔒 No prev pointer — can't do normal deletion</span><br>` +
+                        `<span style="color:#1abc9c;font-weight:700">💡 Trick: make node become node.next!</span>`;
+                    break;
+
+                case 'show-next': {
+                    nodeStates[s.delIdx] = 'target';
+                    nodeStates[s.nextIdx] = 'next-nd';
+                    const nextVal = list[s.nextIdx];
+                    const nn = s.nextIdx + 1 < list.length ? `node(${list[s.nextIdx + 1]})` : 'null';
+                    $('stNextNode').textContent = `node(${nextVal})`;
+                    $('stNextVal').textContent = nextVal;
+                    $('stNextNext').textContent = nn;
+                    addLog(`  node.next = node(${nextVal}), node.next.next = ${nn}`, 'info');
+                    $('opPanel').innerHTML =
+                        `<span style="color:#e74c3c">node(${DEL_VAL})</span>` +
+                        `<span style="color:#555"> → </span>` +
+                        `<span style="color:#3498db">node.next(${nextVal})</span>` +
+                        `<span style="color:#555"> → </span>` +
+                        `<span style="color:#aaa">${nn}</span>`;
+                    break;
+                }
+
+                case 'copy-val': {
+                    const oldVal = list[s.delIdx];
+                    list[s.delIdx] = s.newVal;
+                    nodeStates[s.delIdx] = 'overwritten';
+                    nodeStates[s.nextIdx] = 'copying';
+                    renderCopyArrow(true, s.newVal, 'node');
+                    $('stNodeVal').textContent = `${oldVal} → ${s.newVal}`;
+                    addLog(`📋 COPY: node.val = node.next.val → ${oldVal} becomes ${s.newVal}`, 'orange');
+                    addLog(`  node now impersonates node.next!`, 'teal');
+                    setTrickLine(0);
+                    $('opPanel').innerHTML =
+                        `<span style="color:#f39c12;font-weight:700;font-size:1.05em">📋 STEP 1: COPY</span><br>` +
+                        `<span style="color:#aaa">node.val = </span>` +
+                        `<span style="color:#e74c3c;text-decoration:line-through">${oldVal}</span>` +
+                        `<span style="color:#f39c12"> → </span>` +
+                        `<span style="color:#2ecc71;font-weight:700;font-size:1.1em">${s.newVal}</span>`;
+                    break;
+                }
+
+                case 'skip-next': {
+                    nodeStates[s.delIdx] = 'overwritten';
+                    nodeStates[s.nextIdx] = 'skipped';
+                    skippedIdx = s.nextIdx;
+                    arrowStates[s.delIdx] = 'skip';
+                    const target = s.nextNextIdx !== null ? `node(${list[s.nextNextIdx]})` : 'null';
+                    $('stNextNode').textContent = `${target} (skipped!)`;
+                    addLog(`⏭️ SKIP: node.next = node.next.next → skip over orphaned node`, 'orange');
+                    addLog(`  node(${list[s.nextIdx]}) is now orphaned (effectively deleted).`, 'error');
+                    setTrickLine(1);
+                    $('opPanel').innerHTML =
+                        `<span style="color:#f39c12;font-weight:700;font-size:1.05em">⏭️ STEP 2: SKIP</span><br>` +
+                        `<span style="color:#aaa">node.next = node.next.next → </span>` +
+                        `<span style="color:#2ecc71;font-weight:700">${target}</span><br>` +
+                        `<span style="color:#e74c3c;font-size:.8em">✂️ node.next orphaned</span>`;
+                    break;
+                }
+
+                case 'done': {
+                    isDone = true; phase = 'done';
+                    const res = list.filter((_, i) => i !== skippedIdx);
+                    addLog(`🎉 Done in O(1)! Result: [${res.join(',')}] — just 2 assignments!`, 'success');
+                    $('statusInd').className = 'status-ind si-done';
+                    $('statusInd').textContent = `✅ Done! [${res.join(' → ')}] — O(1)!`;
+                    setTrickLine(2);
+                    $('opPanel').innerHTML =
+                        `<span style="color:#2ecc71;font-weight:700;font-size:1.05em">🎉 DONE!</span><br>` +
+                        `<span style="color:#aaa">[${res.join(' → ')}]</span><br>` +
+                        `<span style="color:#1abc9c;font-size:.8em">O(1) time, O(1) space — just 2 lines!</span>`;
+                    stopExec();
+                    break;
+                }
+
+                case 'error':
+                    isDone = true; phase = 'error';
+                    addLog('❌ Value not found or list too small.', 'error');
+                    $('statusInd').className = 'status-ind si-done';
+                    $('statusInd').textContent = '❌ Error';
+                    stopExec();
+                    break;
+
+                case 'error-tail':
+                    isDone = true; phase = 'error';
+                    addLog('❌ Cannot delete the tail node.', 'error');
+                    $('statusInd').className = 'status-ind si-done';
+                    $('statusInd').textContent = '❌ Cannot delete tail.';
+                    stopExec();
+                    break;
+            }
+
+            render();
+        }
+
+        /* ── Playback ──────────────────────────────── */
+        function play() { if (isRunning || isDone) return; isRunning = true; $('playBtn').disabled = true; $('pauseBtn').disabled = false; $('stepBtn').disabled = true; runLoop() }
+        function pause() { isRunning = false; $('playBtn').disabled = false; $('pauseBtn').disabled = true; $('stepBtn').disabled = false }
+        function stopExec() { isRunning = false; $('playBtn').disabled = true; $('pauseBtn').disabled = true; $('stepBtn').disabled = true }
+        function runLoop() { if (!isRunning) return; doStep(); if (isRunning && !isDone) setTimeout(runLoop, 600 / speed) }
+
+        /* ── Init ──────────────────────────────────── */
+        function init() {
+            list = [...initVals]; nodeStates = {}; arrowStates = {};
+            delIdx = -1; skippedIdx = -1;
+            phase = 'init';
+            stepIdx = 0; stepCount = 0; isDone = false; isRunning = false;
+            buildSteps();
+            $('delDisp').textContent = DEL_VAL;
+            $('stNode').textContent = '—'; $('stNodeVal').textContent = '—';
+            $('stNextNode').textContent = '—'; $('stNextVal').textContent = '—';
+            $('stNextNext').textContent = '—';
+            $('statusInd').className = 'status-ind si-neutral';
+            $('statusInd').textContent = 'Ready — press Play or Step';
+            $('playBtn').disabled = false; $('pauseBtn').disabled = true; $('stepBtn').disabled = false;
+            setTrickLine(-1);
+            clearLog(); addLog('Copy next value into node, skip next. O(1)!', 'teal');
+            $('opPanel').innerHTML = '<span style="color:#555">— press Play or Step —</span>';
+            $('resultDisplay').innerHTML = '<span style="color:#555">—</span>';
+            renderCopyArrow(false);
+            render();
+        }
+
+        /* ── Events ────────────────────────────────── */
+        $('playBtn').addEventListener('click', play);
+        $('pauseBtn').addEventListener('click', pause);
+        $('stepBtn').addEventListener('click', () => { if (!isDone) doStep() });
+        $('resetBtn').addEventListener('click', () => { isRunning = false; init() });
+        $('speedSlider').addEventListener('input', e => { speed = parseInt(e.target.value); $('speedValue').textContent = speed + 'x' });
+        $('applyBtn').addEventListener('click', () => {
+            const lv = $('listInput').value.trim();
+            const dv = $('delInput').value.trim();
+            const vs = lv ? lv.split(',').map(s => parseInt(s.trim())).filter(v => !isNaN(v)) : [];
+            const dn = parseInt(dv);
+            if (isNaN(dn)) { alert('Delete value must be a number.'); return; }
+            if (!vs.includes(dn)) { alert(`Value ${dn} not in list.`); return; }
+            if (vs.indexOf(dn) === vs.length - 1) { alert('Cannot delete the tail node.'); return; }
+            initVals = [...vs]; DEL_VAL = dn;
+            isRunning = false; init();
+        });
+
+        init();
+    </script>
+</body>
+
+</html>

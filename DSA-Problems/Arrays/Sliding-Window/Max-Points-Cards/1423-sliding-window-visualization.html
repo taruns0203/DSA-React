@@ -1,0 +1,520 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Max Points from Cards - Sliding Window (Optimal)</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #0c0c1d 0%, #1a1a2e 50%, #16213e 100%);
+            min-height: 100vh;
+            padding: 20px;
+            color: #e0e0e0;
+        }
+        .container {
+            max-width: 1150px;
+            margin: 0 auto;
+            background: #1a1a2e;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.6);
+            overflow: hidden;
+        }
+        header {
+            background: linear-gradient(135deg, #00b894 0%, #00cec9 50%, #0984e3 100%);
+            color: white;
+            padding: 22px;
+            text-align: center;
+        }
+        h1 { font-size: 1.4em; margin-bottom: 6px; }
+        .subtitle { font-size: 0.95em; opacity: 0.9; }
+        .complexity-badge {
+            display: inline-block;
+            background: rgba(255,255,255,0.18);
+            padding: 5px 14px;
+            border-radius: 15px;
+            margin-top: 6px;
+            font-size: 0.82em;
+        }
+        .main-content {
+            display: grid;
+            grid-template-columns: 1fr 280px;
+            gap: 16px;
+            padding: 16px;
+        }
+        .card {
+            background: #16213e;
+            border-radius: 12px;
+            padding: 14px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.4);
+            margin-bottom: 14px;
+        }
+        .card-title {
+            font-size: 0.9em;
+            font-weight: 600;
+            margin-bottom: 10px;
+            color: #55efc4;
+        }
+
+        /* Controls */
+        .controls { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+        button {
+            padding: 7px 14px; border: none; border-radius: 8px;
+            font-size: 0.82em; font-weight: 600; cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        button:hover { transform: translateY(-2px); filter: brightness(1.15); }
+        button:disabled { opacity: 0.4; cursor: not-allowed; transform: none; }
+        .btn-primary { background: linear-gradient(135deg, #00b894, #00cec9); color: white; }
+        .btn-success { background: linear-gradient(135deg, #0984e3, #74b9ff); color: white; }
+        .btn-warning { background: linear-gradient(135deg, #fdcb6e, #e17055); color: white; }
+        .btn-secondary { background: #636e72; color: white; }
+        .speed-control { display: flex; align-items: center; gap: 6px; flex: 1; min-width: 130px; font-size: 0.82em; }
+        .speed-control input[type="range"] { flex: 1; height: 4px; accent-color: #00b894; }
+
+        /* Cards Visualization */
+        .cards-area {
+            position: relative;
+            padding: 50px 8px 30px;
+            background: #0e1628;
+            border: 1px solid #2d3a56;
+            border-radius: 10px;
+            overflow-x: auto;
+        }
+        .cards-flex {
+            display: flex;
+            justify-content: center;
+            gap: 5px;
+        }
+        .game-card {
+            width: 52px; height: 62px;
+            border-radius: 8px;
+            display: flex; flex-direction: column;
+            align-items: center; justify-content: center;
+            font-weight: 700; font-size: 1.05em;
+            color: white;
+            position: relative;
+            transition: all 0.4s ease;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+        }
+        .game-card .val { z-index: 1; }
+        .game-card .cidx {
+            position: absolute; bottom: -18px;
+            font-size: 0.55em; color: #4a5568;
+            width: 100%; text-align: center;
+        }
+
+        /* Card states */
+        .card-default { background: linear-gradient(145deg, #2d3a56, #3d4f7c); }
+        .card-edge { background: linear-gradient(145deg, #00b894, #55efc4); }
+        .card-window { background: linear-gradient(145deg, #e17055, #d63031); }
+        .card-window-min { background: linear-gradient(145deg, #fdcb6e, #f39c12); color: #2d3436; }
+
+        /* Window bracket */
+        .window-bracket {
+            position: absolute;
+            top: 6px;
+            height: 36px;
+            border: 2px solid #e17055;
+            border-radius: 8px;
+            transition: all 0.4s ease;
+            pointer-events: none;
+        }
+        .window-bracket .bracket-label {
+            position: absolute;
+            top: -1px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 0.65em;
+            color: #e17055;
+            white-space: nowrap;
+            font-weight: 700;
+        }
+        .window-bracket.is-min { border-color: #fdcb6e; }
+        .window-bracket.is-min .bracket-label { color: #fdcb6e; }
+
+        /* Formula display */
+        .formula-bar {
+            text-align: center;
+            padding: 10px;
+            background: #0e1628;
+            border: 1px solid #2d3a56;
+            border-radius: 8px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9em;
+            color: #b2bec3;
+        }
+        .formula-bar span.hl-total { color: #74b9ff; }
+        .formula-bar span.hl-min { color: #fdcb6e; }
+        .formula-bar span.hl-result { color: #55efc4; font-weight: bold; }
+
+        /* State & Log */
+        .state-display { background: #0e1628; border-radius: 8px; padding: 10px; font-family: 'Courier New', monospace; font-size: 0.82em; }
+        .state-row { display: flex; justify-content: space-between; padding: 4px 0; border-bottom: 1px solid #2d3a56; }
+        .state-val { color: #55efc4; font-weight: bold; }
+
+        .log-container {
+            background: #0e1628; border-radius: 8px; padding: 8px;
+            max-height: 200px; overflow-y: auto;
+            font-family: 'Courier New', monospace; font-size: 0.6em;
+        }
+        .log-entry { padding: 3px 6px; margin: 2px 0; border-radius: 4px; border-left: 3px solid #4a5568; background: #16213e; }
+        .log-entry.sum { border-left-color: #74b9ff; }
+        .log-entry.slide { border-left-color: #e17055; }
+        .log-entry.min { border-left-color: #fdcb6e; }
+        .log-entry.result { border-left-color: #55efc4; }
+
+        .max-display {
+            text-align: center; padding: 12px;
+            background: linear-gradient(135deg, #16213e, #0e1628);
+            border: 1px solid #00b894;
+            color: white; border-radius: 8px;
+            margin-top: 10px; font-size: 1.1em; font-weight: bold;
+        }
+
+        .insight-box {
+            font-size: 0.78em; color: #b2bec3; padding: 8px;
+            background: #0e1628; border-radius: 6px; border-left: 3px solid #00b894;
+            line-height: 1.5;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Maximum Points from Cards</h1>
+            <div class="subtitle">Optimal: Sliding Window — Minimise Middle</div>
+            <div class="complexity-badge">Time: O(N) | Space: O(1)</div>
+        </header>
+
+        <div class="main-content">
+            <div class="left-panel">
+                <div class="card">
+                    <div class="card-title">⚙️ Controls</div>
+                    <div class="controls">
+                        <button class="btn-primary" id="playBtn">▶ Play</button>
+                        <button class="btn-warning" id="pauseBtn" disabled>⏸ Pause</button>
+                        <button class="btn-success" id="stepBtn">⏭ Step</button>
+                        <button class="btn-secondary" id="resetBtn">↺ Reset</button>
+                        <div class="speed-control">
+                            <label>Speed:</label>
+                            <input type="range" id="speedSlider" min="1" max="10" value="5">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-title">🃏 Cards — Window of size <span id="wSizeDisplay">4</span> slides through (k = <span id="kDisplay">3</span>)</div>
+                    <div class="cards-area" id="cardsArea">
+                        <div class="cards-flex" id="cardsFlex"></div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-title">📐 Formula</div>
+                    <div class="formula-bar" id="formulaBar">
+                        maxScore = <span class="hl-total">totalSum</span> − <span class="hl-min">min(windowSum)</span> = <span class="hl-result">?</span>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-title">💡 Insight</div>
+                    <div class="insight-box">
+                        Taking <b>k</b> cards from edges ⟺ leaving <b>n−k</b> contiguous cards in the middle.<br>
+                        <span style="color:#55efc4">Maximise edge sum</span> = <span style="color:#74b9ff">totalSum</span> − <span style="color:#fdcb6e">min(middle window sum)</span>.
+                    </div>
+                </div>
+            </div>
+
+            <div class="right-panel">
+                <div class="card">
+                    <div class="card-title">📊 State</div>
+                    <div class="state-display">
+                        <div class="state-row"><span>Phase:</span><span class="state-val" id="phaseVal">-</span></div>
+                        <div class="state-row"><span>totalSum:</span><span class="state-val" id="totalVal">-</span></div>
+                        <div class="state-row"><span>windowStart:</span><span class="state-val" id="wStartVal">-</span></div>
+                        <div class="state-row"><span>windowEnd:</span><span class="state-val" id="wEndVal">-</span></div>
+                        <div class="state-row"><span>windowSum:</span><span class="state-val" id="wSumVal">-</span></div>
+                        <div class="state-row"><span>minWindowSum:</span><span class="state-val" id="minWVal">-</span></div>
+                    </div>
+                    <div class="max-display">
+                        Max Score: <span id="maxVal">?</span>
+                    </div>
+                </div>
+
+                <div class="card" style="flex-grow: 1; display: flex; flex-direction: column;">
+                    <div class="card-title">📝 Execution Log</div>
+                    <div class="log-container" id="logContainer"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ── Data ───────────────────────────────────────────────
+        const cardPoints = [1, 2, 3, 4, 5, 6, 1];
+        const K = 3;
+        const N = cardPoints.length;
+        const W = N - K; // window size
+
+        document.getElementById('wSizeDisplay').textContent = W;
+        document.getElementById('kDisplay').textContent = K;
+
+        // ── State ─────────────────────────────────────────────
+        let totalSum = 0;
+        let windowSum = 0;
+        let minWindowSum = Infinity;
+        let windowStart = 0;
+        let slideIdx = 0; // index i in the slide loop
+        let sumIdx = 0;   // index for computing totalSum
+        let initWinIdx = 0; // index for building initial window
+
+        // Phases: 'init', 'computeTotal', 'initWindow', 'initWindowDone', 'slide', 'done'
+        let phase = 'init';
+
+        let isRunning = false;
+        let timer = null;
+        let speed = 5;
+        let stepCount = 0;
+
+        function init() {
+            totalSum = 0;
+            windowSum = 0;
+            minWindowSum = Infinity;
+            windowStart = 0;
+            slideIdx = W;
+            sumIdx = 0;
+            initWinIdx = 0;
+            phase = 'init';
+            stepCount = 0;
+
+            clearLog();
+            addLog(`Cards: [${cardPoints.join(', ')}], k=${K}, windowSize=${W}`, 'info');
+            render();
+            updateControls();
+        }
+
+        function step() {
+            if (phase === 'done') return;
+            stepCount++;
+
+            if (phase === 'init') {
+                phase = 'computeTotal';
+                sumIdx = 0;
+                totalSum = 0;
+                addLog('Phase 1: Computing total sum of all cards.', 'sum');
+            }
+            else if (phase === 'computeTotal') {
+                if (sumIdx < N) {
+                    totalSum += cardPoints[sumIdx];
+                    addLog(`totalSum += ${cardPoints[sumIdx]} → ${totalSum}`, 'sum');
+                    sumIdx++;
+                } else {
+                    addLog(`Total sum = ${totalSum}`, 'sum');
+                    phase = 'initWindow';
+                    initWinIdx = 0;
+                    windowSum = 0;
+                    addLog(`Phase 2: Build initial window [0..${W - 1}].`, 'slide');
+                }
+            }
+            else if (phase === 'initWindow') {
+                if (initWinIdx < W) {
+                    windowSum += cardPoints[initWinIdx];
+                    addLog(`windowSum += card[${initWinIdx}]=${cardPoints[initWinIdx]} → ${windowSum}`, 'slide');
+                    initWinIdx++;
+                } else {
+                    phase = 'initWindowDone';
+                }
+            }
+            else if (phase === 'initWindowDone') {
+                minWindowSum = windowSum;
+                windowStart = 0;
+                slideIdx = W;
+                addLog(`Initial window sum = ${windowSum}. minWindowSum = ${minWindowSum}`, 'min');
+                phase = 'slide';
+            }
+            else if (phase === 'slide') {
+                if (slideIdx < N) {
+                    const added = cardPoints[slideIdx];
+                    const removed = cardPoints[slideIdx - W];
+                    windowSum += added - removed;
+                    windowStart = slideIdx - W + 1;
+
+                    const isNewMin = windowSum < minWindowSum;
+                    if (isNewMin) {
+                        minWindowSum = windowSum;
+                        addLog(`Window [${windowStart}..${slideIdx}]: +${added} −${removed} → sum=${windowSum} 🏆 NEW MIN`, 'min');
+                    } else {
+                        addLog(`Window [${windowStart}..${slideIdx}]: +${added} −${removed} → sum=${windowSum}`, 'slide');
+                    }
+                    slideIdx++;
+                } else {
+                    const maxScore = totalSum - minWindowSum;
+                    addLog(`✅ Done. maxScore = ${totalSum} − ${minWindowSum} = ${maxScore}`, 'result');
+                    phase = 'done';
+                    stop();
+                }
+            }
+
+            render();
+        }
+
+        // ── Rendering ─────────────────────────────────────────
+        function render() {
+            renderCards();
+            renderFormula();
+            renderState();
+        }
+
+        function renderCards() {
+            const flex = document.getElementById('cardsFlex');
+            const area = document.getElementById('cardsArea');
+            flex.innerHTML = '';
+
+            // Remove old brackets
+            const oldBrackets = area.querySelectorAll('.window-bracket');
+            oldBrackets.forEach(b => b.remove());
+
+            // Determine current window range
+            let wS = -1, wE = -1;
+            if (phase === 'initWindow' || phase === 'initWindowDone') {
+                wS = 0; wE = W - 1;
+            } else if (phase === 'slide') {
+                wS = windowStart;
+                wE = slideIdx - 1;
+            } else if (phase === 'done') {
+                // Show best window — find it
+                // Recompute to find best window start
+                let ws = 0, best = 0, bestStart = 0;
+                for (let i = 0; i < W; i++) ws += cardPoints[i];
+                best = ws; bestStart = 0;
+                for (let i = W; i < N; i++) {
+                    ws += cardPoints[i] - cardPoints[i - W];
+                    if (ws < best) { best = ws; bestStart = i - W + 1; }
+                }
+                wS = bestStart; wE = bestStart + W - 1;
+            }
+
+            for (let idx = 0; idx < N; idx++) {
+                const el = document.createElement('div');
+                let cls = 'game-card';
+
+                const inWindow = idx >= wS && idx <= wE && wS !== -1;
+
+                if (phase === 'computeTotal') {
+                    cls += idx < sumIdx ? ' card-edge' : ' card-default';
+                } else if (wS !== -1) {
+                    if (inWindow) {
+                        cls += phase === 'done' ? ' card-window-min' : ' card-window';
+                    } else {
+                        cls += ' card-edge';
+                    }
+                } else {
+                    cls += ' card-default';
+                }
+
+                el.className = cls;
+                el.innerHTML = `<span class="val">${cardPoints[idx]}</span><span class="cidx">${idx}</span>`;
+                flex.appendChild(el);
+            }
+
+            // Draw window bracket
+            if (wS !== -1) {
+                const bracket = document.createElement('div');
+                bracket.className = 'window-bracket' + (phase === 'done' ? ' is-min' : '');
+                const cardW = 57; // 52 + 5 gap
+                const left = wS * cardW;
+                const width = W * cardW - 5;
+                const flexRect = flex.getBoundingClientRect();
+                const areaRect = area.getBoundingClientRect();
+                // Use offset-based positioning
+                bracket.style.left = `${flex.offsetLeft + wS * cardW}px`;
+                bracket.style.width = `${width}px`;
+
+                const label = document.createElement('div');
+                label.className = 'bracket-label';
+                label.textContent = phase === 'done' ?
+                    `min window (sum=${minWindowSum})` :
+                    `window (sum=${windowSum})`;
+                bracket.appendChild(label);
+                area.appendChild(bracket);
+            }
+        }
+
+        function renderFormula() {
+            const bar = document.getElementById('formulaBar');
+            if (phase === 'done') {
+                const result = totalSum - minWindowSum;
+                bar.innerHTML = `maxScore = <span class="hl-total">${totalSum}</span> − <span class="hl-min">${minWindowSum}</span> = <span class="hl-result">${result}</span>`;
+            } else if (minWindowSum !== Infinity) {
+                bar.innerHTML = `maxScore = <span class="hl-total">${totalSum || '?'}</span> − <span class="hl-min">${minWindowSum}</span> = <span class="hl-result">${totalSum ? totalSum - minWindowSum : '?'}</span>`;
+            } else {
+                bar.innerHTML = `maxScore = <span class="hl-total">${totalSum || '?'}</span> − <span class="hl-min">?</span> = <span class="hl-result">?</span>`;
+            }
+        }
+
+        function renderState() {
+            const phaseNames = {
+                init: 'Ready',
+                computeTotal: 'Computing Total',
+                initWindow: 'Init Window',
+                initWindowDone: 'Window Ready',
+                slide: 'Sliding',
+                done: 'Done'
+            };
+            document.getElementById('phaseVal').textContent = phaseNames[phase] || phase;
+            document.getElementById('totalVal').textContent = totalSum || '-';
+            document.getElementById('wStartVal').textContent = (phase === 'slide' || phase === 'done' || phase === 'initWindow' || phase === 'initWindowDone') ? windowStart : '-';
+            document.getElementById('wEndVal').textContent = (phase === 'slide') ? (slideIdx - 1) : (phase === 'initWindowDone' || phase === 'initWindow' ? W - 1 : '-');
+            document.getElementById('wSumVal').textContent = windowSum || '-';
+            document.getElementById('minWVal').textContent = minWindowSum !== Infinity ? minWindowSum : '-';
+            document.getElementById('maxVal').textContent = phase === 'done' ? (totalSum - minWindowSum) : '?';
+        }
+
+        // ── Log ───────────────────────────────────────────────
+        function addLog(msg, type = 'info') {
+            const log = document.getElementById('logContainer');
+            log.innerHTML += `<div class="log-entry ${type}">[${stepCount}] ${msg}</div>`;
+            log.scrollTop = log.scrollHeight;
+        }
+        function clearLog() { document.getElementById('logContainer').innerHTML = ''; }
+
+        // ── Controls ──────────────────────────────────────────
+        function play() {
+            if (isRunning) return;
+            isRunning = true;
+            updateControls();
+            runLoop();
+        }
+        function runLoop() {
+            if (!isRunning) return;
+            if (phase === 'done') { stop(); return; }
+            step();
+            const delay = 1100 - (speed * 100);
+            timer = setTimeout(runLoop, Math.max(60, delay));
+        }
+        function stop() {
+            isRunning = false;
+            if (timer) clearTimeout(timer);
+            updateControls();
+        }
+        function reset() { stop(); init(); }
+        function updateControls() {
+            const done = phase === 'done';
+            document.getElementById('playBtn').disabled = isRunning || done;
+            document.getElementById('pauseBtn').disabled = !isRunning;
+            document.getElementById('stepBtn').disabled = isRunning || done;
+            document.getElementById('resetBtn').disabled = isRunning;
+        }
+
+        document.getElementById('playBtn').addEventListener('click', play);
+        document.getElementById('pauseBtn').addEventListener('click', stop);
+        document.getElementById('stepBtn').addEventListener('click', step);
+        document.getElementById('resetBtn').addEventListener('click', reset);
+        document.getElementById('speedSlider').addEventListener('input', e => speed = parseInt(e.target.value));
+
+        init();
+    </script>
+</body>
+</html>

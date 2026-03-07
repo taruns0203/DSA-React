@@ -1,0 +1,467 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>3Sum Closest - Two Pointers</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #ff6b6b 0%, #feca57 100%);
+            min-height: 100vh;
+            padding: 20px;
+            color: #333;
+        }
+        .container {
+            max-width: 1050px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            overflow: hidden;
+        }
+        header {
+            background: linear-gradient(135deg, #ff6b6b 0%, #feca57 100%);
+            color: white;
+            padding: 25px;
+            text-align: center;
+        }
+        h1 { font-size: 1.5em; margin-bottom: 8px; }
+        .subtitle { font-size: 1em; opacity: 0.9; }
+        .complexity-badge {
+            display: inline-block;
+            background: rgba(255,255,255,0.2);
+            padding: 6px 14px;
+            border-radius: 15px;
+            margin-top: 8px;
+            font-size: 0.85em;
+        }
+        .main-content {
+            display: grid;
+            grid-template-columns: 1fr 250px;
+            gap: 20px;
+            padding: 20px;
+        }
+        .card {
+            background: #f8f9fa;
+            border-radius: 12px;
+            padding: 16px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            margin-bottom: 16px;
+        }
+        .card-title {
+            font-size: 0.95em;
+            font-weight: 600;
+            margin-bottom: 12px;
+            color: #ff6b6b;
+        }
+        .controls { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+        button {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 8px;
+            font-size: 0.85em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        button:hover { transform: translateY(-2px); }
+        button:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+        .btn-primary { background: linear-gradient(135deg, #ff6b6b 0%, #feca57 100%); color: white; }
+        .btn-success { background: linear-gradient(135deg, #28a745 0%, #20c997 100%); color: white; }
+        .btn-warning { background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); color: white; }
+        .btn-secondary { background: #6c757d; color: white; }
+        .speed-control { display: flex; align-items: center; gap: 6px; flex: 1; min-width: 140px; }
+        .speed-control input[type="range"] { flex: 1; height: 5px; }
+        .array-display {
+            display: flex;
+            gap: 8px;
+            padding: 15px;
+            background: white;
+            border-radius: 8px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+        .array-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            transition: all 0.3s;
+        }
+        .array-value {
+            width: 50px;
+            height: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 10px;
+            font-weight: 700;
+            font-size: 1.1em;
+            background: #fff3e0;
+            border: 3px solid #ff9800;
+        }
+        .array-index { font-size: 0.7em; color: #64748b; margin-top: 4px; }
+        .array-item.pointer-i .array-value { background: #ffecb3; border-color: #ffa000; }
+        .array-item.pointer-l .array-value { background: #bbdefb; border-color: #1976d2; }
+        .array-item.pointer-r .array-value { background: #e1bee7; border-color: #8e24aa; }
+        .array-item.best .array-value { background: #c8e6c9; border-color: #43a047; }
+        .sum-display {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            padding: 15px;
+            background: white;
+            border-radius: 8px;
+            font-size: 1em;
+            flex-wrap: wrap;
+        }
+        .sum-part { padding: 8px 12px; border-radius: 8px; font-weight: 700; }
+        .sum-i { background: #ffecb3; color: #e65100; }
+        .sum-l { background: #bbdefb; color: #0d47a1; }
+        .sum-r { background: #e1bee7; color: #6a1b9a; }
+        .sum-result { background: #fff3e0; color: #e65100; }
+        .sum-better { background: #c8e6c9; color: #2e7d32; }
+        .decision-box {
+            margin-top: 10px;
+            padding: 10px;
+            border-radius: 8px;
+            text-align: center;
+            font-weight: 600;
+            font-size: 0.85em;
+        }
+        .decision-less { background: #bbdefb; color: #0d47a1; }
+        .decision-greater { background: #e1bee7; color: #6a1b9a; }
+        .decision-equal { background: #c8e6c9; color: #2e7d32; }
+        .comparison-box {
+            display: flex;
+            justify-content: space-around;
+            gap: 15px;
+            padding: 15px;
+            background: white;
+            border-radius: 8px;
+            flex-wrap: wrap;
+        }
+        .compare-item {
+            text-align: center;
+            padding: 10px 15px;
+            border-radius: 8px;
+        }
+        .compare-item.current { background: #fff3e0; }
+        .compare-item.best { background: #c8e6c9; }
+        .compare-label { font-size: 0.75em; color: #666; margin-bottom: 5px; }
+        .compare-value { font-size: 1.2em; font-weight: 700; }
+        .compare-diff { font-size: 0.8em; color: #888; }
+        .result-display { background: white; border-radius: 8px; padding: 15px; text-align: center; }
+        .result-label { font-size: 0.9em; color: #ff6b6b; margin-bottom: 5px; }
+        .result-value { font-size: 1.4em; font-weight: 700; color: #28a745; }
+        .state-display { background: white; border-radius: 8px; padding: 10px; font-family: 'Courier New', monospace; font-size: 0.8em; }
+        .state-row { display: flex; justify-content: space-between; padding: 4px 0; border-bottom: 1px solid #e0e0e0; }
+        .state-row:last-child { border-bottom: none; }
+        .state-label { font-weight: 600; color: #ff6b6b; }
+        .log-container { background: white; border-radius: 8px; padding: 10px; max-height: 130px; overflow-y: auto; font-family: 'Courier New', monospace; font-size: 0.65em; }
+        .log-entry { padding: 3px 6px; margin: 2px 0; border-radius: 4px; border-left: 3px solid #ff6b6b; background: #f8f9fa; }
+        .log-entry.success { border-left-color: #28a745; background: #d4edda; }
+        .log-entry.warning { border-left-color: #ffc107; background: #fff3cd; }
+        .log-entry.info { border-left-color: #17a2b8; background: #d1ecf1; }
+        @media (max-width: 800px) { .main-content { grid-template-columns: 1fr; } }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🎯 3Sum Closest</h1>
+            <div class="subtitle">Optimal - Sort + Two Pointers ⭐</div>
+            <div class="complexity-badge">Time: O(n²) | Space: O(1)</div>
+        </header>
+        <div class="main-content">
+            <div class="left-panel">
+                <div class="card">
+                    <div class="card-title">⚙️ Controls</div>
+                    <div class="controls">
+                        <button class="btn-primary" id="playBtn">▶️ Play</button>
+                        <button class="btn-warning" id="pauseBtn" disabled>⏸️ Pause</button>
+                        <button class="btn-success" id="stepBtn">⏭️ Step</button>
+                        <button class="btn-secondary" id="resetBtn">🔄 Reset</button>
+                        <div class="speed-control">
+                            <label>Speed:</label>
+                            <input type="range" id="speedSlider" min="1" max="10" value="5">
+                            <span id="speedValue">5x</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="card">
+                    <div class="card-title">📋 Sorted Array (target = 1)</div>
+                    <div class="array-display" id="arrayDisplay"></div>
+                </div>
+                <div class="card">
+                    <div class="card-title">➕ Two Pointer Sum</div>
+                    <div class="sum-display" id="sumDisplay">
+                        <span class="sum-part sum-i">nums[i]</span>
+                        <span>+</span>
+                        <span class="sum-part sum-l">nums[L]</span>
+                        <span>+</span>
+                        <span class="sum-part sum-r">nums[R]</span>
+                        <span>=</span>
+                        <span class="sum-part sum-result">?</span>
+                    </div>
+                    <div class="decision-box" id="decisionBox">Ready to start</div>
+                </div>
+                <div class="card">
+                    <div class="card-title">📊 Distance Comparison</div>
+                    <div class="comparison-box">
+                        <div class="compare-item current">
+                            <div class="compare-label">Current Sum</div>
+                            <div class="compare-value" id="currentSum">-</div>
+                            <div class="compare-diff" id="currentDiff">|diff| = -</div>
+                        </div>
+                        <div class="compare-item best">
+                            <div class="compare-label">Closest Sum</div>
+                            <div class="compare-value" id="closestSum">-</div>
+                            <div class="compare-diff" id="closestDiff">|diff| = -</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="card">
+                    <div class="card-title">🏆 Result</div>
+                    <div class="result-display">
+                        <div class="result-label">Closest Sum to Target</div>
+                        <div class="result-value" id="resultValue">-</div>
+                    </div>
+                </div>
+            </div>
+            <div class="right-panel">
+                <div class="card">
+                    <div class="card-title">📋 Current State</div>
+                    <div class="state-display">
+                        <div class="state-row"><span class="state-label">Phase:</span><span id="phaseState">Sort</span></div>
+                        <div class="state-row"><span class="state-label">i:</span><span id="iState">0</span></div>
+                        <div class="state-row"><span class="state-label">left:</span><span id="leftState">1</span></div>
+                        <div class="state-row"><span class="state-label">right:</span><span id="rightState">3</span></div>
+                    </div>
+                </div>
+                <div class="card" style="flex: 1;">
+                    <div class="card-title">📝 Execution Log</div>
+                    <div class="log-container" id="logContainer"><div class="log-entry info">Ready. Sort + Two Pointers.</div></div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script>
+        const original = [-1, 2, 1, -4];
+        const target = 1;
+        let nums = [];
+        let n = original.length;
+        
+        let phase = 'sort';
+        let i = 0, left = 1, right = n - 1;
+        let closestSum = 0;
+        let isRunning = false;
+        let speed = 5;
+        let stepCount = 0;
+        let done = false;
+
+        function init() {
+            nums = [...original];
+            phase = 'sort';
+            i = 0; left = 1; right = n - 1;
+            closestSum = nums[0] + nums[1] + nums[2];
+            stepCount = 0;
+            done = false;
+            
+            clearLog();
+            addLog('Step 1: Sort the array', 'info');
+            updateState();
+            render();
+        }
+
+        function render() {
+            const arrayDisplay = document.getElementById('arrayDisplay');
+            arrayDisplay.innerHTML = nums.map((v, idx) => {
+                let cls = 'array-item';
+                if (idx === i) cls += ' pointer-i';
+                else if (idx === left) cls += ' pointer-l';
+                else if (idx === right) cls += ' pointer-r';
+                return `<div class="${cls}">
+                    <div class="array-value">${v}</div>
+                    <div class="array-index">${idx === i ? 'i' : idx === left ? 'L' : idx === right ? 'R' : idx}</div>
+                </div>`;
+            }).join('');
+            
+            const sumDisplay = document.getElementById('sumDisplay');
+            const decisionBox = document.getElementById('decisionBox');
+            
+            if (phase !== 'sort' && left < right) {
+                const sum = nums[i] + nums[left] + nums[right];
+                const isBetter = Math.abs(sum - target) < Math.abs(closestSum - target);
+                
+                sumDisplay.innerHTML = `
+                    <span class="sum-part sum-i">${nums[i]}</span>
+                    <span>+</span>
+                    <span class="sum-part sum-l">${nums[left]}</span>
+                    <span>+</span>
+                    <span class="sum-part sum-r">${nums[right]}</span>
+                    <span>=</span>
+                    <span class="sum-part ${isBetter ? 'sum-better' : 'sum-result'}">${sum}</span>
+                `;
+                
+                if (sum === target) {
+                    decisionBox.className = 'decision-box decision-equal';
+                    decisionBox.textContent = '✓ Exact match! Return immediately';
+                } else if (sum < target) {
+                    decisionBox.className = 'decision-box decision-less';
+                    decisionBox.textContent = `Sum < target → Move L right`;
+                } else {
+                    decisionBox.className = 'decision-box decision-greater';
+                    decisionBox.textContent = `Sum > target → Move R left`;
+                }
+                
+                document.getElementById('currentSum').textContent = sum;
+                document.getElementById('currentDiff').textContent = `|diff| = ${Math.abs(sum - target)}`;
+            } else if (phase === 'sort') {
+                decisionBox.className = 'decision-box';
+                decisionBox.textContent = 'Sorting array...';
+            }
+            
+            document.getElementById('closestSum').textContent = closestSum;
+            document.getElementById('closestDiff').textContent = `|diff| = ${Math.abs(closestSum - target)}`;
+            document.getElementById('resultValue').textContent = closestSum;
+        }
+
+        function updateState() {
+            document.getElementById('phaseState').textContent = phase;
+            document.getElementById('iState').textContent = i;
+            document.getElementById('leftState').textContent = left;
+            document.getElementById('rightState').textContent = right;
+        }
+
+        function addLog(msg, type = 'info') {
+            const log = document.getElementById('logContainer');
+            log.innerHTML += `<div class="log-entry ${type}">[${stepCount}] ${msg}</div>`;
+            log.scrollTop = log.scrollHeight;
+        }
+
+        function clearLog() { document.getElementById('logContainer').innerHTML = ''; }
+
+        function step() {
+            if (done) { stopExecution(); return; }
+            stepCount++;
+            
+            if (phase === 'sort') {
+                nums.sort((a, b) => a - b);
+                addLog(`Sorted: [${nums.join(',')}]`, 'info');
+                phase = 'search';
+                i = 0;
+                left = i + 1;
+                right = n - 1;
+                closestSum = nums[0] + nums[1] + nums[2];
+                addLog(`Initial closest: ${closestSum}`, 'info');
+                updateState();
+                render();
+                return;
+            }
+            
+            if (left >= right) {
+                i++;
+                left = i + 1;
+                right = n - 1;
+                if (i >= n - 2) {
+                    done = true;
+                    addLog(`Done! Closest = ${closestSum}`, 'success');
+                    updateState();
+                    render();
+                    return;
+                }
+                addLog(`New i=${i}, reset L=${left}, R=${right}`, 'info');
+                updateState();
+                render();
+                return;
+            }
+            
+            const sum = nums[i] + nums[left] + nums[right];
+            const diff = Math.abs(sum - target);
+            const closestDiff = Math.abs(closestSum - target);
+            
+            // Update closest if better
+            if (diff < closestDiff) {
+                closestSum = sum;
+                addLog(`i=${i},L=${left},R=${right}: ${sum} (diff=${diff}) ← BETTER!`, 'success');
+            } else {
+                addLog(`i=${i},L=${left},R=${right}: ${sum} (diff=${diff})`, 'info');
+            }
+            
+            // Early termination
+            if (sum === target) {
+                done = true;
+                addLog(`Exact match! Return ${sum}`, 'success');
+                updateState();
+                render();
+                return;
+            }
+            
+            // Move pointers
+            if (sum < target) {
+                left++;
+            } else {
+                right--;
+            }
+            
+            updateState();
+            render();
+        }
+
+        function play() {
+            if (isRunning) return;
+            isRunning = true;
+            document.getElementById('playBtn').disabled = true;
+            document.getElementById('pauseBtn').disabled = false;
+            document.getElementById('stepBtn').disabled = true;
+            runLoop();
+        }
+
+        function pause() {
+            isRunning = false;
+            document.getElementById('playBtn').disabled = false;
+            document.getElementById('pauseBtn').disabled = true;
+            document.getElementById('stepBtn').disabled = false;
+        }
+
+        function stopExecution() {
+            isRunning = false;
+            document.getElementById('playBtn').disabled = true;
+            document.getElementById('pauseBtn').disabled = true;
+            document.getElementById('stepBtn').disabled = true;
+        }
+
+        function runLoop() {
+            if (!isRunning) return;
+            step();
+            if (isRunning && !done) {
+                setTimeout(runLoop, 500 / speed);
+            } else {
+                stopExecution();
+            }
+        }
+
+        function reset() {
+            isRunning = false;
+            document.getElementById('playBtn').disabled = false;
+            document.getElementById('pauseBtn').disabled = true;
+            document.getElementById('stepBtn').disabled = false;
+            init();
+        }
+
+        document.getElementById('playBtn').addEventListener('click', play);
+        document.getElementById('pauseBtn').addEventListener('click', pause);
+        document.getElementById('stepBtn').addEventListener('click', step);
+        document.getElementById('resetBtn').addEventListener('click', reset);
+        document.getElementById('speedSlider').addEventListener('input', (e) => {
+            speed = parseInt(e.target.value);
+            document.getElementById('speedValue').textContent = speed + 'x';
+        });
+
+        init();
+    </script>
+</body>
+</html>

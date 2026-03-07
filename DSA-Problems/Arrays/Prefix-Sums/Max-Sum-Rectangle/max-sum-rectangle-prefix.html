@@ -1,0 +1,471 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Max Sum Rectangle - 2D Prefix Sum</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-primary: #0a0f18;
+            --bg-secondary: #121a28;
+            --bg-tertiary: #1a2536;
+            --accent-primary: #a855f7;
+            --accent-secondary: #c084fc;
+            --accent-glow: rgba(168, 85, 247, 0.4);
+            --blue: #3b82f6;
+            --green: #22c55e;
+            --red: #ef4444;
+            --orange: #f59e0b;
+            --purple: #a855f7;
+            --cyan: #06b6d4;
+            --text-primary: #f1f5f9;
+            --text-secondary: #94a3b8;
+            --text-muted: #64748b;
+            --border-color: #334155;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 1.25rem;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 1.25rem;
+            padding: 1.25rem;
+            background: linear-gradient(135deg, var(--bg-secondary), var(--bg-tertiary));
+            border-radius: 16px;
+            border: 1px solid var(--border-color);
+        }
+
+        .header h1 {
+            font-size: 1.6rem;
+            background: linear-gradient(135deg, var(--accent-secondary), var(--cyan), var(--green));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 0.3rem;
+        }
+
+        .header p { color: var(--text-secondary); font-size: 0.9rem; }
+
+        .badge-row { display: flex; justify-content: center; gap: 0.5rem; margin-top: 0.5rem; }
+
+        .badge {
+            padding: 0.25rem 0.6rem;
+            border-radius: 20px;
+            font-size: 0.7rem;
+            font-weight: 600;
+            border: 1px solid;
+        }
+
+        .badge.purple { background: rgba(168, 85, 247, 0.15); color: var(--purple); border-color: rgba(168, 85, 247, 0.3); }
+        .badge.green { background: rgba(34, 197, 94, 0.15); color: var(--green); border-color: rgba(34, 197, 94, 0.3); }
+
+        .main-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+        }
+
+        @media (max-width: 900px) { .main-grid { grid-template-columns: 1fr; } }
+
+        .card {
+            background: var(--bg-secondary);
+            border-radius: 14px;
+            padding: 1rem;
+            border: 1px solid var(--border-color);
+            margin-bottom: 1rem;
+        }
+
+        .card-header {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-bottom: 0.75rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .card-icon { width: 28px; height: 28px; border-radius: 6px; display: flex; align-items: center; justify-content: center; font-size: 0.9rem; }
+        .card-title { font-size: 0.8rem; font-weight: 600; }
+
+        /* Matrix Display */
+        .matrix-container {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+            padding: 0.75rem;
+            background: var(--bg-tertiary);
+            border-radius: 8px;
+            align-items: center;
+        }
+
+        .matrix-row {
+            display: flex;
+            gap: 2px;
+        }
+
+        .matrix-cell {
+            width: 42px;
+            height: 42px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: 'Fira Code', monospace;
+            font-size: 0.85rem;
+            font-weight: 700;
+            border-radius: 4px;
+            background: var(--bg-primary);
+            border: 2px solid var(--border-color);
+            transition: all 0.2s ease;
+        }
+
+        .matrix-cell.selected {
+            background: linear-gradient(135deg, var(--cyan), #22d3ee);
+            color: #000;
+            border-color: var(--cyan);
+        }
+
+        .matrix-cell.prefix {
+            background: linear-gradient(135deg, var(--purple), var(--accent-secondary));
+            color: #000;
+        }
+
+        .matrix-cell.highlight {
+            box-shadow: 0 0 10px var(--accent-glow);
+        }
+
+        /* Stats */
+        .stats-row {
+            display: flex;
+            gap: 0.4rem;
+            justify-content: center;
+            margin: 0.5rem 0;
+            flex-wrap: wrap;
+        }
+
+        .stat-box {
+            padding: 0.3rem 0.5rem;
+            background: var(--bg-tertiary);
+            border-radius: 5px;
+            text-align: center;
+        }
+
+        .stat-label { font-size: 0.45rem; color: var(--text-muted); }
+        .stat-value { font-family: 'Fira Code', monospace; font-size: 0.75rem; font-weight: 700; }
+        .stat-value.cyan { color: var(--cyan); }
+        .stat-value.green { color: var(--green); }
+        .stat-value.orange { color: var(--orange); }
+        .stat-value.purple { color: var(--purple); }
+
+        /* Controls */
+        .controls-full {
+            grid-column: 1 / -1;
+            display: flex;
+            gap: 0.5rem;
+            justify-content: center;
+        }
+
+        .btn {
+            padding: 0.5rem 1rem;
+            border: none;
+            border-radius: 8px;
+            font-family: 'Inter', sans-serif;
+            font-size: 0.75rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .btn-primary { background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary)); color: #000; }
+        .btn-secondary { background: var(--bg-tertiary); color: var(--text-primary); border: 1px solid var(--border-color); }
+        .btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+        /* Operation Panel */
+        .operation-panel { padding: 0.4rem; background: var(--bg-tertiary); border-radius: 6px; margin-top: 0.4rem; }
+        .operation-content { font-family: 'Fira Code', monospace; font-size: 0.6rem; padding: 0.3rem; background: var(--bg-primary); border-radius: 4px; text-align: center; line-height: 1.4; }
+
+        .hl-green { color: var(--green); font-weight: 600; }
+        .hl-red { color: var(--red); font-weight: 600; }
+        .hl-cyan { color: var(--cyan); font-weight: 600; }
+        .hl-orange { color: var(--orange); font-weight: 600; }
+        .hl-purple { color: var(--purple); font-weight: 600; }
+
+        /* Result */
+        .result-box {
+            grid-column: 1 / -1;
+            padding: 0.6rem;
+            background: linear-gradient(135deg, rgba(34, 197, 94, 0.1), rgba(34, 197, 94, 0.05));
+            border: 1px solid rgba(34, 197, 94, 0.3);
+            border-radius: 8px;
+            text-align: center;
+        }
+
+        .result-label { font-size: 0.55rem; color: var(--text-muted); }
+        .result-value { font-family: 'Fira Code', monospace; font-size: 1.3rem; font-weight: 700; color: var(--green); }
+
+        /* Formula */
+        .formula-box {
+            grid-column: 1 / -1;
+            padding: 0.4rem;
+            background: rgba(168, 85, 247, 0.1);
+            border: 1px solid rgba(168, 85, 247, 0.3);
+            border-radius: 6px;
+            font-family: 'Fira Code', monospace;
+            font-size: 0.55rem;
+            color: var(--purple);
+            text-align: center;
+        }
+
+        /* Log */
+        .log-container {
+            max-height: 120px;
+            overflow-y: auto;
+            font-family: 'Fira Code', monospace;
+            font-size: 0.5rem;
+            padding: 0.25rem;
+            background: var(--bg-tertiary);
+            border-radius: 6px;
+        }
+
+        .log-entry { padding: 0.12rem 0.25rem; margin: 0.03rem 0; border-radius: 3px; }
+        .log-entry.valid { background: rgba(34, 197, 94, 0.1); color: var(--green); }
+        .log-entry.calc { background: rgba(168, 85, 247, 0.1); color: var(--purple); }
+        .log-entry.best { background: rgba(245, 158, 11, 0.1); color: var(--orange); }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <div class="header">
+            <h1>📊 Max Sum Rectangle ≤ K</h1>
+            <p>Improved: 2D Prefix Sum (O(1) Rectangle Sum)</p>
+            <div class="badge-row">
+                <span class="badge purple">📐 Prefix Sum</span>
+                <span class="badge green">⚡ O(1) Query</span>
+            </div>
+        </div>
+
+        <div class="main-grid">
+            <!-- Original Matrix -->
+            <div class="card">
+                <div class="card-header">
+                    <div class="card-icon" style="background: rgba(6, 182, 212, 0.2); color: var(--cyan);">📊</div>
+                    <span class="card-title">Original Matrix (k = 2)</span>
+                </div>
+                <div class="matrix-container" id="originalMatrix"></div>
+                <div class="stats-row">
+                    <div class="stat-box">
+                        <div class="stat-label">Rectangle</div>
+                        <div class="stat-value cyan" id="rectCoords">-</div>
+                    </div>
+                    <div class="stat-box">
+                        <div class="stat-label">Sum</div>
+                        <div class="stat-value orange" id="currentSum">-</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Prefix Sum Matrix -->
+            <div class="card">
+                <div class="card-header">
+                    <div class="card-icon" style="background: rgba(168, 85, 247, 0.2); color: var(--purple);">Σ</div>
+                    <span class="card-title">Prefix Sum Matrix</span>
+                </div>
+                <div class="matrix-container" id="prefixMatrix"></div>
+                <div class="operation-panel">
+                    <div class="operation-content" id="operationContent">P[i][j] = sum of (0,0) to (i-1,j-1)</div>
+                </div>
+            </div>
+
+            <!-- Controls -->
+            <div class="controls-full">
+                <button class="btn btn-primary" id="startBtn" onclick="startVisualization()">▶️ Start</button>
+                <button class="btn btn-secondary" onclick="resetVisualization()">🔄 Reset</button>
+            </div>
+
+            <!-- Formula -->
+            <div class="formula-box">
+                sum(r1,c1,r2,c2) = P[r2+1][c2+1] - P[r1][c2+1] - P[r2+1][c1] + P[r1][c1] → <span class="hl-green">O(1)!</span>
+            </div>
+
+            <!-- Result -->
+            <div class="result-box">
+                <div class="result-label">Best Sum ≤ k</div>
+                <div class="result-value" id="bestResult">-</div>
+            </div>
+
+            <!-- Log -->
+            <div class="card" style="grid-column: 1 / -1;">
+                <div class="card-header">
+                    <div class="card-icon" style="background: rgba(6, 182, 212, 0.2); color: var(--cyan);">📝</div>
+                    <span class="card-title">Log</span>
+                </div>
+                <div class="log-container" id="logContainer">
+                    <div class="log-entry" style="color: var(--text-muted);">Click Start...</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const matrix = [[1, 0, 1], [0, -2, 3]];
+        const k = 2;
+        const m = matrix.length;
+        const n = matrix[0].length;
+        let prefix = [];
+        let isRunning = false;
+        let bestResult = -Infinity;
+
+        function buildPrefixSum() {
+            prefix = Array.from({ length: m + 1 }, () => new Array(n + 1).fill(0));
+            for (let i = 1; i <= m; i++) {
+                for (let j = 1; j <= n; j++) {
+                    prefix[i][j] = matrix[i-1][j-1] 
+                                 + prefix[i-1][j] 
+                                 + prefix[i][j-1] 
+                                 - prefix[i-1][j-1];
+                }
+            }
+        }
+
+        function getRectSum(r1, c1, r2, c2) {
+            return prefix[r2+1][c2+1] - prefix[r1][c2+1] - prefix[r2+1][c1] + prefix[r1][c1];
+        }
+
+        function initDisplay() {
+            // Original matrix
+            document.getElementById('originalMatrix').innerHTML = matrix.map((row, i) => 
+                `<div class="matrix-row">
+                    ${row.map((val, j) => 
+                        `<div class="matrix-cell" id="orig-${i}-${j}">${val}</div>`
+                    ).join('')}
+                </div>`
+            ).join('');
+            
+            // Prefix sum matrix
+            buildPrefixSum();
+            document.getElementById('prefixMatrix').innerHTML = prefix.map((row, i) => 
+                `<div class="matrix-row">
+                    ${row.map((val, j) => 
+                        `<div class="matrix-cell prefix" id="pref-${i}-${j}">${val}</div>`
+                    ).join('')}
+                </div>`
+            ).join('');
+        }
+
+        function highlightOriginal(r1, c1, r2, c2) {
+            for (let i = 0; i < m; i++) {
+                for (let j = 0; j < n; j++) {
+                    const el = document.getElementById(`orig-${i}-${j}`);
+                    el.classList.remove('selected');
+                    if (i >= r1 && i <= r2 && j >= c1 && j <= c2) {
+                        el.classList.add('selected');
+                    }
+                }
+            }
+        }
+
+        function highlightPrefix(r1, c1, r2, c2) {
+            for (let i = 0; i <= m; i++) {
+                for (let j = 0; j <= n; j++) {
+                    document.getElementById(`pref-${i}-${j}`).classList.remove('highlight');
+                }
+            }
+            // Highlight the 4 corners used in formula
+            document.getElementById(`pref-${r2+1}-${c2+1}`).classList.add('highlight');
+            document.getElementById(`pref-${r1}-${c2+1}`).classList.add('highlight');
+            document.getElementById(`pref-${r2+1}-${c1}`).classList.add('highlight');
+            document.getElementById(`pref-${r1}-${c1}`).classList.add('highlight');
+        }
+
+        function addLog(msg, type) {
+            const container = document.getElementById('logContainer');
+            const entry = document.createElement('div');
+            entry.className = `log-entry ${type}`;
+            entry.textContent = msg;
+            container.appendChild(entry);
+            container.scrollTop = container.scrollHeight;
+        }
+
+        async function startVisualization() {
+            if (isRunning) return;
+            isRunning = true;
+            document.getElementById('startBtn').disabled = true;
+            document.getElementById('logContainer').innerHTML = '';
+            bestResult = -Infinity;
+            document.getElementById('bestResult').textContent = '-';
+            
+            addLog('Prefix sum built. Now O(1) per rectangle query!', 'calc');
+            
+            for (let r1 = 0; r1 < m && isRunning; r1++) {
+                for (let c1 = 0; c1 < n && isRunning; c1++) {
+                    for (let r2 = r1; r2 < m && isRunning; r2++) {
+                        for (let c2 = c1; c2 < n && isRunning; c2++) {
+                            highlightOriginal(r1, c1, r2, c2);
+                            highlightPrefix(r1, c1, r2, c2);
+                            
+                            const sum = getRectSum(r1, c1, r2, c2);
+                            
+                            document.getElementById('rectCoords').textContent = `(${r1},${c1})→(${r2},${c2})`;
+                            document.getElementById('currentSum').textContent = sum;
+                            
+                            const p1 = prefix[r2+1][c2+1], p2 = prefix[r1][c2+1];
+                            const p3 = prefix[r2+1][c1], p4 = prefix[r1][c1];
+                            
+                            document.getElementById('operationContent').innerHTML = 
+                                `<span class="hl-purple">${p1}</span> - <span class="hl-cyan">${p2}</span> - <span class="hl-cyan">${p3}</span> + <span class="hl-orange">${p4}</span> = <span class="hl-green">${sum}</span> <span style="color: var(--green);">[O(1)]</span>`;
+                            
+                            if (sum <= k) {
+                                if (sum > bestResult) {
+                                    bestResult = sum;
+                                    document.getElementById('bestResult').textContent = bestResult;
+                                    addLog(`(${r1},${c1})→(${r2},${c2}): ${sum} ≤ k → NEW BEST!`, 'best');
+                                } else {
+                                    addLog(`(${r1},${c1})→(${r2},${c2}): ${sum} ≤ k ✓`, 'valid');
+                                }
+                            } else {
+                                addLog(`(${r1},${c1})→(${r2},${c2}): ${sum} > k`, 'calc');
+                            }
+                            
+                            await new Promise(r => setTimeout(r, 200));
+                        }
+                    }
+                }
+            }
+            
+            document.getElementById('operationContent').innerHTML = 
+                `<span class="hl-green">Done!</span> O(m²n²) rectangles × O(1) sum = O(m²n²)`;
+            addLog(`Complete! Best = ${bestResult}`, 'best');
+            
+            isRunning = false;
+            document.getElementById('startBtn').disabled = false;
+        }
+
+        function resetVisualization() {
+            isRunning = false;
+            bestResult = -Infinity;
+            initDisplay();
+            document.getElementById('rectCoords').textContent = '-';
+            document.getElementById('currentSum').textContent = '-';
+            document.getElementById('bestResult').textContent = '-';
+            document.getElementById('startBtn').disabled = false;
+            document.getElementById('logContainer').innerHTML = '<div class="log-entry" style="color: var(--text-muted);">Click Start...</div>';
+            document.getElementById('operationContent').innerHTML = 'P[i][j] = sum of (0,0) to (i-1,j-1)';
+        }
+
+        initDisplay();
+    </script>
+</body>
+</html>

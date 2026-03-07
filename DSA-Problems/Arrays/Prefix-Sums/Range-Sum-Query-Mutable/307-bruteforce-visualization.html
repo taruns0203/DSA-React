@@ -1,0 +1,535 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Range Sum Query Mutable - Brute Force (Raw Array)</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #0f0c29 0%, #302b63 50%, #24243e 100%);
+            min-height: 100vh;
+            padding: 20px;
+            color: #e0e0e0;
+        }
+        .container {
+            max-width: 1150px;
+            margin: 0 auto;
+            background: #1a1a2e;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.6);
+            overflow: hidden;
+        }
+        header {
+            background: linear-gradient(135deg, #e74c3c 0%, #c0392b 50%, #e74c3c 100%);
+            color: white;
+            padding: 22px;
+            text-align: center;
+        }
+        h1 { font-size: 1.35em; margin-bottom: 6px; }
+        .subtitle { font-size: 0.95em; opacity: 0.9; }
+        .complexity-badge {
+            display: inline-block;
+            background: rgba(255,255,255,0.18);
+            padding: 5px 14px;
+            border-radius: 15px;
+            margin-top: 6px;
+            font-size: 0.82em;
+        }
+        .main-content {
+            display: grid;
+            grid-template-columns: 1fr 280px;
+            gap: 16px;
+            padding: 16px;
+        }
+        .card {
+            background: #16213e;
+            border-radius: 12px;
+            padding: 14px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.4);
+            margin-bottom: 14px;
+        }
+        .card-title {
+            font-size: 0.9em;
+            font-weight: 600;
+            margin-bottom: 10px;
+            color: #ff6b6b;
+        }
+
+        /* Controls */
+        .controls { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+        button {
+            padding: 7px 14px; border: none; border-radius: 8px;
+            font-size: 0.82em; font-weight: 600; cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        button:hover { transform: translateY(-2px); filter: brightness(1.15); }
+        button:disabled { opacity: 0.4; cursor: not-allowed; transform: none; }
+        .btn-primary { background: linear-gradient(135deg, #e74c3c, #c0392b); color: white; }
+        .btn-success { background: linear-gradient(135deg, #00b894, #55efc4); color: white; }
+        .btn-warning { background: linear-gradient(135deg, #fdcb6e, #e17055); color: white; }
+        .btn-secondary { background: #636e72; color: white; }
+        .speed-control { display: flex; align-items: center; gap: 6px; flex: 1; min-width: 130px; font-size: 0.82em; }
+        .speed-control input[type="range"] { flex: 1; height: 4px; accent-color: #e74c3c; }
+
+        .input-row { display: flex; gap: 8px; align-items: center; margin-top: 10px; }
+        .input-row input {
+            flex: 1; padding: 7px 10px; border-radius: 8px;
+            border: 1px solid #3d4f7c; background: #0f0c29;
+            color: #e0e0e0; font-family: 'Courier New', monospace; font-size: 0.85em;
+        }
+        .input-row input:focus { outline: none; border-color: #e74c3c; }
+
+        /* Viz */
+        .viz-area {
+            padding: 16px 10px;
+            background: #0f0c29;
+            border: 1px solid #302b63;
+            border-radius: 10px;
+        }
+        .row-label {
+            font-size: 0.7em; font-weight: 700;
+            text-transform: uppercase; letter-spacing: 0.8px;
+            margin-bottom: 4px; padding-left: 2px; color: #74b9ff;
+        }
+        .arr-row {
+            display: flex; justify-content: center;
+            gap: 6px; margin-bottom: 10px;
+        }
+        .arr-cell {
+            width: 60px; height: 55px;
+            border-radius: 10px;
+            display: flex; flex-direction: column;
+            align-items: center; justify-content: center;
+            font-weight: 700; font-size: 1.2em;
+            position: relative;
+            transition: all 0.35s ease;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+        }
+        .arr-cell .cidx {
+            position: absolute; bottom: -16px;
+            font-size: 0.5em; color: #636e72;
+        }
+
+        .cell-default { background: linear-gradient(145deg, #2d3a56, #3d4f7c); color: #b2bec3; }
+        .cell-scan { background: linear-gradient(145deg, #0984e3, #74b9ff); color: white; box-shadow: 0 0 14px rgba(116,185,255,0.4); }
+        .cell-summed { background: linear-gradient(145deg, #00b894, #55efc4); color: #2d3436; box-shadow: 0 0 14px rgba(85,239,196,0.3); }
+        .cell-update { background: linear-gradient(145deg, #e17055, #d63031); color: white; box-shadow: 0 0 14px rgba(225,112,85,0.4); }
+        .cell-range { background: linear-gradient(145deg, #6c5ce7, #a29bfe); color: white; }
+
+        /* Operation queue */
+        .ops-queue {
+            display: flex; flex-wrap: wrap; gap: 6px;
+            padding: 8px; background: #0f0c29;
+            border-radius: 8px;
+        }
+        .op-chip {
+            padding: 5px 10px; border-radius: 6px;
+            font-family: 'Courier New', monospace; font-size: 0.75em;
+            font-weight: 600; transition: all 0.3s;
+        }
+        .op-pending { background: #2d3a56; color: #636e72; border: 1px solid #3d4f7c; }
+        .op-active { background: #e1705533; color: #ff6b6b; border: 1px solid #e17055; box-shadow: 0 0 8px rgba(225,112,85,0.3); }
+        .op-done { background: #00b89422; color: #00b894; border: 1px solid #00b89466; }
+
+        /* Result badge */
+        .result-badge {
+            display: inline-block;
+            padding: 6px 16px;
+            border-radius: 8px;
+            font-family: 'Courier New', monospace;
+            font-size: 1em;
+            font-weight: 700;
+            text-align: center;
+            margin-top: 8px;
+        }
+        .result-sum { background: #00b89433; color: #55efc4; border: 1px solid #00b894; }
+        .result-update { background: #e1705533; color: #e17055; border: 1px solid #e17055; }
+
+        /* Accumulator */
+        .accum-bar {
+            text-align: center; padding: 10px;
+            background: #16213e; border-radius: 8px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9em; min-height: 38px;
+        }
+
+        /* State & Log */
+        .state-display { background: #0f0c29; border-radius: 8px; padding: 10px; font-family: 'Courier New', monospace; font-size: 0.82em; }
+        .state-row { display: flex; justify-content: space-between; padding: 4px 0; border-bottom: 1px solid #302b63; }
+        .state-val { font-weight: bold; }
+        .vs { color: #55efc4; }
+        .vu { color: #e17055; }
+
+        .log-container {
+            background: #0f0c29; border-radius: 8px; padding: 8px;
+            max-height: 230px; overflow-y: auto;
+            font-family: 'Courier New', monospace; font-size: 0.6em;
+        }
+        .log-entry { padding: 3px 6px; margin: 2px 0; border-radius: 4px; border-left: 3px solid #4a5568; background: #16213e; }
+        .log-entry.sum { border-left-color: #00b894; }
+        .log-entry.update { border-left-color: #e17055; }
+        .log-entry.result { border-left-color: #fdcb6e; }
+        .log-entry.done { border-left-color: #a29bfe; }
+
+        .result-display {
+            text-align: center; padding: 12px;
+            background: linear-gradient(135deg, #16213e, #0f0c29);
+            border: 1px solid #e74c3c;
+            color: white; border-radius: 8px;
+            margin-top: 10px; font-size: 1em; font-weight: bold;
+            font-family: 'Courier New', monospace;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Range Sum Query – Mutable</h1>
+            <div class="subtitle">Brute Force: Raw Array</div>
+            <div class="complexity-badge">update: O(1) | sumRange: O(N)</div>
+        </header>
+
+        <div class="main-content">
+            <div class="left-panel">
+                <div class="card">
+                    <div class="card-title">⚙️ Controls</div>
+                    <div class="controls">
+                        <button class="btn-primary" id="playBtn">▶ Play</button>
+                        <button class="btn-warning" id="pauseBtn" disabled>⏸ Pause</button>
+                        <button class="btn-success" id="stepBtn">⏭ Step</button>
+                        <button class="btn-secondary" id="resetBtn">↺ Reset</button>
+                        <div class="speed-control">
+                            <label>Speed:</label>
+                            <input type="range" id="speedSlider" min="1" max="10" value="5">
+                        </div>
+                    </div>
+                    <div class="input-row">
+                        <input type="text" id="customInput" placeholder="nums, e.g. 1,3,5" value="1,3,5">
+                        <button class="btn-secondary" id="loadBtn">Load</button>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-title">📊 nums[]</div>
+                    <div class="viz-area">
+                        <div class="arr-row" id="numsRow"></div>
+                        <div class="accum-bar" id="accumBar">-</div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-title">📋 Operation Queue</div>
+                    <div class="ops-queue" id="opsQueue"></div>
+                </div>
+            </div>
+
+            <div class="right-panel">
+                <div class="card">
+                    <div class="card-title">📊 State</div>
+                    <div class="state-display">
+                        <div class="state-row"><span>Operation:</span><span class="state-val vu" id="opVal">-</span></div>
+                        <div class="state-row"><span>Scanning i:</span><span class="state-val vs" id="scanVal">-</span></div>
+                        <div class="state-row"><span>Running Sum:</span><span class="state-val vs" id="sumVal">-</span></div>
+                        <div class="state-row"><span>Last Result:</span><span class="state-val" style="color:#fdcb6e" id="resVal">-</span></div>
+                    </div>
+                    <div class="result-display" id="resultDisplay">Results: []</div>
+                </div>
+
+                <div class="card" style="flex-grow:1;display:flex;flex-direction:column;">
+                    <div class="card-title">📝 Execution Log</div>
+                    <div class="log-container" id="logContainer"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ── Data ───────────────────────────────────────────────
+        let initNums = [1, 3, 5];
+        let ops = [
+            { type: 'sumRange', args: [0, 2] },
+            { type: 'update',   args: [1, 2] },
+            { type: 'sumRange', args: [0, 2] },
+        ];
+
+        // ── Trace generation ──────────────────────────────────
+        let events = [];
+        function buildTrace() {
+            events = [];
+            const nums = [...initNums];
+            const N = nums.length;
+            const results = [];
+
+            events.push({ type: 'init', nums: [...nums] });
+
+            for (let opIdx = 0; opIdx < ops.length; opIdx++) {
+                const op = ops[opIdx];
+                if (op.type === 'sumRange') {
+                    const [l, r] = op.args;
+                    events.push({ type: 'op-start', opIdx, opType: 'sumRange', l, r, nums: [...nums] });
+                    let sum = 0;
+                    for (let i = l; i <= r; i++) {
+                        sum += nums[i];
+                        events.push({ type: 'scan', opIdx, i, val: nums[i], runningSum: sum, l, r, nums: [...nums] });
+                    }
+                    results.push(sum);
+                    events.push({ type: 'op-end', opIdx, opType: 'sumRange', result: sum, results: [...results], nums: [...nums] });
+                } else {
+                    const [idx, val] = op.args;
+                    events.push({ type: 'op-start', opIdx, opType: 'update', idx, val, nums: [...nums] });
+                    const oldVal = nums[idx];
+                    nums[idx] = val;
+                    results.push(null);
+                    events.push({ type: 'op-end', opIdx, opType: 'update', idx, val, oldVal, results: [...results], nums: [...nums] });
+                }
+            }
+            events.push({ type: 'done', results: [...results], nums: [...nums] });
+        }
+
+        // ── Animation State ───────────────────────────────────
+        let eventIdx = 0;
+        let curNums = [];
+        let curOpIdx = -1;
+        let curScanI = -1;
+        let curL = -1, curR = -1;
+        let curRunningSum = 0;
+        let curOpType = '';
+        let curUpdateIdx = -1;
+        let results = [];
+        let lastResult = null;
+        let isDone = false;
+
+        let isRunning = false;
+        let timer = null;
+        let speed = 5;
+        let stepCount = 0;
+
+        function init() {
+            buildTrace();
+            eventIdx = 0;
+            curNums = [...initNums];
+            curOpIdx = -1;
+            curScanI = -1;
+            curL = -1; curR = -1;
+            curRunningSum = 0;
+            curOpType = '';
+            curUpdateIdx = -1;
+            results = [];
+            lastResult = null;
+            isDone = false;
+            stepCount = 0;
+
+            clearLog();
+            addLog(`NumArray([${initNums.join(', ')}])`, 'info');
+            render();
+            updateControls();
+        }
+
+        function step() {
+            if (eventIdx >= events.length) return;
+            stepCount++;
+
+            const ev = events[eventIdx++];
+            switch (ev.type) {
+                case 'init':
+                    curNums = [...ev.nums];
+                    addLog(`Array initialized: [${ev.nums.join(', ')}]`, 'info');
+                    break;
+
+                case 'op-start':
+                    curOpIdx = ev.opIdx;
+                    curOpType = ev.opType;
+                    curScanI = -1;
+                    curRunningSum = 0;
+                    curUpdateIdx = -1;
+                    if (ev.opType === 'sumRange') {
+                        curL = ev.l; curR = ev.r;
+                        addLog(`→ sumRange(${ev.l}, ${ev.r}): scan [${ev.l}..${ev.r}]`, 'sum');
+                    } else {
+                        curL = -1; curR = -1;
+                        curUpdateIdx = ev.idx;
+                        addLog(`→ update(${ev.idx}, ${ev.val})`, 'update');
+                    }
+                    break;
+
+                case 'scan':
+                    curScanI = ev.i;
+                    curRunningSum = ev.runningSum;
+                    curL = ev.l; curR = ev.r;
+                    addLog(`  i=${ev.i}: +${ev.val} → sum=${ev.runningSum}`, 'sum');
+                    break;
+
+                case 'op-end':
+                    results = [...ev.results];
+                    curNums = [...ev.nums];
+                    curScanI = -1;
+                    curUpdateIdx = -1;
+                    if (ev.opType === 'sumRange') {
+                        lastResult = ev.result;
+                        addLog(`  ✔ sumRange = ${ev.result}`, 'result');
+                    } else {
+                        lastResult = null;
+                        addLog(`  ✔ nums[${ev.idx}]: ${ev.oldVal} → ${ev.val}`, 'update');
+                    }
+                    curOpType = '';
+                    curL = -1; curR = -1;
+                    break;
+
+                case 'done':
+                    isDone = true;
+                    const resStr = ev.results.map(r => r === null ? 'null' : r).join(', ');
+                    addLog(`✅ All operations complete. Output: [${resStr}]`, 'done');
+                    stop();
+                    break;
+            }
+            render();
+        }
+
+        // ── Rendering ─────────────────────────────────────────
+        function render() {
+            renderNums();
+            renderAccum();
+            renderOps();
+            renderState();
+        }
+
+        function renderNums() {
+            const row = document.getElementById('numsRow');
+            row.innerHTML = '';
+            for (let idx = 0; idx < curNums.length; idx++) {
+                const el = document.createElement('div');
+                let cls = 'arr-cell';
+
+                if (curOpType === 'update' && idx === curUpdateIdx) {
+                    cls += ' cell-update';
+                } else if (curOpType === 'sumRange' && idx >= curL && idx <= curR) {
+                    if (idx === curScanI) cls += ' cell-scan';
+                    else if (curScanI >= 0 && idx < curScanI) cls += ' cell-summed';
+                    else cls += ' cell-range';
+                } else {
+                    cls += ' cell-default';
+                }
+
+                el.className = cls;
+                el.textContent = curNums[idx];
+                const lbl = document.createElement('div');
+                lbl.className = 'cidx'; lbl.textContent = idx;
+                el.appendChild(lbl);
+                row.appendChild(el);
+            }
+        }
+
+        function renderAccum() {
+            const bar = document.getElementById('accumBar');
+            if (curOpType === 'sumRange' && curScanI >= 0) {
+                const parts = [];
+                for (let i = curL; i <= Math.min(curScanI, curR); i++) {
+                    parts.push(curNums[i]);
+                }
+                bar.innerHTML = `<span style="color:#55efc4">${parts.join(' + ')} = ${curRunningSum}</span>`;
+            } else if (curOpType === 'update') {
+                bar.innerHTML = `<span style="color:#e17055">nums[${curUpdateIdx}] ← updating</span>`;
+            } else if (lastResult !== null && !curOpType) {
+                bar.innerHTML = `<span style="color:#fdcb6e">Last result: ${lastResult}</span>`;
+            } else {
+                bar.innerHTML = '<span style="color:#4a5568">-</span>';
+            }
+        }
+
+        function renderOps() {
+            const queue = document.getElementById('opsQueue');
+            queue.innerHTML = '';
+            for (let i = 0; i < ops.length; i++) {
+                const op = ops[i];
+                const chip = document.createElement('span');
+                chip.className = 'op-chip';
+
+                let label = '';
+                if (op.type === 'sumRange') label = `sumRange(${op.args[0]},${op.args[1]})`;
+                else label = `update(${op.args[0]},${op.args[1]})`;
+
+                // Append result if available
+                if (i < results.length) {
+                    const r = results[i];
+                    if (r !== null) label += ` → ${r}`;
+                    else if (op.type === 'update') label += ' ✔';
+                    chip.className += ' op-done';
+                } else if (i === curOpIdx) {
+                    chip.className += ' op-active';
+                } else {
+                    chip.className += ' op-pending';
+                }
+
+                chip.textContent = label;
+                queue.appendChild(chip);
+            }
+        }
+
+        function renderState() {
+            document.getElementById('opVal').textContent =
+                curOpType === 'sumRange' ? `sumRange(${curL},${curR})` :
+                curOpType === 'update' ? `update(${curUpdateIdx},...)` :
+                isDone ? 'Complete' : '-';
+            document.getElementById('scanVal').textContent = curScanI >= 0 ? curScanI : '-';
+            document.getElementById('sumVal').textContent = curOpType === 'sumRange' && curScanI >= 0 ? curRunningSum : '-';
+            document.getElementById('resVal').textContent = lastResult !== null ? lastResult : '-';
+
+            const resStr = results.map(r => r === null ? 'null' : r).join(', ');
+            document.getElementById('resultDisplay').textContent = `Output: [${resStr || '...'}]`;
+        }
+
+        // ── Log ───────────────────────────────────────────────
+        function addLog(msg, type = 'info') {
+            const log = document.getElementById('logContainer');
+            log.innerHTML += `<div class="log-entry ${type}">[${stepCount}] ${msg}</div>`;
+            log.scrollTop = log.scrollHeight;
+        }
+        function clearLog() { document.getElementById('logContainer').innerHTML = ''; }
+
+        // ── Controls ──────────────────────────────────────────
+        function play() { if (isRunning) return; isRunning = true; updateControls(); runLoop(); }
+        function runLoop() {
+            if (!isRunning) return;
+            if (eventIdx >= events.length) { stop(); return; }
+            step();
+            timer = setTimeout(runLoop, Math.max(60, 1100 - speed * 100));
+        }
+        function stop() { isRunning = false; if (timer) clearTimeout(timer); updateControls(); }
+        function reset() { stop(); init(); }
+        function updateControls() {
+            const done = eventIdx >= events.length;
+            document.getElementById('playBtn').disabled = isRunning || done;
+            document.getElementById('pauseBtn').disabled = !isRunning;
+            document.getElementById('stepBtn').disabled = isRunning || done;
+            document.getElementById('resetBtn').disabled = isRunning;
+        }
+
+        function loadCustom() {
+            const raw = document.getElementById('customInput').value.trim();
+            const arr = raw.split(',').map(s => parseInt(s.trim())).filter(v => !isNaN(v));
+            if (arr.length === 0) return;
+            initNums = arr;
+            const n = arr.length;
+            ops = [
+                { type: 'sumRange', args: [0, n - 1] },
+                { type: 'update',   args: [Math.min(1, n - 1), 2] },
+                { type: 'sumRange', args: [0, n - 1] },
+            ];
+            stop();
+            init();
+        }
+
+        document.getElementById('playBtn').addEventListener('click', play);
+        document.getElementById('pauseBtn').addEventListener('click', stop);
+        document.getElementById('stepBtn').addEventListener('click', step);
+        document.getElementById('resetBtn').addEventListener('click', reset);
+        document.getElementById('loadBtn').addEventListener('click', loadCustom);
+        document.getElementById('speedSlider').addEventListener('input', e => speed = parseInt(e.target.value));
+        document.getElementById('customInput').addEventListener('keydown', e => { if (e.key === 'Enter') loadCustom(); });
+
+        init();
+    </script>
+</body>
+</html>

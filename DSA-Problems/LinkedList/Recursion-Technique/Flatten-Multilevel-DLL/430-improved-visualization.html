@@ -1,0 +1,1199 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>430 - Improved: Recursive DFS with In-Place Pointer Rewiring</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #0f0c29 0%, #302b63 50%, #24243e 100%);
+            min-height: 100vh;
+            padding: 18px;
+            color: #e0e0e0
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: rgba(25, 25, 50, .95);
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, .5), 0 0 40px rgba(155, 89, 182, .07);
+            overflow: hidden;
+            border: 1px solid rgba(255, 255, 255, .06)
+        }
+
+        header {
+            background: linear-gradient(135deg, #8e44ad, #9b59b6);
+            color: #fff;
+            padding: 22px;
+            text-align: center
+        }
+
+        h1 {
+            font-size: 1.15em;
+            margin-bottom: 5px
+        }
+
+        .subtitle {
+            font-size: .84em;
+            opacity: .92
+        }
+
+        .badge {
+            display: inline-block;
+            background: rgba(255, 255, 255, .2);
+            padding: 5px 14px;
+            border-radius: 15px;
+            margin-top: 7px;
+            font-size: .78em
+        }
+
+        .main-content {
+            display: grid;
+            grid-template-columns: 1fr 290px;
+            gap: 16px;
+            padding: 18px
+        }
+
+        .card {
+            background: rgba(40, 40, 75, .8);
+            border-radius: 14px;
+            padding: 15px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, .2);
+            margin-bottom: 14px;
+            border: 1px solid rgba(255, 255, 255, .05)
+        }
+
+        .card-title {
+            font-size: .88em;
+            font-weight: 600;
+            margin-bottom: 10px;
+            color: #9b59b6
+        }
+
+        button {
+            padding: 7px 14px;
+            border: none;
+            border-radius: 8px;
+            font-size: .82em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all .3s
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, .3)
+        }
+
+        button:disabled {
+            opacity: .4;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #8e44ad, #9b59b6);
+            color: #fff
+        }
+
+        .btn-success {
+            background: linear-gradient(135deg, #27ae60, #2ecc71);
+            color: #fff
+        }
+
+        .btn-warning {
+            background: linear-gradient(135deg, #f39c12, #e67e22);
+            color: #fff
+        }
+
+        .btn-secondary {
+            background: rgba(100, 100, 140, .7);
+            color: #fff
+        }
+
+        .btn-info {
+            background: linear-gradient(135deg, #3498db, #2980b9);
+            color: #fff
+        }
+
+        .controls {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            align-items: center
+        }
+
+        .speed-control {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            flex: 1;
+            min-width: 140px
+        }
+
+        .speed-control label {
+            font-size: .8em;
+            color: #aaa
+        }
+
+        .speed-control input[type="range"] {
+            flex: 1;
+            height: 5px;
+            accent-color: #9b59b6
+        }
+
+        .speed-control span {
+            font-size: .8em;
+            color: #9b59b6;
+            min-width: 24px
+        }
+
+        .input-section {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+            flex-wrap: wrap
+        }
+
+        .input-section input {
+            padding: 7px 10px;
+            border-radius: 8px;
+            border: 1px solid rgba(255, 255, 255, .15);
+            background: rgba(20, 20, 45, .8);
+            color: #e0e0e0;
+            font-size: .82em;
+            font-family: 'Courier New', monospace;
+        }
+
+        .input-section input:focus {
+            outline: none;
+            border-color: #9b59b6
+        }
+
+        .input-section label {
+            font-size: .82em;
+            color: #aaa
+        }
+
+        .input-hint {
+            font-size: .68em;
+            color: #777;
+            margin-top: 5px;
+            line-height: 1.4
+        }
+
+        /* ── Flattened list view ────────────────────── */
+        .flat-container {
+            padding: 12px;
+            background: rgba(20, 20, 50, .4);
+            border-radius: 10px;
+            overflow-x: auto;
+            min-height: 70px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 0;
+        }
+
+        .fnode {
+            width: 46px;
+            height: 46px;
+            border-radius: 10px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 1.05em;
+            border: 2.5px solid rgba(150, 150, 200, .12);
+            background: rgba(60, 60, 100, .08);
+            font-family: 'Courier New', monospace;
+            color: #888;
+            transition: all .4s;
+            position: relative;
+        }
+
+        .fnode .nd-sub {
+            font-size: .36em;
+            color: #555;
+            margin-top: 1px
+        }
+
+        .fnode.current {
+            border-color: #f1c40f;
+            background: rgba(241, 196, 15, .12);
+            color: #f1c40f;
+            box-shadow: 0 0 14px rgba(241, 196, 15, .25);
+            transform: scale(1.1);
+        }
+
+        .fnode.tail-find {
+            border-color: #e67e22;
+            background: rgba(230, 126, 34, .12);
+            color: #e67e22;
+            box-shadow: 0 0 10px rgba(230, 126, 34, .15);
+        }
+
+        .fnode.splicing {
+            border-color: #e74c3c;
+            background: rgba(231, 76, 60, .12);
+            color: #e74c3c;
+            box-shadow: 0 0 12px rgba(231, 76, 60, .2);
+            transform: scale(1.05);
+        }
+
+        .fnode.spliced {
+            border-color: #2ecc71;
+            background: rgba(46, 204, 113, .08);
+            color: #2ecc71;
+        }
+
+        .fnode.done-nd {
+            border-color: #2ecc71;
+            background: rgba(46, 204, 113, .06);
+            color: #2ecc71;
+        }
+
+        .fnode.child-head {
+            border-color: #9b59b6;
+            background: rgba(155, 89, 182, .12);
+            color: #bb6bd9;
+            box-shadow: 0 0 10px rgba(155, 89, 182, .15);
+        }
+
+        .farrow {
+            font-size: .72em;
+            margin: 0 1px;
+            color: #555;
+            min-width: 16px;
+            text-align: center;
+        }
+
+        .farrow.done-a {
+            color: #2ecc71
+        }
+
+        .farrow.splice-a {
+            color: #e74c3c;
+            font-weight: 700
+        }
+
+        .farrow.child-a {
+            color: #9b59b6
+        }
+
+        /* ── Multilevel (original) view ─────────────── */
+        .ml-container {
+            padding: 12px;
+            background: rgba(20, 20, 50, .4);
+            border-radius: 10px;
+            overflow-x: auto;
+            min-height: 70px;
+        }
+
+        .ml-level {
+            display: flex;
+            align-items: center;
+            margin-bottom: 4px;
+            min-height: 50px;
+        }
+
+        .ml-spacer {
+            width: 58px;
+            min-width: 58px;
+            height: 44px
+        }
+
+        .ml-node {
+            width: 44px;
+            min-width: 44px;
+            height: 44px;
+            border-radius: 10px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 1.05em;
+            border: 2.5px solid rgba(150, 150, 200, .12);
+            background: rgba(60, 60, 100, .08);
+            font-family: 'Courier New', monospace;
+            color: #888;
+            transition: all .35s;
+        }
+
+        .ml-node .nd-sub {
+            font-size: .36em;
+            color: #555;
+            margin-top: 1px
+        }
+
+        .ml-node.visited {
+            border-color: #3498db;
+            background: rgba(52, 152, 219, .08);
+            color: #3498db
+        }
+
+        .ml-node.done-nd {
+            border-color: #2ecc71;
+            background: rgba(46, 204, 113, .06);
+            color: #2ecc71
+        }
+
+        .ml-arrow {
+            color: #555;
+            font-size: .72em;
+            margin: 0 2px;
+            min-width: 14px;
+            text-align: center
+        }
+
+        .ml-arrow.done-a {
+            color: #2ecc71
+        }
+
+        .child-connector {
+            display: flex;
+            align-items: center;
+            min-height: 18px
+        }
+
+        .ml-child-arrow {
+            width: 44px;
+            min-width: 44px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: .72em;
+            color: #555;
+            height: 18px
+        }
+
+        /* ── Pointer diagram ───────────────────────── */
+        .ptr-diagram {
+            padding: 10px;
+            background: rgba(20, 20, 50, .5);
+            border-radius: 8px;
+            font-family: 'Courier New', monospace;
+            font-size: .72em;
+            line-height: 1.6;
+            min-height: 50px;
+        }
+
+        .ptr-line {
+            padding: 2px 0
+        }
+
+        .ptr-label {
+            color: #9b59b6;
+            font-weight: 700
+        }
+
+        .ptr-val {
+            color: #ccc
+        }
+
+        .ptr-arrow {
+            color: #e74c3c
+        }
+
+        .ptr-null {
+            color: #666;
+            font-style: italic
+        }
+
+        .status-ind {
+            text-align: center;
+            padding: 11px;
+            border-radius: 10px;
+            font-weight: 700;
+            font-size: .85em;
+            transition: all .3s;
+        }
+
+        .si-neutral {
+            background: rgba(100, 100, 140, .12);
+            color: #888
+        }
+
+        .si-run {
+            background: rgba(155, 89, 182, .06);
+            color: #9b59b6;
+            border: 1px solid rgba(155, 89, 182, .15)
+        }
+
+        .si-done {
+            background: rgba(46, 204, 113, .12);
+            color: #2ecc71;
+            border: 1px solid rgba(46, 204, 113, .25)
+        }
+
+        .state-display {
+            background: rgba(20, 20, 50, .5);
+            border-radius: 8px;
+            padding: 10px;
+            font-family: 'Courier New', monospace;
+            font-size: .68em;
+        }
+
+        .state-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 4px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, .05)
+        }
+
+        .state-row:last-child {
+            border-bottom: none
+        }
+
+        .state-label {
+            font-weight: 600;
+            color: #9b59b6
+        }
+
+        .state-val {
+            color: #ccc;
+            text-align: right;
+            max-width: 155px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap
+        }
+
+        .stack-container {
+            padding: 8px;
+            background: rgba(20, 20, 50, .4);
+            border-radius: 8px;
+            min-height: 36px
+        }
+
+        .stack-frame {
+            padding: 5px 8px;
+            margin: 2px 0;
+            border-radius: 5px;
+            font-family: 'Courier New', monospace;
+            font-size: .7em;
+            border-left: 3px solid #9b59b6;
+            background: rgba(155, 89, 182, .08);
+            color: #bb6bd9;
+        }
+
+        .stack-frame.active {
+            border-left-color: #f1c40f;
+            background: rgba(241, 196, 15, .08);
+            color: #f1c40f
+        }
+
+        .log-container {
+            background: rgba(20, 20, 50, .5);
+            border-radius: 8px;
+            padding: 10px;
+            max-height: 240px;
+            overflow-y: auto;
+            font-family: 'Courier New', monospace;
+            font-size: .54em;
+        }
+
+        .log-entry {
+            padding: 3px 7px;
+            margin: 2px 0;
+            border-radius: 4px;
+            border-left: 3px solid #555;
+            background: rgba(40, 40, 70, .5);
+            line-height: 1.5;
+        }
+
+        .log-entry.success {
+            border-left-color: #2ecc71;
+            background: rgba(46, 204, 113, .08);
+            color: #2ecc71
+        }
+
+        .log-entry.warning {
+            border-left-color: #f39c12;
+            background: rgba(243, 156, 18, .08);
+            color: #f39c12
+        }
+
+        .log-entry.info {
+            border-left-color: #3498db;
+            background: rgba(52, 152, 219, .08);
+            color: #8ec8f0
+        }
+
+        .log-entry.purple {
+            border-left-color: #9b59b6;
+            background: rgba(155, 89, 182, .08);
+            color: #bb6bd9
+        }
+
+        .log-entry.orange {
+            border-left-color: #e67e22;
+            background: rgba(230, 126, 34, .08);
+            color: #e67e22
+        }
+
+        .log-entry.error {
+            border-left-color: #e74c3c;
+            background: rgba(231, 76, 60, .08);
+            color: #e74c3c
+        }
+
+        .log-container::-webkit-scrollbar {
+            width: 5px
+        }
+
+        .log-container::-webkit-scrollbar-track {
+            background: transparent
+        }
+
+        .log-container::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, .15);
+            border-radius: 3px
+        }
+
+        @media(max-width:960px) {
+            .main-content {
+                grid-template-columns: 1fr
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <header>
+            <h1>🔗 Flatten a Multilevel Doubly Linked List</h1>
+            <div class="subtitle">Improved — Recursive DFS with In-Place Pointer Rewiring</div>
+            <div class="badge">Time: O(n) | Space: O(d) — recursion stack depth d ≤ n</div>
+        </header>
+        <div class="main-content">
+            <div class="left-panel">
+                <div class="card">
+                    <div class="card-title">⚙️ Controls</div>
+                    <div class="controls">
+                        <button class="btn-primary" id="playBtn">▶️ Play</button>
+                        <button class="btn-warning" id="pauseBtn" disabled>⏸️ Pause</button>
+                        <button class="btn-success" id="stepBtn">⏭️ Step</button>
+                        <button class="btn-secondary" id="resetBtn">🔄 Reset</button>
+                        <div class="speed-control">
+                            <label>Speed:</label>
+                            <input type="range" id="speedSlider" min="1" max="10" value="5">
+                            <span id="speedValue">5x</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="card">
+                    <div class="card-title">✏️ Custom Input</div>
+                    <div class="input-section">
+                        <label>Serialized:</label>
+                        <input type="text" id="listInput" value="1,2,3,4,5,6,null,null,null,7,8,9,10,null,null,11,12"
+                            placeholder="serialized list" style="flex:1;min-width:200px">
+                        <button class="btn-info" id="applyBtn">Apply</button>
+                    </div>
+                    <div class="input-hint">Format: LeetCode serialization with nulls for level alignment.<br>E.g.:
+                        1,2,3,4,5,6,null,null,null,7,8,9,10,null,null,11,12</div>
+                </div>
+
+                <div class="card">
+                    <div class="card-title">🏗️ Original Multilevel Structure</div>
+                    <div class="ml-container" id="mlDisplay"></div>
+                </div>
+
+                <div class="card">
+                    <div class="card-title">🔗 Flattened List (In-Place Rewiring)</div>
+                    <div class="flat-container" id="flatDisplay"><span style="color:#555">— press Play or Step —</span>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-title">🔀 Pointer Operations</div>
+                    <div class="ptr-diagram" id="ptrDiagram"><span style="color:#555">— no operation yet —</span></div>
+                </div>
+
+                <div class="card">
+                    <div class="status-ind si-neutral" id="statusInd">Ready — press Play or Step</div>
+                </div>
+            </div>
+
+            <div class="right-panel">
+                <div class="card">
+                    <div class="card-title">📋 Current State</div>
+                    <div class="state-display">
+                        <div class="state-row"><span class="state-label">Phase:</span><span class="state-val"
+                                id="stPhase">init</span></div>
+                        <div class="state-row"><span class="state-label">curr:</span><span class="state-val"
+                                id="stCurr">—</span></div>
+                        <div class="state-row"><span class="state-label">next (saved):</span><span class="state-val"
+                                id="stNext">—</span></div>
+                        <div class="state-row"><span class="state-label">childTail:</span><span class="state-val"
+                                id="stChildTail">—</span></div>
+                        <div class="state-row"><span class="state-label">last:</span><span class="state-val"
+                                id="stLast">—</span></div>
+                        <div class="state-row"><span class="state-label">Stack depth:</span><span class="state-val"
+                                id="stDepth">0</span></div>
+                    </div>
+                </div>
+                <div class="card">
+                    <div class="card-title">📚 Call Stack</div>
+                    <div class="stack-container" id="stackDisplay">
+                        <span style="color:#555;font-size:.7em">— empty —</span>
+                    </div>
+                </div>
+                <div class="card" style="flex:1">
+                    <div class="card-title">📝 Execution Log</div>
+                    <div class="log-container" id="logContainer">
+                        <div class="log-entry info">Recursively flatten child lists, splice in-place, return tail.</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        /* ── Node class ───────────────────────────────────── */
+        class MLNode {
+            constructor(val) {
+                this.val = val;
+                this.prev = null;
+                this.next = null;
+                this.child = null;
+                this.id = MLNode._id++;
+                this.level = 0;
+                this.posInLevel = 0;
+            }
+        }
+        MLNode._id = 0;
+
+        /* ── Parse LeetCode serialization ────────────────── */
+        function parseInput(str) {
+            const tokens = str.split(',').map(s => s.trim());
+            const parsed = tokens.map(t => t.toLowerCase() === 'null' ? null : parseInt(t));
+            if (!parsed.length || parsed[0] === null) return null;
+
+            MLNode._id = 0;
+            const levels = [];
+            const allNodes = [];
+            let idx = 0;
+
+            // Level 0
+            const level0 = [];
+            while (idx < parsed.length && parsed[idx] !== null) {
+                const node = new MLNode(parsed[idx]);
+                node.level = 0; node.posInLevel = level0.length;
+                level0.push(node); allNodes.push(node); idx++;
+            }
+            for (let i = 0; i < level0.length - 1; i++) {
+                level0[i].next = level0[i + 1];
+                level0[i + 1].prev = level0[i];
+            }
+            if (idx < parsed.length) idx++;
+            levels.push(level0);
+
+            let parentLevel = 0;
+            while (idx < parsed.length) {
+                let nullCount = 0;
+                while (idx < parsed.length && parsed[idx] === null) { nullCount++; idx++; }
+                if (idx >= parsed.length) break;
+
+                const parentNode = levels[parentLevel][nullCount];
+                const childLevel = [];
+                const childLevelNum = parentLevel + 1;
+
+                while (idx < parsed.length && parsed[idx] !== null) {
+                    const node = new MLNode(parsed[idx]);
+                    node.level = childLevelNum; node.posInLevel = childLevel.length;
+                    childLevel.push(node); allNodes.push(node); idx++;
+                }
+                for (let i = 0; i < childLevel.length - 1; i++) {
+                    childLevel[i].next = childLevel[i + 1];
+                    childLevel[i + 1].prev = childLevel[i];
+                }
+                if (parentNode && childLevel.length > 0) parentNode.child = childLevel[0];
+                levels.push(childLevel);
+                parentLevel++;
+                if (idx < parsed.length) idx++;
+            }
+
+            return { head: level0[0] || null, levels, allNodes };
+        }
+
+        /* ── State ───────────────────────────────────────── */
+        let inputStr = '1,2,3,4,5,6,null,null,null,7,8,9,10,null,null,11,12';
+        let data = null;
+
+        // For the flat display we track the list order as it evolves
+        let flatOrder = [];       // array of node ids in current traversal order
+        let nodeMap = {};         // id → node reference
+        let nodeStates = {};      // id → visual state string
+
+        let callStack = [];
+        let stCurr = '—', stNext = '—', stChildTail = '—', stLast = '—';
+        let phase = 'init';
+
+        let highlightArrows = {};  // `${fromId}-${toId}` → class
+
+        let steps = [];
+        let stepIdx = 0;
+        let stepCount = 0;
+        let isRunning = false;
+        let speed = 5;
+        let isDone = false;
+
+        const $ = id => document.getElementById(id);
+        const logC = $('logContainer');
+        function addLog(m, t = 'info') {
+            logC.innerHTML += `<div class="log-entry ${t}">[${stepCount}] ${m}</div>`;
+            logC.scrollTop = logC.scrollHeight;
+        }
+        function clearLog() { logC.innerHTML = '' }
+
+        /* ── Build flat order from current list structure ── */
+        function buildFlatOrder() {
+            flatOrder = [];
+            let n = data.head;
+            const visited = new Set();
+            while (n) {
+                if (visited.has(n.id)) break; // safety
+                visited.add(n.id);
+                flatOrder.push(n.id);
+                // If has child, descend
+                if (n.child) {
+                    // The child list is NOT yet spliced in the flat view
+                    // We show it only after splice operations
+                    // So we simply follow .next
+                }
+                n = n.next;
+            }
+        }
+
+        /* ── Pre-compute animation steps ─────────────────── */
+        function buildSteps() {
+            steps = [];
+            if (!data || !data.head) return;
+
+            // Deep-clone the structure so we can simulate mutations
+            const clonedMap = {};
+            for (const n of data.allNodes) {
+                clonedMap[n.id] = { id: n.id, val: n.val, next: n.next ? n.next.id : null, prev: n.prev ? n.prev.id : null, child: n.child ? n.child.id : null };
+            }
+
+            function getNode(id) { return id !== null && id !== undefined ? clonedMap[id] : null; }
+
+            steps.push({ type: 'start', msg: '━━ flattenDFS(head) — Recursive In-Place Rewiring ━━' });
+
+            function flattenDFS(headId, depth) {
+                steps.push({ type: 'push', depth, val: getNode(headId).val });
+                let currId = headId;
+                let lastId = headId;
+
+                while (currId !== null) {
+                    const curr = getNode(currId);
+                    const nextId = curr.next;
+                    const nextVal = nextId !== null ? getNode(nextId).val : null;
+
+                    steps.push({ type: 'visit', nodeId: currId, val: curr.val, depth });
+                    steps.push({ type: 'save-next', nodeId: currId, val: curr.val, nextVal: nextVal, nextId: nextId });
+
+                    if (curr.child !== null) {
+                        const childId = curr.child;
+                        const childVal = getNode(childId).val;
+                        steps.push({ type: 'has-child', nodeId: currId, val: curr.val, childVal, childId, depth });
+
+                        // Recurse
+                        const childTailId = flattenDFS(childId, depth + 1);
+                        const childTailVal = getNode(childTailId).val;
+
+                        steps.push({ type: 'returned', nodeId: currId, val: curr.val, childTailId, childTailVal, depth });
+
+                        // Splice: curr.next = curr.child
+                        steps.push({ type: 'splice-1', nodeId: currId, val: curr.val, childId, childVal, desc: `curr.next = curr.child` });
+                        curr.next = childId;
+                        getNode(childId).prev = currId;
+
+                        // Splice: childTail.next = savedNext
+                        steps.push({ type: 'splice-2', childTailId, childTailVal, nextId, nextVal, desc: `childTail.next = next` });
+                        getNode(childTailId).next = nextId;
+                        if (nextId !== null) getNode(nextId).prev = childTailId;
+
+                        // Clear child
+                        steps.push({ type: 'clear-child', nodeId: currId, val: curr.val });
+                        curr.child = null;
+
+                        // Show the new list order
+                        steps.push({ type: 'splice-done', nodeId: currId, val: curr.val, childTailId, childTailVal, depth });
+
+                        lastId = childTailId;
+                    } else {
+                        steps.push({ type: 'no-child', nodeId: currId, val: curr.val, depth });
+                        lastId = currId;
+                    }
+
+                    currId = nextId;
+                }
+
+                steps.push({ type: 'pop', depth, lastId, lastVal: getNode(lastId).val });
+                return lastId;
+            }
+
+            flattenDFS(data.head.id, 0);
+            steps.push({ type: 'done' });
+        }
+
+        /* ── Rendering ───────────────────────────────────── */
+        function renderMultilevel() {
+            if (!data || !data.levels) { $('mlDisplay').innerHTML = '<span style="color:#555">— empty —</span>'; return; }
+            let html = '';
+            for (let lvl = 0; lvl < data.levels.length; lvl++) {
+                const level = data.levels[lvl];
+                if (!level.length) continue;
+                let indent = 0;
+                if (lvl > 0) {
+                    for (const pNode of data.levels[lvl - 1]) {
+                        if (pNode.child === level[0]) { indent = pNode.posInLevel; break; }
+                    }
+                }
+                if (lvl > 0) {
+                    let c = '<div class="child-connector">';
+                    for (let s = 0; s < indent; s++) c += '<div class="ml-spacer"></div>';
+                    c += '<div class="ml-child-arrow">↓</div></div>';
+                    html += c;
+                }
+                html += '<div class="ml-level">';
+                for (let s = 0; s < indent; s++) html += '<div class="ml-spacer"></div>';
+                for (let i = 0; i < level.length; i++) {
+                    const node = level[i];
+                    let cls = 'ml-node';
+                    if (isDone) cls += ' done-nd';
+                    else if (nodeStates[node.id]) cls += ' visited';
+                    const ci = node.child ? '↓' : '';
+                    html += `<div class="${cls}">${node.val}<span class="nd-sub">${ci || `n${node.id}`}</span></div>`;
+                    if (i < level.length - 1) html += `<span class="ml-arrow${isDone ? ' done-a' : ''}">⇄</span>`;
+                    else html += `<span class="ml-arrow" style="opacity:.4">→∅</span>`;
+                }
+                html += '</div>';
+            }
+            $('mlDisplay').innerHTML = html;
+        }
+
+        function renderFlat() {
+            if (flatOrder.length === 0) { $('flatDisplay').innerHTML = '<span style="color:#555">— press Play or Step —</span>'; return; }
+            let h = '';
+            for (let i = 0; i < flatOrder.length; i++) {
+                const nid = flatOrder[i];
+                const node = nodeMap[nid];
+                if (!node) continue;
+                const st = nodeStates[nid] || '';
+                let cls = 'fnode';
+                if (st) cls += ' ' + st;
+                if (isDone) cls = 'fnode done-nd';
+                h += `<div class="${cls}">${node.val}<span class="nd-sub">n${nid}</span></div>`;
+                if (i < flatOrder.length - 1) {
+                    const arrKey = `${nid}-${flatOrder[i + 1]}`;
+                    const aCls = highlightArrows[arrKey] || '';
+                    h += `<span class="farrow ${aCls}${isDone ? ' done-a' : ''}">${isDone ? '⇄' : '⇄'}</span>`;
+                }
+            }
+            $('flatDisplay').innerHTML = h;
+        }
+
+        function renderPointerDiagram(html) {
+            $('ptrDiagram').innerHTML = html || '<span style="color:#555">— no operation yet —</span>';
+        }
+
+        function renderStack() {
+            if (callStack.length === 0) { $('stackDisplay').innerHTML = '<span style="color:#555;font-size:.7em">— empty —</span>'; return; }
+            let h = '';
+            for (let i = callStack.length - 1; i >= 0; i--) {
+                const f = callStack[i];
+                const isTop = i === callStack.length - 1;
+                h += `<div class="stack-frame${isTop ? ' active' : ''}">flattenDFS(${f.label}) d=${f.depth}</div>`;
+            }
+            $('stackDisplay').innerHTML = h;
+        }
+
+        function renderState() {
+            $('stPhase').textContent = phase;
+            $('stCurr').textContent = stCurr;
+            $('stNext').textContent = stNext;
+            $('stChildTail').textContent = stChildTail;
+            $('stLast').textContent = stLast;
+            $('stDepth').textContent = callStack.length;
+        }
+
+        function render() {
+            renderMultilevel();
+            renderFlat();
+            renderStack();
+            renderState();
+        }
+
+        /* ── Rebuild flat order from actual node links ──── */
+        function rebuildFlatOrder() {
+            // Walk the actual nodes following .next from head
+            flatOrder = [];
+            const visited = new Set();
+            let n = data.head;
+            while (n) {
+                if (visited.has(n.id)) break;
+                visited.add(n.id);
+                flatOrder.push(n.id);
+                // Follow the actual current .next pointer
+                n = n.next;
+            }
+        }
+
+        /* ── Apply splice to actual node objects ─────────── */
+        function actualSplice1(currId, childId) {
+            const curr = nodeMap[currId];
+            const child = nodeMap[childId];
+            curr.next = child;
+            child.prev = curr;
+        }
+        function actualSplice2(childTailId, nextId) {
+            const tail = nodeMap[childTailId];
+            tail.next = nextId !== null ? nodeMap[nextId] : null;
+            if (nextId !== null) nodeMap[nextId].prev = tail;
+        }
+        function actualClearChild(currId) {
+            nodeMap[currId].child = null;
+        }
+
+        /* ── Execute one animation step ──────────────────── */
+        function doStep() {
+            if (isDone || stepIdx >= steps.length) { stopExec(); return; }
+            stepCount++;
+            const s = steps[stepIdx++];
+
+            // Clear transient states
+            for (const id in nodeStates) {
+                if (['current', 'tail-find', 'splicing', 'child-head'].includes(nodeStates[id])) {
+                    nodeStates[id] = 'spliced';
+                }
+            }
+            highlightArrows = {};
+
+            switch (s.type) {
+                case 'start':
+                    phase = 'flatten';
+                    addLog(s.msg, 'orange');
+                    $('statusInd').className = 'status-ind si-run';
+                    $('statusInd').textContent = 'Recursive In-Place Flattening...';
+                    rebuildFlatOrder();
+                    break;
+
+                case 'push':
+                    callStack.push({ label: `node ${s.val}`, depth: s.depth });
+                    addLog(`${'  '.repeat(s.depth)}↘ flattenDFS(${s.val}) — depth ${s.depth}`, 'purple');
+                    break;
+
+                case 'pop':
+                    callStack.pop();
+                    stLast = `node(${s.lastVal})`;
+                    addLog(`${'  '.repeat(s.depth)}↗ return tail = node(${s.lastVal})`, 'purple');
+                    break;
+
+                case 'visit':
+                    nodeStates[s.nodeId] = 'current';
+                    stCurr = `node(${s.val})`;
+                    addLog(`${'  '.repeat(s.depth)}👁 curr = node(${s.val})`, 'info');
+                    break;
+
+                case 'save-next':
+                    stNext = s.nextVal !== null ? `node(${s.nextVal})` : 'null';
+                    addLog(`${'  '.repeat(0)}  💾 next = ${s.nextVal !== null ? 'node(' + s.nextVal + ')' : 'null'}`, 'info');
+                    break;
+
+                case 'no-child':
+                    stLast = `node(${s.val})`;
+                    stChildTail = '—';
+                    addLog(`${'  '.repeat(s.depth)}  ✓ no child, last = node(${s.val})`, 'info');
+                    break;
+
+                case 'has-child':
+                    nodeStates[s.childId] = 'child-head';
+                    stChildTail = '—';
+                    addLog(`${'  '.repeat(s.depth)}  ↓ node(${s.val}) has child → ${s.childVal}! Recurse...`, 'error');
+                    renderPointerDiagram(
+                        `<div class="ptr-line"><span class="ptr-label">curr</span> = <span class="ptr-val">node(${s.val})</span></div>` +
+                        `<div class="ptr-line"><span class="ptr-label">curr.child</span> <span class="ptr-arrow">→</span> <span class="ptr-val">node(${s.childVal})</span></div>` +
+                        `<div class="ptr-line"><span class="ptr-label">Action:</span> <span class="ptr-val">recurse into child list</span></div>`
+                    );
+                    break;
+
+                case 'returned':
+                    nodeStates[s.nodeId] = 'current';
+                    stCurr = `node(${s.val})`;
+                    stChildTail = `node(${s.childTailVal})`;
+                    nodeStates[s.childTailId] = 'tail-find';
+                    addLog(`${'  '.repeat(s.depth)}  ↩ Back! childTail = node(${s.childTailVal})`, 'warning');
+                    renderPointerDiagram(
+                        `<div class="ptr-line"><span class="ptr-label">curr</span> = <span class="ptr-val">node(${s.val})</span></div>` +
+                        `<div class="ptr-line"><span class="ptr-label">childTail</span> = <span class="ptr-val">node(${s.childTailVal})</span> (returned from recursive call)</div>` +
+                        `<div class="ptr-line"><span class="ptr-label">Next:</span> <span class="ptr-val">splice child list between curr & next</span></div>`
+                    );
+                    break;
+
+                case 'splice-1':
+                    nodeStates[s.nodeId] = 'splicing';
+                    nodeStates[s.childId] = 'splicing';
+                    actualSplice1(s.nodeId, s.childId);
+                    addLog(`  🔗 ${s.desc}: node(${s.val}).next → node(${s.childVal})`, 'error');
+                    renderPointerDiagram(
+                        `<div class="ptr-line"><span class="ptr-label">SPLICE 1:</span></div>` +
+                        `<div class="ptr-line"><span class="ptr-val">node(${s.val})</span> <span class="ptr-arrow">.next →</span> <span class="ptr-val">node(${s.childVal})</span></div>` +
+                        `<div class="ptr-line"><span class="ptr-val">node(${s.childVal})</span> <span class="ptr-arrow">.prev →</span> <span class="ptr-val">node(${s.val})</span></div>`
+                    );
+                    rebuildFlatOrder();
+                    highlightArrows[`${s.nodeId}-${s.childId}`] = 'splice-a';
+                    break;
+
+                case 'splice-2': {
+                    if (s.childTailId !== null) nodeStates[s.childTailId] = 'splicing';
+                    if (s.nextId !== null) nodeStates[s.nextId] = 'splicing';
+                    actualSplice2(s.childTailId, s.nextId);
+                    const nextStr = s.nextVal !== null ? `node(${s.nextVal})` : 'null';
+                    addLog(`  🔗 ${s.desc}: node(${s.childTailVal}).next → ${nextStr}`, 'error');
+                    renderPointerDiagram(
+                        `<div class="ptr-line"><span class="ptr-label">SPLICE 2:</span></div>` +
+                        `<div class="ptr-line"><span class="ptr-val">node(${s.childTailVal})</span> <span class="ptr-arrow">.next →</span> <span class="ptr-val">${nextStr}</span></div>` +
+                        (s.nextVal !== null ?
+                            `<div class="ptr-line"><span class="ptr-val">node(${s.nextVal})</span> <span class="ptr-arrow">.prev →</span> <span class="ptr-val">node(${s.childTailVal})</span></div>` :
+                            '')
+                    );
+                    rebuildFlatOrder();
+                    if (s.nextId !== null) highlightArrows[`${s.childTailId}-${s.nextId}`] = 'splice-a';
+                    break;
+                }
+
+                case 'clear-child':
+                    actualClearChild(s.nodeId);
+                    addLog(`  🚫 node(${s.val}).child = null`, 'warning');
+                    renderPointerDiagram(
+                        `<div class="ptr-line"><span class="ptr-label">CLEAR:</span></div>` +
+                        `<div class="ptr-line"><span class="ptr-val">node(${s.val})</span> <span class="ptr-arrow">.child →</span> <span class="ptr-null">null</span></div>`
+                    );
+                    break;
+
+                case 'splice-done':
+                    nodeStates[s.nodeId] = 'spliced';
+                    stLast = `node(${s.childTailVal})`;
+                    addLog(`${'  '.repeat(s.depth)}  ✅ Spliced! List updated. last = node(${s.childTailVal})`, 'success');
+                    renderPointerDiagram(
+                        `<div class="ptr-line"><span class="ptr-label">SPLICE COMPLETE:</span></div>` +
+                        `<div class="ptr-line"><span class="ptr-val">node(${s.val}) ⇄ [child list] ⇄ original next</span></div>` +
+                        `<div class="ptr-line"><span class="ptr-label">last =</span> <span class="ptr-val">node(${s.childTailVal})</span></div>`
+                    );
+                    rebuildFlatOrder();
+                    break;
+
+                case 'done': {
+                    isDone = true;
+                    phase = 'done';
+                    const result = flatOrder.map(id => nodeMap[id].val).join(' ⇄ ');
+                    addLog(`🎉 Done! Result: [${result}]`, 'success');
+                    $('statusInd').className = 'status-ind si-done';
+                    $('statusInd').textContent = `✅ Done! [${result}]`;
+                    renderPointerDiagram(
+                        `<div class="ptr-line"><span class="ptr-label">RESULT:</span></div>` +
+                        `<div class="ptr-line"><span class="ptr-val">${result}</span></div>` +
+                        `<div class="ptr-line"><span class="ptr-label">All .child pointers:</span> <span class="ptr-null">null ✓</span></div>`
+                    );
+                    stopExec();
+                    break;
+                }
+            }
+
+            render();
+        }
+
+        /* ── Playback controls ───────────────────────────── */
+        function play() {
+            if (isRunning || isDone) return;
+            isRunning = true;
+            $('playBtn').disabled = true;
+            $('pauseBtn').disabled = false;
+            $('stepBtn').disabled = true;
+            runLoop();
+        }
+        function pause() {
+            isRunning = false;
+            $('playBtn').disabled = false;
+            $('pauseBtn').disabled = true;
+            $('stepBtn').disabled = false;
+        }
+        function stopExec() {
+            isRunning = false;
+            $('playBtn').disabled = true;
+            $('pauseBtn').disabled = true;
+            $('stepBtn').disabled = true;
+        }
+        function runLoop() {
+            if (!isRunning) return;
+            doStep();
+            if (isRunning && !isDone) setTimeout(runLoop, 500 / speed);
+        }
+
+        /* ── Init ────────────────────────────────────────── */
+        function init() {
+            MLNode._id = 0;
+            data = parseInput(inputStr);
+
+            nodeMap = {};
+            nodeStates = {};
+            highlightArrows = {};
+            if (data) {
+                for (const n of data.allNodes) nodeMap[n.id] = n;
+            }
+
+            flatOrder = [];
+            callStack = [];
+            stCurr = '—'; stNext = '—'; stChildTail = '—'; stLast = '—';
+            phase = 'init';
+            stepIdx = 0; stepCount = 0;
+            isDone = false; isRunning = false;
+
+            buildSteps();
+
+            $('statusInd').className = 'status-ind si-neutral';
+            $('statusInd').textContent = 'Ready — press Play or Step';
+            $('playBtn').disabled = false;
+            $('pauseBtn').disabled = true;
+            $('stepBtn').disabled = false;
+            clearLog();
+            addLog('Recursively flatten child lists, splice in-place, return tail.', 'info');
+            renderPointerDiagram(null);
+            render();
+        }
+
+        /* ── Event listeners ─────────────────────────────── */
+        $('playBtn').addEventListener('click', play);
+        $('pauseBtn').addEventListener('click', pause);
+        $('stepBtn').addEventListener('click', () => { if (!isDone) doStep() });
+        $('resetBtn').addEventListener('click', () => { isRunning = false; init() });
+        $('speedSlider').addEventListener('input', e => { speed = parseInt(e.target.value); $('speedValue').textContent = speed + 'x' });
+        $('applyBtn').addEventListener('click', () => {
+            const val = $('listInput').value.trim();
+            if (!val) { alert('Please enter a serialized list.'); return; }
+            inputStr = val;
+            isRunning = false;
+            init();
+        });
+
+        init();
+    </script>
+</body>
+
+</html>

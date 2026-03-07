@@ -1,0 +1,425 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Linked List Cycle II — HashSet of Visited Nodes</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;background:#0f0f1a;color:#e0e0e0;display:flex;flex-direction:column;align-items:center;min-height:100vh;padding:18px}
+.container{background:#1a1a2e;padding:22px;border-radius:14px;box-shadow:0 6px 20px rgba(0,0,0,.4);width:95%;max-width:1080px}
+h1{text-align:center;color:#e17055;margin-bottom:4px;font-size:18px}
+.subtitle{text-align:center;color:#888;font-size:11px;margin-bottom:16px}
+.controls{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin-bottom:14px;align-items:center}
+input[type="text"],input[type="number"]{padding:6px 10px;border:1px solid #333;border-radius:6px;background:#16213e;color:#e0e0e0;font-family:monospace;text-align:center;font-size:12px}
+input[type="text"]{width:160px}
+input[type="number"]{width:55px}
+button{padding:6px 14px;border:none;border-radius:6px;cursor:pointer;font-weight:600;transition:.2s;background:#e17055;color:#fff;font-size:12px}
+button:hover{background:#c0583e}
+button:disabled{background:#444;cursor:not-allowed;color:#888}
+label{font-size:11px;color:#aaa;display:flex;align-items:center;gap:4px}
+
+.legend{display:flex;gap:12px;justify-content:center;flex-wrap:wrap;margin-bottom:10px}
+.legend-item{display:flex;align-items:center;gap:4px;font-size:10px;color:#888}
+.legend-dot{width:10px;height:10px;border-radius:50%;border:2px solid}
+
+.status-bar{display:flex;justify-content:space-around;background:#16213e;padding:10px;border-radius:8px;margin-bottom:12px;flex-wrap:wrap;gap:6px}
+.status-item{font-size:13px}.status-item span{font-weight:bold}
+
+/* SVG list */
+.list-section{background:#0f0f1a;border:1px solid #222;border-radius:10px;padding:18px;margin-bottom:12px;overflow-x:auto}
+.list-title{text-align:center;font-weight:bold;color:#74b9ff;font-size:12px;margin-bottom:12px}
+svg{display:block;margin:0 auto}
+
+/* HashSet display */
+.set-section{background:#0f0f1a;border:1px solid #222;border-radius:10px;padding:14px;margin-bottom:12px}
+.set-title{text-align:center;font-weight:bold;color:#a29bfe;font-size:12px;margin-bottom:8px}
+.set-chips{display:flex;gap:6px;flex-wrap:wrap;justify-content:center;min-height:32px;align-items:center}
+.set-chip{padding:5px 12px;border-radius:6px;font-size:13px;font-weight:bold;font-family:monospace;border:1px solid #a29bfe40;color:#a29bfe;background:#a29bfe08;transition:all .3s}
+.set-chip.new{animation:pop .35s ease;border-color:#a29bfe;background:#a29bfe18;box-shadow:0 0 8px rgba(162,155,254,.2)}
+.set-chip.hit{animation:shake .35s ease;border-color:#00b894;background:#00b89420;color:#00b894;box-shadow:0 0 10px rgba(0,184,148,.2)}
+
+/* Check display */
+.check-display{display:flex;gap:10px;justify-content:center;align-items:center;flex-wrap:wrap;min-height:55px;margin-bottom:12px}
+.check-box{padding:8px 14px;border-radius:8px;border:1px solid #333;background:#16213e;text-align:center;min-width:55px}
+.check-box .val{font-size:18px;font-weight:bold}
+.check-box .lab{font-size:8px;color:#888;text-transform:uppercase}
+.check-sym{font-size:16px;font-weight:bold;color:#888}
+.check-result{font-size:13px;font-weight:bold;padding:6px 14px;border-radius:6px}
+.check-result.inset{background:#00b89418;border:1px solid #00b894;color:#00b894}
+.check-result.notinset{background:#636e7210;border:1px solid #636e72;color:#636e72}
+.check-result.found{background:#00b89420;border:1px solid #00b894;color:#00b894;font-size:16px}
+
+/* Info area */
+.info-row{display:flex;gap:14px;flex-wrap:wrap;justify-content:center;margin-bottom:12px}
+.info-card{padding:10px;border-radius:8px;border:1px solid #333;background:#16213e;flex:1;min-width:220px;max-width:480px}
+.info-card-title{font-size:10px;font-weight:bold;color:#888;text-transform:uppercase;letter-spacing:.5px;margin-bottom:5px}
+.stats-card{padding:10px;border-radius:8px;border:1px solid #333;background:#16213e;flex:1;min-width:160px;max-width:260px}
+.stats-row{display:flex;gap:14px;justify-content:center}
+.stat-box{text-align:center;min-width:55px}
+.stat-box .n{font-size:20px;font-weight:bold}
+.stat-box .l{font-size:8px;color:#888;text-transform:uppercase}
+
+.result-banner{text-align:center;padding:12px;border-radius:8px;font-size:17px;font-weight:bold;margin-bottom:12px;display:none}
+.result-banner.show{display:block}
+.result-banner.found{background:#00b89422;border:1px solid #00b894;color:#00b894}
+.result-banner.notfound{background:#d6303118;border:1px solid #d63031;color:#d63031}
+
+.log-panel{height:115px;overflow-y:auto;background:#0a0a15;color:#b2bec3;padding:8px;border-radius:6px;font-family:monospace;font-size:10px;border:1px solid #222}
+.log-entry{margin-bottom:2px;padding-bottom:2px;border-bottom:1px solid #1a1a2e}
+
+@keyframes pop{0%{transform:scale(1)}50%{transform:scale(1.12)}100%{transform:scale(1)}}
+@keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-5px)}75%{transform:translateX(5px)}}
+</style>
+</head>
+<body>
+
+<div class="container">
+    <h1>🗂️ Linked List Cycle II — HashSet of Visited Nodes</h1>
+    <div class="subtitle">Traverse once · First node already in Set = cycle start · O(n) time, O(n) space</div>
+
+    <div class="controls">
+        <label>Values: <input type="text" id="inputVals" value="3,2,0,-4" placeholder="e.g. 3,2,0,-4"></label>
+        <label>pos (cycle): <input type="number" id="inputPos" value="1" min="-1" max="20"></label>
+        <button onclick="startViz()">Start / Reset</button>
+        <button onclick="togglePlay()" id="playBtn" disabled>▶ Play</button>
+        <button onclick="stepForward()" id="stepBtn" disabled>⏭ Step</button>
+        <label>Speed: <input type="range" id="speedSlider" min="50" max="2000" value="800" style="width:90px"></label>
+    </div>
+
+    <div class="legend">
+        <div class="legend-item"><div class="legend-dot" style="border-color:#fdcb6e;background:#fdcb6e40"></div>current pointer</div>
+        <div class="legend-item"><div class="legend-dot" style="border-color:#a29bfe;background:#a29bfe30"></div>in visited set</div>
+        <div class="legend-item"><div class="legend-dot" style="border-color:#00b894;background:#00b89440"></div>cycle start found</div>
+        <div class="legend-item"><div class="legend-dot" style="border-color:#d63031;background:none"></div>cycle edge</div>
+    </div>
+
+    <div class="status-bar">
+        <div class="status-item">current: <span style="color:#fdcb6e" id="curD">-</span></div>
+        <div class="status-item">Set size: <span style="color:#a29bfe" id="setD">0</span></div>
+        <div class="status-item">Step: <span style="color:#74b9ff" id="stepD">0</span></div>
+        <div class="status-item">Result: <span style="color:#00b894" id="resD">—</span></div>
+    </div>
+
+    <div class="result-banner" id="resultBanner"></div>
+
+    <div class="list-section">
+        <div class="list-title" id="listTitle">Linked List</div>
+        <svg id="listSvg" width="700" height="150"></svg>
+    </div>
+
+    <div class="check-display" id="checkDisplay"></div>
+
+    <div class="set-section">
+        <div class="set-title" id="setTitle">visited = { }</div>
+        <div class="set-chips" id="setChips"><span style="color:#555;font-size:11px">empty</span></div>
+    </div>
+
+    <div class="info-row">
+        <div class="info-card" id="infoCard"></div>
+        <div class="stats-card">
+            <div class="info-card-title">Stats</div>
+            <div class="stats-row">
+                <div class="stat-box"><div class="n" style="color:#fdcb6e" id="statStep">0</div><div class="l">steps</div></div>
+                <div class="stat-box"><div class="n" style="color:#a29bfe" id="statSet">0</div><div class="l">set size</div></div>
+                <div class="stat-box"><div class="n" style="color:#74b9ff" id="statNodes">0</div><div class="l">nodes</div></div>
+            </div>
+        </div>
+    </div>
+
+    <div class="log-panel" id="logPanel"></div>
+</div>
+
+<script>
+let STEPS=[],stepIdx=0,playing=false,timer=null;
+
+const $=id=>document.getElementById(id);
+const curD=$('curD'),setD=$('setD'),stepDD=$('stepD'),resD=$('resD'),
+      listSvg=$('listSvg'),listTitle=$('listTitle'),checkDisplay=$('checkDisplay'),
+      setTitle=$('setTitle'),setChips=$('setChips'),
+      infoCard=$('infoCard'),statStep=$('statStep'),statSet=$('statSet'),statNodes=$('statNodes'),
+      logPanel=$('logPanel'),resultBanner=$('resultBanner'),
+      playBtn=$('playBtn'),stepBtn=$('stepBtn'),speedSlider=$('speedSlider');
+
+function logMsg(m){const d=document.createElement('div');d.className='log-entry';d.innerHTML='> '+m;logPanel.appendChild(d);logPanel.scrollTop=logPanel.scrollHeight}
+
+function buildNodes(vals,pos){
+    const nodes=[];
+    for(let i=0;i<vals.length;i++) nodes.push({val:vals[i],idx:i,next:i+1<vals.length?i+1:-1});
+    if(pos>=0&&pos<vals.length&&vals.length>0) nodes[vals.length-1].next=pos;
+    return nodes;
+}
+
+/* ─── Generate steps ─── */
+function generateSteps(vals,pos){
+    const steps=[];
+    const n=vals.length;
+    const nodes=buildNodes(vals,pos);
+
+    steps.push({type:'INIT',nodes,vals,pos,curIdx:-1,visited:[],stepNum:0,newChip:false,hitIdx:-1,
+        log:`<span style="color:#74b9ff">List: [${vals.join(',')}], pos=${pos}. ${n} nodes. Traverse with a HashSet to track visited nodes.</span>`});
+
+    const visited=[];
+    const visitedSet=new Set();
+    let cur=0, stepNum=0;
+    let found=false;
+
+    while(cur>=0&&cur<n){
+        stepNum++;
+
+        // Check if already visited
+        const inSet=visitedSet.has(cur);
+
+        if(inSet){
+            // FOUND cycle start
+            steps.push({type:'CHECK',nodes,vals,pos,curIdx:cur,visited:visited.slice(),stepNum,inSet:true,newChip:false,hitIdx:cur,
+                log:`<span style="color:#fdcb6e">Step ${stepNum}: current = node[${cur}] (val=${vals[cur]}). In visited? <span style="color:#00b894"><b>YES!</b></span></span>`});
+
+            steps.push({type:'FOUND',nodes,vals,pos,curIdx:cur,visited:visited.slice(),stepNum,newChip:false,hitIdx:cur,
+                log:`<span style="color:#00b894">✅ node[${cur}] (val=${vals[cur]}) already in set → CYCLE START! Return this node.</span>`});
+            found=true;
+            break;
+        }
+
+        // Not in set → check step
+        steps.push({type:'CHECK',nodes,vals,pos,curIdx:cur,visited:visited.slice(),stepNum,inSet:false,newChip:false,hitIdx:-1,
+            log:`Step ${stepNum}: current = node[${cur}] (val=${vals[cur]}). In visited? <span style="color:#636e72">No.</span>`});
+
+        // Add to set
+        visited.push(cur);
+        visitedSet.add(cur);
+        steps.push({type:'ADD',nodes,vals,pos,curIdx:cur,visited:visited.slice(),stepNum,inSet:false,newChip:true,hitIdx:-1,
+            log:`  Add node[${cur}] to visited. Set = {${visited.map(i=>'node['+i+']').join(', ')}}`});
+
+        // Move to next
+        const nxt=nodes[cur].next;
+        steps.push({type:'MOVE',nodes,vals,pos,curIdx:cur,nextIdx:nxt,visited:visited.slice(),stepNum,newChip:false,hitIdx:-1,
+            log:`  current = current.next → ${nxt>=0?'node['+nxt+']':'null'}`});
+
+        cur=nxt;
+    }
+
+    if(!found){
+        steps.push({type:'NO_CYCLE',nodes,vals,pos,curIdx:-1,visited:visited.slice(),stepNum,newChip:false,hitIdx:-1,
+            log:`<span style="color:#d63031">Reached null. No cycle. Return null. (${stepNum} steps)</span>`});
+    }
+
+    return steps;
+}
+
+/* ─── SVG rendering ─── */
+function renderList(step){
+    const nodes=step.nodes;
+    const n=nodes.length;
+    if(n===0){listSvg.innerHTML='';return;}
+
+    const R=22,GAP=80,Y=60,padL=50;
+    const svgW=Math.max(700,padL+n*GAP+60);
+    listSvg.setAttribute('width',svgW);
+    listSvg.setAttribute('height',150);
+
+    let html=`<defs>
+        <marker id="ah" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto"><polygon points="0 0,8 3,0 6" fill="#555"/></marker>
+        <marker id="ahR" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto"><polygon points="0 0,8 3,0 6" fill="#d63031"/></marker>
+    </defs>`;
+
+    const cx=i=>padL+i*GAP;
+    const visited=new Set(step.visited);
+
+    // Arrows
+    for(let i=0;i<n;i++){
+        const nxt=nodes[i].next;
+        if(nxt<0)continue;
+        const x1=cx(i)+R,y1=Y,x2=cx(nxt)-R,y2=Y;
+        if(nxt===i+1){
+            html+=`<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="#555" stroke-width="2" marker-end="url(#ah)"/>`;
+        }else{
+            const midX=(cx(i)+cx(nxt))/2;
+            const dist=Math.abs(cx(i)-cx(nxt));
+            const bulge=Math.min(45,dist*.3)+22;
+            html+=`<path d="M${x1},${y1} Q${midX},${Y+bulge} ${x2+2},${y2}" stroke="#d63031" stroke-width="2" stroke-dasharray="6,3" fill="none" marker-end="url(#ahR)"/>`;
+            html+=`<text x="${midX}" y="${Y+bulge-2}" text-anchor="middle" font-size="9" fill="#d63031" font-weight="bold">cycle</text>`;
+        }
+    }
+
+    // Nodes
+    for(let i=0;i<n;i++){
+        const x=cx(i);
+        let stroke='#555',fill='#16213e',sw=2.5;
+
+        if(step.type==='FOUND'&&i===step.hitIdx){
+            stroke='#00b894';fill='#00b89428';sw=3.5;
+        }else if(step.type==='CHECK'&&step.inSet&&i===step.curIdx){
+            stroke='#00b894';fill='#00b89420';sw=3;
+        }else if(i===step.curIdx){
+            stroke='#fdcb6e';fill='#fdcb6e18';sw=3;
+        }else if(visited.has(i)){
+            stroke='#a29bfe';fill='#a29bfe12';sw=2.5;
+        }
+
+        html+=`<circle cx="${x}" cy="${Y}" r="${R}" stroke="${stroke}" stroke-width="${sw}" fill="${fill}"/>`;
+        html+=`<text x="${x}" y="${Y}" font-family="monospace" font-size="14" font-weight="bold" fill="#e0e0e0" text-anchor="middle" dominant-baseline="central">${nodes[i].val}</text>`;
+        html+=`<text x="${x}" y="${Y-R-8}" font-family="monospace" font-size="9" fill="#666" text-anchor="middle">idx ${i}</text>`;
+
+        // visited marker
+        if(visited.has(i)&&!(step.type==='FOUND'&&i===step.hitIdx)){
+            html+=`<text x="${x+R-2}" y="${Y-R+2}" font-size="10" fill="#a29bfe" font-weight="bold">✓</text>`;
+        }
+    }
+
+    // Pointer label
+    if(step.curIdx>=0){
+        const px=cx(step.curIdx);
+        const col=(step.type==='FOUND'||step.inSet)?'#00b894':'#fdcb6e';
+        html+=`<text x="${px}" y="${Y+R+18}" text-anchor="middle" font-size="10" font-weight="bold" fill="${col}">▲ current</text>`;
+    }
+
+    listSvg.innerHTML=html;
+}
+
+function renderSet(step){
+    setTitle.textContent=`visited (${step.visited.length} nodes)`;
+    setChips.innerHTML='';
+    if(step.visited.length===0){
+        setChips.innerHTML='<span style="color:#555;font-size:11px">empty</span>';
+        return;
+    }
+    step.visited.forEach((idx,i)=>{
+        const chip=document.createElement('span');
+        chip.className='set-chip';
+        if(step.newChip&&i===step.visited.length-1) chip.classList.add('new');
+        if(step.hitIdx===idx&&(step.type==='CHECK'||step.type==='FOUND')) chip.classList.add('hit');
+        chip.textContent=`[${idx}] ${step.vals[idx]}`;
+        setChips.appendChild(chip);
+    });
+}
+
+function renderCheck(step){
+    checkDisplay.innerHTML='';
+    const t=step.type;
+    if(t==='CHECK'){
+        const inSet=step.inSet;
+        checkDisplay.innerHTML=`
+            <div class="check-box"><div class="val" style="color:#fdcb6e">[${step.curIdx}] ${step.vals[step.curIdx]}</div><div class="lab">current</div></div>
+            <div class="check-sym">∈</div>
+            <div class="check-box"><div class="val" style="color:#a29bfe;font-size:14px">visited?</div><div class="lab">HashSet</div></div>
+            <div class="check-sym">→</div>
+            <div class="check-result ${inSet?'inset':'notinset'}">${inSet?'✓ YES — Cycle start!':'✗ No — add & continue'}</div>`;
+    }else if(t==='ADD'){
+        checkDisplay.innerHTML=`
+            <div class="check-result notinset">visited.add(node[${step.curIdx}]) — Set size: ${step.visited.length}</div>`;
+    }else if(t==='MOVE'){
+        const nxt=step.nextIdx;
+        checkDisplay.innerHTML=`
+            <div class="check-box"><div class="val" style="color:#888">current</div><div class="lab">.next</div></div>
+            <div class="check-sym">→</div>
+            <div class="check-result notinset">${nxt>=0?`node[${nxt}] (val=${step.vals[nxt]})`:'null'}</div>`;
+    }else if(t==='FOUND'){
+        checkDisplay.innerHTML=`<div class="check-result found" style="font-size:16px">✅ Cycle starts at node[${step.hitIdx}] (val=${step.vals[step.hitIdx]})</div>`;
+    }
+}
+
+function renderInfo(step){
+    let html='';
+    const t=step.type;
+    if(t==='INIT'){
+        html=`<div class="info-card-title">HashSet Approach</div><div style="font-size:12px;color:#aaa">
+        Traverse the list once. For each node:<br>
+        1. If already in <b style="color:#a29bfe">visited</b> → <b style="color:#00b894">cycle start</b>.<br>
+        2. Else, add to visited and move to next.<br><br>
+        First re-visited node = cycle start.<br>
+        Time: O(n) · Space: O(n)</div>`;
+    }else if(t==='CHECK'&&!step.inSet){
+        html=`<div class="info-card-title" style="color:#fdcb6e">Check: node[${step.curIdx}] in visited?</div><div style="font-size:12px">
+        <div>node[${step.curIdx}] (val=${step.vals[step.curIdx]})</div>
+        <div style="color:#636e72;margin-top:3px">Not in set. Will add it and continue.</div></div>`;
+    }else if(t==='CHECK'&&step.inSet){
+        html=`<div class="info-card-title" style="color:#00b894">✓ Found in Set!</div><div style="font-size:12px">
+        <div>node[${step.curIdx}] (val=${step.vals[step.curIdx]}) is <b>already visited</b>.</div>
+        <div style="color:#00b894;margin-top:4px;font-weight:bold">This is the cycle start!</div></div>`;
+    }else if(t==='ADD'){
+        html=`<div class="info-card-title" style="color:#a29bfe">Add to Set</div><div style="font-size:12px">
+        <div>visited.add(node[${step.curIdx}])</div>
+        <div style="color:#888;margin-top:3px">Set size: ${step.visited.length}</div></div>`;
+    }else if(t==='MOVE'){
+        const nxt=step.nextIdx;
+        html=`<div class="info-card-title" style="color:#888">Advance Pointer</div><div style="font-size:12px">
+        <div>current = current.next</div>
+        <div style="margin-top:3px">→ ${nxt>=0?`node[${nxt}] (val=${step.vals[nxt]})`:'null (end of list)'}</div></div>`;
+    }else if(t==='FOUND'){
+        html=`<div class="info-card-title" style="color:#00b894">✅ Cycle Start Found</div>
+        <div style="text-align:center;font-size:18px;font-weight:bold;color:#00b894;margin:6px 0">node[${step.hitIdx}] (val=${step.vals[step.hitIdx]})</div>
+        <div style="text-align:center;font-size:11px;color:#888">${step.stepNum} steps, set size ${step.visited.length} — O(n) time, O(n) space</div>`;
+    }else if(t==='NO_CYCLE'){
+        html=`<div class="info-card-title" style="color:#d63031">No Cycle</div><div style="font-size:12px;color:#888">
+        Reached null without revisiting any node. Return null.</div>`;
+    }
+    infoCard.innerHTML=html;
+}
+
+function renderStep(s){
+    logMsg(s.log);
+    curD.textContent=s.curIdx>=0?`[${s.curIdx}] val=${s.vals[s.curIdx]}`:'-';
+    setD.textContent=s.visited.length;
+    stepDD.textContent=s.stepNum;
+    resD.textContent=s.type==='FOUND'?`node[${s.hitIdx}]`:(s.type==='NO_CYCLE'?'null':'—');
+    statStep.textContent=s.stepNum;
+    statSet.textContent=s.visited.length;
+    statNodes.textContent=s.vals.length;
+
+    renderList(s);renderSet(s);renderCheck(s);renderInfo(s);
+
+    if(s.type==='FOUND'){
+        resultBanner.textContent=`✅ Cycle starts at node[${s.hitIdx}] (val=${s.vals[s.hitIdx]})`;
+        resultBanner.className='result-banner show found';
+    }else if(s.type==='NO_CYCLE'){
+        resultBanner.textContent='✗ No cycle — return null';
+        resultBanner.className='result-banner show notfound';
+    }else{resultBanner.className='result-banner';}
+}
+
+/* ─── Controls ─── */
+function startViz(){
+    stop();logPanel.innerHTML='';resultBanner.className='result-banner';
+    checkDisplay.innerHTML='';infoCard.innerHTML='';setChips.innerHTML='';
+
+    const valsStr=$('inputVals').value.trim();
+    const pos=parseInt($('inputPos').value);
+    if(!valsStr){alert('Enter values');return;}
+    const vals=valsStr.split(',').map(s=>parseInt(s.trim())).filter(v=>!isNaN(v));
+    if(vals.length===0){alert('Invalid values');return;}
+    if(vals.length>20){alert('Max 20 nodes for visualization');return;}
+
+    STEPS=generateSteps(vals,pos);
+    stepIdx=0;
+    playBtn.disabled=false;stepBtn.disabled=false;
+    renderStep(STEPS[0]);
+}
+
+function stepForward(){
+    if(stepIdx<STEPS.length-1){stepIdx++;renderStep(STEPS[stepIdx]);}
+    if(stepIdx>=STEPS.length-1)stop();
+}
+
+function togglePlay(){
+    if(playing){stop();}
+    else{
+        if(stepIdx>=STEPS.length-1)stepIdx=0;
+        playing=true;playBtn.textContent='⏸ Pause';
+        timer=setInterval(stepForward,2100-parseInt(speedSlider.value));
+    }
+}
+
+function stop(){
+    playing=false;playBtn.textContent='▶ Play';
+    if(timer){clearInterval(timer);timer=null;}
+}
+
+speedSlider.addEventListener('input',()=>{
+    if(playing){clearInterval(timer);timer=setInterval(stepForward,2100-parseInt(speedSlider.value));}
+});
+
+startViz();
+</script>
+</body>
+</html>

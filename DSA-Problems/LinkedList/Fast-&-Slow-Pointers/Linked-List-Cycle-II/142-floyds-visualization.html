@@ -1,0 +1,562 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Linked List Cycle II — Floyd's Tortoise & Hare</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;background:#0f0f1a;color:#e0e0e0;display:flex;flex-direction:column;align-items:center;min-height:100vh;padding:18px}
+.container{background:#1a1a2e;padding:22px;border-radius:14px;box-shadow:0 6px 20px rgba(0,0,0,.4);width:95%;max-width:1080px}
+h1{text-align:center;color:#e17055;margin-bottom:4px;font-size:18px}
+.subtitle{text-align:center;color:#888;font-size:11px;margin-bottom:16px}
+.controls{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin-bottom:14px;align-items:center}
+input[type="text"],input[type="number"]{padding:6px 10px;border:1px solid #333;border-radius:6px;background:#16213e;color:#e0e0e0;font-family:monospace;text-align:center;font-size:12px}
+input[type="text"]{width:160px}input[type="number"]{width:55px}
+button{padding:6px 14px;border:none;border-radius:6px;cursor:pointer;font-weight:600;transition:.2s;background:#e17055;color:#fff;font-size:12px}
+button:hover{background:#c0583e}button:disabled{background:#444;cursor:not-allowed;color:#888}
+label{font-size:11px;color:#aaa;display:flex;align-items:center;gap:4px}
+
+.legend{display:flex;gap:12px;justify-content:center;flex-wrap:wrap;margin-bottom:10px}
+.legend-item{display:flex;align-items:center;gap:4px;font-size:10px;color:#888}
+.legend-dot{width:10px;height:10px;border-radius:50%;border:2px solid}
+
+.status-bar{display:flex;justify-content:space-around;background:#16213e;padding:10px;border-radius:8px;margin-bottom:12px;flex-wrap:wrap;gap:6px}
+.status-item{font-size:13px}.status-item span{font-weight:bold}
+
+/* Phase banner */
+.phase-banner{text-align:center;padding:8px;border-radius:8px;font-size:14px;font-weight:bold;margin-bottom:12px;transition:all .3s}
+.phase-banner.p1{background:#74b9ff15;border:1px solid #74b9ff;color:#74b9ff}
+.phase-banner.p2{background:#a29bfe15;border:1px solid #a29bfe;color:#a29bfe}
+.phase-banner.done{background:#00b89420;border:1px solid #00b894;color:#00b894}
+.phase-banner.none{background:#16213e;border:1px solid #333;color:#888}
+
+/* SVG list */
+.list-section{background:#0f0f1a;border:1px solid #222;border-radius:10px;padding:18px;margin-bottom:12px;overflow-x:auto}
+svg{display:block;margin:0 auto}
+
+/* Math section */
+.math-section{background:#0f0f1a;border:1px solid #222;border-radius:10px;padding:12px;margin-bottom:12px}
+.math-title{text-align:center;font-weight:bold;color:#fdcb6e;font-size:11px;margin-bottom:6px}
+.math-grid{display:flex;gap:12px;justify-content:center;flex-wrap:wrap}
+.math-card{padding:6px 14px;border-radius:6px;border:1px solid #333;background:#16213e;text-align:center;min-width:80px}
+.math-card .mv{font-size:18px;font-weight:bold;font-family:monospace}
+.math-card .ml{font-size:8px;color:#666;text-transform:uppercase}
+
+/* Check / operation display */
+.op-display{display:flex;gap:10px;justify-content:center;align-items:center;flex-wrap:wrap;min-height:55px;margin-bottom:12px}
+.op-box{padding:8px 14px;border-radius:8px;border:1px solid #333;background:#16213e;text-align:center;min-width:55px}
+.op-box .val{font-size:16px;font-weight:bold}
+.op-box .lab{font-size:8px;color:#888;text-transform:uppercase}
+.op-sym{font-size:16px;font-weight:bold;color:#888}
+.op-result{font-size:13px;font-weight:bold;padding:6px 14px;border-radius:6px}
+.op-result.meet{background:#fdcb6e18;border:1px solid #fdcb6e;color:#fdcb6e}
+.op-result.nomeet{background:#636e7210;border:1px solid #636e72;color:#636e72}
+.op-result.found{background:#00b89420;border:1px solid #00b894;color:#00b894;font-size:16px}
+
+/* Info */
+.info-row{display:flex;gap:14px;flex-wrap:wrap;justify-content:center;margin-bottom:12px}
+.info-card{padding:10px;border-radius:8px;border:1px solid #333;background:#16213e;flex:1;min-width:220px;max-width:500px}
+.info-card-title{font-size:10px;font-weight:bold;color:#888;text-transform:uppercase;letter-spacing:.5px;margin-bottom:5px}
+.stats-card{padding:10px;border-radius:8px;border:1px solid #333;background:#16213e;flex:1;min-width:160px;max-width:240px}
+.stats-row{display:flex;gap:14px;justify-content:center}
+.stat-box{text-align:center;min-width:50px}
+.stat-box .n{font-size:20px;font-weight:bold}
+.stat-box .l{font-size:8px;color:#888;text-transform:uppercase}
+
+.result-banner{text-align:center;padding:12px;border-radius:8px;font-size:17px;font-weight:bold;margin-bottom:12px;display:none}
+.result-banner.show{display:block}
+.result-banner.found{background:#00b89422;border:1px solid #00b894;color:#00b894}
+.result-banner.notfound{background:#d6303118;border:1px solid #d63031;color:#d63031}
+
+.log-panel{height:115px;overflow-y:auto;background:#0a0a15;color:#b2bec3;padding:8px;border-radius:6px;font-family:monospace;font-size:10px;border:1px solid #222}
+.log-entry{margin-bottom:2px;padding-bottom:2px;border-bottom:1px solid #1a1a2e}
+
+@keyframes pop{0%{transform:scale(1)}50%{transform:scale(1.12)}100%{transform:scale(1)}}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.6}}
+</style>
+</head>
+<body>
+
+<div class="container">
+    <h1>🐢🐇 Linked List Cycle II — Floyd's Tortoise & Hare</h1>
+    <div class="subtitle">Phase 1: Detect meeting point (slow ×1, fast ×2) · Phase 2: Find cycle start · O(n) time, O(1) space</div>
+
+    <div class="controls">
+        <label>Values: <input type="text" id="inputVals" value="3,2,0,-4" placeholder="e.g. 3,2,0,-4"></label>
+        <label>pos (cycle): <input type="number" id="inputPos" value="1" min="-1" max="20"></label>
+        <button onclick="startViz()">Start / Reset</button>
+        <button onclick="togglePlay()" id="playBtn" disabled>▶ Play</button>
+        <button onclick="stepForward()" id="stepBtn" disabled>⏭ Step</button>
+        <label>Speed: <input type="range" id="speedSlider" min="50" max="2000" value="800" style="width:90px"></label>
+    </div>
+
+    <div class="legend">
+        <div class="legend-item"><div class="legend-dot" style="border-color:#00b894;background:#00b89440"></div>🐢 slow</div>
+        <div class="legend-item"><div class="legend-dot" style="border-color:#e17055;background:#e1705540"></div>🐇 fast</div>
+        <div class="legend-item"><div class="legend-dot" style="border-color:#a29bfe;background:#a29bfe40"></div>entry</div>
+        <div class="legend-item"><div class="legend-dot" style="border-color:#fdcb6e;background:#fdcb6e40"></div>meeting point</div>
+        <div class="legend-item"><div class="legend-dot" style="border-color:#d63031;background:none"></div>cycle edge</div>
+    </div>
+
+    <div class="status-bar">
+        <div class="status-item">🐢 slow: <span style="color:#00b894" id="slowD">-</span></div>
+        <div class="status-item">🐇 fast: <span style="color:#e17055" id="fastD">-</span></div>
+        <div class="status-item">entry: <span style="color:#a29bfe" id="entryD">-</span></div>
+        <div class="status-item">Step: <span style="color:#74b9ff" id="stepD">0</span></div>
+    </div>
+
+    <div class="phase-banner none" id="phaseBanner">—</div>
+    <div class="result-banner" id="resultBanner"></div>
+
+    <div class="list-section">
+        <svg id="listSvg" width="700" height="160"></svg>
+    </div>
+
+    <div class="op-display" id="opDisplay"></div>
+
+    <div class="math-section" id="mathSection">
+        <div class="math-title">Distance Metrics</div>
+        <div class="math-grid" id="mathGrid"></div>
+    </div>
+
+    <div class="info-row">
+        <div class="info-card" id="infoCard"></div>
+        <div class="stats-card">
+            <div class="info-card-title">Stats</div>
+            <div class="stats-row">
+                <div class="stat-box"><div class="n" style="color:#00b894" id="statSlow">0</div><div class="l">slow steps</div></div>
+                <div class="stat-box"><div class="n" style="color:#e17055" id="statFast">0</div><div class="l">fast steps</div></div>
+                <div class="stat-box"><div class="n" style="color:#a29bfe" id="statP2">0</div><div class="l">phase 2</div></div>
+            </div>
+        </div>
+    </div>
+
+    <div class="log-panel" id="logPanel"></div>
+</div>
+
+<script>
+let STEPS=[],stepIdx=0,playing=false,timer=null;
+
+const $=id=>document.getElementById(id);
+const slowD=$('slowD'),fastD=$('fastD'),entryD=$('entryD'),stepDD=$('stepD'),
+      phaseBanner=$('phaseBanner'),listSvg=$('listSvg'),opDisplay=$('opDisplay'),
+      mathGrid=$('mathGrid'),infoCard=$('infoCard'),
+      statSlow=$('statSlow'),statFast=$('statFast'),statP2=$('statP2'),
+      logPanel=$('logPanel'),resultBanner=$('resultBanner'),
+      playBtn=$('playBtn'),stepBtn=$('stepBtn'),speedSlider=$('speedSlider');
+
+function logMsg(m){const d=document.createElement('div');d.className='log-entry';d.innerHTML='> '+m;logPanel.appendChild(d);logPanel.scrollTop=logPanel.scrollHeight}
+
+function buildNodes(vals,pos){
+    const nodes=[];
+    for(let i=0;i<vals.length;i++) nodes.push({val:vals[i],idx:i,next:i+1<vals.length?i+1:-1});
+    if(pos>=0&&pos<vals.length&&vals.length>0) nodes[vals.length-1].next=pos;
+    return nodes;
+}
+
+/* ─── Compute cycle metrics ─── */
+function cycleMetrics(nodes,pos){
+    if(pos<0)return{F:0,C:0,hasCycle:false};
+    const F=pos;
+    let C=1,cur=nodes[pos].next;
+    while(cur!==pos){C++;cur=nodes[cur].next;}
+    return{F,C,hasCycle:true};
+}
+
+/* ─── Generate steps ─── */
+function generateSteps(vals,pos){
+    const steps=[];
+    const n=vals.length;
+    const nodes=buildNodes(vals,pos);
+    const metrics=cycleMetrics(nodes,pos);
+    let slowSteps=0,fastSteps=0,p2Steps=0;
+
+    steps.push({type:'INIT',nodes,vals,pos,phase:0,
+        slowIdx:0,fastIdx:0,entryIdx:-1,meetIdx:-1,
+        slowSteps:0,fastSteps:0,p2Steps:0,metrics,
+        log:`<span style="color:#74b9ff">List: [${vals.join(',')}], pos=${pos}. ${metrics.hasCycle?`F=${metrics.F}, C=${metrics.C}`:'No cycle'}. ${n} nodes.</span>`});
+
+    steps.push({type:'P1_START',nodes,vals,pos,phase:1,
+        slowIdx:0,fastIdx:0,entryIdx:-1,meetIdx:-1,
+        slowSteps:0,fastSteps:0,p2Steps:0,metrics,
+        log:`<span style="color:#74b9ff">Phase 1: slow=head, fast=head. Move slow ×1, fast ×2 until they meet or fast hits null.</span>`});
+
+    let slow=0,fast=0;
+    let met=false;
+
+    // Phase 1
+    while(true){
+        // Check if fast can move
+        if(fast<0||fast>=n||nodes[fast].next<0||nodes[fast].next>=n){
+            // fast hit null
+            steps.push({type:'NO_CYCLE',nodes,vals,pos,phase:1,
+                slowIdx:slow,fastIdx:fast,entryIdx:-1,meetIdx:-1,
+                slowSteps,fastSteps,p2Steps:0,metrics,
+                log:`<span style="color:#d63031">fast reached null → No cycle. Return null.</span>`});
+            return steps;
+        }
+        const fNext=nodes[fast].next;
+        if(fNext<0||fNext>=n||nodes[fNext].next<0){
+            // fast.next.next would be null
+            if(nodes[fNext].next<0||nodes[fNext].next>=n){
+                steps.push({type:'NO_CYCLE',nodes,vals,pos,phase:1,
+                    slowIdx:slow,fastIdx:fast,entryIdx:-1,meetIdx:-1,
+                    slowSteps,fastSteps,p2Steps:0,metrics,
+                    log:`<span style="color:#d63031">fast.next.next is null → No cycle. Return null.</span>`});
+                return steps;
+            }
+        }
+
+        // Advance
+        const oldSlow=slow,oldFast=fast;
+        slow=nodes[slow].next;
+        fast=nodes[nodes[fast].next].next;
+        slowSteps++;fastSteps+=2;
+
+        const didMeet=(slow===fast);
+
+        steps.push({type:'P1_MOVE',nodes,vals,pos,phase:1,
+            slowIdx:slow,fastIdx:fast,entryIdx:-1,meetIdx:didMeet?slow:-1,
+            slowSteps,fastSteps,p2Steps:0,metrics,
+            oldSlow,oldFast,didMeet,
+            log:`Phase 1 step ${slowSteps}: 🐢slow [${oldSlow}]→[${slow}], 🐇fast [${oldFast}]→[${nodes[oldFast].next}]→[${fast}]` +
+                (didMeet?` — <span style="color:#fdcb6e"><b>MEET at node[${slow}]!</b></span>`:` — slow≠fast, continue`)});
+
+        if(didMeet){
+            const meetIdx=slow;
+            // meeting point found
+            steps.push({type:'P1_MET',nodes,vals,pos,phase:1,
+                slowIdx:slow,fastIdx:fast,entryIdx:-1,meetIdx,
+                slowSteps,fastSteps,p2Steps:0,metrics,
+                log:`<span style="color:#fdcb6e">Meeting point: node[${meetIdx}] (val=${vals[meetIdx]}). slow traveled ${slowSteps}, fast traveled ${fastSteps}.</span>`});
+
+            // Phase 2
+            steps.push({type:'P2_START',nodes,vals,pos,phase:2,
+                slowIdx:meetIdx,fastIdx:fast,entryIdx:0,meetIdx,
+                slowSteps,fastSteps,p2Steps:0,metrics,
+                log:`<span style="color:#a29bfe">Phase 2: entry=head (node[0]), slow stays at meeting point (node[${meetIdx}]). Both move ×1 until they meet.</span>`});
+
+            let entry=0;
+            let s2=meetIdx;
+
+            while(entry!==s2){
+                entry=nodes[entry].next;
+                s2=nodes[s2].next;
+                p2Steps++;
+
+                const found=(entry===s2);
+                steps.push({type:'P2_MOVE',nodes,vals,pos,phase:2,
+                    slowIdx:s2,fastIdx:-1,entryIdx:entry,meetIdx,
+                    slowSteps,fastSteps,p2Steps,metrics,found,
+                    log:`Phase 2 step ${p2Steps}: entry→[${entry}], slow→[${s2}]` +
+                        (found?` — <span style="color:#00b894"><b>MEET at node[${entry}]!</b></span>`:` — entry≠slow, continue`)});
+            }
+
+            // If entry===s2 from the start (entry and slow already at same position)
+            if(p2Steps===0){
+                steps.push({type:'P2_MOVE',nodes,vals,pos,phase:2,
+                    slowIdx:s2,fastIdx:-1,entryIdx:entry,meetIdx,
+                    slowSteps,fastSteps,p2Steps:0,metrics,found:true,
+                    log:`<span style="color:#00b894">entry and slow already at same node[${entry}]!</span>`});
+            }
+
+            steps.push({type:'FOUND',nodes,vals,pos,phase:2,
+                slowIdx:s2,fastIdx:-1,entryIdx:entry,meetIdx,
+                slowSteps,fastSteps,p2Steps,metrics,cycleStart:entry,
+                log:`<span style="color:#00b894">✅ Cycle start = node[${entry}] (val=${vals[entry]}). Total: ${slowSteps} (P1) + ${p2Steps} (P2) = ${slowSteps+p2Steps} steps. O(n) time, O(1) space.</span>`});
+
+            return steps;
+        }
+
+        // Safety
+        if(slowSteps>n+5)break;
+    }
+
+    steps.push({type:'NO_CYCLE',nodes,vals,pos,phase:1,
+        slowIdx:slow,fastIdx:fast,entryIdx:-1,meetIdx:-1,
+        slowSteps,fastSteps,p2Steps:0,metrics,
+        log:`<span style="color:#d63031">Exceeded step limit. No cycle detected. Return null.</span>`});
+
+    return steps;
+}
+
+/* ─── SVG rendering ─── */
+function renderList(step){
+    const nodes=step.nodes;
+    const n=nodes.length;
+    if(n===0){listSvg.innerHTML='';return;}
+
+    const R=22,GAP=80,Y=60,padL=50;
+    const svgW=Math.max(700,padL+n*GAP+60);
+    listSvg.setAttribute('width',svgW);
+    listSvg.setAttribute('height',165);
+
+    let html=`<defs>
+        <marker id="ah" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto"><polygon points="0 0,8 3,0 6" fill="#555"/></marker>
+        <marker id="ahR" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto"><polygon points="0 0,8 3,0 6" fill="#d63031"/></marker>
+    </defs>`;
+
+    const cx=i=>padL+i*GAP;
+
+    // Arrows
+    for(let i=0;i<n;i++){
+        const nxt=nodes[i].next;
+        if(nxt<0)continue;
+        if(nxt===i+1){
+            html+=`<line x1="${cx(i)+R}" y1="${Y}" x2="${cx(nxt)-R}" y2="${Y}" stroke="#555" stroke-width="2" marker-end="url(#ah)"/>`;
+        }else{
+            const midX=(cx(i)+cx(nxt))/2;
+            const dist=Math.abs(cx(i)-cx(nxt));
+            const bulge=Math.min(45,dist*.3)+22;
+            html+=`<path d="M${cx(i)+R},${Y} Q${midX},${Y+bulge} ${cx(nxt)-R+2},${Y}" stroke="#d63031" stroke-width="2" stroke-dasharray="6,3" fill="none" marker-end="url(#ahR)"/>`;
+            html+=`<text x="${midX}" y="${Y+bulge-2}" text-anchor="middle" font-size="9" fill="#d63031" font-weight="bold">cycle</text>`;
+        }
+    }
+
+    // Nodes
+    for(let i=0;i<n;i++){
+        const x=cx(i);
+        let stroke='#555',fill='#16213e',sw=2.5;
+
+        const isCycleStart=(step.type==='FOUND'&&i===step.cycleStart);
+        const isMeet=(step.meetIdx>=0&&i===step.meetIdx&&step.phase>=1);
+        const isSlow=(i===step.slowIdx);
+        const isFast=(i===step.fastIdx);
+        const isEntry=(i===step.entryIdx);
+
+        if(isCycleStart){stroke='#00b894';fill='#00b89428';sw=3.5;}
+        else if(step.type==='P2_MOVE'&&step.found&&i===step.entryIdx){stroke='#00b894';fill='#00b89425';sw=3.5;}
+        else if(isSlow&&isFast){stroke='#fdcb6e';fill='#fdcb6e20';sw=3;}
+        else if(isSlow&&isEntry){stroke='#00b894';fill='#00b89420';sw=3;}
+        else if(isEntry){stroke='#a29bfe';fill='#a29bfe15';sw=3;}
+        else if(isSlow){stroke='#00b894';fill='#00b89415';sw=3;}
+        else if(isFast){stroke='#e17055';fill='#e1705518';sw=3;}
+        else if(isMeet&&step.phase===2){stroke='#fdcb6e';fill='#fdcb6e10';sw=2;}
+
+        html+=`<circle cx="${x}" cy="${Y}" r="${R}" stroke="${stroke}" stroke-width="${sw}" fill="${fill}"/>`;
+        html+=`<text x="${x}" y="${Y}" font-family="monospace" font-size="14" font-weight="bold" fill="#e0e0e0" text-anchor="middle" dominant-baseline="central">${nodes[i].val}</text>`;
+        html+=`<text x="${x}" y="${Y-R-8}" font-family="monospace" font-size="9" fill="#666" text-anchor="middle">idx ${i}</text>`;
+    }
+
+    // Pointer labels (below)
+    const labels=[];
+    if(step.slowIdx>=0){
+        const sameAsFast=(step.slowIdx===step.fastIdx&&step.fastIdx>=0);
+        const sameAsEntry=(step.slowIdx===step.entryIdx&&step.entryIdx>=0);
+        if(sameAsFast&&step.phase===1){
+            labels.push({idx:step.slowIdx,text:'🐢🐇',color:'#fdcb6e',y:0});
+        }else if(sameAsEntry&&step.phase===2){
+            labels.push({idx:step.slowIdx,text:'🐢 entry',color:'#00b894',y:0});
+        }else{
+            labels.push({idx:step.slowIdx,text:'🐢 slow',color:'#00b894',y:0});
+            if(step.fastIdx>=0&&step.phase===1)labels.push({idx:step.fastIdx,text:'🐇 fast',color:'#e17055',y:step.fastIdx===step.slowIdx?14:0});
+            if(step.entryIdx>=0&&step.phase===2)labels.push({idx:step.entryIdx,text:'entry',color:'#a29bfe',y:step.entryIdx===step.slowIdx?14:0});
+        }
+    }else{
+        if(step.fastIdx>=0)labels.push({idx:step.fastIdx,text:'🐇 fast',color:'#e17055',y:0});
+        if(step.entryIdx>=0)labels.push({idx:step.entryIdx,text:'entry',color:'#a29bfe',y:0});
+    }
+
+    labels.forEach(lb=>{
+        html+=`<text x="${cx(lb.idx)}" y="${Y+R+16+lb.y}" text-anchor="middle" font-size="10" font-weight="bold" fill="${lb.color}">▲ ${lb.text}</text>`;
+    });
+
+    // F and C labels if applicable
+    if(step.metrics.hasCycle&&step.pos>=0){
+        const cStart=step.pos;
+        if(cStart>0){
+            const fMid=cx(cStart/2);
+            html+=`<text x="${(cx(0)+cx(cStart))/2}" y="18" text-anchor="middle" font-size="10" fill="#fdcb6e" font-weight="bold">F = ${step.metrics.F}</text>`;
+            html+=`<line x1="${cx(0)}" y1="22" x2="${cx(cStart)-R}" y2="22" stroke="#fdcb6e40" stroke-width="1" stroke-dasharray="3,3"/>`;
+        }
+    }
+
+    listSvg.innerHTML=html;
+}
+
+function renderOp(step){
+    opDisplay.innerHTML='';
+    const t=step.type;
+
+    if(t==='P1_MOVE'){
+        opDisplay.innerHTML=`
+            <div class="op-box"><div class="val" style="color:#00b894">[${step.slowIdx}]</div><div class="lab">🐢 slow</div></div>
+            <div class="op-sym">${step.didMeet?'===':'≠'}</div>
+            <div class="op-box"><div class="val" style="color:#e17055">[${step.fastIdx}]</div><div class="lab">🐇 fast</div></div>
+            <div class="op-sym">→</div>
+            <div class="op-result ${step.didMeet?'meet':'nomeet'}">${step.didMeet?'🤝 MEET! Go to Phase 2':'Continue chasing'}</div>`;
+    }else if(t==='P1_MET'){
+        opDisplay.innerHTML=`<div class="op-result meet" style="font-size:15px">🤝 Meeting point: node[${step.meetIdx}] (val=${step.vals[step.meetIdx]})</div>`;
+    }else if(t==='P2_MOVE'){
+        const found=step.found;
+        opDisplay.innerHTML=`
+            <div class="op-box"><div class="val" style="color:#a29bfe">[${step.entryIdx}]</div><div class="lab">entry</div></div>
+            <div class="op-sym">${found?'===':'≠'}</div>
+            <div class="op-box"><div class="val" style="color:#00b894">[${step.slowIdx}]</div><div class="lab">🐢 slow</div></div>
+            <div class="op-sym">→</div>
+            <div class="op-result ${found?'found':'nomeet'}">${found?'✅ MEET — Cycle start!':'Not yet — advance both'}</div>`;
+    }else if(t==='FOUND'){
+        opDisplay.innerHTML=`<div class="op-result found">✅ Cycle starts at node[${step.cycleStart}] (val=${step.vals[step.cycleStart]})</div>`;
+    }
+}
+
+function renderMath(step){
+    const m=step.metrics;
+    let cards=[];
+    if(m.hasCycle){
+        cards.push({label:'F (tail)',value:m.F,color:'#fdcb6e'});
+        cards.push({label:'C (cycle)',value:m.C,color:'#d63031'});
+        cards.push({label:'slow steps',value:step.slowSteps,color:'#00b894'});
+        cards.push({label:'fast steps',value:step.fastSteps,color:'#e17055'});
+        if(step.phase===2) cards.push({label:'phase 2',value:step.p2Steps,color:'#a29bfe'});
+    }else{
+        cards.push({label:'nodes',value:step.vals.length,color:'#74b9ff'});
+        cards.push({label:'cycle',value:'none',color:'#d63031'});
+    }
+    mathGrid.innerHTML=cards.map(c=>`<div class="math-card"><div class="mv" style="color:${c.color}">${c.value}</div><div class="ml">${c.label}</div></div>`).join('');
+}
+
+function renderPhase(step){
+    const p=step.phase;
+    if(step.type==='FOUND'){
+        phaseBanner.className='phase-banner done';
+        phaseBanner.textContent='✅ Phase 2 Complete — Cycle Start Found!';
+    }else if(step.type==='NO_CYCLE'){
+        phaseBanner.className='phase-banner none';
+        phaseBanner.textContent='No cycle detected — return null';
+    }else if(p===1){
+        phaseBanner.className='phase-banner p1';
+        phaseBanner.textContent='Phase 1: Detect Cycle — slow ×1, fast ×2';
+    }else if(p===2){
+        phaseBanner.className='phase-banner p2';
+        phaseBanner.textContent='Phase 2: Find Cycle Start — entry & slow ×1';
+    }else{
+        phaseBanner.className='phase-banner none';
+        phaseBanner.textContent='—';
+    }
+}
+
+function renderInfo(step){
+    let html='';
+    const t=step.type;
+    const m=step.metrics;
+
+    if(t==='INIT'){
+        html=`<div class="info-card-title">Floyd's Tortoise & Hare</div><div style="font-size:12px;color:#aaa">
+        <b>Phase 1</b>: 🐢slow moves 1 step, 🐇fast moves 2 steps. If cycle exists, they meet inside it.<br>
+        <b>Phase 2</b>: Place <b style="color:#a29bfe">entry</b> at head, keep slow at meeting point. Both move ×1. They meet at <b style="color:#00b894">cycle start</b>.<br><br>
+        <b>Why?</b> When they meet: F+a = kC → F = kC−a → walking F from meeting point reaches cycle start.<br>
+        Time: O(n) · Space: O(1)</div>`;
+    }else if(t==='P1_START'){
+        html=`<div class="info-card-title" style="color:#74b9ff">Phase 1 — Detect Cycle</div><div style="font-size:12px">
+        <div>🐢 slow = head (node[0])</div><div>🐇 fast = head (node[0])</div>
+        <div style="color:#888;margin-top:4px">Each step: slow moves 1, fast moves 2. If they ever occupy the same node → cycle detected.</div></div>`;
+    }else if(t==='P1_MOVE'&&!step.didMeet){
+        html=`<div class="info-card-title" style="color:#888">Phase 1 — Chasing</div><div style="font-size:12px">
+        <div>🐢 slow: [${step.oldSlow}] → [${step.slowIdx}] (val=${step.vals[step.slowIdx]})</div>
+        <div>🐇 fast: [${step.oldFast}] → [${step.fastIdx}] (val=${step.vals[step.fastIdx]})</div>
+        <div style="color:#636e72;margin-top:3px">slow ≠ fast → continue. Fast gains 1 node on slow each step.</div></div>`;
+    }else if(t==='P1_MOVE'&&step.didMeet){
+        html=`<div class="info-card-title" style="color:#fdcb6e">🤝 Phase 1 — They Meet!</div><div style="font-size:12px">
+        <div>Both at node[${step.slowIdx}] (val=${step.vals[step.slowIdx]})</div>
+        <div style="color:#fdcb6e;margin-top:3px">slow traveled ${step.slowSteps} steps, fast traveled ${step.fastSteps} steps.</div>
+        ${m.hasCycle?`<div style="color:#888;margin-top:3px">Math: 2×${step.slowSteps} = ${step.fastSteps} ✓. F+a = ${m.F}+${step.slowSteps-m.F} = ${step.slowSteps} = k×C.</div>`:''}</div>`;
+    }else if(t==='P1_MET'){
+        const a=step.slowSteps-m.F;
+        html=`<div class="info-card-title" style="color:#fdcb6e">Meeting Point Analysis</div><div style="font-size:12px">
+        <div>Meeting at node[${step.meetIdx}], offset a=${a} from cycle start.</div>
+        <div style="margin-top:3px">F=${m.F}, a=${a}, C=${m.C}</div>
+        <div style="color:#888;margin-top:3px">F+a=${m.F+a} = k×${m.C}. So F = k×C − a = ${m.C}-${a} = ${m.C-a}${m.C-a!==m.F?` (+${Math.floor((m.F-(m.C-a))/m.C)}×C)`:''}</div>
+        <div style="color:#a29bfe;margin-top:3px">Walking F=${m.F} steps from meeting pt → cycle start!</div></div>`;
+    }else if(t==='P2_START'){
+        html=`<div class="info-card-title" style="color:#a29bfe">Phase 2 — Find Cycle Start</div><div style="font-size:12px">
+        <div><b style="color:#a29bfe">entry</b> = head (node[0])</div>
+        <div>🐢 slow stays at meeting point (node[${step.meetIdx}])</div>
+        <div style="color:#888;margin-top:4px">Both advance 1 step at a time. They will meet at the cycle start after exactly F=${m.F} steps.</div></div>`;
+    }else if(t==='P2_MOVE'&&!step.found){
+        html=`<div class="info-card-title" style="color:#a29bfe">Phase 2 — Walking</div><div style="font-size:12px">
+        <div>entry → node[${step.entryIdx}] (val=${step.vals[step.entryIdx]})</div>
+        <div>slow → node[${step.slowIdx}] (val=${step.vals[step.slowIdx]})</div>
+        <div style="color:#636e72;margin-top:3px">Not equal yet. ${m.F-step.p2Steps} steps remaining.</div></div>`;
+    }else if(t==='P2_MOVE'&&step.found){
+        html=`<div class="info-card-title" style="color:#00b894">✅ Phase 2 — They Meet!</div><div style="font-size:12px">
+        <div>Both at node[${step.entryIdx}] (val=${step.vals[step.entryIdx]})</div>
+        <div style="color:#00b894;margin-top:4px;font-weight:bold">This is the cycle start!</div>
+        <div style="color:#888;margin-top:3px">Took exactly F=${step.p2Steps||0} steps as predicted.</div></div>`;
+    }else if(t==='FOUND'){
+        html=`<div class="info-card-title" style="color:#00b894">✅ Complete</div>
+        <div style="text-align:center;font-size:18px;font-weight:bold;color:#00b894;margin:6px 0">node[${step.cycleStart}] (val=${step.vals[step.cycleStart]})</div>
+        <div style="text-align:center;font-size:11px;color:#888">${step.slowSteps+step.p2Steps} total steps — O(n), O(1) space</div>`;
+    }else if(t==='NO_CYCLE'){
+        html=`<div class="info-card-title" style="color:#d63031">No Cycle</div><div style="font-size:12px;color:#888">
+        fast reached null. No cycle exists. Return null.</div>`;
+    }
+    infoCard.innerHTML=html;
+}
+
+function renderStep(s){
+    logMsg(s.log);
+    slowD.textContent=s.slowIdx>=0?`[${s.slowIdx}] val=${s.vals[s.slowIdx]}`:'-';
+    fastD.textContent=s.fastIdx>=0?`[${s.fastIdx}] val=${s.vals[s.fastIdx]}`:'-';
+    entryD.textContent=s.entryIdx>=0?`[${s.entryIdx}] val=${s.vals[s.entryIdx]}`:'-';
+    stepDD.textContent=s.slowSteps+s.p2Steps;
+    statSlow.textContent=s.slowSteps;statFast.textContent=s.fastSteps;statP2.textContent=s.p2Steps;
+
+    renderList(s);renderOp(s);renderMath(s);renderPhase(s);renderInfo(s);
+
+    if(s.type==='FOUND'){
+        resultBanner.textContent=`✅ Cycle starts at node[${s.cycleStart}] (val=${s.vals[s.cycleStart]}) — O(n) time, O(1) space`;
+        resultBanner.className='result-banner show found';
+    }else if(s.type==='NO_CYCLE'){
+        resultBanner.textContent='✗ No cycle — return null';
+        resultBanner.className='result-banner show notfound';
+    }else{resultBanner.className='result-banner';}
+}
+
+/* ─── Controls ─── */
+function startViz(){
+    stop();logPanel.innerHTML='';resultBanner.className='result-banner';
+    opDisplay.innerHTML='';infoCard.innerHTML='';mathGrid.innerHTML='';
+    phaseBanner.className='phase-banner none';phaseBanner.textContent='—';
+
+    const valsStr=$('inputVals').value.trim();
+    const pos=parseInt($('inputPos').value);
+    if(!valsStr){alert('Enter values');return;}
+    const vals=valsStr.split(',').map(s=>parseInt(s.trim())).filter(v=>!isNaN(v));
+    if(vals.length===0){alert('Invalid values');return;}
+    if(vals.length>20){alert('Max 20 nodes for visualization');return;}
+
+    STEPS=generateSteps(vals,pos);
+    stepIdx=0;
+    playBtn.disabled=false;stepBtn.disabled=false;
+    renderStep(STEPS[0]);
+}
+
+function stepForward(){
+    if(stepIdx<STEPS.length-1){stepIdx++;renderStep(STEPS[stepIdx]);}
+    if(stepIdx>=STEPS.length-1)stop();
+}
+
+function togglePlay(){
+    if(playing){stop();}
+    else{
+        if(stepIdx>=STEPS.length-1)stepIdx=0;
+        playing=true;playBtn.textContent='⏸ Pause';
+        timer=setInterval(stepForward,2100-parseInt(speedSlider.value));
+    }
+}
+
+function stop(){
+    playing=false;playBtn.textContent='▶ Play';
+    if(timer){clearInterval(timer);timer=null;}
+}
+
+speedSlider.addEventListener('input',()=>{
+    if(playing){clearInterval(timer);timer=setInterval(stepForward,2100-parseInt(speedSlider.value));}
+});
+
+startViz();
+</script>
+</body>
+</html>

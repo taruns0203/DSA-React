@@ -1,0 +1,1140 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>976. Largest Perimeter Triangle - Brute Force Visualizer</title>
+    <style>
+        :root {
+            --bg-primary: #0f1419;
+            --bg-secondary: #1a1f2e;
+            --bg-tertiary: #242d3d;
+            --bg-card: #1e2736;
+            --accent: #f59e0b;
+            --accent-dim: #b45309;
+            --accent-glow: rgba(245, 158, 11, 0.3);
+            --text-primary: #e2e8f0;
+            --text-secondary: #94a3b8;
+            --text-muted: #64748b;
+            --success: #10b981;
+            --success-bg: rgba(16, 185, 129, 0.15);
+            --error: #ef4444;
+            --error-bg: rgba(239, 68, 68, 0.15);
+            --info: #3b82f6;
+            --info-bg: rgba(59, 130, 246, 0.15);
+            --pointer-i: #f472b6;
+            --pointer-j: #38bdf8;
+            --pointer-k: #a78bfa;
+            --border: #2d3748;
+            --border-light: #3d4a5c;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'SF Mono', 'Fira Code', 'Consolas', monospace;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            min-height: 100vh;
+            padding: 24px;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 32px;
+            padding-bottom: 24px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        h1 {
+            font-size: 1.75rem;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 8px;
+        }
+
+        h1 span {
+            color: var(--accent);
+        }
+
+        .subtitle {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+        }
+
+        .complexity-badge {
+            display: inline-block;
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            padding: 4px 12px;
+            font-size: 0.8rem;
+            margin-top: 12px;
+        }
+
+        .complexity-badge span {
+            color: var(--error);
+            font-weight: 600;
+        }
+
+        .main-grid {
+            display: grid;
+            grid-template-columns: 1fr 340px;
+            gap: 24px;
+        }
+
+        @media (max-width: 1100px) {
+            .main-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 20px;
+        }
+
+        .card-header {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 16px;
+            padding-bottom: 12px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .card-icon {
+            width: 32px;
+            height: 32px;
+            background: var(--bg-tertiary);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1rem;
+        }
+
+        .card-title {
+            font-size: 0.95rem;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        /* Input Section */
+        .input-section {
+            margin-bottom: 24px;
+        }
+
+        .input-row {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .input-group {
+            flex: 1;
+            min-width: 200px;
+        }
+
+        .input-label {
+            display: block;
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+            margin-bottom: 6px;
+        }
+
+        input[type="text"] {
+            width: 100%;
+            padding: 10px 14px;
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            color: var(--text-primary);
+            font-family: inherit;
+            font-size: 0.9rem;
+            transition: all 0.2s;
+        }
+
+        input[type="text"]:focus {
+            outline: none;
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px var(--accent-glow);
+        }
+
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 8px;
+            font-family: inherit;
+            font-size: 0.85rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .btn-primary {
+            background: var(--accent);
+            color: var(--bg-primary);
+        }
+
+        .btn-primary:hover {
+            background: var(--accent-dim);
+        }
+
+        .btn-secondary {
+            background: var(--bg-tertiary);
+            color: var(--text-primary);
+            border: 1px solid var(--border);
+        }
+
+        .btn-secondary:hover {
+            background: var(--border);
+        }
+
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        /* Array Visualization */
+        .array-container {
+            margin-bottom: 24px;
+        }
+
+        .array-visual {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            justify-content: center;
+            padding: 20px;
+            background: var(--bg-secondary);
+            border-radius: 8px;
+            min-height: 100px;
+            align-items: center;
+        }
+
+        .array-element {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .element-box {
+            width: 56px;
+            height: 56px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: var(--bg-tertiary);
+            border: 2px solid var(--border);
+            border-radius: 10px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            transition: all 0.3s;
+            position: relative;
+        }
+
+        .element-box.pointer-i {
+            border-color: var(--pointer-i);
+            box-shadow: 0 0 12px rgba(244, 114, 182, 0.4);
+            background: rgba(244, 114, 182, 0.15);
+        }
+
+        .element-box.pointer-j {
+            border-color: var(--pointer-j);
+            box-shadow: 0 0 12px rgba(56, 189, 248, 0.4);
+            background: rgba(56, 189, 248, 0.15);
+        }
+
+        .element-box.pointer-k {
+            border-color: var(--pointer-k);
+            box-shadow: 0 0 12px rgba(167, 139, 250, 0.4);
+            background: rgba(167, 139, 250, 0.15);
+        }
+
+        .element-box.valid {
+            border-color: var(--success);
+            box-shadow: 0 0 15px rgba(16, 185, 129, 0.5);
+            background: var(--success-bg);
+        }
+
+        .element-box.invalid {
+            border-color: var(--error);
+            background: var(--error-bg);
+        }
+
+        .element-index {
+            font-size: 0.7rem;
+            color: var(--text-muted);
+        }
+
+        .pointer-labels {
+            display: flex;
+            gap: 4px;
+            min-height: 20px;
+        }
+
+        .pointer-label {
+            font-size: 0.7rem;
+            font-weight: 600;
+            padding: 2px 6px;
+            border-radius: 4px;
+        }
+
+        .pointer-label.i {
+            background: var(--pointer-i);
+            color: #000;
+        }
+
+        .pointer-label.j {
+            background: var(--pointer-j);
+            color: #000;
+        }
+
+        .pointer-label.k {
+            background: var(--pointer-k);
+            color: #000;
+        }
+
+        /* Triangle Check Visual */
+        .triangle-check {
+            background: var(--bg-secondary);
+            border-radius: 8px;
+            padding: 16px;
+            margin-bottom: 24px;
+        }
+
+        .triangle-header {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .triplet-display {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            margin-bottom: 16px;
+        }
+
+        .triplet-value {
+            padding: 8px 16px;
+            background: var(--bg-tertiary);
+            border-radius: 6px;
+            font-size: 1.1rem;
+            font-weight: 600;
+        }
+
+        .triplet-value.a {
+            border-left: 3px solid var(--pointer-i);
+        }
+
+        .triplet-value.b {
+            border-left: 3px solid var(--pointer-j);
+        }
+
+        .triplet-value.c {
+            border-left: 3px solid var(--pointer-k);
+        }
+
+        .triplet-operator {
+            color: var(--text-muted);
+            font-size: 1.2rem;
+        }
+
+        .conditions-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+        }
+
+        .condition-box {
+            background: var(--bg-tertiary);
+            border-radius: 6px;
+            padding: 10px;
+            text-align: center;
+            border: 1px solid var(--border);
+            transition: all 0.3s;
+        }
+
+        .condition-box.checking {
+            border-color: var(--info);
+            background: var(--info-bg);
+        }
+
+        .condition-box.pass {
+            border-color: var(--success);
+            background: var(--success-bg);
+        }
+
+        .condition-box.fail {
+            border-color: var(--error);
+            background: var(--error-bg);
+        }
+
+        .condition-formula {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+            margin-bottom: 4px;
+        }
+
+        .condition-values {
+            font-size: 0.9rem;
+            font-weight: 600;
+        }
+
+        .condition-result {
+            font-size: 0.75rem;
+            margin-top: 4px;
+        }
+
+        /* Controls */
+        .controls-section {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 24px;
+            padding: 16px;
+            background: var(--bg-secondary);
+            border-radius: 8px;
+        }
+
+        .control-group {
+            display: flex;
+            gap: 8px;
+        }
+
+        .speed-control {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 0 16px;
+            border-left: 1px solid var(--border);
+            border-right: 1px solid var(--border);
+        }
+
+        .speed-label {
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+            white-space: nowrap;
+        }
+
+        input[type="range"] {
+            width: 100px;
+            accent-color: var(--accent);
+        }
+
+        /* State Display */
+        .state-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+            margin-bottom: 16px;
+        }
+
+        .state-item {
+            background: var(--bg-secondary);
+            border-radius: 6px;
+            padding: 10px 12px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .state-label {
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+        }
+
+        .state-value {
+            font-weight: 600;
+            font-size: 0.95rem;
+        }
+
+        .state-value.highlight {
+            color: var(--accent);
+        }
+
+        /* Result Display */
+        .result-display {
+            background: var(--bg-secondary);
+            border-radius: 8px;
+            padding: 16px;
+            text-align: center;
+            margin-bottom: 16px;
+        }
+
+        .result-label {
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+            margin-bottom: 8px;
+        }
+
+        .result-value {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--accent);
+        }
+
+        .result-value.success {
+            color: var(--success);
+        }
+
+        .result-value.none {
+            color: var(--error);
+        }
+
+        /* Execution Log */
+        .log-panel {
+            height: 350px;
+            overflow-y: auto;
+            background: var(--bg-secondary);
+            border-radius: 8px;
+            padding: 12px;
+        }
+
+        .log-entry {
+            padding: 8px 10px;
+            margin-bottom: 6px;
+            border-radius: 6px;
+            font-size: 0.8rem;
+            background: var(--bg-tertiary);
+            border-left: 3px solid var(--border);
+            animation: fadeIn 0.3s ease;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateX(-10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        .log-entry.info {
+            border-left-color: var(--info);
+        }
+
+        .log-entry.check {
+            border-left-color: var(--accent);
+        }
+
+        .log-entry.success {
+            border-left-color: var(--success);
+            background: var(--success-bg);
+        }
+
+        .log-entry.fail {
+            border-left-color: var(--error);
+        }
+
+        .log-entry.step {
+            border-left-color: var(--text-muted);
+        }
+
+        .log-step {
+            color: var(--text-muted);
+            font-size: 0.7rem;
+            margin-right: 8px;
+        }
+
+        .log-panel::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .log-panel::-webkit-scrollbar-track {
+            background: var(--bg-tertiary);
+            border-radius: 3px;
+        }
+
+        .log-panel::-webkit-scrollbar-thumb {
+            background: var(--border-light);
+            border-radius: 3px;
+        }
+
+        /* Progress */
+        .progress-section {
+            margin-bottom: 16px;
+        }
+
+        .progress-bar {
+            height: 6px;
+            background: var(--bg-tertiary);
+            border-radius: 3px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: var(--accent);
+            border-radius: 3px;
+            transition: width 0.3s;
+        }
+
+        .progress-text {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            margin-top: 6px;
+            text-align: center;
+        }
+
+        /* Legend */
+        .legend {
+            display: flex;
+            gap: 16px;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin-top: 16px;
+            padding-top: 16px;
+            border-top: 1px solid var(--border);
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+        }
+
+        .legend-color {
+            width: 14px;
+            height: 14px;
+            border-radius: 4px;
+            border: 2px solid;
+        }
+
+        .legend-color.i {
+            border-color: var(--pointer-i);
+            background: rgba(244, 114, 182, 0.2);
+        }
+
+        .legend-color.j {
+            border-color: var(--pointer-j);
+            background: rgba(56, 189, 248, 0.2);
+        }
+
+        .legend-color.k {
+            border-color: var(--pointer-k);
+            background: rgba(167, 139, 250, 0.2);
+        }
+
+        /* Algorithm Info */
+        .algo-info {
+            background: var(--bg-secondary);
+            border-radius: 8px;
+            padding: 12px;
+            margin-top: 16px;
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+        }
+
+        .algo-info code {
+            background: var(--bg-tertiary);
+            padding: 2px 6px;
+            border-radius: 4px;
+            color: var(--accent);
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <header>
+            <h1>976. <span>Largest Perimeter Triangle</span></h1>
+            <p class="subtitle">Brute Force Algorithm Visualization</p>
+            <div class="complexity-badge">
+                Time: <span>O(n³)</span> &nbsp;|&nbsp; Space: <span>O(1)</span>
+            </div>
+        </header>
+
+        <div class="main-grid">
+            <div class="left-panel">
+                <!-- Input Section -->
+                <div class="card input-section">
+                    <div class="card-header">
+                        <div class="card-icon">📊</div>
+                        <div class="card-title">Input Array</div>
+                    </div>
+                    <div class="input-row">
+                        <div class="input-group">
+                            <label class="input-label">Enter comma-separated integers</label>
+                            <input type="text" id="inputArray" value="2, 1, 2" placeholder="e.g., 2, 1, 2">
+                        </div>
+                        <button class="btn btn-primary" onclick="initializeVisualization()">
+                            <span>▶</span> Initialize
+                        </button>
+                        <button class="btn btn-secondary" onclick="loadExample(1)">Ex 1</button>
+                        <button class="btn btn-secondary" onclick="loadExample(2)">Ex 2</button>
+                        <button class="btn btn-secondary" onclick="loadExample(3)">Ex 3</button>
+                    </div>
+                </div>
+
+                <!-- Array Visualization -->
+                <div class="card array-container">
+                    <div class="card-header">
+                        <div class="card-icon">🔢</div>
+                        <div class="card-title">Array Visualization</div>
+                    </div>
+                    <div class="array-visual" id="arrayVisual">
+                        <span style="color: var(--text-muted)">Click "Initialize" to start</span>
+                    </div>
+                    <div class="legend">
+                        <div class="legend-item">
+                            <div class="legend-color i"></div>
+                            <span>Pointer i (first side)</span>
+                        </div>
+                        <div class="legend-item">
+                            <div class="legend-color j"></div>
+                            <span>Pointer j (second side)</span>
+                        </div>
+                        <div class="legend-item">
+                            <div class="legend-color k"></div>
+                            <span>Pointer k (third side)</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Triangle Check -->
+                <div class="card">
+                    <div class="card-header">
+                        <div class="card-icon">📐</div>
+                        <div class="card-title">Triangle Inequality Check</div>
+                    </div>
+                    <div class="triangle-check">
+                        <div class="triangle-header">
+                            <span>Current Triplet:</span>
+                        </div>
+                        <div class="triplet-display" id="tripletDisplay">
+                            <div class="triplet-value a" id="tripletA">a = ?</div>
+                            <div class="triplet-operator">,</div>
+                            <div class="triplet-value b" id="tripletB">b = ?</div>
+                            <div class="triplet-operator">,</div>
+                            <div class="triplet-value c" id="tripletC">c = ?</div>
+                        </div>
+                        <div class="conditions-grid">
+                            <div class="condition-box" id="cond1">
+                                <div class="condition-formula">a + b &gt; c</div>
+                                <div class="condition-values" id="cond1Values">? + ? &gt; ?</div>
+                                <div class="condition-result" id="cond1Result">—</div>
+                            </div>
+                            <div class="condition-box" id="cond2">
+                                <div class="condition-formula">a + c &gt; b</div>
+                                <div class="condition-values" id="cond2Values">? + ? &gt; ?</div>
+                                <div class="condition-result" id="cond2Result">—</div>
+                            </div>
+                            <div class="condition-box" id="cond3">
+                                <div class="condition-formula">b + c &gt; a</div>
+                                <div class="condition-values" id="cond3Values">? + ? &gt; ?</div>
+                                <div class="condition-result" id="cond3Result">—</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="algo-info">
+                        <strong>Triangle Inequality:</strong> Three sides form a valid triangle if and only if the sum
+                        of any two sides is <code>strictly greater</code> than the third side.
+                    </div>
+                </div>
+
+                <!-- Controls -->
+                <div class="controls-section">
+                    <div class="control-group">
+                        <button class="btn btn-secondary" id="stepBtn" onclick="step()" disabled>
+                            <span>⏭</span> Step
+                        </button>
+                        <button class="btn btn-primary" id="playBtn" onclick="togglePlay()" disabled>
+                            <span id="playIcon">▶</span> <span id="playText">Play</span>
+                        </button>
+                        <button class="btn btn-secondary" id="resetBtn" onclick="reset()" disabled>
+                            <span>↺</span> Reset
+                        </button>
+                    </div>
+                    <div class="speed-control">
+                        <span class="speed-label">Speed:</span>
+                        <input type="range" id="speedSlider" min="1" max="10" value="5">
+                        <span class="speed-label" id="speedValue">5x</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="right-panel">
+                <!-- State Display -->
+                <div class="card" style="margin-bottom: 24px;">
+                    <div class="card-header">
+                        <div class="card-icon">📋</div>
+                        <div class="card-title">Current State</div>
+                    </div>
+                    <div class="state-grid">
+                        <div class="state-item">
+                            <span class="state-label">Pointer i</span>
+                            <span class="state-value" id="stateI" style="color: var(--pointer-i)">—</span>
+                        </div>
+                        <div class="state-item">
+                            <span class="state-label">Pointer j</span>
+                            <span class="state-value" id="stateJ" style="color: var(--pointer-j)">—</span>
+                        </div>
+                        <div class="state-item">
+                            <span class="state-label">Pointer k</span>
+                            <span class="state-value" id="stateK" style="color: var(--pointer-k)">—</span>
+                        </div>
+                        <div class="state-item">
+                            <span class="state-label">Triplets Checked</span>
+                            <span class="state-value" id="stateTriplets">0</span>
+                        </div>
+                    </div>
+
+                    <div class="result-display">
+                        <div class="result-label">Maximum Perimeter Found</div>
+                        <div class="result-value" id="resultValue">0</div>
+                    </div>
+
+                    <div class="progress-section">
+                        <div class="progress-bar">
+                            <div class="progress-fill" id="progressFill" style="width: 0%"></div>
+                        </div>
+                        <div class="progress-text" id="progressText">0 / 0 triplets</div>
+                    </div>
+                </div>
+
+                <!-- Execution Log -->
+                <div class="card">
+                    <div class="card-header">
+                        <div class="card-icon">📜</div>
+                        <div class="card-title">Execution Log</div>
+                    </div>
+                    <div class="log-panel" id="logPanel">
+                        <div class="log-entry info">
+                            <span class="log-step">[INIT]</span>
+                            Waiting for input...
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // State
+        let nums = [];
+        let i = 0, j = 1, k = 2;
+        let maxPerimeter = 0;
+        let bestTriplet = null;
+        let tripletsChecked = 0;
+        let totalTriplets = 0;
+        let isPlaying = false;
+        let isComplete = false;
+        let playInterval = null;
+        let stepCount = 0;
+
+        // Examples
+        const examples = {
+            1: [2, 1, 2],
+            2: [1, 2, 1, 10],
+            3: [3, 6, 2, 3]
+        };
+
+        function loadExample(num) {
+            document.getElementById('inputArray').value = examples[num].join(', ');
+            initializeVisualization();
+        }
+
+        function parseInput() {
+            const input = document.getElementById('inputArray').value;
+            return input.split(',').map(s => parseInt(s.trim())).filter(n => !isNaN(n));
+        }
+
+        function calculateTotalTriplets(n) {
+            return (n * (n - 1) * (n - 2)) / 6;
+        }
+
+        function initializeVisualization() {
+            nums = parseInput();
+            if (nums.length < 3) {
+                alert('Please enter at least 3 numbers');
+                return;
+            }
+
+            // Reset state
+            i = 0; j = 1; k = 2;
+            maxPerimeter = 0;
+            bestTriplet = null;
+            tripletsChecked = 0;
+            totalTriplets = calculateTotalTriplets(nums.length);
+            isPlaying = false;
+            isComplete = false;
+            stepCount = 0;
+            clearInterval(playInterval);
+
+            // Enable buttons
+            document.getElementById('stepBtn').disabled = false;
+            document.getElementById('playBtn').disabled = false;
+            document.getElementById('resetBtn').disabled = false;
+            updatePlayButton();
+
+            // Render array
+            renderArray();
+            updateState();
+            updateConditions(null, null, null);
+
+            // Clear and init log
+            const logPanel = document.getElementById('logPanel');
+            logPanel.innerHTML = '';
+            addLog('info', `Initialized with array: [${nums.join(', ')}]`);
+            addLog('info', `Array length n = ${nums.length}`);
+            addLog('info', `Total triplets to check: C(${nums.length}, 3) = ${totalTriplets}`);
+            addLog('step', `Starting brute force search...`);
+        }
+
+        function renderArray() {
+            const container = document.getElementById('arrayVisual');
+            container.innerHTML = nums.map((num, idx) => {
+                const pointers = [];
+                let classes = '';
+
+                if (idx === i && !isComplete) { pointers.push('i'); classes += ' pointer-i'; }
+                if (idx === j && !isComplete) { pointers.push('j'); classes += ' pointer-j'; }
+                if (idx === k && !isComplete) { pointers.push('k'); classes += ' pointer-k'; }
+
+                if (isComplete && bestTriplet) {
+                    if (idx === bestTriplet.i || idx === bestTriplet.j || idx === bestTriplet.k) {
+                        classes += ' valid';
+                    }
+                }
+
+                return `
+                    <div class="array-element">
+                        <div class="pointer-labels">
+                            ${pointers.map(p => `<span class="pointer-label ${p}">${p}</span>`).join('')}
+                        </div>
+                        <div class="element-box${classes}">${num}</div>
+                        <div class="element-index">[${idx}]</div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function updateState() {
+            document.getElementById('stateI').textContent = isComplete ? '—' : i;
+            document.getElementById('stateJ').textContent = isComplete ? '—' : j;
+            document.getElementById('stateK').textContent = isComplete ? '—' : k;
+            document.getElementById('stateTriplets').textContent = tripletsChecked;
+
+            const resultEl = document.getElementById('resultValue');
+            resultEl.textContent = maxPerimeter;
+            resultEl.className = 'result-value' + (maxPerimeter > 0 ? ' success' : (isComplete ? ' none' : ''));
+
+            const progress = totalTriplets > 0 ? (tripletsChecked / totalTriplets) * 100 : 0;
+            document.getElementById('progressFill').style.width = `${progress}%`;
+            document.getElementById('progressText').textContent = `${tripletsChecked} / ${totalTriplets} triplets`;
+        }
+
+        function updateConditions(a, b, c) {
+            document.getElementById('tripletA').textContent = a !== null ? `a = ${a}` : 'a = ?';
+            document.getElementById('tripletB').textContent = b !== null ? `b = ${b}` : 'b = ?';
+            document.getElementById('tripletC').textContent = c !== null ? `c = ${c}` : 'c = ?';
+
+            const cond1 = document.getElementById('cond1');
+            const cond2 = document.getElementById('cond2');
+            const cond3 = document.getElementById('cond3');
+
+            if (a === null) {
+                [cond1, cond2, cond3].forEach(el => {
+                    el.className = 'condition-box';
+                });
+                document.getElementById('cond1Values').textContent = '? + ? > ?';
+                document.getElementById('cond2Values').textContent = '? + ? > ?';
+                document.getElementById('cond3Values').textContent = '? + ? > ?';
+                document.getElementById('cond1Result').textContent = '—';
+                document.getElementById('cond2Result').textContent = '—';
+                document.getElementById('cond3Result').textContent = '—';
+                return;
+            }
+
+            const check1 = a + b > c;
+            const check2 = a + c > b;
+            const check3 = b + c > a;
+
+            document.getElementById('cond1Values').textContent = `${a} + ${b} = ${a + b} > ${c}`;
+            document.getElementById('cond2Values').textContent = `${a} + ${c} = ${a + c} > ${b}`;
+            document.getElementById('cond3Values').textContent = `${b} + ${c} = ${b + c} > ${a}`;
+
+            document.getElementById('cond1Result').textContent = check1 ? '✓ TRUE' : '✗ FALSE';
+            document.getElementById('cond2Result').textContent = check2 ? '✓ TRUE' : '✗ FALSE';
+            document.getElementById('cond3Result').textContent = check3 ? '✓ TRUE' : '✗ FALSE';
+
+            cond1.className = 'condition-box ' + (check1 ? 'pass' : 'fail');
+            cond2.className = 'condition-box ' + (check2 ? 'pass' : 'fail');
+            cond3.className = 'condition-box ' + (check3 ? 'pass' : 'fail');
+        }
+
+        function addLog(type, message) {
+            const logPanel = document.getElementById('logPanel');
+            stepCount++;
+            const entry = document.createElement('div');
+            entry.className = `log-entry ${type}`;
+            entry.innerHTML = `<span class="log-step">[${stepCount}]</span>${message}`;
+            logPanel.appendChild(entry);
+            logPanel.scrollTop = logPanel.scrollHeight;
+        }
+
+        function isValidTriangle(a, b, c) {
+            return (a + b > c) && (a + c > b) && (b + c > a);
+        }
+
+        function step() {
+            if (isComplete) return;
+
+            const a = nums[i];
+            const b = nums[j];
+            const c = nums[k];
+            const perimeter = a + b + c;
+
+            tripletsChecked++;
+            updateConditions(a, b, c);
+            renderArray();
+
+            addLog('check', `Checking triplet (${a}, ${b}, ${c}) at indices [${i}, ${j}, ${k}]`);
+
+            if (isValidTriangle(a, b, c)) {
+                addLog('success', `✓ Valid triangle! Perimeter = ${perimeter}`);
+                if (perimeter > maxPerimeter) {
+                    maxPerimeter = perimeter;
+                    bestTriplet = { i, j, k, a, b, c };
+                    addLog('success', `🎯 New maximum perimeter: ${maxPerimeter}`);
+                }
+            } else {
+                const reasons = [];
+                if (!(a + b > c)) reasons.push(`${a}+${b}=${a + b} ≤ ${c}`);
+                if (!(a + c > b)) reasons.push(`${a}+${c}=${a + c} ≤ ${b}`);
+                if (!(b + c > a)) reasons.push(`${b}+${c}=${b + c} ≤ ${a}`);
+                addLog('fail', `✗ Invalid: ${reasons.join(', ')}`);
+            }
+
+            // Advance pointers
+            k++;
+            if (k >= nums.length) {
+                j++;
+                k = j + 1;
+            }
+            if (j >= nums.length - 1) {
+                i++;
+                j = i + 1;
+                k = i + 2;
+            }
+            if (i >= nums.length - 2) {
+                isComplete = true;
+                addLog('info', `━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━`);
+                addLog('info', `Algorithm complete!`);
+                addLog('info', `Total triplets checked: ${tripletsChecked}`);
+                if (maxPerimeter > 0) {
+                    addLog('success', `🏆 Result: ${maxPerimeter} (sides: ${bestTriplet.a}, ${bestTriplet.b}, ${bestTriplet.c})`);
+                } else {
+                    addLog('fail', `Result: 0 (no valid triangle found)`);
+                }
+                stopPlay();
+            }
+
+            updateState();
+            if (!isComplete) renderArray();
+        }
+
+        function togglePlay() {
+            if (isPlaying) {
+                stopPlay();
+            } else {
+                startPlay();
+            }
+        }
+
+        function startPlay() {
+            if (isComplete) return;
+            isPlaying = true;
+            updatePlayButton();
+
+            const speed = parseInt(document.getElementById('speedSlider').value);
+            const delay = 1100 - (speed * 100);
+
+            playInterval = setInterval(() => {
+                if (isComplete || !isPlaying) {
+                    stopPlay();
+                    return;
+                }
+                step();
+            }, delay);
+        }
+
+        function stopPlay() {
+            isPlaying = false;
+            clearInterval(playInterval);
+            updatePlayButton();
+        }
+
+        function updatePlayButton() {
+            const btn = document.getElementById('playBtn');
+            const icon = document.getElementById('playIcon');
+            const text = document.getElementById('playText');
+
+            if (isComplete) {
+                btn.disabled = true;
+                icon.textContent = '✓';
+                text.textContent = 'Done';
+            } else if (isPlaying) {
+                icon.textContent = '⏸';
+                text.textContent = 'Pause';
+            } else {
+                icon.textContent = '▶';
+                text.textContent = 'Play';
+            }
+        }
+
+        function reset() {
+            initializeVisualization();
+        }
+
+        // Speed slider
+        document.getElementById('speedSlider').addEventListener('input', (e) => {
+            document.getElementById('speedValue').textContent = `${e.target.value}x`;
+            if (isPlaying) {
+                stopPlay();
+                startPlay();
+            }
+        });
+
+        // Initialize on Enter key
+        document.getElementById('inputArray').addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                initializeVisualization();
+            }
+        });
+    </script>
+</body>
+
+</html>

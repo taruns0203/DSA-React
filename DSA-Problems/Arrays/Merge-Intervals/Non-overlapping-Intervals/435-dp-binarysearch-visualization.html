@@ -1,0 +1,473 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Non-overlapping Intervals - DP + Binary Search</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #d299c2 0%, #fef9d7 100%);
+            min-height: 100vh;
+            padding: 20px;
+            color: #333;
+        }
+        .container {
+            max-width: 1100px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            overflow: hidden;
+        }
+        header {
+            background: linear-gradient(135deg, #d299c2 0%, #fef9d7 100%);
+            color: #333;
+            padding: 25px;
+            text-align: center;
+        }
+        h1 { font-size: 1.5em; margin-bottom: 8px; }
+        .subtitle { font-size: 1em; opacity: 0.8; }
+        .complexity-badge {
+            display: inline-block;
+            background: rgba(255,255,255,0.5);
+            padding: 6px 14px;
+            border-radius: 15px;
+            margin-top: 8px;
+            font-size: 0.85em;
+        }
+        .main-content {
+            display: grid;
+            grid-template-columns: 1fr 260px;
+            gap: 20px;
+            padding: 20px;
+        }
+        .card {
+            background: #f8f9fa;
+            border-radius: 12px;
+            padding: 16px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            margin-bottom: 16px;
+        }
+        .card-title {
+            font-size: 0.95em;
+            font-weight: 600;
+            margin-bottom: 12px;
+            color: #8e24aa;
+        }
+        .controls { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+        button {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 8px;
+            font-size: 0.85em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        button:hover { transform: translateY(-2px); }
+        button:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+        .btn-primary { background: linear-gradient(135deg, #d299c2 0%, #8e24aa 100%); color: white; }
+        .btn-success { background: linear-gradient(135deg, #28a745 0%, #20c997 100%); color: white; }
+        .btn-warning { background: linear-gradient(135deg, #ffc107 0%, #ff9800 100%); color: white; }
+        .btn-secondary { background: #6c757d; color: white; }
+        .speed-control { display: flex; align-items: center; gap: 6px; flex: 1; min-width: 140px; }
+        .speed-control input[type="range"] { flex: 1; height: 5px; }
+        .intervals-display {
+            display: flex;
+            gap: 8px;
+            padding: 12px;
+            background: white;
+            border-radius: 8px;
+            flex-wrap: wrap;
+            justify-content: center;
+            min-height: 55px;
+            align-items: flex-end;
+        }
+        .interval-wrapper {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        .interval {
+            padding: 8px 12px;
+            border-radius: 8px;
+            font-weight: 700;
+            font-size: 0.85em;
+            background: #e8eaf6;
+            border: 3px solid #5c6bc0;
+            transition: all 0.3s;
+        }
+        .interval-idx { font-size: 0.65em; color: #666; margin-top: 2px; }
+        .interval.current { background: #ffecb3; border-color: #ffa000; }
+        .interval.search-range { background: #e1bee7; border-color: #8e24aa; }
+        .interval.mid { background: #ce93d8; border-color: #6a1b9a; }
+        .interval.found { background: #c8e6c9; border-color: #43a047; }
+        .interval.processed { background: #f3e5f5; border-color: #ba68c8; opacity: 0.7; }
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.08); }
+        }
+        .dp-display {
+            display: flex;
+            gap: 8px;
+            padding: 12px;
+            background: white;
+            border-radius: 8px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+        .dp-cell {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 8px 12px;
+            border-radius: 8px;
+            background: #f3e5f5;
+            border: 2px solid #ba68c8;
+            min-width: 50px;
+        }
+        .dp-idx { font-size: 0.65em; color: #666; }
+        .dp-val { font-size: 1.2em; font-weight: 700; color: #8e24aa; }
+        .dp-cell.current { background: #ffecb3; border-color: #ffa000; animation: pulse 0.4s; }
+        .dp-cell.updated { background: #c8e6c9; border-color: #43a047; }
+        .bs-display {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            padding: 12px;
+            background: white;
+            border-radius: 8px;
+            font-size: 0.85em;
+            flex-wrap: wrap;
+        }
+        .bs-box { padding: 6px 10px; border-radius: 6px; font-weight: 700; }
+        .bs-lo { background: #e1bee7; color: #6a1b9a; }
+        .bs-hi { background: #f3e5f5; color: #8e24aa; }
+        .bs-mid { background: #ce93d8; color: white; }
+        .bs-target { background: #ffecb3; color: #e65100; }
+        .result-display {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+        }
+        .result-box {
+            padding: 15px;
+            border-radius: 8px;
+            text-align: center;
+        }
+        .result-box.keep { background: #e8f5e9; }
+        .result-box.remove { background: #fce4ec; }
+        .result-label { font-size: 0.85em; color: #666; }
+        .result-value { font-size: 1.5em; font-weight: 700; }
+        .result-value.keep { color: #2e7d32; }
+        .result-value.remove { color: #c2185b; }
+        .state-display { background: white; border-radius: 8px; padding: 10px; font-family: 'Courier New', monospace; font-size: 0.75em; }
+        .state-row { display: flex; justify-content: space-between; padding: 4px 0; border-bottom: 1px solid #e0e0e0; }
+        .state-row:last-child { border-bottom: none; }
+        .state-label { font-weight: 600; color: #8e24aa; }
+        .log-container { background: white; border-radius: 8px; padding: 10px; max-height: 140px; overflow-y: auto; font-family: 'Courier New', monospace; font-size: 0.55em; }
+        .log-entry { padding: 3px 6px; margin: 2px 0; border-radius: 4px; border-left: 3px solid #8e24aa; background: #f8f9fa; }
+        .log-entry.success { border-left-color: #28a745; background: #d4edda; }
+        .log-entry.warning { border-left-color: #ffc107; background: #fff3cd; }
+        .log-entry.info { border-left-color: #17a2b8; background: #d1ecf1; }
+        @media (max-width: 900px) { .main-content { grid-template-columns: 1fr; } }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🚫 Non-overlapping Intervals</h1>
+            <div class="subtitle">Improved - DP with Binary Search</div>
+            <div class="complexity-badge">Time: O(n log n) | Space: O(n)</div>
+        </header>
+        <div class="main-content">
+            <div class="left-panel">
+                <div class="card">
+                    <div class="card-title">⚙️ Controls</div>
+                    <div class="controls">
+                        <button class="btn-primary" id="playBtn">▶️ Play</button>
+                        <button class="btn-warning" id="pauseBtn" disabled>⏸️ Pause</button>
+                        <button class="btn-success" id="stepBtn">⏭️ Step</button>
+                        <button class="btn-secondary" id="resetBtn">🔄 Reset</button>
+                        <div class="speed-control">
+                            <label>Speed:</label>
+                            <input type="range" id="speedSlider" min="1" max="10" value="5">
+                            <span id="speedValue">5x</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="card">
+                    <div class="card-title">📋 Sorted Intervals (by end time)</div>
+                    <div class="intervals-display" id="intervalsDisplay"></div>
+                </div>
+                <div class="card">
+                    <div class="card-title">📊 DP Array (max non-overlapping up to i)</div>
+                    <div class="dp-display" id="dpDisplay"></div>
+                </div>
+                <div class="card">
+                    <div class="card-title">🔍 Binary Search: Find latest compatible</div>
+                    <div class="bs-display" id="bsDisplay">
+                        <span style="color:#888">Ready</span>
+                    </div>
+                </div>
+                <div class="card">
+                    <div class="result-display">
+                        <div class="result-box keep">
+                            <div class="result-label">Max Keep</div>
+                            <div class="result-value keep" id="maxKeepValue">1</div>
+                        </div>
+                        <div class="result-box remove">
+                            <div class="result-label">Min Removals</div>
+                            <div class="result-value remove" id="removalsValue">3</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="right-panel">
+                <div class="card">
+                    <div class="card-title">📋 Current State</div>
+                    <div class="state-display">
+                        <div class="state-row"><span class="state-label">Phase:</span><span id="phaseState">Sort</span></div>
+                        <div class="state-row"><span class="state-label">i:</span><span id="iState">-</span></div>
+                        <div class="state-row"><span class="state-label">lo:</span><span id="loState">-</span></div>
+                        <div class="state-row"><span class="state-label">hi:</span><span id="hiState">-</span></div>
+                        <div class="state-row"><span class="state-label">mid:</span><span id="midState">-</span></div>
+                    </div>
+                </div>
+                <div class="card" style="flex: 1;">
+                    <div class="card-title">📝 Execution Log</div>
+                    <div class="log-container" id="logContainer"><div class="log-entry info">DP + Binary Search for O(n log n).</div></div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script>
+        const original = [[1,2],[2,3],[3,4],[1,3]];
+        let intervals = [];
+        let dp = [];
+        const n = original.length;
+        
+        let phase = 'sort'; // 'sort', 'init', 'bs', 'update', 'done'
+        let i = 1;
+        let lo = 0, hi = 0, mid = -1;
+        let foundIdx = -1;
+        let searching = false;
+        let isRunning = false;
+        let speed = 5;
+        let stepCount = 0;
+        let done = false;
+
+        function init() {
+            // Sort by END time for this approach
+            intervals = [...original].sort((a, b) => a[1] - b[1]);
+            dp = new Array(n).fill(1);
+            phase = 'sort';
+            i = 1;
+            lo = 0;
+            hi = 0;
+            mid = -1;
+            foundIdx = -1;
+            searching = false;
+            stepCount = 0;
+            done = false;
+            
+            clearLog();
+            addLog(`Original: ${JSON.stringify(original)}`, 'info');
+            updateState();
+            render();
+        }
+
+        function render() {
+            // Intervals display
+            const display = document.getElementById('intervalsDisplay');
+            display.innerHTML = intervals.map((int, idx) => {
+                let cls = 'interval';
+                if (phase === 'bs' || phase === 'update') {
+                    if (idx === i) cls += ' current';
+                    else if (searching && idx >= lo && idx < hi) cls += ' search-range';
+                    else if (searching && idx === mid) cls += ' mid';
+                    else if (idx === foundIdx) cls += ' found';
+                    else if (idx < i) cls += ' processed';
+                }
+                return `<div class="interval-wrapper">
+                    <div class="${cls}">[${int[0]},${int[1]}]</div>
+                    <div class="interval-idx">${idx}</div>
+                </div>`;
+            }).join('');
+            
+            // DP display
+            const dpDisp = document.getElementById('dpDisplay');
+            dpDisp.innerHTML = dp.map((val, idx) => {
+                let cls = 'dp-cell';
+                if (idx === i && phase === 'update') cls += ' current';
+                else if (idx === foundIdx && phase === 'update') cls += ' updated';
+                return `<div class="${cls}">
+                    <div class="dp-idx">dp[${idx}]</div>
+                    <div class="dp-val">${val}</div>
+                </div>`;
+            }).join('');
+            
+            // Binary search display
+            const bsDisp = document.getElementById('bsDisplay');
+            if (searching) {
+                bsDisp.innerHTML = `
+                    <span class="bs-box bs-target">target: ${intervals[i][0]}</span>
+                    <span class="bs-box bs-lo">lo=${lo}</span>
+                    ${mid >= 0 ? `<span class="bs-box bs-mid">mid=${mid}</span>` : ''}
+                    <span class="bs-box bs-hi">hi=${hi}</span>
+                `;
+            } else if (foundIdx >= 0 && phase === 'update') {
+                bsDisp.innerHTML = `<span style="color:#43a047;font-weight:700">Found: idx ${foundIdx}, end=${intervals[foundIdx][1]}</span>`;
+            } else if (foundIdx < 0 && phase === 'update') {
+                bsDisp.innerHTML = `<span style="color:#e65100;font-weight:700">No compatible interval found</span>`;
+            } else if (phase === 'done') {
+                bsDisp.innerHTML = `<span style="color:#2e7d32;font-weight:700">✓ Complete!</span>`;
+            } else {
+                bsDisp.innerHTML = `<span style="color:#888">-</span>`;
+            }
+            
+            // Results
+            const maxKeep = dp[n - 1];
+            document.getElementById('maxKeepValue').textContent = maxKeep;
+            document.getElementById('removalsValue').textContent = n - maxKeep;
+        }
+
+        function updateState() {
+            document.getElementById('phaseState').textContent = phase;
+            document.getElementById('iState').textContent = i < n ? i : '-';
+            document.getElementById('loState').textContent = searching ? lo : '-';
+            document.getElementById('hiState').textContent = searching ? hi : '-';
+            document.getElementById('midState').textContent = mid >= 0 && searching ? mid : '-';
+        }
+
+        function addLog(msg, type = 'info') {
+            const log = document.getElementById('logContainer');
+            log.innerHTML += `<div class="log-entry ${type}">[${stepCount}] ${msg}</div>`;
+            log.scrollTop = log.scrollHeight;
+        }
+
+        function clearLog() { document.getElementById('logContainer').innerHTML = ''; }
+
+        function step() {
+            if (done) { stopExecution(); return; }
+            stepCount++;
+            
+            if (phase === 'sort') {
+                addLog(`Sorted by END: ${JSON.stringify(intervals)}`, 'success');
+                phase = 'init';
+            } else if (phase === 'init') {
+                addLog(`Init dp = [${dp.join(',')}]`, 'info');
+                phase = 'bs';
+                i = 1;
+                lo = 0;
+                hi = i;
+                mid = -1;
+                foundIdx = -1;
+                searching = true;
+            } else if (phase === 'bs') {
+                // Binary search for latest interval ending <= intervals[i][0]
+                const target = intervals[i][0];
+                
+                if (lo < hi) {
+                    mid = Math.floor((lo + hi) / 2);
+                    if (intervals[mid][1] <= target) {
+                        addLog(`mid=${mid}: end ${intervals[mid][1]} ≤ ${target} → lo=${mid+1}`, 'info');
+                        lo = mid + 1;
+                    } else {
+                        addLog(`mid=${mid}: end ${intervals[mid][1]} > ${target} → hi=${mid}`, 'warning');
+                        hi = mid;
+                    }
+                } else {
+                    searching = false;
+                    foundIdx = lo > 0 ? lo - 1 : -1;
+                    if (foundIdx >= 0) {
+                        addLog(`Found compatible: idx ${foundIdx}`, 'success');
+                    } else {
+                        addLog(`No compatible interval`, 'warning');
+                    }
+                    phase = 'update';
+                }
+            } else if (phase === 'update') {
+                // Update dp[i]
+                if (foundIdx >= 0) {
+                    dp[i] = Math.max(dp[i], dp[foundIdx] + 1);
+                }
+                dp[i] = Math.max(dp[i], dp[i - 1]); // Either include or skip
+                addLog(`dp[${i}] = ${dp[i]}`, 'success');
+                
+                i++;
+                if (i < n) {
+                    phase = 'bs';
+                    lo = 0;
+                    hi = i;
+                    mid = -1;
+                    foundIdx = -1;
+                    searching = true;
+                } else {
+                    phase = 'done';
+                    done = true;
+                    addLog(`Done! maxKeep=${dp[n-1]}, removals=${n - dp[n-1]}`, 'success');
+                }
+            }
+            
+            updateState();
+            render();
+        }
+
+        function play() {
+            if (isRunning) return;
+            isRunning = true;
+            document.getElementById('playBtn').disabled = true;
+            document.getElementById('pauseBtn').disabled = false;
+            document.getElementById('stepBtn').disabled = true;
+            runLoop();
+        }
+
+        function pause() {
+            isRunning = false;
+            document.getElementById('playBtn').disabled = false;
+            document.getElementById('pauseBtn').disabled = true;
+            document.getElementById('stepBtn').disabled = false;
+        }
+
+        function stopExecution() {
+            isRunning = false;
+            document.getElementById('playBtn').disabled = true;
+            document.getElementById('pauseBtn').disabled = true;
+            document.getElementById('stepBtn').disabled = true;
+        }
+
+        function runLoop() {
+            if (!isRunning) return;
+            step();
+            if (isRunning && !done) {
+                setTimeout(runLoop, 400 / speed);
+            } else {
+                stopExecution();
+            }
+        }
+
+        function reset() {
+            isRunning = false;
+            document.getElementById('playBtn').disabled = false;
+            document.getElementById('pauseBtn').disabled = true;
+            document.getElementById('stepBtn').disabled = false;
+            init();
+        }
+
+        document.getElementById('playBtn').addEventListener('click', play);
+        document.getElementById('pauseBtn').addEventListener('click', pause);
+        document.getElementById('stepBtn').addEventListener('click', step);
+        document.getElementById('resetBtn').addEventListener('click', reset);
+        document.getElementById('speedSlider').addEventListener('input', (e) => {
+            speed = parseInt(e.target.value);
+            document.getElementById('speedValue').textContent = speed + 'x';
+        });
+
+        init();
+    </script>
+</body>
+</html>

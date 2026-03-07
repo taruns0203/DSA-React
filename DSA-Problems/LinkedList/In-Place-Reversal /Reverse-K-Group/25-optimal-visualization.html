@@ -1,0 +1,923 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>25 - Optimal: Iterative Dummy Node (O(1) Space)</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #0f0c29 0%, #302b63 50%, #24243e 100%);
+            min-height: 100vh;
+            padding: 18px;
+            color: #e0e0e0
+        }
+
+        .container {
+            max-width: 1360px;
+            margin: 0 auto;
+            background: rgba(25, 25, 50, .95);
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, .5), 0 0 40px rgba(46, 204, 113, .07);
+            overflow: hidden;
+            border: 1px solid rgba(255, 255, 255, .06)
+        }
+
+        header {
+            background: linear-gradient(135deg, #16a085, #1abc9c);
+            color: #fff;
+            padding: 22px;
+            text-align: center
+        }
+
+        h1 {
+            font-size: 1.15em;
+            margin-bottom: 5px
+        }
+
+        .subtitle {
+            font-size: .84em;
+            opacity: .92
+        }
+
+        .badge {
+            display: inline-block;
+            background: rgba(255, 255, 255, .2);
+            padding: 5px 14px;
+            border-radius: 15px;
+            margin-top: 7px;
+            font-size: .78em
+        }
+
+        .main-content {
+            display: grid;
+            grid-template-columns: 1fr 280px;
+            gap: 16px;
+            padding: 18px
+        }
+
+        .card {
+            background: rgba(40, 40, 75, .8);
+            border-radius: 14px;
+            padding: 15px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, .2);
+            margin-bottom: 14px;
+            border: 1px solid rgba(255, 255, 255, .05)
+        }
+
+        .card-title {
+            font-size: .88em;
+            font-weight: 600;
+            margin-bottom: 10px;
+            color: #1abc9c
+        }
+
+        button {
+            padding: 7px 14px;
+            border: none;
+            border-radius: 8px;
+            font-size: .82em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all .3s
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, .3)
+        }
+
+        button:disabled {
+            opacity: .4;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #16a085, #1abc9c);
+            color: #fff
+        }
+
+        .btn-success {
+            background: linear-gradient(135deg, #27ae60, #2ecc71);
+            color: #fff
+        }
+
+        .btn-warning {
+            background: linear-gradient(135deg, #f39c12, #e67e22);
+            color: #fff
+        }
+
+        .btn-secondary {
+            background: rgba(100, 100, 140, .7);
+            color: #fff
+        }
+
+        .btn-info {
+            background: linear-gradient(135deg, #3498db, #2980b9);
+            color: #fff
+        }
+
+        .controls {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            align-items: center
+        }
+
+        .speed-control {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            flex: 1;
+            min-width: 140px
+        }
+
+        .speed-control label {
+            font-size: .8em;
+            color: #aaa
+        }
+
+        .speed-control input[type="range"] {
+            flex: 1;
+            height: 5px;
+            accent-color: #1abc9c
+        }
+
+        .speed-control span {
+            font-size: .8em;
+            color: #1abc9c;
+            min-width: 24px
+        }
+
+        .input-section {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+            flex-wrap: wrap
+        }
+
+        .input-section input {
+            padding: 7px 10px;
+            border-radius: 8px;
+            border: 1px solid rgba(255, 255, 255, .15);
+            background: rgba(20, 20, 45, .8);
+            color: #e0e0e0;
+            font-size: .85em;
+            font-family: 'Courier New', monospace;
+            min-width: 100px
+        }
+
+        .input-section input:focus {
+            outline: none;
+            border-color: #1abc9c
+        }
+
+        .input-section label {
+            font-size: .82em;
+            color: #aaa
+        }
+
+        .ll-area {
+            padding: 10px;
+            background: rgba(20, 20, 50, .4);
+            border-radius: 10px;
+            min-height: 56px
+        }
+
+        .ptr-row {
+            display: flex;
+            gap: 0;
+            min-height: 16px;
+            align-items: center;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin-bottom: 2px
+        }
+
+        .ptr-cell {
+            width: 44px;
+            text-align: center;
+            font-size: .44em;
+            font-weight: 700;
+            margin: 0 1px
+        }
+
+        .ptr-spacer {
+            width: 14px;
+            margin: 0 1px
+        }
+
+        .ll-row {
+            display: flex;
+            gap: 0;
+            align-items: center;
+            justify-content: center;
+            flex-wrap: wrap
+        }
+
+        .grp-row {
+            display: flex;
+            gap: 0;
+            min-height: 14px;
+            align-items: center;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin-top: 2px
+        }
+
+        .grp-cell {
+            width: 44px;
+            text-align: center;
+            font-size: .42em;
+            font-weight: 700;
+            margin: 0 1px
+        }
+
+        .grp-spacer {
+            width: 14px;
+            margin: 0 1px
+        }
+
+        .nd {
+            width: 44px;
+            height: 44px;
+            border-radius: 10px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 1.05em;
+            border: 2.5px solid rgba(150, 150, 200, .12);
+            background: rgba(60, 60, 100, .12);
+            font-family: 'Courier New', monospace;
+            color: #666;
+            transition: all .35s
+        }
+
+        .nd-sub {
+            font-size: .38em;
+            color: #555;
+            margin-top: 1px
+        }
+
+        .nd.dummy {
+            border-color: #555;
+            background: rgba(80, 80, 120, .08);
+            color: #888;
+            border-style: dashed
+        }
+
+        .nd.check-nd {
+            border-color: #f1c40f;
+            background: rgba(241, 196, 15, .08);
+            color: #f1c40f
+        }
+
+        .nd.kth-nd {
+            border-color: #e74c3c;
+            background: rgba(231, 76, 60, .08);
+            color: #e74c3c;
+            box-shadow: 0 0 8px rgba(231, 76, 60, .1)
+        }
+
+        .nd.gp-nd {
+            border-color: #3498db;
+            background: rgba(52, 152, 219, .08);
+            color: #3498db;
+            box-shadow: 0 0 8px rgba(52, 152, 219, .1)
+        }
+
+        .nd.prev-nd {
+            border-color: #9b59b6;
+            background: rgba(155, 89, 182, .08);
+            color: #bb6bd9
+        }
+
+        .nd.curr-nd {
+            border-color: #1abc9c;
+            background: rgba(26, 188, 156, .12);
+            color: #1abc9c;
+            box-shadow: 0 0 10px rgba(26, 188, 156, .12)
+        }
+
+        .nd.tail-nd {
+            border-color: #e67e22;
+            background: rgba(230, 126, 34, .08);
+            color: #e67e22
+        }
+
+        .nd.skip-nd {
+            border-color: #95a5a6;
+            background: rgba(149, 165, 166, .05);
+            color: #95a5a6
+        }
+
+        .nd.done-nd {
+            border-color: #2ecc71;
+            background: rgba(46, 204, 113, .06);
+            color: #2ecc71
+        }
+
+        .arrow {
+            color: #555;
+            font-size: .78em;
+            margin: 0 1px;
+            transition: all .3s
+        }
+
+        .arrow.rev-a {
+            color: #1abc9c;
+            font-weight: 700
+        }
+
+        .arrow.done-a {
+            color: #2ecc71
+        }
+
+        .action-box {
+            padding: 10px;
+            background: rgba(20, 20, 50, .4);
+            border-radius: 8px;
+            text-align: center;
+            font-family: 'Courier New', monospace;
+            font-size: .82em;
+            min-height: 38px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            flex-wrap: wrap
+        }
+
+        .phase-badge {
+            display: inline-block;
+            padding: 5px 12px;
+            border-radius: 8px;
+            font-size: .8em;
+            font-weight: 700;
+            margin-bottom: 8px
+        }
+
+        .pb-check {
+            background: rgba(241, 196, 15, .08);
+            border: 1px solid rgba(241, 196, 15, .12);
+            color: #f1c40f
+        }
+
+        .pb-rev {
+            background: rgba(26, 188, 156, .08);
+            border: 1px solid rgba(26, 188, 156, .12);
+            color: #1abc9c
+        }
+
+        .pb-stitch {
+            background: rgba(155, 89, 182, .08);
+            border: 1px solid rgba(155, 89, 182, .12);
+            color: #bb6bd9
+        }
+
+        .pb-done {
+            background: rgba(46, 204, 113, .1);
+            border: 1px solid rgba(46, 204, 113, .15);
+            color: #2ecc71
+        }
+
+        .status-ind {
+            text-align: center;
+            padding: 11px;
+            border-radius: 10px;
+            font-weight: 700;
+            font-size: .85em;
+            transition: all .3s
+        }
+
+        .si-neutral {
+            background: rgba(100, 100, 140, .12);
+            color: #888
+        }
+
+        .si-run {
+            background: rgba(26, 188, 156, .06);
+            color: #1abc9c;
+            border: 1px solid rgba(26, 188, 156, .12)
+        }
+
+        .si-done {
+            background: rgba(46, 204, 113, .12);
+            color: #2ecc71;
+            border: 1px solid rgba(46, 204, 113, .25)
+        }
+
+        .state-display {
+            background: rgba(20, 20, 50, .5);
+            border-radius: 8px;
+            padding: 10px;
+            font-family: 'Courier New', monospace;
+            font-size: .68em
+        }
+
+        .state-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 4px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, .05)
+        }
+
+        .state-row:last-child {
+            border-bottom: none
+        }
+
+        .state-label {
+            font-weight: 600;
+            color: #1abc9c
+        }
+
+        .state-val {
+            color: #ccc;
+            text-align: right;
+            max-width: 150px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap
+        }
+
+        .log-container {
+            background: rgba(20, 20, 50, .5);
+            border-radius: 8px;
+            padding: 10px;
+            max-height: 230px;
+            overflow-y: auto;
+            font-family: 'Courier New', monospace;
+            font-size: .54em
+        }
+
+        .log-entry {
+            padding: 3px 7px;
+            margin: 2px 0;
+            border-radius: 4px;
+            border-left: 3px solid #555;
+            background: rgba(40, 40, 70, .5);
+            line-height: 1.5
+        }
+
+        .log-entry.success {
+            border-left-color: #2ecc71;
+            background: rgba(46, 204, 113, .08);
+            color: #2ecc71
+        }
+
+        .log-entry.warning {
+            border-left-color: #f39c12;
+            background: rgba(243, 156, 18, .08);
+            color: #f39c12
+        }
+
+        .log-entry.info {
+            border-left-color: #3498db;
+            background: rgba(52, 152, 219, .08);
+            color: #8ec8f0
+        }
+
+        .log-entry.purple {
+            border-left-color: #9b59b6;
+            background: rgba(155, 89, 182, .08);
+            color: #bb6bd9
+        }
+
+        .log-entry.teal {
+            border-left-color: #1abc9c;
+            background: rgba(26, 188, 156, .08);
+            color: #1abc9c
+        }
+
+        .log-entry.orange {
+            border-left-color: #e67e22;
+            background: rgba(230, 126, 34, .08);
+            color: #e67e22
+        }
+
+        .log-entry.error {
+            border-left-color: #e74c3c;
+            background: rgba(231, 76, 60, .08);
+            color: #e74c3c
+        }
+
+        .log-container::-webkit-scrollbar {
+            width: 5px
+        }
+
+        .log-container::-webkit-scrollbar-track {
+            background: transparent
+        }
+
+        .log-container::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, .15);
+            border-radius: 3px
+        }
+
+        @media(max-width:960px) {
+            .main-content {
+                grid-template-columns: 1fr
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <header>
+            <h1>🔄 Reverse Nodes in k-Group</h1>
+            <div class="subtitle">Optimal — Iterative with Dummy Node</div>
+            <div class="badge">Time: O(n) | Space: O(1) — pure pointer manipulation, no recursion</div>
+        </header>
+        <div class="main-content">
+            <div class="left-panel">
+                <div class="card">
+                    <div class="card-title">⚙️ Controls</div>
+                    <div class="controls">
+                        <button class="btn-primary" id="playBtn">▶️ Play</button>
+                        <button class="btn-warning" id="pauseBtn" disabled>⏸️ Pause</button>
+                        <button class="btn-success" id="stepBtn">⏭️ Step</button>
+                        <button class="btn-secondary" id="resetBtn">🔄 Reset</button>
+                        <div class="speed-control">
+                            <label>Speed:</label>
+                            <input type="range" id="speedSlider" min="1" max="10" value="5">
+                            <span id="speedValue">5x</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="card">
+                    <div class="card-title">✏️ Custom Input</div>
+                    <div class="input-section">
+                        <label>List:</label>
+                        <input type="text" id="listInput" value="1,2,3,4,5" placeholder="values" style="flex:1">
+                        <label>k:</label>
+                        <input type="text" id="kInput" value="2" placeholder="k" style="width:40px">
+                        <button class="btn-info" id="applyBtn">Apply</button>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-title">🔗 Linked List</div>
+                    <div id="phaseBadge"></div>
+                    <div class="ll-area">
+                        <div class="ptr-row" id="ptrRow"></div>
+                        <div class="ll-row" id="llDisplay"></div>
+                        <div class="grp-row" id="grpRow"></div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-title">🔄 Action</div>
+                    <div class="action-box" id="actionBox"><span style="color:#555">—</span></div>
+                </div>
+
+                <div class="card">
+                    <div class="status-ind si-neutral" id="statusInd">Ready — press Play or Step</div>
+                </div>
+            </div>
+
+            <div class="right-panel">
+                <div class="card">
+                    <div class="card-title">📋 Current State</div>
+                    <div class="state-display">
+                        <div class="state-row"><span class="state-label">Phase:</span><span class="state-val"
+                                id="stPhase">init</span></div>
+                        <div class="state-row"><span class="state-label">Iteration:</span><span class="state-val"
+                                id="stIter">—</span></div>
+                        <div class="state-row"><span class="state-label">groupPrev:</span><span class="state-val"
+                                id="stGP">—</span></div>
+                        <div class="state-row"><span class="state-label">kth:</span><span class="state-val"
+                                id="stKth">—</span></div>
+                        <div class="state-row"><span class="state-label">groupNext:</span><span class="state-val"
+                                id="stGN">—</span></div>
+                        <div class="state-row"><span class="state-label">prev:</span><span class="state-val"
+                                id="stPrev">—</span></div>
+                        <div class="state-row"><span class="state-label">curr:</span><span class="state-val"
+                                id="stCurr">—</span></div>
+                        <div class="state-row"><span class="state-label">tail:</span><span class="state-val"
+                                id="stTail">—</span></div>
+                        <div class="state-row"><span class="state-label">rev step:</span><span class="state-val"
+                                id="stRev">—</span></div>
+                    </div>
+                </div>
+                <div class="card" style="flex:1">
+                    <div class="card-title">📝 Execution Log</div>
+                    <div class="log-container" id="logContainer">
+                        <div class="log-entry info">Iterative: find kth → reverse k → stitch → advance.</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let initVals = [1, 2, 3, 4, 5];
+        let K = 2;
+
+        // nodes[0] is dummy, nodes[1..n] are real
+        let nodes = [];
+        let DUMMY = 0;
+
+        let groupPrevIdx = -1, kthIdx = -1, groupNextIdx = -1;
+        let prevIdx = -1, currIdx = -1, tailIdx = -1;
+        let checkCount = 0, checkNode = -1;
+        let revStep = 0;
+        let iteration = 0;
+        let groupAssign = {};
+        let groupCounter = 0;
+
+        const GCOLORS = ['#e74c3c', '#3498db', '#2ecc71', '#f39c12', '#9b59b6', '#1abc9c', '#e67e22', '#c0392b', '#2980b9', '#27ae60'];
+
+        // phases: init | find-kth | not-enough | save-gn | reverse | stitch | advance | done
+        let phase = 'init';
+        let stepCount = 0, isRunning = false, speed = 5, isDone = false;
+
+        const $ = id => document.getElementById(id);
+        const logC = $('logContainer');
+        function addLog(m, t = 'info') { logC.innerHTML += `<div class="log-entry ${t}">[${stepCount}] ${m}</div>`; logC.scrollTop = logC.scrollHeight }
+        function clearLog() { logC.innerHTML = '' }
+
+        function nv(i) { return i >= 0 && i < nodes.length ? (i === DUMMY ? 'D' : nodes[i].val) : 'null'; }
+        function nvFull(i) { return i >= 0 && i < nodes.length ? (i === DUMMY ? 'dummy' : `node(${nodes[i].val})`) : 'null'; }
+
+        function buildList() {
+            nodes = [{ val: 'D', next: initVals.length > 0 ? 1 : -1 }]; // dummy at index 0
+            for (let i = 0; i < initVals.length; i++)
+                nodes.push({ val: initVals[i], next: i + 1 < initVals.length ? i + 2 : -1 });
+        }
+
+        function getChain(start) {
+            const r = [], seen = new Set();
+            let idx = start;
+            while (idx >= 0 && !seen.has(idx)) { seen.add(idx); r.push(idx); idx = nodes[idx].next; }
+            return r;
+        }
+
+        function render() {
+            const chain = getChain(DUMMY);
+
+            // Phase badge
+            if (phase === 'find-kth') {
+                $('phaseBadge').innerHTML = `<div class="phase-badge pb-check">🔍 Finding kth node (${checkCount}/${K})</div>`;
+            } else if (phase === 'reverse') {
+                $('phaseBadge').innerHTML = `<div class="phase-badge pb-rev">🔄 Reversing group (step ${revStep}/${K})</div>`;
+            } else if (phase === 'stitch' || phase === 'advance') {
+                $('phaseBadge').innerHTML = `<div class="phase-badge pb-stitch">🧵 Stitching & advancing</div>`;
+            } else if (phase === 'done') {
+                $('phaseBadge').innerHTML = `<div class="phase-badge pb-done">✅ Complete</div>`;
+            } else if (phase === 'not-enough') {
+                $('phaseBadge').innerHTML = `<div class="phase-badge pb-check">⏹ Not enough nodes — done</div>`;
+            } else {
+                $('phaseBadge').innerHTML = '';
+            }
+
+            // Pointers
+            let pH = '';
+            for (let oi = 0; oi < chain.length; oi++) {
+                const ni = chain[oi];
+                let labels = [];
+                if (ni === groupPrevIdx && phase !== 'done') labels.push('<span style="color:#3498db">gPrev</span>');
+                if (ni === kthIdx && (phase === 'find-kth' || phase === 'save-gn')) labels.push('<span style="color:#e74c3c">kth</span>');
+                if (ni === prevIdx && phase === 'reverse') labels.push('<span style="color:#9b59b6">prev</span>');
+                if (ni === currIdx && phase === 'reverse') labels.push('<span style="color:#1abc9c">curr</span>');
+                if (ni === tailIdx && (phase === 'stitch' || phase === 'advance')) labels.push('<span style="color:#e67e22">tail</span>');
+                if (ni === checkNode && phase === 'find-kth' && ni !== kthIdx) labels.push('<span style="color:#f1c40f">chk</span>');
+                pH += `<div class="ptr-cell">${labels.join(' ')}</div>`;
+                if (oi < chain.length - 1) pH += `<div class="ptr-spacer"></div>`;
+            }
+            $('ptrRow').innerHTML = pH;
+
+            // Nodes
+            let llH = '';
+            for (let oi = 0; oi < chain.length; oi++) {
+                const ni = chain[oi];
+                let cls = 'nd';
+                if (ni === DUMMY) cls += ' dummy';
+                else if (ni === groupPrevIdx && phase !== 'done') cls += ' gp-nd';
+                else if (ni === checkNode && phase === 'find-kth') cls += ' check-nd';
+                else if (ni === kthIdx && (phase === 'find-kth' || phase === 'save-gn')) cls += ' kth-nd';
+                else if (ni === currIdx && phase === 'reverse') cls += ' curr-nd';
+                else if (ni === prevIdx && phase === 'reverse') cls += ' prev-nd';
+                else if (ni === tailIdx && (phase === 'stitch' || phase === 'advance')) cls += ' tail-nd';
+                else if (phase === 'not-enough' && ni !== DUMMY && ni !== groupPrevIdx) cls += ' skip-nd';
+                else if (phase === 'done' && ni !== DUMMY) cls += ' done-nd';
+
+                const gi = groupAssign[ni];
+                const gColor = gi >= 0 ? GCOLORS[gi % GCOLORS.length] : null;
+                let style = '';
+                if (gColor && !cls.includes('gp-nd') && !cls.includes('curr-nd') &&
+                    !cls.includes('prev-nd') && !cls.includes('kth-nd') &&
+                    !cls.includes('check-nd') && !cls.includes('tail-nd') &&
+                    !cls.includes('skip-nd') && ni !== DUMMY) {
+                    style = `border-color:${gColor};color:${gColor}`;
+                }
+
+                const label = ni === DUMMY ? 'D' : nodes[ni].val;
+                const sub = ni === DUMMY ? 'dummy' : ni - 1;
+                llH += `<div class="${cls}" style="${style}">${label}<span class="nd-sub">${sub}</span></div>`;
+                if (oi < chain.length - 1) {
+                    let aCls = 'arrow';
+                    if (phase === 'done') aCls += ' done-a';
+                    llH += `<span class="${aCls}"> → </span>`;
+                }
+            }
+            $('llDisplay').innerHTML = llH;
+
+            // Group labels
+            let gH = '';
+            for (let oi = 0; oi < chain.length; oi++) {
+                const ni = chain[oi];
+                const gi = groupAssign[ni];
+                const color = gi >= 0 ? GCOLORS[gi % GCOLORS.length] : 'transparent';
+                gH += `<div class="grp-cell" style="color:${color}">${gi >= 0 ? 'G' + gi : (ni === DUMMY ? '' : '')}</div>`;
+                if (oi < chain.length - 1) gH += `<div class="grp-spacer"></div>`;
+            }
+            $('grpRow').innerHTML = gH;
+
+            // State
+            $('stPhase').textContent = phase;
+            $('stIter').textContent = iteration > 0 ? iteration : '—';
+            $('stGP').textContent = groupPrevIdx >= 0 ? nvFull(groupPrevIdx) : '—';
+            $('stKth').textContent = kthIdx >= 0 ? nvFull(kthIdx) : '—';
+            $('stGN').textContent = groupNextIdx >= 0 ? nvFull(groupNextIdx) : (phase === 'save-gn' || phase === 'reverse' ? 'null' : '—');
+            $('stPrev').textContent = prevIdx >= 0 ? nvFull(prevIdx) : (phase === 'reverse' ? 'null(→gN)' : '—');
+            $('stCurr').textContent = currIdx >= 0 ? nvFull(currIdx) : '—';
+            $('stTail').textContent = tailIdx >= 0 ? nvFull(tailIdx) : '—';
+            $('stRev').textContent = phase === 'reverse' ? `${revStep}/${K}` : '—';
+        }
+
+        function doStep() {
+            if (isDone) { stopExec(); return; }
+            stepCount++;
+
+            switch (phase) {
+                case 'init': {
+                    buildList();
+                    groupPrevIdx = DUMMY; kthIdx = -1; groupNextIdx = -1;
+                    prevIdx = -1; currIdx = -1; tailIdx = -1;
+                    checkCount = 0; checkNode = -1; revStep = 0;
+                    iteration = 0; groupAssign = {}; groupCounter = 0;
+                    addLog(`List: [${initVals.join(',')}], k=${K}`, 'info');
+                    addLog(`dummy → ${initVals.join(' → ')}`, 'info');
+                    addLog(`groupPrev = dummy`, 'info');
+                    phase = 'find-kth';
+                    checkCount = 0;
+                    checkNode = groupPrevIdx;
+                    kthIdx = -1;
+                    iteration = 1;
+                    addLog(`━━ Iteration ${iteration}: Find kth from groupPrev ━━`, 'teal');
+                    $('statusInd').className = 'status-ind si-run';
+                    $('statusInd').textContent = `Iteration ${iteration}: Finding kth...`;
+                    render();
+                    break;
+                }
+                case 'find-kth': {
+                    if (checkNode < 0 || (checkCount > 0 && nodes[checkNode].next < 0 && checkCount < K)) {
+                        // Not enough
+                        addLog(`  ✗ Only ${checkCount} nodes after groupPrev (< ${K})`, 'warning');
+                        phase = 'not-enough';
+                        render();
+                        return;
+                    }
+                    checkNode = nodes[checkNode].next;
+                    if (checkNode < 0) {
+                        addLog(`  ✗ Only ${checkCount} nodes after groupPrev (< ${K})`, 'warning');
+                        phase = 'not-enough';
+                        render();
+                        return;
+                    }
+                    checkCount++;
+                    kthIdx = checkNode;
+                    addLog(`  Check ${checkCount}/${K}: ${nvFull(checkNode)}`, 'info');
+                    if (checkCount === K) {
+                        addLog(`  ✓ kth = ${nvFull(kthIdx)} — group is valid`, 'success');
+                        phase = 'save-gn';
+                    }
+                    render();
+                    break;
+                }
+                case 'not-enough': {
+                    const result = getChain(nodes[DUMMY].next).map(i => nv(i));
+                    addLog(`✅ Done! No more full groups. Result: [${result.join(',')}]`, 'success');
+                    phase = 'done'; isDone = true;
+                    $('statusInd').className = 'status-ind si-done';
+                    $('statusInd').textContent = `✅ Done! [${result.join(' → ')}]`;
+                    $('actionBox').innerHTML = `<span style="color:#2ecc71">✅ ${result.join(' → ')}</span>`;
+                    render(); stopExec(); return;
+                }
+                case 'save-gn': {
+                    groupNextIdx = nodes[kthIdx].next;
+                    addLog(`  groupNext = kth.next = ${groupNextIdx >= 0 ? nvFull(groupNextIdx) : 'null'}`, 'orange');
+                    // Setup reversal
+                    prevIdx = -1; // Will use groupNextIdx as initial prev in reversal
+                    currIdx = nodes[groupPrevIdx].next;
+                    revStep = 0;
+                    addLog(`  ▸ Reverse: prev=groupNext(${groupNextIdx >= 0 ? nv(groupNextIdx) : 'null'}), curr=${nvFull(currIdx)}`, 'teal');
+                    // Trick: set prev to groupNextIdx so tail auto-connects
+                    prevIdx = groupNextIdx;
+                    tailIdx = currIdx; // curr (groupPrev.next) will become the tail after reversal
+                    phase = 'reverse';
+                    $('statusInd').textContent = `Iteration ${iteration}: Reversing...`;
+                    render();
+                    break;
+                }
+                case 'reverse': {
+                    if (revStep >= K) {
+                        // Reversal complete — prev is new head
+                        addLog(`  Reversed! newHead = ${nvFull(prevIdx)}, tail = ${nvFull(tailIdx)}`, 'success');
+                        $('actionBox').innerHTML = `<span style="color:#9b59b6">gPrev.next → ${nv(prevIdx)}</span> <span style="color:#555">|</span> <span style="color:#e67e22">tail(${nv(tailIdx)}) → gNext</span>`;
+                        phase = 'stitch';
+                        render();
+                        return;
+                    }
+                    const next = nodes[currIdx].next;
+                    nodes[currIdx].next = prevIdx >= 0 ? prevIdx : -1;
+                    // Assign group
+                    groupAssign[currIdx] = groupCounter;
+                    const prevLabel = prevIdx >= 0 ? nvFull(prevIdx) : 'null';
+                    addLog(`  Rev ${revStep + 1}/${K}: ${nv(currIdx)}.next → ${prevLabel}`, 'teal');
+                    prevIdx = currIdx;
+                    currIdx = next;
+                    revStep++;
+                    render();
+                    break;
+                }
+                case 'stitch': {
+                    // groupPrev.next = prev (new head = kth after reversal)
+                    nodes[groupPrevIdx].next = prevIdx;
+                    addLog(`  Stitch: ${nv(groupPrevIdx)}.next → ${nv(prevIdx)} (new head)`, 'purple');
+                    addLog(`  tail(${nv(tailIdx)}) already → ${groupNextIdx >= 0 ? nv(groupNextIdx) : 'null'} (via prev=gN trick)`, 'purple');
+                    groupCounter++;
+                    phase = 'advance';
+                    render();
+                    break;
+                }
+                case 'advance': {
+                    // Advance groupPrev to tail
+                    groupPrevIdx = tailIdx;
+                    addLog(`  Advance: groupPrev → ${nvFull(groupPrevIdx)}`, 'info');
+                    // Reset for next iteration
+                    kthIdx = -1; groupNextIdx = -1; prevIdx = -1; currIdx = -1;
+                    tailIdx = -1; checkCount = 0; checkNode = groupPrevIdx; revStep = 0;
+                    iteration++;
+                    addLog(`━━ Iteration ${iteration}: Find kth from groupPrev ━━`, 'teal');
+                    phase = 'find-kth';
+                    $('statusInd').textContent = `Iteration ${iteration}: Finding kth...`;
+                    $('actionBox').innerHTML = '<span style="color:#555">—</span>';
+                    render();
+                    break;
+                }
+            }
+        }
+
+        function play() { if (isRunning || isDone) return; isRunning = true; $('playBtn').disabled = true; $('pauseBtn').disabled = false; $('stepBtn').disabled = true; runLoop() }
+        function pause() { isRunning = false; $('playBtn').disabled = false; $('pauseBtn').disabled = true; $('stepBtn').disabled = false }
+        function stopExec() { isRunning = false; $('playBtn').disabled = true; $('pauseBtn').disabled = true; $('stepBtn').disabled = true }
+        function runLoop() { if (!isRunning) return; doStep(); if (isRunning && !isDone) setTimeout(runLoop, 420 / speed) }
+
+        function init() {
+            buildList(); groupPrevIdx = -1; kthIdx = -1; groupNextIdx = -1;
+            prevIdx = -1; currIdx = -1; tailIdx = -1;
+            checkCount = 0; checkNode = -1; revStep = 0;
+            iteration = 0; groupAssign = {}; groupCounter = 0;
+            phase = 'init'; stepCount = 0; isDone = false;
+            $('statusInd').className = 'status-ind si-neutral';
+            $('statusInd').textContent = 'Ready — press Play or Step';
+            $('actionBox').innerHTML = '<span style="color:#555">—</span>';
+            $('phaseBadge').innerHTML = '';
+            $('playBtn').disabled = false; $('pauseBtn').disabled = true; $('stepBtn').disabled = false;
+            clearLog(); addLog('Iterative: find kth → reverse k → stitch → advance.', 'info');
+            render();
+        }
+
+        $('playBtn').addEventListener('click', play);
+        $('pauseBtn').addEventListener('click', pause);
+        $('stepBtn').addEventListener('click', () => { if (!isDone) doStep() });
+        $('resetBtn').addEventListener('click', () => { isRunning = false; init() });
+        $('speedSlider').addEventListener('input', e => { speed = parseInt(e.target.value); $('speedValue').textContent = speed + 'x' });
+        $('applyBtn').addEventListener('click', () => {
+            const lv = $('listInput').value.trim();
+            const kv = $('kInput').value.trim();
+            const vs = lv ? lv.split(',').map(x => parseInt(x.trim())).filter(x => !isNaN(x)) : [];
+            const kn = parseInt(kv);
+            if (!vs.length) { alert('Need at least one value.'); return }
+            if (isNaN(kn) || kn < 1) { alert('k must be ≥ 1'); return }
+            initVals = [...vs]; K = kn; isRunning = false; init();
+        });
+
+        init();
+    </script>
+</body>
+
+</html>

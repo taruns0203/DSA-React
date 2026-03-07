@@ -1,0 +1,964 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>725 - Optimal: Inline Size + In-Place Split</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #0f0c29 0%, #302b63 50%, #24243e 100%);
+            min-height: 100vh;
+            padding: 18px;
+            color: #e0e0e0
+        }
+
+        .container {
+            max-width: 1360px;
+            margin: 0 auto;
+            background: rgba(25, 25, 50, .95);
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, .5), 0 0 40px rgba(26, 188, 156, .07);
+            overflow: hidden;
+            border: 1px solid rgba(255, 255, 255, .06)
+        }
+
+        header {
+            background: linear-gradient(135deg, #16a085, #1abc9c);
+            color: #fff;
+            padding: 22px;
+            text-align: center
+        }
+
+        h1 {
+            font-size: 1.15em;
+            margin-bottom: 5px
+        }
+
+        .subtitle {
+            font-size: .84em;
+            opacity: .92
+        }
+
+        .badge {
+            display: inline-block;
+            background: rgba(255, 255, 255, .2);
+            padding: 5px 14px;
+            border-radius: 15px;
+            margin-top: 7px;
+            font-size: .78em
+        }
+
+        .main-content {
+            display: grid;
+            grid-template-columns: 1fr 280px;
+            gap: 16px;
+            padding: 18px
+        }
+
+        .card {
+            background: rgba(40, 40, 75, .8);
+            border-radius: 14px;
+            padding: 15px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, .2);
+            margin-bottom: 14px;
+            border: 1px solid rgba(255, 255, 255, .05)
+        }
+
+        .card-title {
+            font-size: .88em;
+            font-weight: 600;
+            margin-bottom: 10px;
+            color: #1abc9c
+        }
+
+        button {
+            padding: 7px 14px;
+            border: none;
+            border-radius: 8px;
+            font-size: .82em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all .3s
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, .3)
+        }
+
+        button:disabled {
+            opacity: .4;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #16a085, #1abc9c);
+            color: #fff
+        }
+
+        .btn-success {
+            background: linear-gradient(135deg, #27ae60, #2ecc71);
+            color: #fff
+        }
+
+        .btn-warning {
+            background: linear-gradient(135deg, #f39c12, #e67e22);
+            color: #fff
+        }
+
+        .btn-secondary {
+            background: rgba(100, 100, 140, .7);
+            color: #fff
+        }
+
+        .btn-info {
+            background: linear-gradient(135deg, #3498db, #2980b9);
+            color: #fff
+        }
+
+        .controls {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            align-items: center
+        }
+
+        .speed-control {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            flex: 1;
+            min-width: 140px
+        }
+
+        .speed-control label {
+            font-size: .8em;
+            color: #aaa
+        }
+
+        .speed-control input[type="range"] {
+            flex: 1;
+            height: 5px;
+            accent-color: #1abc9c
+        }
+
+        .speed-control span {
+            font-size: .8em;
+            color: #1abc9c;
+            min-width: 24px
+        }
+
+        .input-section {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+            flex-wrap: wrap
+        }
+
+        .input-section input {
+            padding: 7px 10px;
+            border-radius: 8px;
+            border: 1px solid rgba(255, 255, 255, .15);
+            background: rgba(20, 20, 45, .8);
+            color: #e0e0e0;
+            font-size: .85em;
+            font-family: 'Courier New', monospace;
+            min-width: 100px
+        }
+
+        .input-section input:focus {
+            outline: none;
+            border-color: #1abc9c
+        }
+
+        .input-section label {
+            font-size: .82em;
+            color: #aaa
+        }
+
+        /* Linked list */
+        .ll-area {
+            padding: 10px;
+            background: rgba(20, 20, 50, .4);
+            border-radius: 10px;
+            min-height: 60px
+        }
+
+        .ptr-row {
+            display: flex;
+            gap: 0;
+            min-height: 16px;
+            align-items: center;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin-bottom: 2px
+        }
+
+        .ptr-cell {
+            width: 44px;
+            text-align: center;
+            font-size: .48em;
+            font-weight: 700;
+            margin: 0 1px
+        }
+
+        .ptr-spacer {
+            width: 14px;
+            margin: 0 1px
+        }
+
+        .p-curr {
+            color: #1abc9c
+        }
+
+        .ll-row {
+            display: flex;
+            gap: 0;
+            align-items: center;
+            justify-content: center;
+            flex-wrap: wrap
+        }
+
+        .nd {
+            width: 44px;
+            height: 44px;
+            border-radius: 10px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 1.05em;
+            border: 2.5px solid rgba(150, 150, 200, .12);
+            background: rgba(60, 60, 100, .12);
+            font-family: 'Courier New', monospace;
+            color: #666;
+            transition: all .35s
+        }
+
+        .nd-sub {
+            font-size: .38em;
+            color: #555;
+            margin-top: 1px
+        }
+
+        .nd.count-nd {
+            border-color: #f1c40f;
+            background: rgba(241, 196, 15, .08);
+            color: #f1c40f
+        }
+
+        .nd.walk-nd {
+            border-color: #1abc9c;
+            background: rgba(26, 188, 156, .12);
+            color: #1abc9c;
+            box-shadow: 0 0 10px rgba(26, 188, 156, .12)
+        }
+
+        .nd.cut-nd {
+            border-color: #e74c3c;
+            background: rgba(231, 76, 60, .1);
+            color: #e74c3c;
+            box-shadow: 0 0 10px rgba(231, 76, 60, .12)
+        }
+
+        .nd.done-nd {
+            border-color: #2ecc71;
+            background: rgba(46, 204, 113, .06);
+            color: #2ecc71
+        }
+
+        .arrow {
+            color: #555;
+            font-size: .78em;
+            margin: 0 1px;
+            transition: all .3s
+        }
+
+        .arrow.cut-a {
+            color: #e74c3c;
+            font-weight: 700
+        }
+
+        .arrow.done-a {
+            color: #2ecc71
+        }
+
+        .grp-row {
+            display: flex;
+            gap: 0;
+            min-height: 14px;
+            align-items: center;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin-top: 2px
+        }
+
+        .grp-cell {
+            width: 44px;
+            text-align: center;
+            font-size: .42em;
+            font-weight: 700;
+            margin: 0 1px;
+            border-radius: 3px;
+            padding: 1px 0
+        }
+
+        .grp-spacer {
+            width: 14px;
+            margin: 0 1px
+        }
+
+        /* Inline formula display */
+        .formula-box {
+            padding: 10px;
+            background: rgba(20, 20, 50, .5);
+            border-radius: 10px;
+            text-align: center;
+            font-family: 'Courier New', monospace;
+            font-size: .85em;
+            min-height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 10px
+        }
+
+        .fm {
+            padding: 4px 10px;
+            border-radius: 6px;
+            font-weight: 700;
+            transition: all .3s
+        }
+
+        .fm-base {
+            border: 1.5px solid #3498db;
+            color: #3498db;
+            background: rgba(52, 152, 219, .06)
+        }
+
+        .fm-rem {
+            border: 1.5px solid #e67e22;
+            color: #e67e22;
+            background: rgba(230, 126, 34, .06)
+        }
+
+        .fm-size {
+            border: 1.5px solid #1abc9c;
+            color: #1abc9c;
+            background: rgba(26, 188, 156, .08);
+            font-size: 1.1em
+        }
+
+        .fm-calc {
+            color: #888;
+            font-size: .85em
+        }
+
+        /* Parts result */
+        .parts-area {
+            padding: 10px;
+            background: rgba(20, 20, 50, .4);
+            border-radius: 10px;
+            min-height: 40px
+        }
+
+        .part-row {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            margin: 4px 0;
+            flex-wrap: wrap
+        }
+
+        .part-label {
+            font-size: .62em;
+            font-weight: 700;
+            padding: 3px 8px;
+            border-radius: 5px;
+            min-width: 36px;
+            text-align: center
+        }
+
+        .pl-active {
+            background: rgba(26, 188, 156, .1);
+            border: 1px solid rgba(26, 188, 156, .15);
+            color: #1abc9c
+        }
+
+        .pl-done {
+            background: rgba(46, 204, 113, .06);
+            border: 1px solid rgba(46, 204, 113, .1);
+            color: #2ecc71
+        }
+
+        .pl-empty {
+            background: rgba(100, 100, 140, .06);
+            border: 1px solid rgba(100, 100, 140, .1);
+            color: #666
+        }
+
+        .pn {
+            width: 36px;
+            height: 34px;
+            border-radius: 7px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: .88em;
+            font-family: 'Courier New', monospace;
+            border: 2px solid;
+            transition: all .35s
+        }
+
+        .p-arrow {
+            color: #555;
+            font-size: .68em;
+            margin: 0 1px
+        }
+
+        .status-ind {
+            text-align: center;
+            padding: 11px;
+            border-radius: 10px;
+            font-weight: 700;
+            font-size: .85em;
+            transition: all .3s
+        }
+
+        .si-neutral {
+            background: rgba(100, 100, 140, .12);
+            color: #888
+        }
+
+        .si-run {
+            background: rgba(26, 188, 156, .06);
+            color: #1abc9c;
+            border: 1px solid rgba(26, 188, 156, .12)
+        }
+
+        .si-done {
+            background: rgba(46, 204, 113, .12);
+            color: #2ecc71;
+            border: 1px solid rgba(46, 204, 113, .25)
+        }
+
+        .state-display {
+            background: rgba(20, 20, 50, .5);
+            border-radius: 8px;
+            padding: 10px;
+            font-family: 'Courier New', monospace;
+            font-size: .68em
+        }
+
+        .state-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 4px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, .05)
+        }
+
+        .state-row:last-child {
+            border-bottom: none
+        }
+
+        .state-label {
+            font-weight: 600;
+            color: #1abc9c
+        }
+
+        .state-val {
+            color: #ccc;
+            text-align: right;
+            max-width: 150px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap
+        }
+
+        .log-container {
+            background: rgba(20, 20, 50, .5);
+            border-radius: 8px;
+            padding: 10px;
+            max-height: 230px;
+            overflow-y: auto;
+            font-family: 'Courier New', monospace;
+            font-size: .54em
+        }
+
+        .log-entry {
+            padding: 3px 7px;
+            margin: 2px 0;
+            border-radius: 4px;
+            border-left: 3px solid #555;
+            background: rgba(40, 40, 70, .5);
+            line-height: 1.5
+        }
+
+        .log-entry.success {
+            border-left-color: #2ecc71;
+            background: rgba(46, 204, 113, .08);
+            color: #2ecc71
+        }
+
+        .log-entry.warning {
+            border-left-color: #f39c12;
+            background: rgba(243, 156, 18, .08);
+            color: #f39c12
+        }
+
+        .log-entry.info {
+            border-left-color: #3498db;
+            background: rgba(52, 152, 219, .08);
+            color: #8ec8f0
+        }
+
+        .log-entry.purple {
+            border-left-color: #9b59b6;
+            background: rgba(155, 89, 182, .08);
+            color: #bb6bd9
+        }
+
+        .log-entry.teal {
+            border-left-color: #1abc9c;
+            background: rgba(26, 188, 156, .08);
+            color: #1abc9c
+        }
+
+        .log-entry.orange {
+            border-left-color: #e67e22;
+            background: rgba(230, 126, 34, .08);
+            color: #e67e22
+        }
+
+        .log-entry.error {
+            border-left-color: #e74c3c;
+            background: rgba(231, 76, 60, .08);
+            color: #e74c3c
+        }
+
+        .log-container::-webkit-scrollbar {
+            width: 5px
+        }
+
+        .log-container::-webkit-scrollbar-track {
+            background: transparent
+        }
+
+        .log-container::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, .15);
+            border-radius: 3px
+        }
+
+        @media(max-width:960px) {
+            .main-content {
+                grid-template-columns: 1fr
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <header>
+            <h1>✂️ Split Linked List in Parts</h1>
+            <div class="subtitle">Optimal — Inline Size Computation + In-Place Split</div>
+            <div class="badge">Time: O(n) | Space: O(1) aux — no sizes array, inline formula</div>
+        </header>
+        <div class="main-content">
+            <div class="left-panel">
+                <div class="card">
+                    <div class="card-title">⚙️ Controls</div>
+                    <div class="controls">
+                        <button class="btn-primary" id="playBtn">▶️ Play</button>
+                        <button class="btn-warning" id="pauseBtn" disabled>⏸️ Pause</button>
+                        <button class="btn-success" id="stepBtn">⏭️ Step</button>
+                        <button class="btn-secondary" id="resetBtn">🔄 Reset</button>
+                        <div class="speed-control">
+                            <label>Speed:</label>
+                            <input type="range" id="speedSlider" min="1" max="10" value="5">
+                            <span id="speedValue">5x</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="card">
+                    <div class="card-title">✏️ Custom Input</div>
+                    <div class="input-section">
+                        <label>List:</label>
+                        <input type="text" id="listInput" value="1,2,3,4,5,6,7,8,9,10" placeholder="values"
+                            style="flex:1">
+                        <label>k:</label>
+                        <input type="text" id="kInput" value="3" placeholder="k" style="width:40px">
+                        <button class="btn-info" id="applyBtn">Apply</button>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-title">🔗 Linked List (n=<span id="nDisp">?</span>, k=<span id="kDisp">3</span>)
+                    </div>
+                    <div class="ll-area">
+                        <div class="ptr-row" id="ptrRow"></div>
+                        <div class="ll-row" id="llDisplay"></div>
+                        <div class="grp-row" id="grpRow"></div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-title">⚡ Inline Size Formula (no sizes[] array)</div>
+                    <div class="formula-box" id="formulaBox">
+                        <span style="color:#555">partSize = base + (i &lt; remainder ? 1 : 0)</span>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-title">📋 Result Parts</div>
+                    <div class="parts-area" id="partsDisplay"><span style="color:#555">—</span></div>
+                </div>
+
+                <div class="card">
+                    <div class="status-ind si-neutral" id="statusInd">Ready — press Play or Step</div>
+                </div>
+            </div>
+
+            <div class="right-panel">
+                <div class="card">
+                    <div class="card-title">📋 Current State</div>
+                    <div class="state-display">
+                        <div class="state-row"><span class="state-label">Phase:</span><span class="state-val"
+                                id="stPhase">init</span></div>
+                        <div class="state-row"><span class="state-label">n:</span><span class="state-val"
+                                id="stN">—</span></div>
+                        <div class="state-row"><span class="state-label">base:</span><span class="state-val"
+                                id="stBase">—</span></div>
+                        <div class="state-row"><span class="state-label">remainder:</span><span class="state-val"
+                                id="stRem">—</span></div>
+                        <div class="state-row"><span class="state-label">part i:</span><span class="state-val"
+                                id="stI">—</span></div>
+                        <div class="state-row"><span class="state-label">partSize:</span><span class="state-val"
+                                id="stSize">—</span></div>
+                        <div class="state-row"><span class="state-label">walk j:</span><span class="state-val"
+                                id="stJ">—</span></div>
+                        <div class="state-row"><span class="state-label">curr:</span><span class="state-val"
+                                id="stCurr">—</span></div>
+                        <div class="state-row"><span class="state-label">parts done:</span><span class="state-val"
+                                id="stDone">0</span></div>
+                    </div>
+                </div>
+                <div class="card" style="flex:1">
+                    <div class="card-title">📝 Execution Log</div>
+                    <div class="log-container" id="logContainer">
+                        <div class="log-entry info">Count n → compute base/rem → inline split, no sizes array.</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let initVals = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
+        let K = 3;
+
+        let nodes = [];
+        let n, base, remainder;
+        let countIdx = -1;
+        let currPart = -1, partSize = -1, walkJ = -1;
+        let currIdx = -1, cutIdx = -1;
+        let partAssign = [];
+        let parts = [];
+        let cutPoints = new Set();
+
+        const PCOLORS = ['#e74c3c', '#3498db', '#2ecc71', '#f39c12', '#e67e22', '#1abc9c', '#9b59b6', '#c0392b', '#2980b9', '#27ae60'];
+
+        // phases: init | count | math | part-start | walk | cut | done
+        let phase = 'init';
+        let stepCount = 0, isRunning = false, speed = 5, isDone = false;
+
+        const $ = id => document.getElementById(id);
+        const logC = $('logContainer');
+        function addLog(m, t = 'info') { logC.innerHTML += `<div class="log-entry ${t}">[${stepCount}] ${m}</div>`; logC.scrollTop = logC.scrollHeight }
+        function clearLog() { logC.innerHTML = '' }
+
+        function buildList() {
+            nodes = [];
+            for (let i = 0; i < initVals.length; i++)
+                nodes.push({ val: initVals[i], next: i + 1 < initVals.length ? i + 1 : -1 });
+        }
+
+        function nv(i) { return i >= 0 && i < nodes.length ? nodes[i].val : 'null'; }
+
+        function render() {
+            $('nDisp').textContent = n >= 0 ? n : '?';
+            $('kDisp').textContent = K;
+
+            // Pointers
+            let pH = '';
+            for (let i = 0; i < nodes.length; i++) {
+                let labels = [];
+                if (i === currIdx && (phase === 'walk' || phase === 'part-start')) labels.push('<span class="p-curr">curr</span>');
+                if (i === cutIdx && phase === 'cut') labels.push('<span style="color:#e74c3c;font-size:.48em;font-weight:700">✂</span>');
+                pH += `<div class="ptr-cell">${labels.join(' ')}</div>`;
+                if (i < nodes.length - 1) pH += `<div class="ptr-spacer"></div>`;
+            }
+            $('ptrRow').innerHTML = pH;
+
+            // Nodes
+            let llH = '';
+            for (let i = 0; i < nodes.length; i++) {
+                let cls = 'nd';
+                const color = partAssign[i] >= 0 ? PCOLORS[partAssign[i] % PCOLORS.length] : null;
+                if (phase === 'count' && i === countIdx) cls += ' count-nd';
+                else if (i === currIdx && (phase === 'walk' || phase === 'part-start')) cls += ' walk-nd';
+                else if (i === cutIdx && phase === 'cut') cls += ' cut-nd';
+                else if (phase === 'done') cls += ' done-nd';
+                const style = color && phase !== 'count' ? `border-color:${color};color:${color}` : '';
+
+                llH += `<div class="ll-node"><div class="${cls}" style="${style}">${nodes[i].val}<span class="nd-sub">${i}</span></div>`;
+                if (i < nodes.length - 1) {
+                    const isCut = cutPoints.has(i);
+                    llH += `<span class="arrow${isCut ? ' cut-a' : ''}${phase === 'done' ? ' done-a' : ''}">${isCut ? ' ✂ ' : ' → '}</span>`;
+                }
+                llH += '</div>';
+            }
+            $('llDisplay').innerHTML = llH;
+
+            // Group labels
+            let gH = '';
+            for (let i = 0; i < nodes.length; i++) {
+                const pi = partAssign[i];
+                const color = pi >= 0 ? PCOLORS[pi % PCOLORS.length] : 'transparent';
+                gH += `<div class="grp-cell" style="color:${color}">${pi >= 0 ? 'P' + pi : ''}</div>`;
+                if (i < nodes.length - 1) gH += `<div class="grp-spacer"></div>`;
+            }
+            $('grpRow').innerHTML = gH;
+
+            // Formula
+            if (currPart >= 0 && phase !== 'done' && phase !== 'count' && phase !== 'math') {
+                const extra = currPart < remainder ? 1 : 0;
+                const sz = base + extra;
+                $('formulaBox').innerHTML =
+                    `<span class="fm fm-base">base=${base}</span>` +
+                    `<span class="fm-calc">+</span>` +
+                    `<span class="fm fm-rem">${currPart} ${currPart < remainder ? '<' : '≥'} ${remainder} → ${extra ? '+1' : '+0'}</span>` +
+                    `<span class="fm-calc">=</span>` +
+                    `<span class="fm fm-size">partSize = ${sz}</span>`;
+            } else if (base >= 0 && phase === 'math') {
+                $('formulaBox').innerHTML =
+                    `<span class="fm fm-base">base = ⌊${n}/${K}⌋ = ${base}</span>` +
+                    `<span class="fm fm-rem">remainder = ${n}%${K} = ${remainder}</span>`;
+            } else if (phase === 'done') {
+                $('formulaBox').innerHTML = `<span style="color:#2ecc71;font-weight:700">✅ All ${K} parts split — zero extra arrays used</span>`;
+            } else {
+                $('formulaBox').innerHTML = `<span style="color:#555">partSize = base + (i &lt; remainder ? 1 : 0)</span>`;
+            }
+
+            // Parts
+            if (parts.length > 0) {
+                let rpH = '';
+                for (let i = 0; i < parts.length; i++) {
+                    const p = parts[i];
+                    const color = PCOLORS[i % PCOLORS.length];
+                    const done = i < currPart || phase === 'done';
+                    const active = i === currPart && phase !== 'done';
+                    rpH += `<div class="part-row">`;
+                    rpH += `<div class="part-label ${done ? 'pl-done' : active ? 'pl-active' : 'pl-empty'}" style="${done || active ? 'border-color:' + color + ';color:' + color : ''}">P${i}</div>`;
+                    if (p.length === 0) {
+                        rpH += `<span style="color:#666;font-size:.72em;font-style:italic;margin-left:6px">null</span>`;
+                    } else {
+                        for (let j = 0; j < p.length; j++) {
+                            rpH += `<div class="pn" style="border-color:${color};color:${color};background:${color}11">${p[j]}</div>`;
+                            if (j < p.length - 1) rpH += `<span class="p-arrow"> → </span>`;
+                        }
+                    }
+                    rpH += `</div>`;
+                }
+                $('partsDisplay').innerHTML = rpH;
+            } else {
+                $('partsDisplay').innerHTML = '<span style="color:#555">—</span>';
+            }
+
+            // State
+            $('stPhase').textContent = phase;
+            $('stN').textContent = n >= 0 ? n : '—';
+            $('stBase').textContent = base >= 0 ? base : '—';
+            $('stRem').textContent = remainder >= 0 ? remainder : '—';
+            $('stI').textContent = currPart >= 0 ? currPart : '—';
+            $('stSize').textContent = partSize >= 0 ? `${partSize} (${base}+${currPart < remainder ? 1 : 0})` : '—';
+            $('stJ').textContent = walkJ >= 0 ? `${walkJ}/${partSize}` : '—';
+            $('stCurr').textContent = currIdx >= 0 ? `node(${nv(currIdx)})` : (currIdx === -1 && phase !== 'init' && phase !== 'count' && phase !== 'math' ? 'null' : '—');
+            $('stDone').textContent = parts.filter(p => p !== undefined).length;
+        }
+
+        function doStep() {
+            if (isDone) { stopExec(); return; }
+            stepCount++;
+
+            switch (phase) {
+                case 'init': {
+                    buildList();
+                    n = -1; base = -1; remainder = -1; countIdx = 0;
+                    currPart = -1; partSize = -1; walkJ = -1;
+                    currIdx = -1; cutIdx = -1;
+                    partAssign = new Array(nodes.length).fill(-1);
+                    parts = []; cutPoints = new Set();
+                    addLog(`List: [${initVals.join(',')}], k=${K}`, 'info');
+                    addLog(`━━ Pass 1: Count nodes ━━`, 'teal');
+                    phase = 'count';
+                    $('statusInd').className = 'status-ind si-run';
+                    $('statusInd').textContent = 'Pass 1: Counting...';
+                    render();
+                    break;
+                }
+                case 'count': {
+                    if (countIdx >= nodes.length) {
+                        n = nodes.length;
+                        addLog(`  n = ${n}`, 'success');
+                        phase = 'math';
+                        render();
+                        doStep();
+                        return;
+                    }
+                    addLog(`  Count: node(${nv(countIdx)}), total=${countIdx + 1}`, 'info');
+                    render();
+                    countIdx++;
+                    break;
+                }
+                case 'math': {
+                    base = Math.floor(n / K);
+                    remainder = n % K;
+                    addLog(`  base = ⌊${n}/${K}⌋ = ${base}`, 'teal');
+                    addLog(`  remainder = ${n} % ${K} = ${remainder}`, 'teal');
+                    addLog(`  → First ${remainder} parts: size ${base + 1}, rest: size ${base}`, 'warning');
+                    addLog(`━━ Pass 2: Inline split (no sizes array!) ━━`, 'purple');
+                    currPart = 0; currIdx = 0;
+                    for (let i = 0; i < K; i++) parts.push([]);
+                    $('statusInd').textContent = 'Pass 2: Inline split...';
+                    phase = 'part-start';
+                    render();
+                    break;
+                }
+                case 'part-start': {
+                    if (currPart >= K) {
+                        const summary = parts.map((p, i) => `P${i}:[${p.join(',') || 'null'}]`).join(' ');
+                        addLog(`✅ Done! ${summary}`, 'success');
+                        phase = 'done'; isDone = true;
+                        $('statusInd').className = 'status-ind si-done';
+                        $('statusInd').textContent = `✅ Done! ${K} parts created — O(1) aux space`;
+                        render(); stopExec(); return;
+                    }
+                    // Compute size inline
+                    partSize = base + (currPart < remainder ? 1 : 0);
+                    walkJ = 1;
+                    if (partSize === 0) {
+                        addLog(`  P${currPart}: size = ${base}+0 = 0 → null`, 'warning');
+                        currPart++;
+                        render();
+                        return;
+                    }
+                    if (currIdx === -1) {
+                        addLog(`  P${currPart}: curr=null → null`, 'warning');
+                        currPart++;
+                        render();
+                        return;
+                    }
+                    const extra = currPart < remainder ? 1 : 0;
+                    addLog(`  P${currPart}: size = ${base}+${extra} = ${partSize}, head=node(${nv(currIdx)})`, 'teal');
+                    partAssign[currIdx] = currPart;
+                    parts[currPart].push(nv(currIdx));
+                    if (partSize === 1) {
+                        cutIdx = currIdx;
+                        phase = 'cut';
+                        render();
+                        return;
+                    }
+                    phase = 'walk';
+                    render();
+                    break;
+                }
+                case 'walk': {
+                    if (walkJ >= partSize) {
+                        cutIdx = currIdx;
+                        phase = 'cut';
+                        render();
+                        doStep();
+                        return;
+                    }
+                    currIdx = nodes[currIdx].next;
+                    partAssign[currIdx] = currPart;
+                    parts[currPart].push(nv(currIdx));
+                    walkJ++;
+                    addLog(`    walk: → node(${nv(currIdx)}), j=${walkJ}/${partSize}`, 'info');
+                    if (walkJ >= partSize) {
+                        cutIdx = currIdx;
+                        phase = 'cut';
+                    }
+                    render();
+                    break;
+                }
+                case 'cut': {
+                    const nextIdx = cutIdx >= 0 ? nodes[cutIdx].next : -1;
+                    if (cutIdx >= 0) {
+                        nodes[cutIdx].next = -1;
+                        cutPoints.add(cutIdx);
+                        addLog(`    ✂ node(${nv(cutIdx)}).next = null`, 'error');
+                    }
+                    currIdx = nextIdx;
+                    currPart++;
+                    walkJ = -1; partSize = -1;
+                    phase = 'part-start';
+                    render();
+                    break;
+                }
+            }
+        }
+
+        function play() { if (isRunning || isDone) return; isRunning = true; $('playBtn').disabled = true; $('pauseBtn').disabled = false; $('stepBtn').disabled = true; runLoop() }
+        function pause() { isRunning = false; $('playBtn').disabled = false; $('pauseBtn').disabled = true; $('stepBtn').disabled = false }
+        function stopExec() { isRunning = false; $('playBtn').disabled = true; $('pauseBtn').disabled = true; $('stepBtn').disabled = true }
+        function runLoop() { if (!isRunning) return; doStep(); if (isRunning && !isDone) setTimeout(runLoop, 400 / speed) }
+
+        function init() {
+            buildList();
+            n = -1; base = -1; remainder = -1; countIdx = 0;
+            currPart = -1; partSize = -1; walkJ = -1;
+            currIdx = -1; cutIdx = -1;
+            partAssign = new Array(nodes.length).fill(-1);
+            parts = []; cutPoints = new Set();
+            phase = 'init'; stepCount = 0; isDone = false;
+            $('statusInd').className = 'status-ind si-neutral';
+            $('statusInd').textContent = 'Ready — press Play or Step';
+            $('playBtn').disabled = false; $('pauseBtn').disabled = true; $('stepBtn').disabled = false;
+            clearLog(); addLog('Count n → compute base/rem → inline split, no sizes array.', 'info');
+            render();
+        }
+
+        $('playBtn').addEventListener('click', play);
+        $('pauseBtn').addEventListener('click', pause);
+        $('stepBtn').addEventListener('click', () => { if (!isDone) doStep() });
+        $('resetBtn').addEventListener('click', () => { isRunning = false; init() });
+        $('speedSlider').addEventListener('input', e => { speed = parseInt(e.target.value); $('speedValue').textContent = speed + 'x' });
+        $('applyBtn').addEventListener('click', () => {
+            const lv = $('listInput').value.trim();
+            const kv = $('kInput').value.trim();
+            const vs = lv ? lv.split(',').map(x => parseInt(x.trim())).filter(x => !isNaN(x)) : [];
+            const kn = parseInt(kv);
+            if (isNaN(kn) || kn < 1) { alert('k must be ≥ 1'); return }
+            initVals = [...vs]; K = kn; isRunning = false; init();
+        });
+
+        init();
+    </script>
+</body>
+
+</html>

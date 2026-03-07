@@ -1,0 +1,512 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Max Points from Cards - Prefix Sums</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #141e30 0%, #243b55 100%);
+            min-height: 100vh;
+            padding: 20px;
+            color: #e0e0e0;
+        }
+        .container {
+            max-width: 1150px;
+            margin: 0 auto;
+            background: #1e272e;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+            overflow: hidden;
+        }
+        header {
+            background: linear-gradient(135deg, #0984e3 0%, #74b9ff 100%);
+            color: white;
+            padding: 22px;
+            text-align: center;
+        }
+        h1 { font-size: 1.4em; margin-bottom: 6px; }
+        .subtitle { font-size: 0.95em; opacity: 0.9; }
+        .complexity-badge {
+            display: inline-block;
+            background: rgba(255,255,255,0.18);
+            padding: 5px 14px;
+            border-radius: 15px;
+            margin-top: 6px;
+            font-size: 0.82em;
+        }
+        .main-content {
+            display: grid;
+            grid-template-columns: 1fr 270px;
+            gap: 16px;
+            padding: 16px;
+        }
+        .card {
+            background: #2d3436;
+            border-radius: 12px;
+            padding: 14px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+            margin-bottom: 14px;
+        }
+        .card-title {
+            font-size: 0.9em;
+            font-weight: 600;
+            margin-bottom: 10px;
+            color: #74b9ff;
+        }
+
+        /* Controls */
+        .controls { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+        button {
+            padding: 7px 14px;
+            border: none;
+            border-radius: 8px;
+            font-size: 0.82em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        button:hover { transform: translateY(-2px); filter: brightness(1.15); }
+        button:disabled { opacity: 0.4; cursor: not-allowed; transform: none; }
+        .btn-primary { background: linear-gradient(135deg, #0984e3, #74b9ff); color: white; }
+        .btn-success { background: linear-gradient(135deg, #00b894, #55efc4); color: white; }
+        .btn-warning { background: linear-gradient(135deg, #fdcb6e, #e17055); color: white; }
+        .btn-secondary { background: #636e72; color: white; }
+        .speed-control { display: flex; align-items: center; gap: 6px; flex: 1; min-width: 130px; font-size: 0.82em; }
+        .speed-control input[type="range"] { flex: 1; height: 4px; accent-color: #0984e3; }
+
+        /* Array rows */
+        .array-section { margin-bottom: 10px; }
+        .array-label {
+            font-size: 0.78em;
+            color: #b2bec3;
+            margin-bottom: 4px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        .array-row {
+            display: flex;
+            justify-content: center;
+            gap: 4px;
+            padding: 8px;
+            background: #1e272e;
+            border: 1px solid #3d3d3d;
+            border-radius: 8px;
+            flex-wrap: wrap;
+        }
+        .arr-cell {
+            width: 46px;
+            height: 42px;
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 0.95em;
+            color: white;
+            position: relative;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.3);
+        }
+        .arr-cell .cell-idx {
+            position: absolute;
+            bottom: -16px;
+            font-size: 0.55em;
+            color: #636e72;
+            width: 100%;
+            text-align: center;
+        }
+
+        /* Card states */
+        .cell-card { background: linear-gradient(145deg, #485460, #636e72); }
+        .cell-card.left-pick { background: linear-gradient(145deg, #00b894, #55efc4); }
+        .cell-card.right-pick { background: linear-gradient(145deg, #6c5ce7, #a29bfe); }
+        .cell-card.untouched { background: linear-gradient(145deg, #485460, #636e72); opacity: 0.5; }
+
+        /* Prefix sum cells */
+        .cell-prefix { background: linear-gradient(145deg, #2d3436, #485460); border: 1px solid #636e72; }
+        .cell-prefix.building { border-color: #fdcb6e; background: linear-gradient(145deg, #3d3d3d, #485460); }
+        .cell-prefix.active-front { border: 2px solid #00b894; background: #1a3a2a; }
+        .cell-prefix.active-back { border: 2px solid #6c5ce7; background: #2a1a3a; }
+
+        /* Split table */
+        .split-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.75em;
+            font-family: 'Courier New', monospace;
+            margin-top: 6px;
+        }
+        .split-table th {
+            background: #3d3d3d;
+            padding: 5px 4px;
+            text-align: center;
+            color: #74b9ff;
+            font-weight: 600;
+        }
+        .split-table td {
+            padding: 4px;
+            text-align: center;
+            border-bottom: 1px solid #3d3d3d;
+        }
+        .split-table tr.active-row { background: #2a3a4a; }
+        .split-table tr.best-row { background: #2d4a2d; }
+        .split-table tr.best-row td { color: #55efc4; font-weight: bold; }
+
+        /* State & Log */
+        .state-display { background: #1e272e; border-radius: 8px; padding: 10px; font-family: 'Courier New', monospace; font-size: 0.82em; }
+        .state-row { display: flex; justify-content: space-between; padding: 4px 0; border-bottom: 1px solid #3d3d3d; }
+        .state-val { color: #74b9ff; font-weight: bold; }
+
+        .log-container {
+            background: #1e272e; border-radius: 8px; padding: 8px;
+            max-height: 180px; overflow-y: auto;
+            font-family: 'Courier New', monospace; font-size: 0.6em;
+        }
+        .log-entry { padding: 3px 6px; margin: 2px 0; border-radius: 4px; border-left: 3px solid #636e72; background: #2d3436; }
+        .log-entry.build { border-left-color: #fdcb6e; }
+        .log-entry.split { border-left-color: #0984e3; }
+        .log-entry.best { border-left-color: #00b894; }
+
+        .max-display {
+            text-align: center;
+            padding: 10px;
+            background: linear-gradient(135deg, #2d3436, #1e272e);
+            border: 1px solid #0984e3;
+            color: white;
+            border-radius: 8px;
+            margin-top: 10px;
+            font-size: 1.1em;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Maximum Points from Cards</h1>
+            <div class="subtitle">Improved: Prefix Sums (Enumerate All Splits)</div>
+            <div class="complexity-badge">Time: O(N) | Space: O(N)</div>
+        </header>
+
+        <div class="main-content">
+            <div class="left-panel">
+                <div class="card">
+                    <div class="card-title">⚙️ Controls</div>
+                    <div class="controls">
+                        <button class="btn-primary" id="playBtn">▶ Play</button>
+                        <button class="btn-warning" id="pauseBtn" disabled>⏸ Pause</button>
+                        <button class="btn-success" id="stepBtn">⏭ Step</button>
+                        <button class="btn-secondary" id="resetBtn">↺ Reset</button>
+                        <div class="speed-control">
+                            <label>Speed:</label>
+                            <input type="range" id="speedSlider" min="1" max="10" value="5">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-title">🃏 Cards & Prefix Sums (k = <span id="kDisplay">3</span>)</div>
+
+                    <div class="array-section">
+                        <div class="array-label">cardPoints[]</div>
+                        <div class="array-row" id="cardsRow"></div>
+                    </div>
+
+                    <div class="array-section">
+                        <div class="array-label">prefixSum[]</div>
+                        <div class="array-row" id="prefixRow"></div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-title">📋 Split Enumeration</div>
+                    <table class="split-table" id="splitTable">
+                        <thead>
+                            <tr>
+                                <th>left</th>
+                                <th>right</th>
+                                <th>frontSum</th>
+                                <th>backSum</th>
+                                <th>total</th>
+                            </tr>
+                        </thead>
+                        <tbody id="splitBody"></tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div class="right-panel">
+                <div class="card">
+                    <div class="card-title">📊 State</div>
+                    <div class="state-display">
+                        <div class="state-row"><span>Phase:</span><span class="state-val" id="phaseVal">-</span></div>
+                        <div class="state-row"><span>left:</span><span class="state-val" id="leftVal">-</span></div>
+                        <div class="state-row"><span>right:</span><span class="state-val" id="rightVal">-</span></div>
+                        <div class="state-row"><span>frontSum:</span><span class="state-val" id="frontVal">-</span></div>
+                        <div class="state-row"><span>backSum:</span><span class="state-val" id="backVal">-</span></div>
+                        <div class="state-row"><span>totalSum:</span><span class="state-val" id="totalVal">-</span></div>
+                    </div>
+                    <div class="max-display">
+                        Max Score: <span id="maxVal">0</span>
+                    </div>
+                </div>
+
+                <div class="card" style="flex-grow: 1; display: flex; flex-direction: column;">
+                    <div class="card-title">📝 Execution Log</div>
+                    <div class="log-container" id="logContainer"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ── Data ───────────────────────────────────────────────
+        const cardPoints = [1, 2, 3, 4, 5, 6, 1];
+        const K = 3;
+        const N = cardPoints.length;
+
+        // ── State ─────────────────────────────────────────────
+        let prefixSum = new Array(N + 1).fill(null);
+        let totalSum = 0;
+        let maxScore = 0;
+        let buildIdx = 0;         // for building prefix sum
+        let splitLeft = 0;        // for enumerating splits
+        let splitRight = 0;
+        let frontSum = 0;
+        let backSum = 0;
+        let splitResults = [];    // rows of {left, right, front, back, total, isBest}
+        let bestSplitIdx = -1;
+
+        // Phase: 'init', 'build', 'buildDone', 'enumerate', 'done'
+        let phase = 'init';
+
+        let isRunning = false;
+        let timer = null;
+        let speed = 5;
+        let stepCount = 0;
+
+        function init() {
+            prefixSum = new Array(N + 1).fill(null);
+            totalSum = 0;
+            maxScore = 0;
+            buildIdx = 0;
+            splitLeft = 0;
+            splitRight = K;
+            frontSum = 0;
+            backSum = 0;
+            splitResults = [];
+            bestSplitIdx = -1;
+            phase = 'init';
+            stepCount = 0;
+
+            clearLog();
+            addLog(`Cards: [${cardPoints.join(', ')}], k=${K}`, 'info');
+            render();
+            updateControls();
+        }
+
+        function step() {
+            if (phase === 'done') return;
+            stepCount++;
+
+            if (phase === 'init') {
+                phase = 'build';
+                prefixSum[0] = 0;
+                addLog('Phase 1: Building prefix sums. prefixSum[0] = 0', 'build');
+                buildIdx = 0;
+            }
+            else if (phase === 'build') {
+                if (buildIdx < N) {
+                    prefixSum[buildIdx + 1] = prefixSum[buildIdx] + cardPoints[buildIdx];
+                    addLog(`prefixSum[${buildIdx + 1}] = ${prefixSum[buildIdx]} + ${cardPoints[buildIdx]} = ${prefixSum[buildIdx + 1]}`, 'build');
+                    buildIdx++;
+                } else {
+                    phase = 'buildDone';
+                    totalSum = prefixSum[N];
+                    addLog(`Prefix sums complete. totalSum = ${totalSum}`, 'build');
+                }
+            }
+            else if (phase === 'buildDone') {
+                phase = 'enumerate';
+                splitLeft = 0;
+                addLog('Phase 2: Enumerate all (left, right) splits.', 'split');
+            }
+            else if (phase === 'enumerate') {
+                if (splitLeft <= K) {
+                    splitRight = K - splitLeft;
+                    frontSum = prefixSum[splitLeft];
+                    backSum = totalSum - prefixSum[N - splitRight];
+                    const total = frontSum + backSum;
+
+                    const isBest = total > maxScore;
+                    if (isBest) maxScore = total;
+
+                    splitResults.push({ left: splitLeft, right: splitRight, front: frontSum, back: backSum, total, isBest });
+                    if (isBest) {
+                        bestSplitIdx = splitResults.length - 1;
+                        addLog(`left=${splitLeft}, right=${splitRight}: ${frontSum}+${backSum}=${total} 🏆 NEW BEST`, 'best');
+                    } else {
+                        addLog(`left=${splitLeft}, right=${splitRight}: ${frontSum}+${backSum}=${total}`, 'split');
+                    }
+                    splitLeft++;
+                } else {
+                    phase = 'done';
+                    addLog(`✅ Done. Max Score = ${maxScore}`, 'best');
+                    stop();
+                }
+            }
+
+            render();
+        }
+
+        // ── Rendering ─────────────────────────────────────────
+        function render() {
+            renderCards();
+            renderPrefix();
+            renderSplitTable();
+            renderState();
+        }
+
+        function renderCards() {
+            const row = document.getElementById('cardsRow');
+            row.innerHTML = '';
+            for (let idx = 0; idx < N; idx++) {
+                const el = document.createElement('div');
+                let cls = 'arr-cell cell-card';
+
+                if (phase === 'enumerate' || phase === 'done') {
+                    const curLeft = phase === 'done' ? splitLeft - 1 : splitLeft - 1;
+                    const curRight = K - curLeft;
+                    const actualLeft = Math.max(0, curLeft);
+                    const actualRight = K - actualLeft;
+
+                    // Use latest split being shown
+                    if (splitResults.length > 0) {
+                        const latest = splitResults[splitResults.length - 1];
+                        if (idx < latest.left) cls += ' left-pick';
+                        else if (idx >= N - latest.right) cls += ' right-pick';
+                        else cls += ' untouched';
+                    }
+                }
+
+                el.className = cls;
+                el.textContent = cardPoints[idx];
+
+                const lbl = document.createElement('div');
+                lbl.className = 'cell-idx';
+                lbl.textContent = idx;
+                el.appendChild(lbl);
+
+                row.appendChild(el);
+            }
+        }
+
+        function renderPrefix() {
+            const row = document.getElementById('prefixRow');
+            row.innerHTML = '';
+            for (let idx = 0; idx <= N; idx++) {
+                const el = document.createElement('div');
+                let cls = 'arr-cell cell-prefix';
+
+                if (prefixSum[idx] !== null) {
+                    cls += ' building';
+                    if (phase === 'enumerate' && splitResults.length > 0) {
+                        const latest = splitResults[splitResults.length - 1];
+                        if (idx === latest.left) cls = 'arr-cell cell-prefix active-front';
+                        if (idx === N - latest.right) cls = 'arr-cell cell-prefix active-back';
+                    }
+                }
+
+                el.className = cls;
+                el.textContent = prefixSum[idx] !== null ? prefixSum[idx] : '';
+
+                const lbl = document.createElement('div');
+                lbl.className = 'cell-idx';
+                lbl.textContent = idx;
+                el.appendChild(lbl);
+
+                row.appendChild(el);
+            }
+        }
+
+        function renderSplitTable() {
+            const tbody = document.getElementById('splitBody');
+            tbody.innerHTML = '';
+            for (let i = 0; i < splitResults.length; i++) {
+                const r = splitResults[i];
+                const tr = document.createElement('tr');
+                if (i === splitResults.length - 1 && phase !== 'done') tr.className = 'active-row';
+                if (i === bestSplitIdx) tr.className = 'best-row';
+
+                tr.innerHTML = `
+                    <td>${r.left}</td>
+                    <td>${r.right}</td>
+                    <td>${r.front}</td>
+                    <td>${r.back}</td>
+                    <td>${r.total}</td>
+                `;
+                tbody.appendChild(tr);
+            }
+        }
+
+        function renderState() {
+            document.getElementById('phaseVal').textContent = phase;
+            const latest = splitResults.length > 0 ? splitResults[splitResults.length - 1] : null;
+            document.getElementById('leftVal').textContent = latest ? latest.left : '-';
+            document.getElementById('rightVal').textContent = latest ? latest.right : '-';
+            document.getElementById('frontVal').textContent = latest ? latest.front : '-';
+            document.getElementById('backVal').textContent = latest ? latest.back : '-';
+            document.getElementById('totalVal').textContent = totalSum || '-';
+            document.getElementById('maxVal').textContent = maxScore;
+        }
+
+        // ── Log ───────────────────────────────────────────────
+        function addLog(msg, type = 'info') {
+            const log = document.getElementById('logContainer');
+            log.innerHTML += `<div class="log-entry ${type}">[${stepCount}] ${msg}</div>`;
+            log.scrollTop = log.scrollHeight;
+        }
+        function clearLog() { document.getElementById('logContainer').innerHTML = ''; }
+
+        // ── Controls ──────────────────────────────────────────
+        function play() {
+            if (isRunning) return;
+            isRunning = true;
+            updateControls();
+            runLoop();
+        }
+        function runLoop() {
+            if (!isRunning) return;
+            if (phase === 'done') { stop(); return; }
+            step();
+            const delay = 1100 - (speed * 100);
+            timer = setTimeout(runLoop, Math.max(60, delay));
+        }
+        function stop() {
+            isRunning = false;
+            if (timer) clearTimeout(timer);
+            updateControls();
+        }
+        function reset() { stop(); init(); }
+        function updateControls() {
+            const done = phase === 'done';
+            document.getElementById('playBtn').disabled = isRunning || done;
+            document.getElementById('pauseBtn').disabled = !isRunning;
+            document.getElementById('stepBtn').disabled = isRunning || done;
+            document.getElementById('resetBtn').disabled = isRunning;
+        }
+
+        document.getElementById('playBtn').addEventListener('click', play);
+        document.getElementById('pauseBtn').addEventListener('click', stop);
+        document.getElementById('stepBtn').addEventListener('click', step);
+        document.getElementById('resetBtn').addEventListener('click', reset);
+        document.getElementById('speedSlider').addEventListener('input', e => speed = parseInt(e.target.value));
+
+        init();
+    </script>
+</body>
+</html>

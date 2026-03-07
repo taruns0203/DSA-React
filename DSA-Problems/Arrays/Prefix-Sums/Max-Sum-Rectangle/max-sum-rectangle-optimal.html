@@ -1,0 +1,580 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Max Sum Rectangle - Optimal (Column Compression)</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-primary: #050a10;
+            --bg-secondary: #0d1520;
+            --bg-tertiary: #151f2e;
+            --accent-primary: #22c55e;
+            --accent-secondary: #4ade80;
+            --accent-glow: rgba(34, 197, 94, 0.5);
+            --blue: #3b82f6;
+            --green: #22c55e;
+            --red: #ef4444;
+            --orange: #f59e0b;
+            --purple: #a855f7;
+            --cyan: #06b6d4;
+            --text-primary: #f1f5f9;
+            --text-secondary: #94a3b8;
+            --text-muted: #64748b;
+            --border-color: #334155;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1300px;
+            margin: 0 auto;
+            padding: 1rem;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 1rem;
+            padding: 1rem;
+            background: linear-gradient(135deg, var(--bg-secondary), var(--bg-tertiary));
+            border-radius: 14px;
+            border: 1px solid var(--border-color);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .header::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, var(--accent-primary), var(--cyan), var(--orange), var(--accent-primary));
+            background-size: 200% 100%;
+            animation: gradient 3s linear infinite;
+        }
+
+        @keyframes gradient { 0% { background-position: 0% 0%; } 100% { background-position: 200% 0%; } }
+
+        .header h1 {
+            font-size: 1.5rem;
+            background: linear-gradient(135deg, var(--accent-secondary), var(--orange), var(--purple));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 0.2rem;
+        }
+
+        .header p { color: var(--text-secondary); font-size: 0.85rem; }
+
+        .badge-row { display: flex; justify-content: center; gap: 0.4rem; margin-top: 0.4rem; }
+
+        .badge {
+            padding: 0.2rem 0.5rem;
+            border-radius: 15px;
+            font-size: 0.65rem;
+            font-weight: 600;
+            border: 1px solid;
+        }
+
+        .badge.green { background: rgba(34, 197, 94, 0.15); color: var(--accent-secondary); border-color: rgba(34, 197, 94, 0.4); }
+        .badge.cyan { background: rgba(6, 182, 212, 0.15); color: var(--cyan); border-color: rgba(6, 182, 212, 0.3); }
+
+        .main-grid {
+            display: grid;
+            grid-template-columns: 200px 1fr 200px;
+            gap: 0.75rem;
+        }
+
+        @media (max-width: 1000px) { .main-grid { grid-template-columns: 1fr; } }
+
+        .card {
+            background: var(--bg-secondary);
+            border-radius: 12px;
+            padding: 0.75rem;
+            border: 1px solid var(--border-color);
+            margin-bottom: 0.75rem;
+        }
+
+        .card-header {
+            display: flex;
+            align-items: center;
+            gap: 0.4rem;
+            margin-bottom: 0.5rem;
+            padding-bottom: 0.4rem;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .card-icon { width: 24px; height: 24px; border-radius: 5px; display: flex; align-items: center; justify-content: center; font-size: 0.8rem; }
+        .card-title { font-size: 0.75rem; font-weight: 600; }
+
+        /* Matrix Display */
+        .matrix-container {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+            padding: 0.5rem;
+            background: var(--bg-tertiary);
+            border-radius: 6px;
+            align-items: center;
+        }
+
+        .matrix-row { display: flex; gap: 2px; }
+
+        .matrix-cell {
+            width: 38px;
+            height: 38px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: 'Fira Code', monospace;
+            font-size: 0.8rem;
+            font-weight: 700;
+            border-radius: 4px;
+            background: var(--bg-primary);
+            border: 2px solid var(--border-color);
+            transition: all 0.2s ease;
+        }
+
+        .matrix-cell.col-selected {
+            background: linear-gradient(135deg, var(--purple), var(--accent-secondary));
+            color: #000;
+            border-color: var(--purple);
+        }
+
+        /* Row Sum Display */
+        .rowsum-container {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+            padding: 0.5rem;
+            background: var(--bg-tertiary);
+            border-radius: 6px;
+            align-items: center;
+        }
+
+        .rowsum-item {
+            width: 50px;
+            height: 35px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: 'Fira Code', monospace;
+            font-size: 0.9rem;
+            font-weight: 700;
+            border-radius: 5px;
+            background: linear-gradient(135deg, var(--cyan), #22d3ee);
+            color: #000;
+        }
+
+        .rowsum-item.current {
+            box-shadow: 0 0 10px rgba(6, 182, 212, 0.5);
+            animation: pulse 0.3s ease;
+        }
+
+        @keyframes pulse { 50% { transform: scale(1.1); } }
+
+        /* Sorted Prefixes */
+        .sorted-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 3px;
+            padding: 0.4rem;
+            background: var(--bg-tertiary);
+            border-radius: 6px;
+            min-height: 40px;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .sorted-item {
+            padding: 0.25rem 0.4rem;
+            border-radius: 4px;
+            font-family: 'Fira Code', monospace;
+            font-size: 0.7rem;
+            font-weight: 600;
+            background: linear-gradient(135deg, var(--orange), var(--accent-secondary));
+            color: #000;
+        }
+
+        .sorted-item.target { border: 2px solid var(--red); }
+        .sorted-item.found { background: linear-gradient(135deg, var(--green), #4ade80); }
+
+        .sorted-empty { color: var(--text-muted); font-size: 0.7rem; font-style: italic; }
+
+        /* Stats */
+        .stats-row {
+            display: flex;
+            gap: 0.4rem;
+            justify-content: center;
+            margin: 0.4rem 0;
+            flex-wrap: wrap;
+        }
+
+        .stat-box {
+            padding: 0.3rem 0.5rem;
+            background: var(--bg-tertiary);
+            border-radius: 5px;
+            text-align: center;
+        }
+
+        .stat-label { font-size: 0.45rem; color: var(--text-muted); }
+        .stat-value { font-family: 'Fira Code', monospace; font-size: 0.75rem; font-weight: 700; }
+        .stat-value.cyan { color: var(--cyan); }
+        .stat-value.green { color: var(--green); }
+        .stat-value.orange { color: var(--orange); }
+        .stat-value.purple { color: var(--purple); }
+
+        /* Controls */
+        .controls { display: flex; gap: 0.4rem; justify-content: center; margin: 0.5rem 0; }
+
+        .btn {
+            padding: 0.4rem 0.8rem;
+            border: none;
+            border-radius: 6px;
+            font-family: 'Inter', sans-serif;
+            font-size: 0.7rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .btn-primary { background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary)); color: #000; }
+        .btn-secondary { background: var(--bg-tertiary); color: var(--text-primary); border: 1px solid var(--border-color); }
+        .btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+        /* Operation Panel */
+        .operation-panel { padding: 0.4rem; background: var(--bg-tertiary); border-radius: 6px; }
+        .operation-content { font-family: 'Fira Code', monospace; font-size: 0.6rem; padding: 0.3rem; background: var(--bg-primary); border-radius: 4px; text-align: center; line-height: 1.4; }
+
+        .hl-green { color: var(--green); font-weight: 600; }
+        .hl-red { color: var(--red); font-weight: 600; }
+        .hl-cyan { color: var(--cyan); font-weight: 600; }
+        .hl-orange { color: var(--orange); font-weight: 600; }
+        .hl-purple { color: var(--purple); font-weight: 600; }
+
+        /* Result */
+        .result-box {
+            padding: 0.5rem;
+            background: linear-gradient(135deg, rgba(34, 197, 94, 0.1), rgba(34, 197, 94, 0.05));
+            border: 1px solid rgba(34, 197, 94, 0.3);
+            border-radius: 6px;
+            text-align: center;
+            margin-top: 0.4rem;
+        }
+
+        .result-label { font-size: 0.5rem; color: var(--text-muted); }
+        .result-value { font-family: 'Fira Code', monospace; font-size: 1.2rem; font-weight: 700; color: var(--green); }
+
+        /* Log */
+        .log-container {
+            max-height: 150px;
+            overflow-y: auto;
+            font-family: 'Fira Code', monospace;
+            font-size: 0.45rem;
+            padding: 0.2rem;
+            background: var(--bg-tertiary);
+            border-radius: 5px;
+        }
+
+        .log-entry { padding: 0.1rem 0.2rem; margin: 0.02rem 0; border-radius: 2px; }
+        .log-entry.col { background: rgba(168, 85, 247, 0.1); color: var(--purple); }
+        .log-entry.search { background: rgba(245, 158, 11, 0.1); color: var(--orange); }
+        .log-entry.found { background: rgba(34, 197, 94, 0.1); color: var(--green); }
+        .log-entry.best { background: rgba(6, 182, 212, 0.1); color: var(--cyan); }
+
+        .o1-badge {
+            display: inline-block;
+            padding: 0.1rem 0.2rem;
+            background: rgba(34, 197, 94, 0.2);
+            border: 1px solid rgba(34, 197, 94, 0.4);
+            border-radius: 3px;
+            font-size: 0.5rem;
+            color: var(--green);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <div class="header">
+            <h1>📊 Max Sum Rectangle ≤ K - Optimal</h1>
+            <p>Column Compression + Binary Search</p>
+            <div class="badge-row">
+                <span class="badge green">🏆 O(n²m log m)</span>
+                <span class="badge cyan">🔄 2D → 1D Reduction</span>
+            </div>
+        </div>
+
+        <div class="main-grid">
+            <!-- Left: Matrix -->
+            <div>
+                <div class="card">
+                    <div class="card-header">
+                        <div class="card-icon" style="background: rgba(168, 85, 247, 0.2); color: var(--purple);">📊</div>
+                        <span class="card-title">Matrix (k=2)</span>
+                    </div>
+                    <div class="matrix-container" id="matrixContainer"></div>
+                    <div class="stats-row">
+                        <div class="stat-box">
+                            <div class="stat-label">Columns</div>
+                            <div class="stat-value purple" id="colRange">-</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Middle: Row Sums + Binary Search -->
+            <div>
+                <div class="card">
+                    <div class="card-header">
+                        <div class="card-icon" style="background: rgba(6, 182, 212, 0.2); color: var(--cyan);">Σ</div>
+                        <span class="card-title">1D: Row Sums (columns c1→c2)</span>
+                    </div>
+                    <div class="rowsum-container" id="rowsumContainer">
+                        <span class="sorted-empty">Fix columns first</span>
+                    </div>
+                    <div class="stats-row">
+                        <div class="stat-box">
+                            <div class="stat-label">Prefix Sum</div>
+                            <div class="stat-value cyan" id="prefixSum">-</div>
+                        </div>
+                        <div class="stat-box">
+                            <div class="stat-label">Target (≥)</div>
+                            <div class="stat-value orange" id="targetVal">-</div>
+                        </div>
+                        <div class="stat-box">
+                            <div class="stat-label">Ceiling</div>
+                            <div class="stat-value green" id="ceilingVal">-</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-header">
+                        <div class="card-icon" style="background: rgba(245, 158, 11, 0.2); color: var(--orange);">🔍</div>
+                        <span class="card-title">Sorted Prefix Sums</span>
+                    </div>
+                    <div class="sorted-container" id="sortedContainer">
+                        <span class="sorted-empty">[0]</span>
+                    </div>
+                </div>
+
+                <div class="controls">
+                    <button class="btn btn-primary" id="startBtn" onclick="startVisualization()">▶️ Start</button>
+                    <button class="btn btn-secondary" onclick="resetVisualization()">🔄 Reset</button>
+                </div>
+
+                <div class="operation-panel">
+                    <div class="operation-content" id="operationContent">Fix columns → compress rows → binary search for ceiling(prefix - k)</div>
+                </div>
+
+                <div class="result-box">
+                    <div class="result-label">Best Sum ≤ k</div>
+                    <div class="result-value" id="bestResult">-</div>
+                </div>
+            </div>
+
+            <!-- Right: Log -->
+            <div>
+                <div class="card">
+                    <div class="card-header">
+                        <div class="card-icon" style="background: rgba(6, 182, 212, 0.2); color: var(--cyan);">📝</div>
+                        <span class="card-title">Log</span>
+                    </div>
+                    <div class="log-container" id="logContainer">
+                        <div class="log-entry" style="color: var(--text-muted);">Click Start...</div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-header">
+                        <div class="card-icon" style="background: rgba(34, 197, 94, 0.2); color: var(--green);">💡</div>
+                        <span class="card-title">Key Insight</span>
+                    </div>
+                    <div style="font-size: 0.55rem; color: var(--text-secondary); line-height: 1.4;">
+                        <p>For sum[i..j] ≤ k:</p>
+                        <p style="margin-left: 0.3rem;">prefix[j] - prefix[i] ≤ k</p>
+                        <p style="margin-left: 0.3rem;">prefix[i] ≥ prefix[j] - k</p>
+                        <p style="margin-top: 0.3rem;">Binary search for smallest prefix ≥ target!</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const matrix = [[1, 0, 1], [0, -2, 3]];
+        const k = 2;
+        const m = matrix.length;
+        const n = matrix[0].length;
+        let isRunning = false;
+        let bestResult = -Infinity;
+
+        function initDisplay() {
+            document.getElementById('matrixContainer').innerHTML = matrix.map((row, i) => 
+                `<div class="matrix-row">
+                    ${row.map((val, j) => 
+                        `<div class="matrix-cell" id="cell-${i}-${j}">${val}</div>`
+                    ).join('')}
+                </div>`
+            ).join('');
+        }
+
+        function highlightColumns(c1, c2) {
+            for (let i = 0; i < m; i++) {
+                for (let j = 0; j < n; j++) {
+                    const el = document.getElementById(`cell-${i}-${j}`);
+                    el.classList.toggle('col-selected', j >= c1 && j <= c2);
+                }
+            }
+        }
+
+        function updateRowSums(rowSum) {
+            document.getElementById('rowsumContainer').innerHTML = rowSum.map((val, i) => 
+                `<div class="rowsum-item" id="rowsum-${i}">${val}</div>`
+            ).join('');
+        }
+
+        function updateSortedPrefixes(prefixes, targetIdx = -1, foundIdx = -1) {
+            if (prefixes.length === 0) {
+                document.getElementById('sortedContainer').innerHTML = '<span class="sorted-empty">[0]</span>';
+                return;
+            }
+            document.getElementById('sortedContainer').innerHTML = prefixes.map((val, i) => {
+                let cls = 'sorted-item';
+                if (i === targetIdx) cls += ' target';
+                if (i === foundIdx) cls += ' found';
+                return `<div class="${cls}">${val}</div>`;
+            }).join('');
+        }
+
+        function lowerBound(arr, target) {
+            let lo = 0, hi = arr.length;
+            while (lo < hi) {
+                const mid = (lo + hi) >> 1;
+                if (arr[mid] < target) lo = mid + 1;
+                else hi = mid;
+            }
+            return lo;
+        }
+
+        function insertSorted(arr, val) {
+            const idx = lowerBound(arr, val);
+            arr.splice(idx, 0, val);
+        }
+
+        function addLog(msg, type) {
+            const container = document.getElementById('logContainer');
+            const entry = document.createElement('div');
+            entry.className = `log-entry ${type}`;
+            entry.textContent = msg;
+            container.appendChild(entry);
+            container.scrollTop = container.scrollHeight;
+        }
+
+        async function startVisualization() {
+            if (isRunning) return;
+            isRunning = true;
+            document.getElementById('startBtn').disabled = true;
+            document.getElementById('logContainer').innerHTML = '';
+            bestResult = -Infinity;
+            document.getElementById('bestResult').textContent = '-';
+            
+            for (let c1 = 0; c1 < n && isRunning; c1++) {
+                const rowSum = new Array(m).fill(0);
+                
+                for (let c2 = c1; c2 < n && isRunning; c2++) {
+                    // Add column c2 to rowSum
+                    for (let r = 0; r < m; r++) {
+                        rowSum[r] += matrix[r][c2];
+                    }
+                    
+                    highlightColumns(c1, c2);
+                    updateRowSums(rowSum);
+                    document.getElementById('colRange').textContent = `${c1}→${c2}`;
+                    
+                    addLog(`Columns ${c1}→${c2}: rowSum=[${rowSum.join(',')}]`, 'col');
+                    document.getElementById('operationContent').innerHTML = 
+                        `<span class="hl-purple">Columns ${c1}→${c2}</span>: 1D problem on rowSum`;
+                    
+                    await new Promise(r => setTimeout(r, 400));
+                    
+                    // 1D max subarray sum <= k using sorted prefixes
+                    const sortedPrefixes = [0];
+                    let prefixSum = 0;
+                    
+                    for (let r = 0; r < m && isRunning; r++) {
+                        prefixSum += rowSum[r];
+                        const target = prefixSum - k;
+                        
+                        document.getElementById('prefixSum').textContent = prefixSum;
+                        document.getElementById('targetVal').textContent = target;
+                        
+                        const idx = lowerBound(sortedPrefixes, target);
+                        
+                        updateSortedPrefixes(sortedPrefixes, -1, idx < sortedPrefixes.length ? idx : -1);
+                        
+                        if (idx < sortedPrefixes.length) {
+                            const ceiling = sortedPrefixes[idx];
+                            const sum = prefixSum - ceiling;
+                            document.getElementById('ceilingVal').textContent = ceiling;
+                            
+                            document.getElementById('operationContent').innerHTML = 
+                                `prefix=${prefixSum}, target≥${target}, ceiling=${ceiling} → sum=${sum}`;
+                            addLog(`  r=${r}: prefix=${prefixSum}, ceiling=${ceiling}, sum=${sum}`, 'search');
+                            
+                            if (sum <= k && sum > bestResult) {
+                                bestResult = sum;
+                                document.getElementById('bestResult').textContent = bestResult;
+                                addLog(`  → NEW BEST: ${bestResult}`, 'best');
+                            }
+                        } else {
+                            document.getElementById('ceilingVal').textContent = 'none';
+                            addLog(`  r=${r}: prefix=${prefixSum}, no ceiling ≥ ${target}`, 'search');
+                        }
+                        
+                        insertSorted(sortedPrefixes, prefixSum);
+                        updateSortedPrefixes(sortedPrefixes);
+                        
+                        await new Promise(r => setTimeout(r, 350));
+                    }
+                }
+            }
+            
+            document.getElementById('operationContent').innerHTML = 
+                `<span class="hl-green">Done!</span> O(n² × m × log m) = O(${n}² × ${m} × log ${m})`;
+            addLog(`Complete! Best = ${bestResult}`, 'found');
+            
+            isRunning = false;
+            document.getElementById('startBtn').disabled = false;
+        }
+
+        function resetVisualization() {
+            isRunning = false;
+            bestResult = -Infinity;
+            initDisplay();
+            document.getElementById('colRange').textContent = '-';
+            document.getElementById('prefixSum').textContent = '-';
+            document.getElementById('targetVal').textContent = '-';
+            document.getElementById('ceilingVal').textContent = '-';
+            document.getElementById('bestResult').textContent = '-';
+            document.getElementById('rowsumContainer').innerHTML = '<span class="sorted-empty">Fix columns first</span>';
+            document.getElementById('sortedContainer').innerHTML = '<span class="sorted-empty">[0]</span>';
+            document.getElementById('startBtn').disabled = false;
+            document.getElementById('logContainer').innerHTML = '<div class="log-entry" style="color: var(--text-muted);">Click Start...</div>';
+            document.getElementById('operationContent').innerHTML = 'Fix columns → compress rows → binary search for ceiling(prefix - k)';
+        }
+
+        initDisplay();
+    </script>
+</body>
+</html>

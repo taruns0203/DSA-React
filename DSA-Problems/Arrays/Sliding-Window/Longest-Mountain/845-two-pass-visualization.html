@@ -1,0 +1,484 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Longest Mountain - Two Pass (Precomputation)</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            min-height: 100vh;
+            padding: 20px;
+            color: #333;
+        }
+        .container {
+            max-width: 1100px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            overflow: hidden;
+        }
+        header {
+            background: linear-gradient(135deg, #0984e3 0%, #74b9ff 100%);
+            color: white;
+            padding: 25px;
+            text-align: center;
+        }
+        h1 { font-size: 1.5em; margin-bottom: 8px; }
+        .subtitle { font-size: 1em; opacity: 0.9; }
+        .complexity-badge {
+            display: inline-block;
+            background: rgba(255,255,255,0.2);
+            padding: 6px 14px;
+            border-radius: 15px;
+            margin-top: 8px;
+            font-size: 0.85em;
+        }
+        .main-content {
+            display: grid;
+            grid-template-columns: 1fr 280px;
+            gap: 20px;
+            padding: 20px;
+        }
+        .card {
+            background: #f8f9fa;
+            border-radius: 12px;
+            padding: 16px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            margin-bottom: 16px;
+        }
+        .card-title {
+            font-size: 0.95em;
+            font-weight: 600;
+            margin-bottom: 12px;
+            color: #0984e3;
+        }
+        
+        /* Controls */
+        .controls { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+        button {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 8px;
+            font-size: 0.85em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        button:hover { transform: translateY(-2px); }
+        button:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+        .btn-primary { background: linear-gradient(135deg, #0984e3 0%, #74b9ff 100%); color: white; }
+        .btn-success { background: linear-gradient(135deg, #28a745 0%, #20c997 100%); color: white; }
+        .btn-warning { background: linear-gradient(135deg, #ffc107 0%, #ff9800 100%); color: white; }
+        .btn-secondary { background: #6c757d; color: white; }
+        .speed-control { display: flex; align-items: center; gap: 6px; flex: 1; min-width: 140px; }
+        .speed-control input[type="range"] { flex: 1; height: 5px; accent-color: #0984e3; }
+
+        /* Arrays */
+        .array-row {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 4px;
+            padding: 10px;
+            background: #fff;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            position: relative;
+            margin-bottom: 10px;
+            min-height: 50px;
+        }
+        .row-label {
+            position: absolute;
+            left: 10px;
+            font-weight: bold;
+            color: #636e72;
+            font-size: 0.85em;
+            text-transform: uppercase;
+        }
+        
+        .array-item {
+            width: 40px;
+            height: 40px;
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            position: relative;
+            transition: all 0.2s ease;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            font-size: 1em;
+            background: #dfe6e9;
+            color: #2d3436;
+        }
+        
+        /* Array Viz Specifics */
+        .arr-item { background: #b2bec3; }
+        .arr-item.peak { border: 2px solid #e84393; } /* If i is peak in final scan */
+        
+        .up-item { background: #a29bfe; color: white; opacity: 0.3; }
+        .up-item.filled { opacity: 1; transform: scale(1.05); }
+        
+        .down-item { background: #fab1a0; color: white; opacity: 0.3; }
+        .down-item.filled { opacity: 1; transform: scale(1.05); }
+        
+        .current-ptr {
+            border: 3px solid #0984e3;
+            transform: scale(1.1);
+            z-index: 10;
+        }
+
+        .ptr {
+            position: absolute;
+            top: -20px;
+            font-size: 0.8em;
+            font-weight: 700;
+            text-align: center;
+            width: 40px;
+            transition: left 0.3s ease;
+            color: #0984e3;
+        }
+        .ptr::after { content: '↓'; display: block; }
+
+        /* State & Log */
+        .state-display { background: white; border-radius: 8px; padding: 10px; font-family: 'Courier New', monospace; font-size: 0.85em; }
+        .state-row { display: flex; justify-content: space-between; padding: 4px 0; border-bottom: 1px solid #eee; }
+        .highlight-val { color: #0984e3; font-weight: bold; }
+        
+        .log-container { 
+            background: white; border-radius: 8px; padding: 10px; 
+            max-height: 200px; overflow-y: auto; 
+            font-family: 'Courier New', monospace; font-size: 0.65em; 
+        }
+        .log-entry { padding: 3px 6px; margin: 2px 0; border-radius: 4px; border-left: 3px solid #ccc; background: #f9f9f9; }
+        .log-entry.pass1 { border-left-color: #a29bfe; background: #f3e5f5; }
+        .log-entry.pass2 { border-left-color: #fab1a0; background: #fff5f0; }
+        .log-entry.scan { border-left-color: #55efc4; background: #e6fffa; }
+        .log-entry.info { border-left-color: #b2bec3; background: #f1f2f6; }
+        
+        .max-len-display {
+            text-align: center;
+            padding: 10px;
+            background: #2d3436;
+            color: white;
+            border-radius: 8px;
+            margin-top: 10px;
+            font-size: 1.2em;
+            font-weight: bold;
+        }
+        
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Longest Mountain in Array</h1>
+            <div class="subtitle">Improved: Two Pass (Precomputation)</div>
+            <div class="complexity-badge">Time: O(N) | Space: O(N)</div>
+        </header>
+
+        <div class="main-content">
+            <div class="left-panel">
+                <div class="card">
+                    <div class="card-title">⚙️ Controls</div>
+                    <div class="controls">
+                        <button class="btn-primary" id="playBtn">▶️ Play</button>
+                        <button class="btn-warning" id="pauseBtn" disabled>⏸️ Pause</button>
+                        <button class="btn-success" id="stepBtn">⏭️ Step</button>
+                        <button class="btn-secondary" id="resetBtn">🔄 Reset</button>
+                        <div class="speed-control">
+                            <label>Speed:</label>
+                            <input type="range" id="speedSlider" min="1" max="10" value="5">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-title">Arrays</div>
+                    
+                    <div class="array-row" id="arrContainer">
+                        <div class="row-label">arr</div>
+                        <!-- items -->
+                    </div>
+                    
+                    <div class="array-row" id="upContainer">
+                        <div class="row-label">up</div>
+                        <!-- items -->
+                    </div>
+                    
+                    <div class="array-row" id="downContainer">
+                        <div class="row-label">down</div>
+                        <!-- items -->
+                    </div>
+                </div>
+                
+                <div class="card">
+                    <div class="card-title">ℹ️ Logic</div>
+                    <div style="font-size: 0.9em; color: #555;">
+                        1. <strong>Pass 1 (Left→Right)</strong>: Fill <code>up[i]</code>. If <code>arr[i] > arr[i-1]</code>, <code>up[i] = up[i-1] + 1</code>.<br>
+                        2. <strong>Pass 2 (Right→Left)</strong>: Fill <code>down[i]</code>. If <code>arr[i] > arr[i+1]</code>, <code>down[i] = down[i+1] + 1</code>.<br>
+                        3. <strong>Scan</strong>: Maximize <code>up[i] + down[i] + 1</code> where <code>up, down > 0</code>.
+                    </div>
+                </div>
+            </div>
+
+            <div class="right-panel">
+                <div class="card">
+                    <div class="card-title">📊 State</div>
+                    <div class="state-display">
+                        <div class="state-row"><span>Phase:</span><span id="phaseVal">-</span></div>
+                        <div class="state-row"><span>i (Index):</span><span id="iVal">-</span></div>
+                        <div class="state-row"><span>up[i]:</span><span id="upVal">-</span></div>
+                        <div class="state-row"><span>down[i]:</span><span id="downVal">-</span></div>
+                        <div class="state-row"><span>Current Len:</span><span id="curLenVal">-</span></div>
+                    </div>
+                    <div class="max-len-display">
+                        Max Length: <span id="maxLenVal">0</span>
+                    </div>
+                </div>
+
+                <div class="card" style="flex-grow: 1; display: flex; flex-direction: column;">
+                    <div class="card-title">📝 Execution Log</div>
+                    <div class="log-container" id="logContainer"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Data
+        const arr = [2, 1, 4, 7, 3, 2, 5];
+        let n = arr.length;
+        
+        let up = new Array(n).fill(0); // Filled dynamically? Or pre-fill 0
+        let down = new Array(n).fill(0);
+        
+        let i = 0;
+        let maxLen = 0;
+        
+        // State Machine
+        // phases: 'init', 'pass1', 'pass2', 'scan', 'done'
+        let phase = 'init';
+        
+        let isRunning = false;
+        let timer = null;
+        let speed = 5;
+        let stepCount = 0;
+
+        function init() {
+            i = 0;
+            up = new Array(n).fill(null); // start null to show 'empty' visually
+            down = new Array(n).fill(null);
+            maxLen = 0;
+            phase = 'init';
+            stepCount = 0;
+            
+            clearLog();
+            addLog(`Array: [${arr.join(', ')}]`, "info");
+            
+            render();
+            updateControls();
+        }
+
+        function createItem(val, idx, type, isActive) {
+            const el = document.createElement('div');
+            let cls = 'array-item';
+            
+            if (type === 'arr') cls += ' arr-item';
+            if (type === 'up') {
+                cls += ' up-item';
+                if (val !== null) cls += ' filled';
+            }
+            if (type === 'down') {
+                cls += ' down-item';
+                if (val !== null) cls += ' filled';
+            }
+            
+            if (isActive) cls += ' current-ptr';
+            
+            // Peak highlight in scan phase
+            if (phase === 'scan' && type === 'arr' && idx === i) {
+                 if (up[i] > 0 && down[i] > 0) cls += ' peak';
+            }
+
+            el.className = cls;
+            el.textContent = val !== null ? val : ''; // Show nothing if null
+            
+            return el;
+        }
+
+        function render() {
+            // Render arr
+            const cArr = document.getElementById('arrContainer');
+            cArr.innerHTML = '<div class="row-label">arr</div>'; // Reset, keep label
+            arr.forEach((val, idx) => {
+                const isActive = (phase !== 'done' && phase !== 'init' && idx === i);
+                cArr.appendChild(createItem(val, idx, 'arr', isActive));
+            });
+            
+            // Render up
+            const cUp = document.getElementById('upContainer');
+            cUp.innerHTML = '<div class="row-label">up</div>'; 
+            up.forEach((val, idx) => {
+                const isActive = (phase === 'pass1' && idx === i);
+                cUp.appendChild(createItem(val, idx, 'up', isActive));
+            });
+            
+            // Render down
+            const cDown = document.getElementById('downContainer');
+            cDown.innerHTML = '<div class="row-label">down</div>';
+            down.forEach((val, idx) => {
+                const isActive = (phase === 'pass2' && idx === i);
+                cDown.appendChild(createItem(val, idx, 'down', isActive));
+            });
+            
+            // State
+            document.getElementById('phaseVal').textContent = phase;
+            document.getElementById('iVal').textContent = phase === 'done' ? '-' : i;
+            document.getElementById('upVal').textContent = (phase !== 'init' && i >= 0 && i < n && up[i] !== null) ? up[i] : '-';
+            document.getElementById('downVal').textContent = (phase !== 'init' && i >= 0 && i < n && down[i] !== null) ? down[i] : '-';
+            
+            let cur = '-';
+            if (phase === 'scan' && up[i] > 0 && down[i] > 0) cur = up[i] + down[i] + 1;
+            document.getElementById('curLenVal').textContent = cur;
+            document.getElementById('maxLenVal').textContent = maxLen;
+        }
+
+        function step() {
+            stepCount++;
+            
+            if (phase === 'init') {
+                phase = 'pass1';
+                i = 0;
+                addLog("Starting Pass 1 (Left -> Right): Calculating 'up' array.", "info");
+                // Don't advance immediately, current step just setup
+            }
+            else if (phase === 'pass1') {
+                // Logic for up[i]
+                if (i < n) {
+                    if (i === 0) {
+                        up[i] = 0;
+                        addLog(`i=0: Start. up[0]=0`, "pass1");
+                    } else {
+                        if (arr[i] > arr[i-1]) {
+                            up[i] = up[i-1] + 1;
+                            addLog(`i=${i}: ${arr[i]} > ${arr[i-1]}. Increment up. up[${i}]=${up[i]}`, "pass1");
+                        } else {
+                            up[i] = 0;
+                            addLog(`i=${i}: ${arr[i]} <= ${arr[i-1]}. Reset up. up[${i}]=0`, "pass1");
+                        }
+                    }
+                    i++;
+                } else {
+                    // Pass 1 done
+                    phase = 'pass2';
+                    i = n - 1; // Start from right
+                    addLog("Starting Pass 2 (Right -> Left): Calculating 'down' array.", "info");
+                }
+            }
+            else if (phase === 'pass2') {
+                // Logic for down[i]
+                if (i >= 0) {
+                    if (i === n - 1) {
+                        down[i] = 0;
+                        addLog(`i=${i}: End. down[${i}]=0`, "pass2");
+                    } else {
+                        if (arr[i] > arr[i+1]) {
+                            down[i] = down[i+1] + 1;
+                            addLog(`i=${i}: ${arr[i]} > ${arr[i+1]}. Increment down. down[${i}]=${down[i]}`, "pass2");
+                        } else {
+                            down[i] = 0;
+                            addLog(`i=${i}: ${arr[i]} <= ${arr[i+1]}. Reset down. down[${i}]=0`, "pass2");
+                        }
+                    }
+                    i--;
+                } else {
+                    // Pass 2 done
+                    phase = 'scan';
+                    i = 0;
+                    addLog("Starting Scan: Calculate Max Length if up[i] > 0 and down[i] > 0.", "info");
+                }
+            }
+            else if (phase === 'scan') {
+                if (i < n) {
+                    if (up[i] > 0 && down[i] > 0) {
+                        const len = up[i] + down[i] + 1;
+                        addLog(`i=${i}: Peak! up=${up[i]}, down=${down[i]}. Len=${len}`, "scan");
+                        if (len > maxLen) {
+                            maxLen = len;
+                            addLog(`New Max Length Found: ${maxLen}`, "scan");
+                        }
+                    } else {
+                         // Not a peak
+                         // addLog(`i=${i}: Not a peak.`, "info");
+                    }
+                    i++;
+                } else {
+                    phase = 'done';
+                    addLog(`Done. Final Result: ${maxLen}`, "info");
+                    stop();
+                }
+            }
+            
+            render();
+        }
+
+        function addLog(msg, type = 'info') {
+            const log = document.getElementById('logContainer');
+            log.innerHTML += `<div class="log-entry ${type}">[${stepCount}] ${msg}</div>`;
+            log.scrollTop = log.scrollHeight;
+        }
+
+        function clearLog() { document.getElementById('logContainer').innerHTML = ''; }
+
+        function play() {
+            if (isRunning) return;
+            isRunning = true;
+            updateControls();
+            runLoop();
+        }
+
+        function runLoop() {
+            if (!isRunning) return;
+            step();
+            if (phase !== 'done') {
+                const delay = 1000 - (speed * 90);
+                timer = setTimeout(runLoop, Math.max(50, delay));
+            }
+        }
+
+        function stop() {
+            isRunning = false;
+            if (timer) clearTimeout(timer);
+            updateControls();
+        }
+
+        function reset() {
+            stop();
+            init();
+        }
+
+        function updateControls() {
+            document.getElementById('playBtn').disabled = isRunning || phase === 'done';
+            document.getElementById('pauseBtn').disabled = !isRunning;
+            document.getElementById('stepBtn').disabled = isRunning || phase === 'done';
+            document.getElementById('resetBtn').disabled = isRunning;
+        }
+
+        // Listeners
+        document.getElementById('playBtn').addEventListener('click', play);
+        document.getElementById('pauseBtn').addEventListener('click', stop);
+        document.getElementById('stepBtn').addEventListener('click', step);
+        document.getElementById('resetBtn').addEventListener('click', reset);
+        document.getElementById('speedSlider').addEventListener('input', (e) => speed = parseInt(e.target.value));
+
+        // Start
+        init();
+
+    </script>
+</body>
+</html>

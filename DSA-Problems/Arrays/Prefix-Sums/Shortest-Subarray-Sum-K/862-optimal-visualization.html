@@ -1,0 +1,1048 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>862 - Optimal: Prefix Sum + Monotonic Deque</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #0f0c29 0%, #302b63 50%, #24243e 100%);
+            min-height: 100vh;
+            padding: 20px;
+            color: #e0e0e0;
+        }
+
+        .container {
+            max-width: 1300px;
+            margin: 0 auto;
+            background: rgba(25, 25, 50, 0.95);
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5), 0 0 40px rgba(46, 204, 113, 0.08);
+            overflow: hidden;
+            border: 1px solid rgba(255, 255, 255, 0.06);
+        }
+
+        header {
+            background: linear-gradient(135deg, #27ae60 0%, #2ecc71 100%);
+            color: white;
+            padding: 25px;
+            text-align: center;
+        }
+
+        h1 {
+            font-size: 1.4em;
+            margin-bottom: 6px;
+        }
+
+        .subtitle {
+            font-size: 0.95em;
+            opacity: 0.9;
+        }
+
+        .complexity-badge {
+            display: inline-block;
+            background: rgba(255, 255, 255, 0.2);
+            padding: 6px 14px;
+            border-radius: 15px;
+            margin-top: 8px;
+            font-size: 0.82em;
+        }
+
+        .main-content {
+            display: grid;
+            grid-template-columns: 1fr 310px;
+            gap: 18px;
+            padding: 20px;
+        }
+
+        .card {
+            background: rgba(40, 40, 75, 0.8);
+            border-radius: 14px;
+            padding: 16px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+            margin-bottom: 16px;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .card-title {
+            font-size: 0.92em;
+            font-weight: 600;
+            margin-bottom: 12px;
+            color: #2ecc71;
+        }
+
+        button {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 8px;
+            font-size: 0.85em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+        }
+
+        button:disabled {
+            opacity: 0.4;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #27ae60, #2ecc71);
+            color: white;
+        }
+
+        .btn-success {
+            background: linear-gradient(135deg, #27ae60, #2ecc71);
+            color: white;
+        }
+
+        .btn-warning {
+            background: linear-gradient(135deg, #f39c12, #e67e22);
+            color: white;
+        }
+
+        .btn-secondary {
+            background: rgba(100, 100, 140, 0.7);
+            color: white;
+        }
+
+        .btn-info {
+            background: linear-gradient(135deg, #3498db, #2980b9);
+            color: white;
+        }
+
+        .controls {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            align-items: center;
+        }
+
+        .speed-control {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            flex: 1;
+            min-width: 140px;
+        }
+
+        .speed-control label {
+            font-size: 0.82em;
+            color: #aaa;
+        }
+
+        .speed-control input[type="range"] {
+            flex: 1;
+            height: 5px;
+            accent-color: #2ecc71;
+        }
+
+        .speed-control span {
+            font-size: 0.82em;
+            color: #2ecc71;
+            min-width: 24px;
+        }
+
+        .input-section {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .input-section input[type="text"] {
+            flex: 1;
+            min-width: 160px;
+            padding: 8px 12px;
+            border-radius: 8px;
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            background: rgba(20, 20, 45, 0.8);
+            color: #e0e0e0;
+            font-size: 0.85em;
+            font-family: 'Courier New', monospace;
+        }
+
+        .input-section input:focus {
+            outline: none;
+            border-color: #2ecc71;
+        }
+
+        .input-section .k-input {
+            max-width: 70px;
+            min-width: 50px;
+            flex: 0;
+        }
+
+        /* Arrays */
+        .array-row {
+            display: flex;
+            gap: 4px;
+            padding: 8px 12px;
+            background: rgba(20, 20, 50, 0.4);
+            border-radius: 8px;
+            justify-content: center;
+            flex-wrap: wrap;
+            min-height: 56px;
+            align-items: flex-end;
+        }
+
+        .array-label {
+            font-size: 0.72em;
+            color: #888;
+            font-weight: 600;
+            padding-left: 4px;
+            margin-bottom: 4px;
+        }
+
+        .cell-wrapper {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 2px;
+        }
+
+        .cell {
+            min-width: 44px;
+            height: 44px;
+            border-radius: 8px;
+            padding: 0 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 1em;
+            border: 2px solid rgba(150, 150, 200, 0.25);
+            background: rgba(100, 100, 200, 0.08);
+            transition: all 0.3s;
+        }
+
+        .cell.positive {
+            color: #2ecc71;
+        }
+
+        .cell.negative {
+            color: #e74c3c;
+        }
+
+        .cell.current-scan {
+            border-color: #f1c40f;
+            background: rgba(241, 196, 15, 0.2);
+            box-shadow: 0 0 12px rgba(241, 196, 15, 0.25);
+            transform: scale(1.05);
+        }
+
+        .cell.front-pop {
+            border-color: #2ecc71;
+            background: rgba(46, 204, 113, 0.2);
+            box-shadow: 0 0 10px rgba(46, 204, 113, 0.18);
+        }
+
+        .cell.back-pop {
+            border-color: #e74c3c;
+            background: rgba(231, 76, 60, 0.2);
+            box-shadow: 0 0 10px rgba(231, 76, 60, 0.18);
+        }
+
+        .cell.in-match {
+            border-color: #2ecc71;
+            background: rgba(46, 204, 113, 0.18);
+            box-shadow: 0 0 8px rgba(46, 204, 113, 0.15);
+        }
+
+        .cell.best-range {
+            border-color: #9b59b6;
+            background: rgba(155, 89, 182, 0.22);
+            box-shadow: 0 0 10px rgba(155, 89, 182, 0.2);
+        }
+
+        .cell.processed {
+            opacity: 0.45;
+        }
+
+        .cell-idx {
+            font-size: 0.6em;
+            color: #555;
+        }
+
+        .pointer-label {
+            font-size: 0.65em;
+            font-weight: 700;
+            padding: 1px 5px;
+            border-radius: 3px;
+            margin-top: 2px;
+        }
+
+        .ptr-i {
+            background: rgba(46, 204, 113, 0.3);
+            color: #2ecc71;
+        }
+
+        /* Prefix sum cells */
+        .ps-cell {
+            min-width: 42px;
+            height: 38px;
+            border-radius: 6px;
+            padding: 0 4px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 0.85em;
+            color: #5dade2;
+            border: 2px solid rgba(52, 152, 219, 0.2);
+            background: rgba(52, 152, 219, 0.06);
+            transition: all 0.3s;
+        }
+
+        .ps-cell.active {
+            border-color: #f1c40f;
+            background: rgba(241, 196, 15, 0.15);
+            color: #f1c40f;
+        }
+
+        .ps-cell.in-deque {
+            border-color: rgba(46, 204, 113, 0.4);
+            background: rgba(46, 204, 113, 0.08);
+        }
+
+        .ps-cell.popped-front {
+            border-color: #2ecc71;
+            background: rgba(46, 204, 113, 0.25);
+            color: #2ecc71;
+        }
+
+        .ps-cell.popped-back {
+            border-color: #e74c3c;
+            background: rgba(231, 76, 60, 0.18);
+            color: #e74c3c;
+            text-decoration: line-through;
+        }
+
+        /* Deque display */
+        .deque-visual {
+            display: flex;
+            align-items: center;
+            gap: 0;
+            padding: 10px;
+            background: rgba(20, 20, 50, 0.5);
+            border-radius: 8px;
+            min-height: 65px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .dq-bracket {
+            font-size: 2em;
+            font-weight: 300;
+            color: #555;
+            line-height: 1;
+            display: flex;
+            align-items: center;
+        }
+
+        .dq-items {
+            display: flex;
+            gap: 4px;
+            flex-wrap: wrap;
+            align-items: center;
+            padding: 0 6px;
+        }
+
+        .dq-cell {
+            width: 52px;
+            height: 46px;
+            border-radius: 8px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 0.75em;
+            border: 2px solid rgba(46, 204, 113, 0.3);
+            background: rgba(46, 204, 113, 0.08);
+            transition: all 0.3s;
+            gap: 1px;
+        }
+
+        .dq-cell .dq-idx {
+            color: #2ecc71;
+            font-size: 0.9em;
+        }
+
+        .dq-cell .dq-pval {
+            color: #888;
+            font-size: 0.8em;
+        }
+
+        .dq-cell.dq-front {
+            border-color: #2ecc71;
+            background: rgba(46, 204, 113, 0.2);
+            box-shadow: 0 0 8px rgba(46, 204, 113, 0.2);
+        }
+
+        .dq-cell.dq-back {
+            border-color: #f39c12;
+            background: rgba(243, 156, 18, 0.12);
+        }
+
+        .dq-cell.dq-popping-front {
+            border-color: #2ecc71;
+            background: rgba(46, 204, 113, 0.35);
+            box-shadow: 0 0 14px rgba(46, 204, 113, 0.3);
+        }
+
+        .dq-cell.dq-popping-back {
+            border-color: #e74c3c;
+            background: rgba(231, 76, 60, 0.25);
+            box-shadow: 0 0 14px rgba(231, 76, 60, 0.3);
+        }
+
+        .dq-label-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 0 20px;
+        }
+
+        .dq-label-tag {
+            font-size: 0.68em;
+            font-weight: 600;
+            padding: 2px 8px;
+            border-radius: 3px;
+        }
+
+        .dq-front-tag {
+            background: rgba(46, 204, 113, 0.2);
+            color: #2ecc71;
+        }
+
+        .dq-back-tag {
+            background: rgba(243, 156, 18, 0.2);
+            color: #f39c12;
+        }
+
+        /* Logic bar */
+        .logic-bar {
+            padding: 12px;
+            background: rgba(20, 20, 50, 0.4);
+            border-radius: 8px;
+            text-align: center;
+            font-family: 'Courier New', monospace;
+            font-size: 0.84em;
+            min-height: 48px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 4px;
+        }
+
+        .hl {
+            font-weight: bold;
+            color: #fff;
+        }
+
+        .v-t {
+            color: #2ecc71;
+        }
+
+        .v-f {
+            color: #e74c3c;
+        }
+
+        .validity-indicator {
+            text-align: center;
+            padding: 10px;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 0.86em;
+            transition: all 0.3s;
+        }
+
+        .vi-pop-front {
+            background: rgba(46, 204, 113, 0.12);
+            color: #2ecc71;
+            border: 1px solid rgba(46, 204, 113, 0.2);
+        }
+
+        .vi-pop-back {
+            background: rgba(231, 76, 60, 0.12);
+            color: #e74c3c;
+            border: 1px solid rgba(231, 76, 60, 0.2);
+        }
+
+        .vi-push {
+            background: rgba(241, 196, 15, 0.12);
+            color: #f1c40f;
+            border: 1px solid rgba(241, 196, 15, 0.2);
+        }
+
+        .vi-neutral {
+            background: rgba(100, 100, 140, 0.12);
+            color: #888;
+        }
+
+        .vi-done {
+            background: rgba(155, 89, 182, 0.12);
+            color: #bb6bd9;
+            border: 1px solid rgba(155, 89, 182, 0.2);
+        }
+
+        .result-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+        }
+
+        .result-display {
+            padding: 14px;
+            border-radius: 10px;
+            text-align: center;
+            border: 1px solid rgba(46, 204, 113, 0.2);
+            background: rgba(46, 204, 113, 0.08);
+        }
+
+        .result-label {
+            font-size: 0.82em;
+            color: #888;
+            margin-bottom: 4px;
+        }
+
+        .result-value {
+            font-size: 1.5em;
+            font-weight: 700;
+            color: #2ecc71;
+        }
+
+        /* Right panel */
+        .state-display {
+            background: rgba(20, 20, 50, 0.5);
+            border-radius: 8px;
+            padding: 10px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.76em;
+        }
+
+        .state-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 4px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .state-row:last-child {
+            border-bottom: none;
+        }
+
+        .state-label {
+            font-weight: 600;
+            color: #2ecc71;
+        }
+
+        .state-val {
+            color: #ccc;
+            text-align: right;
+        }
+
+        .log-container {
+            background: rgba(20, 20, 50, 0.5);
+            border-radius: 8px;
+            padding: 10px;
+            max-height: 210px;
+            overflow-y: auto;
+            font-family: 'Courier New', monospace;
+            font-size: 0.6em;
+        }
+
+        .log-entry {
+            padding: 4px 8px;
+            margin: 2px 0;
+            border-radius: 4px;
+            border-left: 3px solid #555;
+            background: rgba(40, 40, 70, 0.5);
+            line-height: 1.5;
+        }
+
+        .log-entry.success {
+            border-left-color: #2ecc71;
+            background: rgba(46, 204, 113, 0.08);
+            color: #2ecc71;
+        }
+
+        .log-entry.warning {
+            border-left-color: #f39c12;
+            background: rgba(243, 156, 18, 0.08);
+            color: #f39c12;
+        }
+
+        .log-entry.info {
+            border-left-color: #3498db;
+            background: rgba(52, 152, 219, 0.08);
+            color: #8ec8f0;
+        }
+
+        .log-entry.error {
+            border-left-color: #e74c3c;
+            background: rgba(231, 76, 60, 0.08);
+            color: #e74c3c;
+        }
+
+        .log-entry.purple {
+            border-left-color: #9b59b6;
+            background: rgba(155, 89, 182, 0.08);
+            color: #bb6bd9;
+        }
+
+        .log-container::-webkit-scrollbar {
+            width: 5px;
+        }
+
+        .log-container::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        .log-container::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.15);
+            border-radius: 3px;
+        }
+
+        @media (max-width: 950px) {
+            .main-content {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <header>
+            <h1>📏 Shortest Subarray with Sum ≥ K</h1>
+            <div class="subtitle">Optimal — Prefix Sum + Monotonic Deque</div>
+            <div class="complexity-badge">Time: O(n) | Space: O(n)</div>
+        </header>
+        <div class="main-content">
+            <div class="left-panel">
+                <div class="card">
+                    <div class="card-title">⚙️ Controls</div>
+                    <div class="controls">
+                        <button class="btn-primary" id="playBtn">▶️ Play</button>
+                        <button class="btn-warning" id="pauseBtn" disabled>⏸️ Pause</button>
+                        <button class="btn-success" id="stepBtn">⏭️ Step</button>
+                        <button class="btn-secondary" id="resetBtn">🔄 Reset</button>
+                        <div class="speed-control">
+                            <label>Speed:</label>
+                            <input type="range" id="speedSlider" min="1" max="10" value="5">
+                            <span id="speedValue">5x</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="card">
+                    <div class="card-title">✏️ Custom Input</div>
+                    <div class="input-section">
+                        <input type="text" id="customInput" value="[84,-37,32,40,95]" placeholder="e.g. [2,-1,2]">
+                        <input type="text" class="k-input" id="kInput" value="167" placeholder="k">
+                        <button class="btn-info" id="applyBtn">Apply</button>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-title" id="arrTitle">📋 Array | k = <span id="kDisp">167</span></div>
+                    <div class="array-row" id="arrDisplay"></div>
+                </div>
+
+                <div class="card">
+                    <div class="card-title">📈 Prefix Sums P[0..n]</div>
+                    <div class="array-row" id="psDisplay"></div>
+                </div>
+
+                <div class="card">
+                    <div class="card-title">📦 Monotonic Deque <span
+                            style="font-weight:400;color:#888;font-size:0.82em">(increasing P-values)</span></div>
+                    <div class="dq-label-row">
+                        <span class="dq-label-tag dq-front-tag">← FRONT (pop here when sum ≥ k)</span>
+                        <span class="dq-label-tag dq-back-tag">BACK (pop dominated entries) →</span>
+                    </div>
+                    <div class="deque-visual" id="dequeVisual">
+                        <div class="dq-bracket">⟦</div>
+                        <div class="dq-items" id="dequeItems"></div>
+                        <div class="dq-bracket">⟧</div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-title">🔍 Current Operation</div>
+                    <div class="logic-bar" id="logicBar">Three operations per i: pop-front, pop-back, push-back</div>
+                </div>
+
+                <div class="card">
+                    <div class="validity-indicator vi-neutral" id="validityInd">Ready — press Play or Step</div>
+                </div>
+
+                <div class="card">
+                    <div class="result-row">
+                        <div class="result-display">
+                            <div class="result-label">🏆 Min Length</div>
+                            <div class="result-value" id="minLenVal">∞</div>
+                        </div>
+                        <div class="result-display"
+                            style="background:rgba(155,89,182,0.08); border-color:rgba(155,89,182,0.15);">
+                            <div class="result-label">Best Range</div>
+                            <div class="result-value" id="bestRangeVal" style="color:#bb6bd9; font-size:1.1em;">—</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="right-panel">
+                <div class="card">
+                    <div class="card-title">📋 Current State</div>
+                    <div class="state-display">
+                        <div class="state-row"><span class="state-label">Phase:</span><span class="state-val"
+                                id="stPhase">init</span></div>
+                        <div class="state-row"><span class="state-label">i:</span><span class="state-val"
+                                id="stI">—</span></div>
+                        <div class="state-row"><span class="state-label">P[i]:</span><span class="state-val"
+                                id="stPi">—</span></div>
+                        <div class="state-row"><span class="state-label">Operation:</span><span class="state-val"
+                                id="stOp">—</span></div>
+                        <div class="state-row"><span class="state-label">front:</span><span class="state-val"
+                                id="stFront">—</span></div>
+                        <div class="state-row"><span class="state-label">P[front]:</span><span class="state-val"
+                                id="stPFront">—</span></div>
+                        <div class="state-row"><span class="state-label">diff:</span><span class="state-val"
+                                id="stDiff">—</span></div>
+                        <div class="state-row"><span class="state-label">minLen:</span><span class="state-val"
+                                id="stMin">∞</span></div>
+                        <div class="state-row"><span class="state-label">bestRange:</span><span class="state-val"
+                                id="stBest">—</span></div>
+                        <div class="state-row"><span class="state-label">deque size:</span><span class="state-val"
+                                id="stDqSz">0</span></div>
+                        <div class="state-row"><span class="state-label">k:</span><span class="state-val"
+                                id="stK">167</span></div>
+                    </div>
+                </div>
+
+                <div class="card" style="flex:1;">
+                    <div class="card-title">📝 Execution Log</div>
+                    <div class="log-container" id="logContainer">
+                        <div class="log-entry info">Optimal: prefix sum + monotonic deque. O(n).</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ─────── STATE ───────
+        let nums = [84, -37, 32, 40, 95];
+        let k = 167;
+        let n = 0;
+        let P = [];
+
+        let idx = 0;
+        let minLen = Infinity;
+        let bestStart = -1, bestEnd = -1;
+
+        // Deque: array of indices into P, with head pointer for O(1) front pops
+        let deque = [];
+        let dqHead = 0;
+
+        let poppedFrontSet = new Set();  // indices popped from front (for PS display)
+        let poppedBackSet = new Set();   // indices popped from back (for PS display)
+        let highlightFront = -1;        // currently being popped from front
+        let highlightBack = -1;         // currently being popped from back
+        let matchRange = null;          // {start, end} for matched subarray highlight
+
+        // Phases: init | prefixBuild | pop-front | pop-back | push-back | advance | done
+        let phase = 'init';
+        let stepCount = 0;
+        let isRunning = false;
+        let speed = 5;
+        let isDone = false;
+
+        const $ = id => document.getElementById(id);
+        const logContainer = $('logContainer');
+        function addLog(m, t = 'info') {
+            logContainer.innerHTML += `<div class="log-entry ${t}">[${stepCount}] ${m}</div>`;
+            logContainer.scrollTop = logContainer.scrollHeight;
+        }
+        function clearLog() { logContainer.innerHTML = ''; }
+
+        function dqFront() { return dqHead < deque.length ? deque[dqHead] : undefined; }
+        function dqBack() { return deque.length > dqHead ? deque[deque.length - 1] : undefined; }
+        function dqSize() { return deque.length - dqHead; }
+        function dqEmpty() { return dqHead >= deque.length; }
+
+        // ─────── RENDER ───────
+        function render() {
+            const scanning = phase !== 'init' && phase !== 'prefixBuild' && phase !== 'done';
+
+            // Array display
+            $('arrDisplay').innerHTML = nums.map((v, i) => {
+                let cls = `cell ${v >= 0 ? 'positive' : 'negative'}`;
+                if (matchRange && i >= matchRange.start && i <= matchRange.end) cls += ' in-match';
+                if (isDone && bestStart >= 0 && i >= bestStart && i <= bestEnd) cls += ' best-range';
+                return `<div class="cell-wrapper"><div class="${cls}">${v}</div><div class="cell-idx">${i}</div></div>`;
+            }).join('');
+
+            // Prefix sums display
+            $('psDisplay').innerHTML = P.map((v, i) => {
+                let cls = 'ps-cell';
+                if (scanning && i === idx) cls += ' active';
+                else if (poppedFrontSet.has(i)) cls += ' popped-front';
+                else if (poppedBackSet.has(i)) cls += ' popped-back';
+                else if (scanning && !dqEmpty() && isInDeque(i)) cls += ' in-deque';
+                let ptr = '';
+                if (scanning && i === idx) ptr = '<span class="pointer-label ptr-i">i</span>';
+                return `<div class="cell-wrapper"><div class="${cls}">${v}</div><div class="cell-idx">P[${i}]</div>${ptr}</div>`;
+            }).join('');
+
+            // Deque visual
+            const items = deque.slice(dqHead);
+            if (items.length === 0) {
+                $('dequeItems').innerHTML = '<span style="color:#555;font-size:0.85em">empty</span>';
+            } else {
+                $('dequeItems').innerHTML = items.map((di, pos) => {
+                    let cls = 'dq-cell';
+                    if (pos === 0 && items.length > 1) cls += ' dq-front';
+                    if (pos === items.length - 1 && items.length > 1) cls += ' dq-back';
+                    if (highlightFront === di) cls += ' dq-popping-front';
+                    if (highlightBack === di) cls += ' dq-popping-back';
+                    return `<div class="${cls}"><span class="dq-idx">${di}</span><span class="dq-pval">P=${P[di]}</span></div>`;
+                }).join('');
+            }
+
+            // Results
+            $('minLenVal').textContent = minLen === Infinity ? '∞' : minLen;
+            $('bestRangeVal').textContent = bestStart >= 0 ? `[${bestStart}..${bestEnd}]` : '—';
+
+            // State
+            $('stPhase').textContent = phase;
+            $('stI').textContent = scanning ? idx : '—';
+            $('stPi').textContent = scanning ? P[idx] : '—';
+            $('stOp').textContent = phase === 'pop-front' ? 'Pop Front' : phase === 'pop-back' ? 'Pop Back' : phase === 'push-back' ? 'Push Back' : '—';
+            const f = dqFront();
+            $('stFront').textContent = f !== undefined ? f : '—';
+            $('stPFront').textContent = f !== undefined ? P[f] : '—';
+            $('stDiff').textContent = (f !== undefined && scanning) ? P[idx] - P[f] : '—';
+            $('stMin').textContent = minLen === Infinity ? '∞' : minLen;
+            $('stBest').textContent = bestStart >= 0 ? `[${bestStart},${bestEnd}]` : '—';
+            $('stDqSz').textContent = dqSize();
+            $('stK').textContent = k;
+        }
+
+        function isInDeque(i) {
+            for (let d = dqHead; d < deque.length; d++) if (deque[d] === i) return true;
+            return false;
+        }
+
+        // ─────── STEP ───────
+        function doStep() {
+            if (isDone) { stopExec(); return; }
+            stepCount++;
+            highlightFront = -1;
+            highlightBack = -1;
+            matchRange = null;
+
+            switch (phase) {
+                case 'init': {
+                    addLog(`nums = [${nums.join(', ')}], k = ${k}, n = ${n}`, 'info');
+                    addLog('Step 1: Build prefix sums P[0..n].', 'purple');
+                    P = [0];
+                    phase = 'prefixBuild';
+                    render();
+                    break;
+                }
+                case 'prefixBuild': {
+                    if (P.length <= n) {
+                        const i = P.length;
+                        P.push(P[i - 1] + nums[i - 1]);
+                        addLog(`P[${i}] = ${P[i - 1]} + ${nums[i - 1]} = ${P[i]}`, 'info');
+                        if (P.length <= n) { render(); break; }
+                    }
+                    addLog(`Prefix sums: [${P.join(', ')}]`, 'purple');
+                    addLog('Step 2: Scan with monotonic deque.', 'info');
+                    idx = 0;
+                    phase = 'pop-front';
+                    render();
+                    break;
+                }
+                case 'pop-front': {
+                    if (idx > n) {
+                        phase = 'done'; isDone = true;
+                        if (minLen === Infinity) {
+                            addLog(`✅ DONE! No subarray with sum ≥ ${k}. Answer: -1`, 'error');
+                            $('validityInd').className = 'validity-indicator vi-done';
+                            $('validityInd').textContent = `Done — no valid subarray. Answer: -1`;
+                        } else {
+                            addLog(`✅ DONE! Min length = ${minLen} (nums[${bestStart}..${bestEnd}])`, 'success');
+                            $('validityInd').className = 'validity-indicator vi-done';
+                            $('validityInd').textContent = `✅ Complete! Shortest subarray: length ${minLen}`;
+                        }
+                        $('logicBar').innerHTML = '<span style="color:#bb6bd9">Algorithm complete!</span>';
+                        render(); stopExec();
+                        return;
+                    }
+
+                    // Pop front while P[i] - P[front] >= k
+                    if (!dqEmpty() && P[idx] - P[dqFront()] >= k) {
+                        const j = dqFront();
+                        const len = idx - j;
+                        highlightFront = j;
+                        matchRange = { start: j, end: idx - 1 };
+
+                        $('logicBar').innerHTML = `<span class="v-t">POP FRONT:</span> P[${idx}]−P[${j}] = ${P[idx]}−${P[j]} = <span class="hl">${P[idx] - P[j]}</span> ≥ ${k} → len=${len}`;
+
+                        if (len < minLen) {
+                            minLen = len;
+                            bestStart = j;
+                            bestEnd = idx - 1;
+                            addLog(`i=${idx}: Pop front ${j}. P[i]−P[${j}]=${P[idx] - P[j]} ≥ ${k}. len=${len} NEW BEST 🎉`, 'success');
+                            $('validityInd').className = 'validity-indicator vi-pop-front';
+                            $('validityInd').textContent = `🎉 Pop front j=${j}! len=${len} → NEW BEST!`;
+                        } else {
+                            addLog(`i=${idx}: Pop front ${j}. P[i]−P[${j}]=${P[idx] - P[j]} ≥ ${k}. len=${len} (≥ best ${minLen})`, 'info');
+                            $('validityInd').className = 'validity-indicator vi-pop-front';
+                            $('validityInd').textContent = `Pop front j=${j}, len=${len} (not shorter)`;
+                        }
+
+                        poppedFrontSet.add(j);
+                        dqHead++;
+                        render();
+                        // Stay in pop-front phase (might pop more)
+                        break;
+                    }
+
+                    // No more front pops possible
+                    if (!dqEmpty()) {
+                        $('logicBar').innerHTML = `P[${idx}]−P[${dqFront()}] = ${P[idx] - P[dqFront()]} < ${k} → <span class="v-f">stop front pops</span>`;
+                    }
+                    phase = 'pop-back';
+                    // Fall through to pop-back immediately (save a step for clarity)
+                    doStep();
+                    break;
+                }
+                case 'pop-back': {
+                    // Pop back while P[i] <= P[back]
+                    if (!dqEmpty() && P[idx] <= P[dqBack()]) {
+                        const b = dqBack();
+                        highlightBack = b;
+
+                        $('logicBar').innerHTML = `<span class="v-f">POP BACK:</span> P[${idx}]=${P[idx]} ≤ P[${b}]=${P[b]} → ${b} is dominated, remove`;
+
+                        addLog(`i=${idx}: Pop back ${b}. P[${idx}]=${P[idx]} ≤ P[${b}]=${P[b]} (dominated).`, 'error');
+                        $('validityInd').className = 'validity-indicator vi-pop-back';
+                        $('validityInd').textContent = `Pop back: idx ${b} dominated by ${idx}`;
+
+                        poppedBackSet.add(b);
+                        deque.pop();
+                        render();
+                        break;
+                    }
+
+                    // No more back pops
+                    phase = 'push-back';
+                    doStep();
+                    break;
+                }
+                case 'push-back': {
+                    deque.push(idx);
+
+                    $('logicBar').innerHTML = `<span style="color:#f1c40f;">PUSH BACK:</span> Push ${idx} (P=${P[idx]}). Deque size = ${dqSize()}`;
+                    addLog(`i=${idx}: Push ${idx} (P=${P[idx]}). Deque: [${deque.slice(dqHead).join(',')}]`, 'warning');
+                    $('validityInd').className = 'validity-indicator vi-push';
+                    $('validityInd').textContent = `Pushed i=${idx} to back of deque`;
+
+                    render();
+                    phase = 'advance';
+                    break;
+                }
+                case 'advance': {
+                    idx++;
+                    phase = 'pop-front';
+                    doStep(); // immediately process next i
+                    break;
+                }
+            }
+        }
+
+        // ─────── CONTROLS ───────
+        function play() {
+            if (isRunning || isDone) return;
+            isRunning = true;
+            $('playBtn').disabled = true; $('pauseBtn').disabled = false; $('stepBtn').disabled = true;
+            runLoop();
+        }
+        function pause() {
+            isRunning = false;
+            $('playBtn').disabled = false; $('pauseBtn').disabled = true; $('stepBtn').disabled = false;
+        }
+        function stopExec() {
+            isRunning = false;
+            $('playBtn').disabled = true; $('pauseBtn').disabled = true; $('stepBtn').disabled = true;
+        }
+        function runLoop() {
+            if (!isRunning) return;
+            doStep();
+            if (isRunning && !isDone) setTimeout(runLoop, 600 / speed);
+        }
+
+        function init() {
+            n = nums.length;
+            P = []; idx = 0;
+            minLen = Infinity; bestStart = -1; bestEnd = -1;
+            deque = []; dqHead = 0;
+            poppedFrontSet = new Set(); poppedBackSet = new Set();
+            highlightFront = -1; highlightBack = -1; matchRange = null;
+            phase = 'init'; stepCount = 0; isDone = false;
+
+            $('kDisp').textContent = k;
+            $('validityInd').className = 'validity-indicator vi-neutral';
+            $('validityInd').textContent = 'Ready — press Play or Step';
+            $('logicBar').innerHTML = 'Three operations per i: pop-front, pop-back, push-back';
+            $('playBtn').disabled = false; $('pauseBtn').disabled = true; $('stepBtn').disabled = false;
+            clearLog();
+            addLog(`Optimal: prefix sum + monotonic deque. O(n).`, 'info');
+            render();
+        }
+
+        $('playBtn').addEventListener('click', play);
+        $('pauseBtn').addEventListener('click', pause);
+        $('stepBtn').addEventListener('click', () => { if (!isDone) doStep(); });
+        $('resetBtn').addEventListener('click', () => { isRunning = false; init(); });
+        $('speedSlider').addEventListener('input', e => {
+            speed = parseInt(e.target.value);
+            $('speedValue').textContent = speed + 'x';
+        });
+        $('applyBtn').addEventListener('click', () => {
+            try {
+                const parsed = JSON.parse($('customInput').value);
+                if (!Array.isArray(parsed) || parsed.length === 0) throw new Error('Need non-empty array');
+                for (const v of parsed) if (typeof v !== 'number') throw new Error('All elements must be numbers');
+                const kVal = parseInt($('kInput').value);
+                if (isNaN(kVal) || kVal < 1) throw new Error('k must be a positive integer');
+                nums = parsed; k = kVal;
+                isRunning = false; init();
+            } catch (e) { alert('Invalid input: ' + e.message); }
+        });
+
+        init();
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,959 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>143 - Improved: Stack for Second Half</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #0f0c29 0%, #302b63 50%, #24243e 100%);
+            min-height: 100vh;
+            padding: 18px;
+            color: #e0e0e0
+        }
+
+        .container {
+            max-width: 1360px;
+            margin: 0 auto;
+            background: rgba(25, 25, 50, .95);
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, .5), 0 0 40px rgba(230, 126, 34, .07);
+            overflow: hidden;
+            border: 1px solid rgba(255, 255, 255, .06)
+        }
+
+        header {
+            background: linear-gradient(135deg, #d35400, #e67e22);
+            color: #fff;
+            padding: 22px;
+            text-align: center
+        }
+
+        h1 {
+            font-size: 1.15em;
+            margin-bottom: 5px
+        }
+
+        .subtitle {
+            font-size: .84em;
+            opacity: .92
+        }
+
+        .badge {
+            display: inline-block;
+            background: rgba(255, 255, 255, .2);
+            padding: 5px 14px;
+            border-radius: 15px;
+            margin-top: 7px;
+            font-size: .78em
+        }
+
+        .main-content {
+            display: grid;
+            grid-template-columns: 1fr 280px;
+            gap: 16px;
+            padding: 18px
+        }
+
+        .card {
+            background: rgba(40, 40, 75, .8);
+            border-radius: 14px;
+            padding: 15px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, .2);
+            margin-bottom: 14px;
+            border: 1px solid rgba(255, 255, 255, .05)
+        }
+
+        .card-title {
+            font-size: .88em;
+            font-weight: 600;
+            margin-bottom: 10px;
+            color: #e67e22
+        }
+
+        button {
+            padding: 7px 14px;
+            border: none;
+            border-radius: 8px;
+            font-size: .82em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all .3s
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, .3)
+        }
+
+        button:disabled {
+            opacity: .4;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #d35400, #e67e22);
+            color: #fff
+        }
+
+        .btn-success {
+            background: linear-gradient(135deg, #27ae60, #2ecc71);
+            color: #fff
+        }
+
+        .btn-warning {
+            background: linear-gradient(135deg, #f39c12, #e67e22);
+            color: #fff
+        }
+
+        .btn-secondary {
+            background: rgba(100, 100, 140, .7);
+            color: #fff
+        }
+
+        .btn-info {
+            background: linear-gradient(135deg, #3498db, #2980b9);
+            color: #fff
+        }
+
+        .controls {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            align-items: center
+        }
+
+        .speed-control {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            flex: 1;
+            min-width: 140px
+        }
+
+        .speed-control label {
+            font-size: .8em;
+            color: #aaa
+        }
+
+        .speed-control input[type="range"] {
+            flex: 1;
+            height: 5px;
+            accent-color: #e67e22
+        }
+
+        .speed-control span {
+            font-size: .8em;
+            color: #e67e22;
+            min-width: 24px
+        }
+
+        .input-section {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+            flex-wrap: wrap
+        }
+
+        .input-section input {
+            padding: 7px 10px;
+            border-radius: 8px;
+            border: 1px solid rgba(255, 255, 255, .15);
+            background: rgba(20, 20, 45, .8);
+            color: #e0e0e0;
+            font-size: .85em;
+            font-family: 'Courier New', monospace;
+            flex: 1;
+            min-width: 180px
+        }
+
+        .input-section input:focus {
+            outline: none;
+            border-color: #e67e22
+        }
+
+        /* Linked list */
+        .ll-area {
+            padding: 10px;
+            background: rgba(20, 20, 50, .4);
+            border-radius: 10px;
+            min-height: 60px
+        }
+
+        .half-labels {
+            display: flex;
+            gap: 0;
+            min-height: 18px;
+            align-items: center;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin-bottom: 2px
+        }
+
+        .hl {
+            font-size: .5em;
+            font-weight: 700;
+            text-align: center;
+            margin: 0 1px
+        }
+
+        .hl-first {
+            color: #3498db
+        }
+
+        .hl-second {
+            color: #e67e22
+        }
+
+        .hl-spacer {
+            width: 14px;
+            margin: 0 1px
+        }
+
+        .ll-row {
+            display: flex;
+            gap: 0;
+            align-items: center;
+            justify-content: center;
+            flex-wrap: wrap
+        }
+
+        .ll-node {
+            display: flex;
+            align-items: center
+        }
+
+        .nd {
+            width: 46px;
+            height: 46px;
+            border-radius: 10px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 1.1em;
+            border: 2.5px solid rgba(150, 150, 200, .12);
+            background: rgba(60, 60, 100, .12);
+            font-family: 'Courier New', monospace;
+            color: #666;
+            transition: all .35s
+        }
+
+        .nd-sub {
+            font-size: .38em;
+            color: #555;
+            margin-top: 1px
+        }
+
+        .nd.count-nd {
+            border-color: #f1c40f;
+            background: rgba(241, 196, 15, .08);
+            color: #f1c40f
+        }
+
+        .nd.first-half {
+            border-color: #3498db;
+            background: rgba(52, 152, 219, .06);
+            color: #3498db
+        }
+
+        .nd.second-half {
+            border-color: #e67e22;
+            background: rgba(230, 126, 34, .06);
+            color: #e67e22
+        }
+
+        .nd.cut-nd {
+            border-color: #e74c3c;
+            background: rgba(231, 76, 60, .08);
+            color: #e74c3c
+        }
+
+        .nd.curr-nd {
+            border-color: #2ecc71;
+            background: rgba(46, 204, 113, .12);
+            color: #2ecc71;
+            box-shadow: 0 0 10px rgba(46, 204, 113, .15)
+        }
+
+        .nd.pop-nd {
+            border-color: #bb6bd9;
+            background: rgba(155, 89, 182, .12);
+            color: #bb6bd9;
+            box-shadow: 0 0 10px rgba(155, 89, 182, .15)
+        }
+
+        .nd.done-nd {
+            border-color: #2ecc71;
+            background: rgba(46, 204, 113, .06);
+            color: #2ecc71
+        }
+
+        .arrow {
+            color: #555;
+            font-size: .8em;
+            margin: 0 1px
+        }
+
+        .arrow.cut {
+            color: #e74c3c;
+            font-weight: 700
+        }
+
+        .arrow.done-a {
+            color: #2ecc71
+        }
+
+        /* Stack display */
+        .stack-area {
+            display: flex;
+            gap: 12px;
+            padding: 10px;
+            background: rgba(20, 20, 50, .4);
+            border-radius: 10px;
+            min-height: 56px;
+            align-items: flex-end;
+            justify-content: center
+        }
+
+        .stack-col {
+            display: flex;
+            flex-direction: column-reverse;
+            gap: 2px;
+            align-items: center
+        }
+
+        .sc {
+            width: 42px;
+            height: 36px;
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: .95em;
+            border: 2px solid rgba(230, 126, 34, .2);
+            background: rgba(230, 126, 34, .06);
+            font-family: 'Courier New', monospace;
+            color: #e67e22;
+            transition: all .35s
+        }
+
+        .sc.pushing {
+            border-color: #f1c40f;
+            background: rgba(241, 196, 15, .12);
+            color: #f1c40f;
+            box-shadow: 0 0 8px rgba(241, 196, 15, .1);
+            animation: popIn .3s ease
+        }
+
+        .sc.popping {
+            border-color: #bb6bd9;
+            background: rgba(155, 89, 182, .15);
+            color: #bb6bd9;
+            box-shadow: 0 0 10px rgba(155, 89, 182, .2);
+            transform: scale(1.08)
+        }
+
+        .sc.done-sc {
+            border-color: #2ecc71;
+            background: rgba(46, 204, 113, .06);
+            color: #2ecc71
+        }
+
+        .stack-label {
+            font-size: .55em;
+            color: #888;
+            text-align: center;
+            margin-top: 2px
+        }
+
+        @keyframes popIn {
+            0% {
+                transform: scale(.7);
+                opacity: .5
+            }
+
+            100% {
+                transform: scale(1);
+                opacity: 1
+            }
+        }
+
+        /* Interleave result */
+        .result-row {
+            display: flex;
+            gap: 0;
+            padding: 10px;
+            background: rgba(20, 20, 50, .4);
+            border-radius: 10px;
+            min-height: 50px;
+            align-items: center;
+            justify-content: center;
+            flex-wrap: wrap
+        }
+
+        .rn {
+            width: 42px;
+            height: 42px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 1em;
+            border: 2px solid rgba(46, 204, 113, .2);
+            background: rgba(46, 204, 113, .06);
+            font-family: 'Courier New', monospace;
+            color: #2ecc71;
+            transition: all .35s
+        }
+
+        .rn.from-front {
+            border-color: #3498db;
+            background: rgba(52, 152, 219, .06);
+            color: #3498db
+        }
+
+        .rn.from-stack {
+            border-color: #bb6bd9;
+            background: rgba(155, 89, 182, .06);
+            color: #bb6bd9
+        }
+
+        .r-arrow {
+            color: #555;
+            font-size: .78em;
+            margin: 0 1px
+        }
+
+        .action-box {
+            padding: 10px;
+            background: rgba(20, 20, 50, .4);
+            border-radius: 8px;
+            text-align: center;
+            font-family: 'Courier New', monospace;
+            font-size: .82em;
+            min-height: 38px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            flex-wrap: wrap
+        }
+
+        .status-ind {
+            text-align: center;
+            padding: 11px;
+            border-radius: 10px;
+            font-weight: 700;
+            font-size: .85em;
+            transition: all .3s
+        }
+
+        .si-neutral {
+            background: rgba(100, 100, 140, .12);
+            color: #888
+        }
+
+        .si-run {
+            background: rgba(230, 126, 34, .06);
+            color: #e67e22;
+            border: 1px solid rgba(230, 126, 34, .12)
+        }
+
+        .si-done {
+            background: rgba(46, 204, 113, .12);
+            color: #2ecc71;
+            border: 1px solid rgba(46, 204, 113, .25)
+        }
+
+        .state-display {
+            background: rgba(20, 20, 50, .5);
+            border-radius: 8px;
+            padding: 10px;
+            font-family: 'Courier New', monospace;
+            font-size: .68em
+        }
+
+        .state-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 4px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, .05)
+        }
+
+        .state-row:last-child {
+            border-bottom: none
+        }
+
+        .state-label {
+            font-weight: 600;
+            color: #e67e22
+        }
+
+        .state-val {
+            color: #ccc;
+            text-align: right;
+            max-width: 150px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap
+        }
+
+        .log-container {
+            background: rgba(20, 20, 50, .5);
+            border-radius: 8px;
+            padding: 10px;
+            max-height: 230px;
+            overflow-y: auto;
+            font-family: 'Courier New', monospace;
+            font-size: .54em
+        }
+
+        .log-entry {
+            padding: 3px 7px;
+            margin: 2px 0;
+            border-radius: 4px;
+            border-left: 3px solid #555;
+            background: rgba(40, 40, 70, .5);
+            line-height: 1.5
+        }
+
+        .log-entry.success {
+            border-left-color: #2ecc71;
+            background: rgba(46, 204, 113, .08);
+            color: #2ecc71
+        }
+
+        .log-entry.warning {
+            border-left-color: #f39c12;
+            background: rgba(243, 156, 18, .08);
+            color: #f39c12
+        }
+
+        .log-entry.info {
+            border-left-color: #3498db;
+            background: rgba(52, 152, 219, .08);
+            color: #8ec8f0
+        }
+
+        .log-entry.error {
+            border-left-color: #e74c3c;
+            background: rgba(231, 76, 60, .08);
+            color: #e74c3c
+        }
+
+        .log-entry.purple {
+            border-left-color: #9b59b6;
+            background: rgba(155, 89, 182, .08);
+            color: #bb6bd9
+        }
+
+        .log-entry.orange {
+            border-left-color: #e67e22;
+            background: rgba(230, 126, 34, .08);
+            color: #e67e22
+        }
+
+        .log-container::-webkit-scrollbar {
+            width: 5px
+        }
+
+        .log-container::-webkit-scrollbar-track {
+            background: transparent
+        }
+
+        .log-container::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, .15);
+            border-radius: 3px
+        }
+
+        @media(max-width:960px) {
+            .main-content {
+                grid-template-columns: 1fr
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <header>
+            <h1>🔗 Reorder List</h1>
+            <div class="subtitle">Improved — Stack for Second Half + Interleave</div>
+            <div class="badge">Time: O(n) | Space: O(n/2) — stack stores only second half</div>
+        </header>
+        <div class="main-content">
+            <div class="left-panel">
+                <div class="card">
+                    <div class="card-title">⚙️ Controls</div>
+                    <div class="controls">
+                        <button class="btn-primary" id="playBtn">▶️ Play</button>
+                        <button class="btn-warning" id="pauseBtn" disabled>⏸️ Pause</button>
+                        <button class="btn-success" id="stepBtn">⏭️ Step</button>
+                        <button class="btn-secondary" id="resetBtn">🔄 Reset</button>
+                        <div class="speed-control">
+                            <label>Speed:</label>
+                            <input type="range" id="speedSlider" min="1" max="10" value="5">
+                            <span id="speedValue">5x</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="card">
+                    <div class="card-title">✏️ Custom Input</div>
+                    <div class="input-section">
+                        <input type="text" id="listInput" value="1,2,3,4,5" placeholder="values (comma-separated)">
+                        <button class="btn-info" id="applyBtn">Apply</button>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-title">🔗 Linked List (n=<span id="nDisp">5</span>)</div>
+                    <div class="ll-area">
+                        <div class="half-labels" id="halfLabels"></div>
+                        <div class="ll-row" id="llDisplay"></div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-title">📚 Stack (second half, LIFO → reversed)</div>
+                    <div class="stack-area" id="stackDisplay"><span style="color:#555">—</span></div>
+                </div>
+
+                <div class="card">
+                    <div class="card-title">✅ Reordered Result</div>
+                    <div class="result-row" id="resultDisplay"><span style="color:#555">—</span></div>
+                </div>
+
+                <div class="card">
+                    <div class="card-title">🔄 Action</div>
+                    <div class="action-box" id="actionBox"><span style="color:#555">—</span></div>
+                </div>
+
+                <div class="card">
+                    <div class="status-ind si-neutral" id="statusInd">Ready — press Play or Step</div>
+                </div>
+            </div>
+
+            <div class="right-panel">
+                <div class="card">
+                    <div class="card-title">📋 Current State</div>
+                    <div class="state-display">
+                        <div class="state-row"><span class="state-label">Phase:</span><span class="state-val"
+                                id="stPhase">init</span></div>
+                        <div class="state-row"><span class="state-label">n:</span><span class="state-val"
+                                id="stN">—</span></div>
+                        <div class="state-row"><span class="state-label">half:</span><span class="state-val"
+                                id="stHalf">—</span></div>
+                        <div class="state-row"><span class="state-label">countIdx:</span><span class="state-val"
+                                id="stCount">—</span></div>
+                        <div class="state-row"><span class="state-label">cutAt:</span><span class="state-val"
+                                id="stCut">—</span></div>
+                        <div class="state-row"><span class="state-label">stack size:</span><span class="state-val"
+                                id="stStack">0</span></div>
+                        <div class="state-row"><span class="state-label">curr (front):</span><span class="state-val"
+                                id="stCurr">—</span></div>
+                        <div class="state-row"><span class="state-label">popped:</span><span class="state-val"
+                                id="stPop">—</span></div>
+                    </div>
+                </div>
+                <div class="card" style="flex:1">
+                    <div class="card-title">📝 Execution Log</div>
+                    <div class="log-container" id="logContainer">
+                        <div class="log-entry info">Count → split at half → push 2nd half to stack → interleave.</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let initVals = [1, 2, 3, 4, 5];
+        let n, half;
+        let countIdx = 0;
+        let walkIdx = 0;
+        let cutPoint = -1;
+        let stack = [];
+        let pushIdx = -1;
+        let currFrontIdx = -1;
+        let poppedVal = -1;
+        let result = [];       // {val, source: 'front'|'stack'}
+        let interleavePhase = 0; // 0=take front, 1=pop stack
+
+        // phases: init | count | walk-to-mid | cut | push-stack | interleave-front | interleave-stack | done
+        let phase = 'init';
+        let stepCount = 0, isRunning = false, speed = 5, isDone = false;
+
+        const $ = id => document.getElementById(id);
+        const logC = $('logContainer');
+        function addLog(m, t = 'info') { logC.innerHTML += `<div class="log-entry ${t}">[${stepCount}] ${m}</div>`; logC.scrollTop = logC.scrollHeight }
+        function clearLog() { logC.innerHTML = '' }
+
+        function render() {
+            $('nDisp').textContent = n || initVals.length;
+
+            // Half labels
+            if (cutPoint >= 0 && phase !== 'count' && phase !== 'init') {
+                let hH = '';
+                for (let i = 0; i < initVals.length; i++) {
+                    let lbl = '';
+                    if (i <= cutPoint) lbl = i === 0 ? '← first half' : '';
+                    else lbl = i === cutPoint + 1 ? '← 2nd half →' : '';
+                    const cls = i <= cutPoint ? 'hl-first' : 'hl-second';
+                    hH += `<div class="hl ${cls}" style="width:46px">${lbl}</div>`;
+                    if (i < initVals.length - 1) hH += `<div class="hl-spacer"></div>`;
+                }
+                $('halfLabels').innerHTML = hH;
+            } else {
+                $('halfLabels').innerHTML = '';
+            }
+
+            // Linked list
+            let llH = '';
+            for (let i = 0; i < initVals.length; i++) {
+                let cls = 'nd';
+                if (phase === 'count' && i === countIdx) cls += ' count-nd';
+                else if (phase === 'walk-to-mid' && i === walkIdx) cls += ' count-nd';
+                else if (phase === 'cut' && i === cutPoint) cls += ' cut-nd';
+                else if (phase === 'push-stack' && i === pushIdx) cls += ' second-half';
+                else if (phase === 'interleave-front' && i === currFrontIdx) cls += ' curr-nd';
+                else if (phase === 'interleave-stack' && i === currFrontIdx) cls += ' curr-nd';
+                else if (cutPoint >= 0 && i <= cutPoint && phase !== 'count' && phase !== 'init') cls += ' first-half';
+                else if (cutPoint >= 0 && i > cutPoint && phase !== 'count' && phase !== 'init') cls += ' second-half';
+                else if (phase === 'done') cls += ' done-nd';
+
+                llH += `<div class="ll-node"><div class="${cls}">${initVals[i]}<span class="nd-sub">L${i}</span></div>`;
+                if (i < initVals.length - 1) {
+                    let aCls = 'arrow';
+                    if (phase === 'cut' && i === cutPoint) aCls += ' cut';
+                    else if (phase === 'done') aCls += ' done-a';
+                    llH += `<span class="${aCls}">${(phase !== 'init' && phase !== 'count' && i === cutPoint) ? ' ✂ ' : ' → '}</span>`;
+                }
+                llH += '</div>';
+            }
+            $('llDisplay').innerHTML = llH;
+
+            // Stack
+            if (stack.length > 0) {
+                let sH = '<div class="stack-col">';
+                for (let i = 0; i < stack.length; i++) {
+                    let cls = 'sc';
+                    if (phase === 'push-stack' && i === stack.length - 1) cls += ' pushing';
+                    else if (phase === 'interleave-stack' && i === stack.length - 1) cls += ' popping';
+                    sH += `<div class="${cls}">${stack[i]}</div>`;
+                }
+                sH += `<div class="stack-label">top ↑</div></div>`;
+                $('stackDisplay').innerHTML = sH;
+            } else {
+                $('stackDisplay').innerHTML = '<span style="color:#555">' + (phase === 'done' ? 'empty ✓' : '—') + '</span>';
+            }
+
+            // Result
+            if (result.length > 0) {
+                let rH = '';
+                for (let i = 0; i < result.length; i++) {
+                    const cls = result[i].source === 'front' ? 'rn from-front' : 'rn from-stack';
+                    rH += `<div class="${cls}">${result[i].val}</div>`;
+                    if (i < result.length - 1) rH += `<span class="r-arrow"> → </span>`;
+                }
+                $('resultDisplay').innerHTML = rH;
+            } else {
+                $('resultDisplay').innerHTML = '<span style="color:#555">—</span>';
+            }
+
+            // State
+            $('stPhase').textContent = phase;
+            $('stN').textContent = n || '—';
+            $('stHalf').textContent = half >= 0 ? half : '—';
+            $('stCount').textContent = phase === 'count' ? countIdx : '—';
+            $('stCut').textContent = cutPoint >= 0 ? `index ${cutPoint} (val=${initVals[cutPoint]})` : '—';
+            $('stStack').textContent = stack.length;
+            $('stCurr').textContent = currFrontIdx >= 0 ? `node(${initVals[currFrontIdx]}) @${currFrontIdx}` : '—';
+            $('stPop').textContent = poppedVal >= 0 ? poppedVal : '—';
+        }
+
+        function doStep() {
+            if (isDone) { stopExec(); return; }
+            stepCount++;
+
+            switch (phase) {
+                case 'init': {
+                    n = initVals.length; half = Math.floor(n / 2);
+                    countIdx = 0; walkIdx = 0; cutPoint = -1;
+                    stack = []; pushIdx = -1; currFrontIdx = -1;
+                    poppedVal = -1; result = []; interleavePhase = 0;
+                    addLog(`List: [${initVals.join(',')}], n=${n}`, 'info');
+                    if (n <= 2) {
+                        result = initVals.map(v => ({ val: v, source: 'front' }));
+                        phase = 'done'; isDone = true;
+                        addLog(`n ≤ 2 → already reordered.`, 'success');
+                        $('statusInd').className = 'status-ind si-done';
+                        $('statusInd').textContent = `✅ Done! [${initVals.join(' → ')}]`;
+                        render(); stopExec(); return;
+                    }
+                    addLog(`Step 1: Count → n=${n}, half=⌊${n}/2⌋=${half}`, 'info');
+                    addLog(`Step 2: Walk to cut point (index ${half})...`, 'orange');
+                    phase = 'walk-to-mid';
+                    walkIdx = 0;
+                    $('statusInd').className = 'status-ind si-run';
+                    $('statusInd').textContent = 'Walking to midpoint...';
+                    render();
+                    break;
+                }
+                case 'walk-to-mid': {
+                    if (walkIdx >= half) {
+                        cutPoint = walkIdx;
+                        addLog(`  Reached cut point: index ${cutPoint}, val=${initVals[cutPoint]}`, 'warning');
+                        addLog(`  Cut: node(${initVals[cutPoint]}).next = null`, 'error');
+                        addLog(`  First half: [${initVals.slice(0, cutPoint + 1).join(',')}]`, 'info');
+                        addLog(`  Second half: [${initVals.slice(cutPoint + 1).join(',')}]`, 'orange');
+                        phase = 'cut';
+                        render();
+                        break;
+                    }
+                    addLog(`  Walk: position ${walkIdx} → node(${initVals[walkIdx]})`, 'info');
+                    render();
+                    walkIdx++;
+                    break;
+                }
+                case 'cut': {
+                    addLog(`Step 3: Push second half to stack...`, 'purple');
+                    pushIdx = cutPoint + 1;
+                    phase = 'push-stack';
+                    $('statusInd').textContent = 'Pushing second half to stack...';
+                    render();
+                    break;
+                }
+                case 'push-stack': {
+                    if (pushIdx >= n) {
+                        addLog(`  Stack: [${stack.join(',')}] (top=${stack[stack.length - 1]})`, 'success');
+                        addLog(`  Pop order will give reversed 2nd half ✓`, 'success');
+                        addLog(`Step 4: Interleave front + stack pops...`, 'purple');
+                        currFrontIdx = 0;
+                        phase = 'interleave-front';
+                        $('statusInd').textContent = 'Interleaving...';
+                        render();
+                        return;
+                    }
+                    stack.push(initVals[pushIdx]);
+                    addLog(`  push(${initVals[pushIdx]}) → stack size=${stack.length}`, 'orange');
+                    $('actionBox').innerHTML = `<span style="color:#e67e22">push(${initVals[pushIdx]})</span> <span style="color:#888">→ stack[${stack.length - 1}]</span>`;
+                    render();
+                    pushIdx++;
+                    break;
+                }
+                case 'interleave-front': {
+                    if (stack.length === 0) {
+                        // Remaining front nodes
+                        while (currFrontIdx <= cutPoint) {
+                            result.push({ val: initVals[currFrontIdx], source: 'front' });
+                            currFrontIdx++;
+                        }
+                        const rv = result.map(r => r.val);
+                        addLog(`✅ Reordered: [${rv.join(' → ')}]`, 'success');
+                        phase = 'done'; isDone = true;
+                        $('statusInd').className = 'status-ind si-done';
+                        $('statusInd').textContent = `✅ Done! [${rv.join(' → ')}]`;
+                        $('actionBox').innerHTML = `<span style="color:#2ecc71">✅ ${rv.join(' → ')}</span>`;
+                        render(); stopExec();
+                        return;
+                    }
+                    // Take from front
+                    result.push({ val: initVals[currFrontIdx], source: 'front' });
+                    addLog(`  Take front: node(${initVals[currFrontIdx]})`, 'info');
+                    $('actionBox').innerHTML = `<span style="color:#3498db">front: node(${initVals[currFrontIdx]})</span> <span style="color:#888">→ result</span>`;
+                    currFrontIdx++;
+                    phase = 'interleave-stack';
+                    render();
+                    break;
+                }
+                case 'interleave-stack': {
+                    if (stack.length === 0) {
+                        // Might have remaining front nodes for odd lists
+                        if (currFrontIdx <= cutPoint) {
+                            result.push({ val: initVals[currFrontIdx], source: 'front' });
+                            addLog(`  Take remaining front: node(${initVals[currFrontIdx]})`, 'info');
+                            currFrontIdx++;
+                        }
+                        const rv = result.map(r => r.val);
+                        addLog(`✅ Reordered: [${rv.join(' → ')}]`, 'success');
+                        phase = 'done'; isDone = true;
+                        $('statusInd').className = 'status-ind si-done';
+                        $('statusInd').textContent = `✅ Done! [${rv.join(' → ')}]`;
+                        $('actionBox').innerHTML = `<span style="color:#2ecc71">✅ ${rv.join(' → ')}</span>`;
+                        render(); stopExec();
+                        return;
+                    }
+                    // Pop from stack
+                    poppedVal = stack.pop();
+                    result.push({ val: poppedVal, source: 'stack' });
+                    addLog(`  Pop stack: node(${poppedVal})`, 'purple');
+                    $('actionBox').innerHTML = `<span style="color:#bb6bd9">pop: node(${poppedVal})</span> <span style="color:#888">→ result</span>`;
+
+                    if (stack.length === 0 && currFrontIdx > cutPoint) {
+                        const rv = result.map(r => r.val);
+                        addLog(`✅ Reordered: [${rv.join(' → ')}]`, 'success');
+                        phase = 'done'; isDone = true;
+                        $('statusInd').className = 'status-ind si-done';
+                        $('statusInd').textContent = `✅ Done! [${rv.join(' → ')}]`;
+                        $('actionBox').innerHTML = `<span style="color:#2ecc71">✅ ${rv.join(' → ')}</span>`;
+                        render(); stopExec();
+                        return;
+                    }
+
+                    phase = 'interleave-front';
+                    render();
+                    break;
+                }
+            }
+        }
+
+        function play() { if (isRunning || isDone) return; isRunning = true; $('playBtn').disabled = true; $('pauseBtn').disabled = false; $('stepBtn').disabled = true; runLoop() }
+        function pause() { isRunning = false; $('playBtn').disabled = false; $('pauseBtn').disabled = true; $('stepBtn').disabled = false }
+        function stopExec() { isRunning = false; $('playBtn').disabled = true; $('pauseBtn').disabled = true; $('stepBtn').disabled = true }
+        function runLoop() { if (!isRunning) return; doStep(); if (isRunning && !isDone) setTimeout(runLoop, 400 / speed) }
+
+        function init() {
+            n = initVals.length; half = Math.floor(n / 2);
+            countIdx = 0; walkIdx = 0; cutPoint = -1;
+            stack = []; pushIdx = -1; currFrontIdx = -1;
+            poppedVal = -1; result = []; interleavePhase = 0;
+            phase = 'init'; stepCount = 0; isDone = false;
+            $('statusInd').className = 'status-ind si-neutral';
+            $('statusInd').textContent = 'Ready — press Play or Step';
+            $('actionBox').innerHTML = '<span style="color:#555">—</span>';
+            $('playBtn').disabled = false; $('pauseBtn').disabled = true; $('stepBtn').disabled = false;
+            clearLog(); addLog('Count → split at half → push 2nd half to stack → interleave.', 'info');
+            render();
+        }
+
+        $('playBtn').addEventListener('click', play);
+        $('pauseBtn').addEventListener('click', pause);
+        $('stepBtn').addEventListener('click', () => { if (!isDone) doStep() });
+        $('resetBtn').addEventListener('click', () => { isRunning = false; init() });
+        $('speedSlider').addEventListener('input', e => { speed = parseInt(e.target.value); $('speedValue').textContent = speed + 'x' });
+        $('applyBtn').addEventListener('click', () => {
+            const lv = $('listInput').value.trim();
+            if (!lv) { alert('Values required.'); return }
+            const vs = lv.split(',').map(x => parseInt(x.trim())).filter(x => !isNaN(x));
+            if (!vs.length) { alert('Need at least one value.'); return }
+            initVals = [...vs]; isRunning = false; init();
+        });
+
+        init();
+    </script>
+</body>
+
+</html>

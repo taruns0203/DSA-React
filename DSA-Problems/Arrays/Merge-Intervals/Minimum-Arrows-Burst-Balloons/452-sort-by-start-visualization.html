@@ -1,0 +1,1055 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>452 - Greedy Sort by Start</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #0f0c29 0%, #302b63 50%, #24243e 100%);
+            min-height: 100vh;
+            padding: 20px;
+            color: #e0e0e0;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: rgba(25, 25, 50, 0.95);
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5), 0 0 40px rgba(100, 100, 255, 0.08);
+            overflow: hidden;
+            border: 1px solid rgba(255, 255, 255, 0.06);
+        }
+
+        header {
+            background: linear-gradient(135deg, #e67e22 0%, #d35400 100%);
+            color: white;
+            padding: 25px;
+            text-align: center;
+        }
+
+        h1 {
+            font-size: 1.5em;
+            margin-bottom: 6px;
+            letter-spacing: 0.5px;
+        }
+
+        .subtitle {
+            font-size: 0.95em;
+            opacity: 0.9;
+        }
+
+        .complexity-badge {
+            display: inline-block;
+            background: rgba(255, 255, 255, 0.2);
+            padding: 6px 14px;
+            border-radius: 15px;
+            margin-top: 8px;
+            font-size: 0.82em;
+            backdrop-filter: blur(4px);
+        }
+
+        .main-content {
+            display: grid;
+            grid-template-columns: 1fr 280px;
+            gap: 18px;
+            padding: 20px;
+        }
+
+        .card {
+            background: rgba(40, 40, 75, 0.8);
+            border-radius: 14px;
+            padding: 16px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+            margin-bottom: 16px;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .card-title {
+            font-size: 0.92em;
+            font-weight: 600;
+            margin-bottom: 12px;
+            color: #f39c12;
+        }
+
+        /* Controls */
+        .controls {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            align-items: center;
+        }
+
+        button {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 8px;
+            font-size: 0.85em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+        }
+
+        button:disabled {
+            opacity: 0.4;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #e67e22, #d35400);
+            color: white;
+        }
+
+        .btn-success {
+            background: linear-gradient(135deg, #27ae60, #2ecc71);
+            color: white;
+        }
+
+        .btn-warning {
+            background: linear-gradient(135deg, #f39c12, #e67e22);
+            color: white;
+        }
+
+        .btn-secondary {
+            background: rgba(100, 100, 140, 0.7);
+            color: white;
+        }
+
+        .btn-info {
+            background: linear-gradient(135deg, #3498db, #2980b9);
+            color: white;
+        }
+
+        .speed-control {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            flex: 1;
+            min-width: 140px;
+        }
+
+        .speed-control label {
+            font-size: 0.82em;
+            color: #aaa;
+        }
+
+        .speed-control input[type="range"] {
+            flex: 1;
+            height: 5px;
+            accent-color: #e67e22;
+        }
+
+        .speed-control span {
+            font-size: 0.82em;
+            color: #f39c12;
+            min-width: 24px;
+        }
+
+        /* Custom Input */
+        .input-section {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .input-section input[type="text"] {
+            flex: 1;
+            min-width: 200px;
+            padding: 8px 12px;
+            border-radius: 8px;
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            background: rgba(20, 20, 45, 0.8);
+            color: #e0e0e0;
+            font-size: 0.85em;
+            font-family: 'Courier New', monospace;
+        }
+
+        .input-section input:focus {
+            outline: none;
+            border-color: #e67e22;
+        }
+
+        /* Sorted intervals row */
+        .intervals-row {
+            display: flex;
+            gap: 8px;
+            padding: 10px;
+            background: rgba(20, 20, 50, 0.4);
+            border-radius: 8px;
+            flex-wrap: wrap;
+            justify-content: center;
+            min-height: 55px;
+            align-items: center;
+        }
+
+        .interval-wrapper {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .interval-chip {
+            padding: 8px 13px;
+            border-radius: 8px;
+            font-weight: 700;
+            font-size: 0.84em;
+            transition: all 0.3s;
+            border: 3px solid rgba(150, 150, 200, 0.3);
+            background: rgba(100, 100, 200, 0.12);
+            position: relative;
+        }
+
+        .interval-idx {
+            font-size: 0.62em;
+            color: #666;
+            margin-top: 3px;
+        }
+
+        .interval-chip.processed {
+            background: rgba(46, 204, 113, 0.2);
+            border-color: #2ecc71;
+        }
+
+        .interval-chip.current {
+            background: rgba(241, 196, 15, 0.25);
+            border-color: #f1c40f;
+            animation: pulse 0.6s;
+            box-shadow: 0 0 12px rgba(241, 196, 15, 0.3);
+        }
+
+        .interval-chip.new-group {
+            background: rgba(231, 76, 60, 0.2);
+            border-color: #e74c3c;
+            animation: pulse 0.6s;
+        }
+
+        .interval-chip.merged {
+            background: rgba(46, 204, 113, 0.25);
+            border-color: #2ecc71;
+        }
+
+        @keyframes pulse {
+
+            0%,
+            100% {
+                transform: scale(1);
+            }
+
+            50% {
+                transform: scale(1.1);
+            }
+        }
+
+        /* Group indicators */
+        .group-tag {
+            font-size: 0.6em;
+            padding: 2px 6px;
+            border-radius: 4px;
+            margin-top: 3px;
+            font-weight: 600;
+        }
+
+        /* Overlap window display */
+        .overlap-display {
+            padding: 14px;
+            border-radius: 10px;
+            text-align: center;
+            font-family: 'Courier New', monospace;
+            font-size: 1em;
+            font-weight: 700;
+            transition: all 0.3s;
+            background: rgba(241, 196, 15, 0.08);
+            border: 1px solid rgba(241, 196, 15, 0.15);
+        }
+
+        .overlap-label {
+            font-size: 0.78em;
+            color: #888;
+            margin-bottom: 6px;
+            font-family: 'Segoe UI', sans-serif;
+        }
+
+        /* Number Line Canvas */
+        .numberline-container {
+            position: relative;
+            background: rgba(20, 20, 50, 0.6);
+            border-radius: 10px;
+            padding: 15px 20px;
+            overflow-x: auto;
+            min-height: 180px;
+        }
+
+        .numberline-canvas {
+            width: 100%;
+            min-height: 170px;
+        }
+
+        /* Results */
+        .result-display {
+            padding: 14px;
+            background: rgba(46, 204, 113, 0.1);
+            border-radius: 10px;
+            text-align: center;
+            border: 1px solid rgba(46, 204, 113, 0.2);
+        }
+
+        .result-label {
+            font-size: 0.82em;
+            color: #888;
+            margin-bottom: 4px;
+        }
+
+        .result-value {
+            font-size: 1.6em;
+            font-weight: 700;
+            color: #2ecc71;
+        }
+
+        /* Comparison display */
+        .comparison-display {
+            padding: 12px;
+            background: rgba(52, 152, 219, 0.08);
+            border-radius: 10px;
+            text-align: center;
+            border: 1px solid rgba(52, 152, 219, 0.15);
+            font-family: 'Courier New', monospace;
+            font-size: 0.88em;
+        }
+
+        .validity-indicator {
+            text-align: center;
+            padding: 10px;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 0.9em;
+            transition: all 0.3s;
+        }
+
+        .vi-overlap {
+            background: rgba(46, 204, 113, 0.12);
+            color: #2ecc71;
+            border: 1px solid rgba(46, 204, 113, 0.2);
+        }
+
+        .vi-no-overlap {
+            background: rgba(231, 76, 60, 0.12);
+            color: #e74c3c;
+            border: 1px solid rgba(231, 76, 60, 0.2);
+        }
+
+        .vi-neutral {
+            background: rgba(100, 100, 140, 0.12);
+            color: #888;
+        }
+
+        .vi-done {
+            background: rgba(46, 204, 113, 0.15);
+            color: #2ecc71;
+            border: 1px solid rgba(46, 204, 113, 0.25);
+        }
+
+        .vi-sorting {
+            background: rgba(155, 89, 182, 0.12);
+            color: #bb6bd9;
+            border: 1px solid rgba(155, 89, 182, 0.2);
+        }
+
+        /* State Display */
+        .state-display {
+            background: rgba(20, 20, 50, 0.5);
+            border-radius: 8px;
+            padding: 10px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.78em;
+        }
+
+        .state-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 5px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .state-row:last-child {
+            border-bottom: none;
+        }
+
+        .state-label {
+            font-weight: 600;
+            color: #f39c12;
+        }
+
+        .state-val {
+            color: #ccc;
+            text-align: right;
+            max-width: 140px;
+            word-break: break-all;
+        }
+
+        /* Log */
+        .log-container {
+            background: rgba(20, 20, 50, 0.5);
+            border-radius: 8px;
+            padding: 10px;
+            max-height: 280px;
+            overflow-y: auto;
+            font-family: 'Courier New', monospace;
+            font-size: 0.62em;
+        }
+
+        .log-entry {
+            padding: 4px 8px;
+            margin: 2px 0;
+            border-radius: 4px;
+            border-left: 3px solid #555;
+            background: rgba(40, 40, 70, 0.5);
+            line-height: 1.5;
+        }
+
+        .log-entry.success {
+            border-left-color: #2ecc71;
+            background: rgba(46, 204, 113, 0.08);
+            color: #2ecc71;
+        }
+
+        .log-entry.warning {
+            border-left-color: #f39c12;
+            background: rgba(243, 156, 18, 0.08);
+            color: #f39c12;
+        }
+
+        .log-entry.info {
+            border-left-color: #3498db;
+            background: rgba(52, 152, 219, 0.08);
+            color: #8ec8f0;
+        }
+
+        .log-entry.error {
+            border-left-color: #e74c3c;
+            background: rgba(231, 76, 60, 0.08);
+            color: #e74c3c;
+        }
+
+        .log-entry.purple {
+            border-left-color: #9b59b6;
+            background: rgba(155, 89, 182, 0.08);
+            color: #bb6bd9;
+        }
+
+        .log-container::-webkit-scrollbar {
+            width: 5px;
+        }
+
+        .log-container::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        .log-container::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.15);
+            border-radius: 3px;
+        }
+
+        @media (max-width: 900px) {
+            .main-content {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <header>
+            <h1>🎈 Min Arrows to Burst Balloons</h1>
+            <div class="subtitle">Improved — Greedy with Sort by Start + Overlap Shrinking</div>
+            <div class="complexity-badge">Time: O(n log n) | Space: O(1)</div>
+        </header>
+        <div class="main-content">
+            <div class="left-panel">
+                <!-- Controls -->
+                <div class="card">
+                    <div class="card-title">⚙️ Controls</div>
+                    <div class="controls">
+                        <button class="btn-primary" id="playBtn">▶️ Play</button>
+                        <button class="btn-warning" id="pauseBtn" disabled>⏸️ Pause</button>
+                        <button class="btn-success" id="stepBtn">⏭️ Step</button>
+                        <button class="btn-secondary" id="resetBtn">🔄 Reset</button>
+                        <div class="speed-control">
+                            <label>Speed:</label>
+                            <input type="range" id="speedSlider" min="1" max="10" value="5">
+                            <span id="speedValue">5x</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Custom Input -->
+                <div class="card">
+                    <div class="card-title">✏️ Custom Input</div>
+                    <div class="input-section">
+                        <input type="text" id="customInput" value="[[10,16],[2,8],[1,6],[7,12]]"
+                            placeholder="e.g. [[1,6],[2,8],[7,12],[10,16]]">
+                        <button class="btn-info" id="applyBtn">Apply</button>
+                    </div>
+                </div>
+
+                <!-- Sorted Intervals -->
+                <div class="card">
+                    <div class="card-title" id="intervalsTitle">📋 Balloons (unsorted)</div>
+                    <div class="intervals-row" id="intervalsDisplay"></div>
+                </div>
+
+                <!-- Overlap Window -->
+                <div class="card">
+                    <div class="card-title">🔍 Current Overlap Window</div>
+                    <div class="overlap-display" id="overlapDisplay">
+                        <div class="overlap-label">The shrinking intersection of the current group</div>
+                        <div id="overlapValue">[ — , — ]</div>
+                    </div>
+                </div>
+
+                <!-- Comparison -->
+                <div class="card">
+                    <div class="card-title">⚖️ Comparison Check</div>
+                    <div class="comparison-display" id="comparisonDisplay">
+                        curStart ≤ overlapEnd ?
+                    </div>
+                </div>
+
+                <!-- Validity -->
+                <div class="card">
+                    <div class="validity-indicator vi-neutral" id="validityIndicator">Ready — press Play or Step</div>
+                </div>
+
+                <!-- Number Line -->
+                <div class="card">
+                    <div class="card-title">🎯 Visual — Number Line</div>
+                    <div class="numberline-container">
+                        <canvas class="numberline-canvas" id="numberlineCanvas"></canvas>
+                    </div>
+                </div>
+
+                <!-- Result -->
+                <div class="card">
+                    <div class="result-display">
+                        <div class="result-label">🏹 Arrows Needed</div>
+                        <div class="result-value" id="arrowsValue">0</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right Panel -->
+            <div class="right-panel">
+                <div class="card">
+                    <div class="card-title">📋 Current State</div>
+                    <div class="state-display">
+                        <div class="state-row"><span class="state-label">Phase:</span><span class="state-val"
+                                id="statePhase">—</span></div>
+                        <div class="state-row"><span class="state-label">i:</span><span class="state-val"
+                                id="stateI">—</span></div>
+                        <div class="state-row"><span class="state-label">Current:</span><span class="state-val"
+                                id="stateCurrent">—</span></div>
+                        <div class="state-row"><span class="state-label">overlapStart:</span><span class="state-val"
+                                id="stateOvStart">—</span></div>
+                        <div class="state-row"><span class="state-label">overlapEnd:</span><span class="state-val"
+                                id="stateOvEnd">—</span></div>
+                        <div class="state-row"><span class="state-label">arrows:</span><span class="state-val"
+                                id="stateArrows">0</span></div>
+                        <div class="state-row"><span class="state-label">Groups:</span><span class="state-val"
+                                id="stateGroups">—</span></div>
+                    </div>
+                </div>
+
+                <div class="card" style="flex:1;">
+                    <div class="card-title">📝 Execution Log</div>
+                    <div class="log-container" id="logContainer">
+                        <div class="log-entry info">Greedy: sort by start, then scan L→R shrinking the overlap window.
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ───────── STATE ─────────
+        let inputBalloons = [[10, 16], [2, 8], [1, 6], [7, 12]];
+        let sorted = [];
+        let n = 0;
+
+        // Algorithm state
+        let phase = 'init';  // 'init' | 'sorting' | 'init-group' | 'scan' | 'done'
+        let i = 0;
+        let arrows = 0;
+        let overlapStart = 0;
+        let overlapEnd = 0;
+
+        // Visual tracking
+        let groups = [];           // array of { start, end, members: [indices] }
+        let currentGroup = null;
+        let intervalStates = [];   // per-index: 'default' | 'current' | 'merged' | 'new-group' | 'processed'
+        let stepCount = 0;
+        let isRunning = false;
+        let speed = 5;
+        let done = false;
+
+        // ───────── DOM ─────────
+        const playBtn = document.getElementById('playBtn');
+        const pauseBtn = document.getElementById('pauseBtn');
+        const stepBtn = document.getElementById('stepBtn');
+        const resetBtn = document.getElementById('resetBtn');
+        const speedSlider = document.getElementById('speedSlider');
+        const speedValueEl = document.getElementById('speedValue');
+        const customInput = document.getElementById('customInput');
+        const applyBtn = document.getElementById('applyBtn');
+        const intervalsTitle = document.getElementById('intervalsTitle');
+        const intervalsDisp = document.getElementById('intervalsDisplay');
+        const overlapDisp = document.getElementById('overlapValue');
+        const comparisonDisp = document.getElementById('comparisonDisplay');
+        const validityInd = document.getElementById('validityIndicator');
+        const arrowsValue = document.getElementById('arrowsValue');
+        const logContainer = document.getElementById('logContainer');
+        const canvas = document.getElementById('numberlineCanvas');
+        const ctx = canvas.getContext('2d');
+
+        // Group colors
+        const groupColors = [
+            { bg: 'rgba(46,204,113,0.25)', border: '#2ecc71', text: '#2ecc71' },
+            { bg: 'rgba(52,152,219,0.25)', border: '#3498db', text: '#3498db' },
+            { bg: 'rgba(155,89,182,0.25)', border: '#9b59b6', text: '#bb6bd9' },
+            { bg: 'rgba(231,76,60,0.25)', border: '#e74c3c', text: '#e74c3c' },
+            { bg: 'rgba(241,196,15,0.25)', border: '#f1c40f', text: '#f1c40f' },
+            { bg: 'rgba(26,188,156,0.25)', border: '#1abc9c', text: '#1abc9c' },
+            { bg: 'rgba(230,126,34,0.25)', border: '#e67e22', text: '#e67e22' },
+            { bg: 'rgba(236,240,241,0.2)', border: '#bdc3c7', text: '#bdc3c7' },
+        ];
+        function gc(idx) { return groupColors[idx % groupColors.length]; }
+
+        // ───────── HELPERS ─────────
+        function addLog(msg, type = 'info') {
+            logContainer.innerHTML += `<div class="log-entry ${type}">[${stepCount}] ${msg}</div>`;
+            logContainer.scrollTop = logContainer.scrollHeight;
+        }
+        function clearLog() { logContainer.innerHTML = ''; }
+
+        // ───────── RENDER ─────────
+        function render() {
+            // Intervals display
+            intervalsDisp.innerHTML = sorted.map((b, idx) => {
+                let cls = 'interval-chip';
+                const st = intervalStates[idx] || 'default';
+                if (st === 'current') cls += ' current';
+                else if (st === 'new-group') cls += ' new-group';
+                else if (st === 'merged') cls += ' merged';
+                else if (st === 'processed') cls += ' processed';
+
+                // Find group for coloring
+                let groupTag = '';
+                for (let g = 0; g < groups.length; g++) {
+                    if (groups[g].members.includes(idx)) {
+                        const c = gc(g);
+                        groupTag = `<div class="group-tag" style="background:${c.bg};color:${c.text};border:1px solid ${c.border}">G${g + 1}</div>`;
+                        if (st === 'processed' || st === 'merged') {
+                            cls = 'interval-chip';
+                            // apply group color inline
+                        }
+                        break;
+                    }
+                }
+
+                return `<div class="interval-wrapper">
+                <div class="${cls}">[${b[0]}, ${b[1]}]</div>
+                <div class="interval-idx">i=${idx}</div>
+                ${groupTag}
+            </div>`;
+            }).join('');
+
+            // Overlap window
+            if (phase === 'init' || phase === 'sorting') {
+                overlapDisp.textContent = '[ — , — ]';
+            } else {
+                overlapDisp.innerHTML = `[ <span style="color:#f39c12">${overlapStart}</span> , <span style="color:#e74c3c">${overlapEnd}</span> ]`;
+            }
+
+            // Arrows
+            arrowsValue.textContent = arrows;
+
+            // State panel
+            document.getElementById('statePhase').textContent = phase;
+            document.getElementById('stateI').textContent = (phase === 'scan') ? i : '—';
+            document.getElementById('stateCurrent').textContent = (phase === 'scan' && i < n) ? `[${sorted[i][0]}, ${sorted[i][1]}]` : '—';
+            document.getElementById('stateOvStart').textContent = (phase !== 'init' && phase !== 'sorting') ? overlapStart : '—';
+            document.getElementById('stateOvEnd').textContent = (phase !== 'init' && phase !== 'sorting') ? overlapEnd : '—';
+            document.getElementById('stateArrows').textContent = arrows;
+            document.getElementById('stateGroups').textContent = groups.length > 0 ? groups.length : '—';
+
+            drawNumberLine();
+        }
+
+        // ───────── CANVAS ─────────
+        function drawNumberLine() {
+            const dpr = window.devicePixelRatio || 1;
+            const rect = canvas.parentElement.getBoundingClientRect();
+            const W = rect.width - 40;
+            const H = 170;
+            canvas.width = W * dpr;
+            canvas.height = H * dpr;
+            canvas.style.width = W + 'px';
+            canvas.style.height = H + 'px';
+            ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+            ctx.clearRect(0, 0, W, H);
+
+            if (sorted.length === 0) return;
+
+            let minX = Infinity, maxX = -Infinity;
+            for (const [a, b] of sorted) { minX = Math.min(minX, a); maxX = Math.max(maxX, b); }
+            const pad = Math.max(1, (maxX - minX) * 0.1);
+            const rangeMin = minX - pad;
+            const rangeMax = maxX + pad;
+            const scale = (W - 40) / (rangeMax - rangeMin);
+            const toX = v => 20 + (v - rangeMin) * scale;
+
+            // Number line
+            const lineY = H - 25;
+            ctx.strokeStyle = 'rgba(200,200,255,0.2)';
+            ctx.lineWidth = 1;
+            ctx.beginPath();
+            ctx.moveTo(15, lineY);
+            ctx.lineTo(W - 15, lineY);
+            ctx.stroke();
+
+            // Tick marks
+            const allVals = new Set();
+            for (const [a, b] of sorted) { allVals.add(a); allVals.add(b); }
+            ctx.fillStyle = 'rgba(200,200,255,0.45)';
+            ctx.font = '10px Courier New';
+            ctx.textAlign = 'center';
+            for (const v of allVals) {
+                const vx = toX(v);
+                ctx.beginPath();
+                ctx.moveTo(vx, lineY - 4);
+                ctx.lineTo(vx, lineY + 4);
+                ctx.stroke();
+                ctx.fillText(v, vx, lineY + 16);
+            }
+
+            // Draw overlap window
+            if (phase !== 'init' && phase !== 'sorting') {
+                const ox1 = toX(overlapStart);
+                const ox2 = toX(overlapEnd);
+                ctx.fillStyle = 'rgba(241,196,15,0.1)';
+                ctx.fillRect(ox1, 5, ox2 - ox1, lineY - 10);
+                ctx.strokeStyle = 'rgba(241,196,15,0.5)';
+                ctx.lineWidth = 1.5;
+                ctx.setLineDash([5, 3]);
+                ctx.strokeRect(ox1, 5, ox2 - ox1, lineY - 10);
+                ctx.setLineDash([]);
+
+                // Label
+                ctx.fillStyle = 'rgba(241,196,15,0.7)';
+                ctx.font = '9px Segoe UI';
+                ctx.fillText('overlap window', (ox1 + ox2) / 2, lineY - 10);
+            }
+
+            // Balloon bars
+            const barH = 16;
+            const gap = 4;
+            const startY = 12;
+            for (let idx = 0; idx < sorted.length; idx++) {
+                const [xs, xe] = sorted[idx];
+                const x1 = toX(xs);
+                const x2 = toX(xe);
+                const y = startY + idx * (barH + gap);
+
+                // Color by group
+                let fillC = 'rgba(100,149,237,0.25)';
+                let strokeC = 'rgba(100,149,237,0.6)';
+                for (let g = 0; g < groups.length; g++) {
+                    if (groups[g].members.includes(idx)) {
+                        fillC = gc(g).bg;
+                        strokeC = gc(g).border;
+                        break;
+                    }
+                }
+                const st = intervalStates[idx] || 'default';
+                if (st === 'current') {
+                    fillC = 'rgba(241,196,15,0.35)';
+                    strokeC = '#f1c40f';
+                } else if (st === 'new-group') {
+                    fillC = 'rgba(231,76,60,0.3)';
+                    strokeC = '#e74c3c';
+                }
+
+                ctx.fillStyle = fillC;
+                ctx.strokeStyle = strokeC;
+                ctx.lineWidth = 2;
+                ctx.beginPath();
+                ctx.roundRect(x1, y, Math.max(x2 - x1, 4), barH, 3);
+                ctx.fill();
+                ctx.stroke();
+
+                // Label
+                ctx.fillStyle = '#bbb';
+                ctx.font = '9px Segoe UI';
+                ctx.textAlign = 'left';
+                ctx.fillText(`[${xs},${xe}]`, x2 + 5, y + 12);
+            }
+
+            // Arrow markers at group ends
+            for (let g = 0; g < groups.length; g++) {
+                const arrowX = toX(groups[g].end);
+                const c = gc(g);
+                ctx.strokeStyle = c.border;
+                ctx.lineWidth = 2;
+                ctx.setLineDash([4, 3]);
+                ctx.beginPath();
+                ctx.moveTo(arrowX, startY);
+                ctx.lineTo(arrowX, lineY - 6);
+                ctx.stroke();
+                ctx.setLineDash([]);
+
+                // Arrow head
+                ctx.fillStyle = c.border;
+                ctx.beginPath();
+                ctx.moveTo(arrowX, startY - 2);
+                ctx.lineTo(arrowX - 4, startY - 9);
+                ctx.lineTo(arrowX + 4, startY - 9);
+                ctx.closePath();
+                ctx.fill();
+
+                ctx.fillStyle = c.text;
+                ctx.font = 'bold 9px Courier New';
+                ctx.textAlign = 'center';
+                ctx.fillText(`↑G${g + 1}`, arrowX, lineY - 6);
+            }
+        }
+
+        // ───────── ALGORITHM STEPS ─────────
+        function doStep() {
+            if (done) { stopExecution(); return; }
+            stepCount++;
+
+            switch (phase) {
+                case 'init': {
+                    // Show unsorted
+                    addLog(`Input: ${JSON.stringify(inputBalloons)}`, 'info');
+                    addLog(`n = ${n} balloons`, 'info');
+                    phase = 'sorting';
+                    intervalsTitle.textContent = '📋 Balloons (unsorted)';
+                    render();
+                    break;
+                }
+
+                case 'sorting': {
+                    // Perform sort
+                    sorted.sort((a, b) => a[0] - b[0] || a[1] - b[1]);
+                    addLog(`Sorted by xstart → ${JSON.stringify(sorted)}`, 'purple');
+                    intervalsTitle.textContent = '📋 Balloons (sorted by xstart ↑)';
+
+                    validityInd.className = 'validity-indicator vi-sorting';
+                    validityInd.textContent = '🔀 Sorted by start coordinate';
+
+                    phase = 'init-group';
+                    render();
+                    break;
+                }
+
+                case 'init-group': {
+                    // Initialize first group
+                    overlapStart = sorted[0][0];
+                    overlapEnd = sorted[0][1];
+                    arrows = 1;
+                    currentGroup = { start: overlapStart, end: overlapEnd, members: [0] };
+                    groups = [currentGroup];
+                    intervalStates[0] = 'processed';
+                    i = 1;
+                    phase = 'scan';
+
+                    addLog(`Init: first balloon [${sorted[0]}] → overlap=[${overlapStart}, ${overlapEnd}], arrows=1`, 'success');
+                    comparisonDisp.innerHTML = 'Initialized first group';
+                    validityInd.className = 'validity-indicator vi-overlap';
+                    validityInd.textContent = `Group 1 started with [${sorted[0]}]`;
+
+                    render();
+                    break;
+                }
+
+                case 'scan': {
+                    if (i >= n) {
+                        // Done
+                        phase = 'done';
+                        done = true;
+                        addLog(`✅ DONE! All ${n} balloons processed.`, 'success');
+                        addLog(`Minimum arrows = ${arrows}`, 'success');
+                        addLog(`Groups: ${groups.map((g, idx) => `G${idx + 1}:[${g.start},${g.end}]`).join(' | ')}`, 'success');
+
+                        intervalStates = intervalStates.map(() => 'processed');
+                        comparisonDisp.innerHTML = `All balloons processed`;
+                        validityInd.className = 'validity-indicator vi-done';
+                        validityInd.textContent = `✅ Done! ${arrows} arrow(s) needed for ${groups.length} group(s)`;
+
+                        render();
+                        stopExecution();
+                        return;
+                    }
+
+                    const [curStart, curEnd] = sorted[i];
+                    intervalStates = intervalStates.map(s => s === 'current' || s === 'new-group' || s === 'merged' ? 'processed' : s);
+                    intervalStates[i] = 'current';
+
+                    if (curStart <= overlapEnd) {
+                        // Overlaps → shrink window
+                        const oldOvStart = overlapStart;
+                        const oldOvEnd = overlapEnd;
+                        overlapStart = Math.max(overlapStart, curStart);
+                        overlapEnd = Math.min(overlapEnd, curEnd);
+                        currentGroup.start = overlapStart;
+                        currentGroup.end = overlapEnd;
+                        currentGroup.members.push(i);
+                        intervalStates[i] = 'merged';
+
+                        comparisonDisp.innerHTML = `<span style="color:#2ecc71">${curStart} ≤ ${oldOvEnd}</span> → YES → Overlap! Shrink to [max(${oldOvStart},${curStart}), min(${oldOvEnd},${curEnd})] = [${overlapStart}, ${overlapEnd}]`;
+                        validityInd.className = 'validity-indicator vi-overlap';
+                        validityInd.textContent = `✓ [${curStart},${curEnd}] overlaps → merged into Group ${groups.length}`;
+
+                        addLog(`i=${i}: [${curStart},${curEnd}] → ${curStart} ≤ ${oldOvEnd} ✓ overlap → window=[${overlapStart},${overlapEnd}]`, 'success');
+                    } else {
+                        // No overlap → new group
+                        arrows++;
+                        overlapStart = curStart;
+                        overlapEnd = curEnd;
+                        currentGroup = { start: overlapStart, end: overlapEnd, members: [i] };
+                        groups.push(currentGroup);
+                        intervalStates[i] = 'new-group';
+
+                        comparisonDisp.innerHTML = `<span style="color:#e74c3c">${curStart} ≤ ${sorted[i - 1] ? overlapEnd : '?'}</span> → <span style="color:#e74c3c">NO</span> → New group! arrows++ = ${arrows}`;
+
+                        // Fix: show the previous overlapEnd in comparison
+                        const prevOvEnd = sorted[i - 1] ? Math.min(...groups[groups.length - 2].members.map(m => sorted[m][1])) : 0;
+                        comparisonDisp.innerHTML = `<span style="color:#e74c3c">${curStart} &gt; ${prevOvEnd}</span> → NO overlap → New group #${groups.length}, arrows=${arrows}`;
+
+                        validityInd.className = 'validity-indicator vi-no-overlap';
+                        validityInd.textContent = `✗ [${curStart},${curEnd}] doesn't overlap → new Group ${groups.length}`;
+
+                        addLog(`i=${i}: [${curStart},${curEnd}] → ${curStart} > prev end → NEW GROUP #${groups.length}, arrows=${arrows}`, 'error');
+                    }
+
+                    i++;
+                    render();
+                    break;
+                }
+            }
+        }
+
+        // ───────── PLAYBACK ─────────
+        function play() {
+            if (isRunning || done) return;
+            isRunning = true;
+            playBtn.disabled = true;
+            pauseBtn.disabled = false;
+            stepBtn.disabled = true;
+            runLoop();
+        }
+        function pause() {
+            isRunning = false;
+            playBtn.disabled = false;
+            pauseBtn.disabled = true;
+            stepBtn.disabled = false;
+        }
+        function stopExecution() {
+            isRunning = false;
+            playBtn.disabled = true;
+            pauseBtn.disabled = true;
+            stepBtn.disabled = true;
+        }
+        function runLoop() {
+            if (!isRunning) return;
+            doStep();
+            if (isRunning && !done) {
+                setTimeout(runLoop, 600 / speed);
+            }
+        }
+
+        // ───────── INIT / RESET ─────────
+        function init() {
+            sorted = inputBalloons.map(b => [...b]);
+            n = sorted.length;
+            phase = 'init';
+            i = 0;
+            arrows = 0;
+            overlapStart = 0;
+            overlapEnd = 0;
+            groups = [];
+            currentGroup = null;
+            intervalStates = new Array(n).fill('default');
+            stepCount = 0;
+            done = false;
+
+            intervalsTitle.textContent = '📋 Balloons (unsorted)';
+            comparisonDisp.innerHTML = 'curStart ≤ overlapEnd ?';
+            validityInd.className = 'validity-indicator vi-neutral';
+            validityInd.textContent = 'Ready — press Play or Step';
+
+            clearLog();
+            addLog('Greedy: sort by xstart, scan L→R, shrink overlap window.', 'info');
+
+            playBtn.disabled = false;
+            pauseBtn.disabled = true;
+            stepBtn.disabled = false;
+
+            render();
+        }
+
+        function reset() {
+            isRunning = false;
+            init();
+        }
+
+        // ───────── EVENTS ─────────
+        playBtn.addEventListener('click', play);
+        pauseBtn.addEventListener('click', pause);
+        stepBtn.addEventListener('click', () => { if (!done) doStep(); });
+        resetBtn.addEventListener('click', reset);
+        speedSlider.addEventListener('input', (e) => {
+            speed = parseInt(e.target.value);
+            speedValueEl.textContent = speed + 'x';
+        });
+        applyBtn.addEventListener('click', () => {
+            try {
+                const parsed = JSON.parse(customInput.value);
+                if (!Array.isArray(parsed) || parsed.length === 0) throw new Error('Need non-empty array');
+                for (const p of parsed) {
+                    if (!Array.isArray(p) || p.length !== 2 || typeof p[0] !== 'number' || typeof p[1] !== 'number')
+                        throw new Error('Each element must be [number, number]');
+                }
+                inputBalloons = parsed;
+                isRunning = false;
+                init();
+            } catch (e) {
+                alert('Invalid input: ' + e.message + '\nFormat: [[xstart,xend], ...]');
+            }
+        });
+        window.addEventListener('resize', () => drawNumberLine());
+
+        // ───────── START ─────────
+        init();
+    </script>
+</body>
+
+</html>

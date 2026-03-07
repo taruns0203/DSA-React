@@ -1,0 +1,457 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Insert Interval - Binary Insert + Merge</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%);
+            min-height: 100vh;
+            padding: 20px;
+            color: #333;
+        }
+        .container {
+            max-width: 1100px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            overflow: hidden;
+        }
+        header {
+            background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%);
+            color: #333;
+            padding: 25px;
+            text-align: center;
+        }
+        h1 { font-size: 1.5em; margin-bottom: 8px; }
+        .subtitle { font-size: 1em; opacity: 0.8; }
+        .complexity-badge {
+            display: inline-block;
+            background: rgba(255,255,255,0.5);
+            padding: 6px 14px;
+            border-radius: 15px;
+            margin-top: 8px;
+            font-size: 0.85em;
+        }
+        .main-content {
+            display: grid;
+            grid-template-columns: 1fr 260px;
+            gap: 20px;
+            padding: 20px;
+        }
+        .card {
+            background: #f8f9fa;
+            border-radius: 12px;
+            padding: 16px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            margin-bottom: 16px;
+        }
+        .card-title {
+            font-size: 0.95em;
+            font-weight: 600;
+            margin-bottom: 12px;
+            color: #00897b;
+        }
+        .controls { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+        button {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 8px;
+            font-size: 0.85em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        button:hover { transform: translateY(-2px); }
+        button:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+        .btn-primary { background: linear-gradient(135deg, #a8edea 0%, #00897b 100%); color: white; }
+        .btn-success { background: linear-gradient(135deg, #28a745 0%, #20c997 100%); color: white; }
+        .btn-warning { background: linear-gradient(135deg, #ffc107 0%, #ff9800 100%); color: white; }
+        .btn-secondary { background: #6c757d; color: white; }
+        .speed-control { display: flex; align-items: center; gap: 6px; flex: 1; min-width: 140px; }
+        .speed-control input[type="range"] { flex: 1; height: 5px; }
+        .intervals-display {
+            display: flex;
+            gap: 8px;
+            padding: 12px;
+            background: white;
+            border-radius: 8px;
+            flex-wrap: wrap;
+            justify-content: center;
+            min-height: 55px;
+            align-items: center;
+        }
+        .interval-wrapper {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        .interval {
+            padding: 8px 12px;
+            border-radius: 8px;
+            font-weight: 700;
+            font-size: 0.85em;
+            background: #e8eaf6;
+            border: 3px solid #5c6bc0;
+            transition: all 0.3s;
+        }
+        .interval-idx { font-size: 0.65em; color: #666; margin-top: 2px; }
+        .interval.new { background: #fff9c4; border-color: #f9a825; }
+        .interval.search-range { background: #e3f2fd; border-color: #1976d2; }
+        .interval.mid { background: #ffecb3; border-color: #ffa000; }
+        .interval.insert-pos { background: #b2dfdb; border-color: #00897b; animation: pulse 0.5s; }
+        .interval.current { background: #ffecb3; border-color: #ffa000; }
+        .interval.merged { background: #c8e6c9; border-color: #43a047; }
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+        }
+        .binary-search-display {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 15px;
+            padding: 12px;
+            background: white;
+            border-radius: 8px;
+            font-size: 0.85em;
+        }
+        .search-box { padding: 6px 12px; border-radius: 6px; font-weight: 700; }
+        .search-left { background: #bbdefb; color: #1565c0; }
+        .search-right { background: #c8e6c9; color: #2e7d32; }
+        .search-mid { background: #ffecb3; color: #e65100; }
+        .merged-display {
+            display: flex;
+            gap: 8px;
+            padding: 12px;
+            background: #e8f5e9;
+            border-radius: 8px;
+            flex-wrap: wrap;
+            justify-content: center;
+            min-height: 55px;
+        }
+        .merged-interval {
+            padding: 8px 12px;
+            border-radius: 8px;
+            font-weight: 700;
+            font-size: 0.85em;
+            background: #c8e6c9;
+            border: 3px solid #43a047;
+        }
+        .merged-interval.last { background: #a5d6a7; border-color: #2e7d32; }
+        .phase-indicator {
+            text-align: center;
+            padding: 12px;
+            background: white;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 0.85em;
+        }
+        .state-display { background: white; border-radius: 8px; padding: 10px; font-family: 'Courier New', monospace; font-size: 0.75em; }
+        .state-row { display: flex; justify-content: space-between; padding: 4px 0; border-bottom: 1px solid #e0e0e0; }
+        .state-row:last-child { border-bottom: none; }
+        .state-label { font-weight: 600; color: #00897b; }
+        .log-container { background: white; border-radius: 8px; padding: 10px; max-height: 140px; overflow-y: auto; font-family: 'Courier New', monospace; font-size: 0.55em; }
+        .log-entry { padding: 3px 6px; margin: 2px 0; border-radius: 4px; border-left: 3px solid #00897b; background: #f8f9fa; }
+        .log-entry.success { border-left-color: #28a745; background: #d4edda; }
+        .log-entry.warning { border-left-color: #ffc107; background: #fff3cd; }
+        .log-entry.info { border-left-color: #17a2b8; background: #d1ecf1; }
+        @media (max-width: 850px) { .main-content { grid-template-columns: 1fr; } }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>➕ Insert Interval</h1>
+            <div class="subtitle">Improved - Binary Search Insert + Merge</div>
+            <div class="complexity-badge">Time: O(n) | Space: O(n)</div>
+        </header>
+        <div class="main-content">
+            <div class="left-panel">
+                <div class="card">
+                    <div class="card-title">⚙️ Controls</div>
+                    <div class="controls">
+                        <button class="btn-primary" id="playBtn">▶️ Play</button>
+                        <button class="btn-warning" id="pauseBtn" disabled>⏸️ Pause</button>
+                        <button class="btn-success" id="stepBtn">⏭️ Step</button>
+                        <button class="btn-secondary" id="resetBtn">🔄 Reset</button>
+                        <div class="speed-control">
+                            <label>Speed:</label>
+                            <input type="range" id="speedSlider" min="1" max="10" value="5">
+                            <span id="speedValue">5x</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="card">
+                    <div class="card-title">📋 Intervals (sorted)</div>
+                    <div class="intervals-display" id="intervalsDisplay"></div>
+                </div>
+                <div class="card">
+                    <div class="card-title">🔍 Binary Search (for insert position)</div>
+                    <div class="binary-search-display" id="binarySearchDisplay">
+                        <span style="color:#888">Ready</span>
+                    </div>
+                </div>
+                <div class="card">
+                    <div class="card-title">✅ Merged Result</div>
+                    <div class="merged-display" id="mergedDisplay">
+                        <span style="color:#888">Empty</span>
+                    </div>
+                </div>
+                <div class="card">
+                    <div class="phase-indicator" id="phaseIndicator">Ready to start</div>
+                </div>
+            </div>
+            <div class="right-panel">
+                <div class="card">
+                    <div class="card-title">📋 Current State</div>
+                    <div class="state-display">
+                        <div class="state-row"><span class="state-label">Phase:</span><span id="phaseState">Search</span></div>
+                        <div class="state-row"><span class="state-label">left:</span><span id="leftState">0</span></div>
+                        <div class="state-row"><span class="state-label">right:</span><span id="rightState">-</span></div>
+                        <div class="state-row"><span class="state-label">mid:</span><span id="midState">-</span></div>
+                        <div class="state-row"><span class="state-label">InsertPos:</span><span id="posState">-</span></div>
+                    </div>
+                </div>
+                <div class="card" style="flex: 1;">
+                    <div class="card-title">📝 Execution Log</div>
+                    <div class="log-container" id="logContainer"><div class="log-entry info">Binary search for position, then merge.</div></div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script>
+        let intervals = [[1,3],[6,9]];
+        const newInterval = [2,5];
+        let combined = [];
+        let merged = [];
+        
+        let phase = 'search'; // 'search', 'insert', 'merge', 'done'
+        let left = 0, right = 0, mid = -1;
+        let insertPos = -1;
+        let mergeIdx = 1;
+        let isRunning = false;
+        let speed = 5;
+        let stepCount = 0;
+        let done = false;
+
+        function init() {
+            intervals = [[1,3],[6,9]];
+            combined = [];
+            merged = [];
+            phase = 'search';
+            left = 0;
+            right = intervals.length;
+            mid = -1;
+            insertPos = -1;
+            mergeIdx = 1;
+            stepCount = 0;
+            done = false;
+            
+            clearLog();
+            addLog(`intervals = ${JSON.stringify(intervals)}`, 'info');
+            addLog(`newInterval = [${newInterval}]`, 'info');
+            addLog(`Binary search for insert position...`, 'info');
+            updateState();
+            render();
+        }
+
+        function render() {
+            const display = document.getElementById('intervalsDisplay');
+            const arr = phase === 'search' || phase === 'insert' ? intervals : combined;
+            
+            let html = arr.map((int, i) => {
+                let cls = 'interval';
+                if (phase === 'search') {
+                    if (i >= left && i < right) cls += ' search-range';
+                    if (i === mid) cls += ' mid';
+                } else if (phase === 'insert' && i === insertPos) {
+                    cls += ' insert-pos';
+                } else if (phase === 'merge') {
+                    if (i < mergeIdx) cls += ' merged';
+                    else if (i === mergeIdx) cls += ' current';
+                }
+                return `<div class="interval-wrapper">
+                    <div class="${cls}">[${int[0]},${int[1]}]</div>
+                    <div class="interval-idx">${i}</div>
+                </div>`;
+            }).join('');
+            
+            // Show new interval
+            if (phase === 'search') {
+                html += `<div class="interval-wrapper"><div class="interval new">[${newInterval[0]},${newInterval[1]}]</div><div class="interval-idx">new</div></div>`;
+            }
+            
+            display.innerHTML = html;
+            
+            // Binary search display
+            const bsDisplay = document.getElementById('binarySearchDisplay');
+            if (phase === 'search') {
+                bsDisplay.innerHTML = `
+                    <span class="search-box search-left">L=${left}</span>
+                    ${mid >= 0 ? `<span class="search-box search-mid">mid=${mid}</span>` : ''}
+                    <span class="search-box search-right">R=${right}</span>
+                    <span>Find pos for start=${newInterval[0]}</span>
+                `;
+            } else if (phase === 'insert') {
+                bsDisplay.innerHTML = `<span style="color:#00897b;font-weight:700">✓ Insert position = ${insertPos}</span>`;
+            } else {
+                bsDisplay.innerHTML = `<span style="color:#888">Search complete</span>`;
+            }
+            
+            // Merged display
+            const mergedDisp = document.getElementById('mergedDisplay');
+            if (merged.length === 0) {
+                mergedDisp.innerHTML = '<span style="color:#888">Empty</span>';
+            } else {
+                mergedDisp.innerHTML = merged.map((int, i) => {
+                    let cls = 'merged-interval';
+                    if (i === merged.length - 1) cls += ' last';
+                    return `<div class="${cls}">[${int[0]},${int[1]}]</div>`;
+                }).join('');
+            }
+            
+            // Phase indicator
+            const phaseIndicator = document.getElementById('phaseIndicator');
+            if (phase === 'search') {
+                phaseIndicator.textContent = `Phase 1: Binary search (L=${left}, R=${right})`;
+                phaseIndicator.style.color = '#1976d2';
+            } else if (phase === 'insert') {
+                phaseIndicator.textContent = `Phase 2: Insert at position ${insertPos}`;
+                phaseIndicator.style.color = '#00897b';
+            } else if (phase === 'merge') {
+                phaseIndicator.textContent = `Phase 3: Merge (${mergeIdx}/${combined.length})`;
+                phaseIndicator.style.color = '#e65100';
+            } else {
+                phaseIndicator.textContent = `Done! Result: ${JSON.stringify(merged)}`;
+                phaseIndicator.style.color = '#43a047';
+            }
+        }
+
+        function updateState() {
+            document.getElementById('phaseState').textContent = phase;
+            document.getElementById('leftState').textContent = left;
+            document.getElementById('rightState').textContent = right;
+            document.getElementById('midState').textContent = mid >= 0 ? mid : '-';
+            document.getElementById('posState').textContent = insertPos >= 0 ? insertPos : '-';
+        }
+
+        function addLog(msg, type = 'info') {
+            const log = document.getElementById('logContainer');
+            log.innerHTML += `<div class="log-entry ${type}">[${stepCount}] ${msg}</div>`;
+            log.scrollTop = log.scrollHeight;
+        }
+
+        function clearLog() { document.getElementById('logContainer').innerHTML = ''; }
+
+        function step() {
+            if (done) { stopExecution(); return; }
+            stepCount++;
+            
+            if (phase === 'search') {
+                if (left < right) {
+                    mid = Math.floor((left + right) / 2);
+                    if (intervals[mid][0] < newInterval[0]) {
+                        addLog(`mid=${mid}: ${intervals[mid][0]} < ${newInterval[0]} → L=${mid+1}`, 'info');
+                        left = mid + 1;
+                    } else {
+                        addLog(`mid=${mid}: ${intervals[mid][0]} >= ${newInterval[0]} → R=${mid}`, 'info');
+                        right = mid;
+                    }
+                } else {
+                    insertPos = left;
+                    addLog(`L=R=${left} → InsertPos = ${insertPos}`, 'success');
+                    phase = 'insert';
+                }
+            } else if (phase === 'insert') {
+                combined = [...intervals];
+                combined.splice(insertPos, 0, [...newInterval]);
+                addLog(`Inserted: ${JSON.stringify(combined)}`, 'success');
+                merged = [[...combined[0]]];
+                mergeIdx = 1;
+                phase = 'merge';
+                addLog(`Init merged: [[${combined[0]}]]`, 'info');
+            } else if (phase === 'merge') {
+                if (mergeIdx < combined.length) {
+                    const current = combined[mergeIdx];
+                    const last = merged[merged.length - 1];
+                    
+                    if (current[0] <= last[1]) {
+                        last[1] = Math.max(last[1], current[1]);
+                        addLog(`[${current}] overlaps → [${last}]`, 'success');
+                    } else {
+                        merged.push([...current]);
+                        addLog(`[${current}] no overlap → add`, 'warning');
+                    }
+                    mergeIdx++;
+                }
+                
+                if (mergeIdx >= combined.length) {
+                    phase = 'done';
+                    done = true;
+                    addLog(`Done! ${JSON.stringify(merged)}`, 'success');
+                }
+            }
+            
+            updateState();
+            render();
+        }
+
+        function play() {
+            if (isRunning) return;
+            isRunning = true;
+            document.getElementById('playBtn').disabled = true;
+            document.getElementById('pauseBtn').disabled = false;
+            document.getElementById('stepBtn').disabled = true;
+            runLoop();
+        }
+
+        function pause() {
+            isRunning = false;
+            document.getElementById('playBtn').disabled = false;
+            document.getElementById('pauseBtn').disabled = true;
+            document.getElementById('stepBtn').disabled = false;
+        }
+
+        function stopExecution() {
+            isRunning = false;
+            document.getElementById('playBtn').disabled = true;
+            document.getElementById('pauseBtn').disabled = true;
+            document.getElementById('stepBtn').disabled = true;
+        }
+
+        function runLoop() {
+            if (!isRunning) return;
+            step();
+            if (isRunning && !done) {
+                setTimeout(runLoop, 500 / speed);
+            } else {
+                stopExecution();
+            }
+        }
+
+        function reset() {
+            isRunning = false;
+            document.getElementById('playBtn').disabled = false;
+            document.getElementById('pauseBtn').disabled = true;
+            document.getElementById('stepBtn').disabled = false;
+            init();
+        }
+
+        document.getElementById('playBtn').addEventListener('click', play);
+        document.getElementById('pauseBtn').addEventListener('click', pause);
+        document.getElementById('stepBtn').addEventListener('click', step);
+        document.getElementById('resetBtn').addEventListener('click', reset);
+        document.getElementById('speedSlider').addEventListener('input', (e) => {
+            speed = parseInt(e.target.value);
+            document.getElementById('speedValue').textContent = speed + 'x';
+        });
+
+        init();
+    </script>
+</body>
+</html>

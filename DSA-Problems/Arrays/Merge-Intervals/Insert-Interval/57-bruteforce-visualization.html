@@ -1,0 +1,431 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Insert Interval - Add Then Merge</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #ff9a9e 0%, #fecfef 100%);
+            min-height: 100vh;
+            padding: 20px;
+            color: #333;
+        }
+        .container {
+            max-width: 1050px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            overflow: hidden;
+        }
+        header {
+            background: linear-gradient(135deg, #ff9a9e 0%, #fecfef 100%);
+            color: #333;
+            padding: 25px;
+            text-align: center;
+        }
+        h1 { font-size: 1.5em; margin-bottom: 8px; }
+        .subtitle { font-size: 1em; opacity: 0.8; }
+        .complexity-badge {
+            display: inline-block;
+            background: rgba(255,255,255,0.5);
+            padding: 6px 14px;
+            border-radius: 15px;
+            margin-top: 8px;
+            font-size: 0.85em;
+        }
+        .main-content {
+            display: grid;
+            grid-template-columns: 1fr 250px;
+            gap: 20px;
+            padding: 20px;
+        }
+        .card {
+            background: #f8f9fa;
+            border-radius: 12px;
+            padding: 16px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            margin-bottom: 16px;
+        }
+        .card-title {
+            font-size: 0.95em;
+            font-weight: 600;
+            margin-bottom: 12px;
+            color: #e91e63;
+        }
+        .controls { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+        button {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 8px;
+            font-size: 0.85em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        button:hover { transform: translateY(-2px); }
+        button:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+        .btn-primary { background: linear-gradient(135deg, #ff9a9e 0%, #e91e63 100%); color: white; }
+        .btn-success { background: linear-gradient(135deg, #28a745 0%, #20c997 100%); color: white; }
+        .btn-warning { background: linear-gradient(135deg, #ffc107 0%, #ff9800 100%); color: white; }
+        .btn-secondary { background: #6c757d; color: white; }
+        .speed-control { display: flex; align-items: center; gap: 6px; flex: 1; min-width: 140px; }
+        .speed-control input[type="range"] { flex: 1; height: 5px; }
+        .intervals-display {
+            display: flex;
+            gap: 10px;
+            padding: 15px;
+            background: white;
+            border-radius: 8px;
+            flex-wrap: wrap;
+            justify-content: center;
+            min-height: 55px;
+        }
+        .interval {
+            padding: 10px 14px;
+            border-radius: 8px;
+            font-weight: 700;
+            font-size: 0.9em;
+            background: #e8eaf6;
+            border: 3px solid #5c6bc0;
+            transition: all 0.3s;
+        }
+        .interval.new { background: #fff9c4; border-color: #f9a825; }
+        .interval.current { background: #ffecb3; border-color: #ffa000; }
+        .interval.comparing { background: #bbdefb; border-color: #1976d2; }
+        .interval.merged { background: #c8e6c9; border-color: #43a047; animation: pulse 0.4s; }
+        .interval.extending { background: #b2dfdb; border-color: #00897b; }
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+        }
+        .merged-display {
+            display: flex;
+            gap: 10px;
+            padding: 15px;
+            background: #e8f5e9;
+            border-radius: 8px;
+            flex-wrap: wrap;
+            justify-content: center;
+            min-height: 55px;
+        }
+        .merged-interval {
+            padding: 10px 14px;
+            border-radius: 8px;
+            font-weight: 700;
+            font-size: 0.9em;
+            background: #c8e6c9;
+            border: 3px solid #43a047;
+        }
+        .merged-interval.last { background: #a5d6a7; border-color: #2e7d32; }
+        .phase-indicator {
+            text-align: center;
+            padding: 12px;
+            background: white;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 0.9em;
+        }
+        .phase-add { color: #f9a825; }
+        .phase-sort { color: #1976d2; }
+        .phase-merge { color: #00897b; }
+        .phase-done { color: #43a047; }
+        .timeline {
+            background: white;
+            border-radius: 8px;
+            padding: 15px;
+            position: relative;
+            height: 90px;
+        }
+        .timeline-axis {
+            position: absolute;
+            bottom: 20px;
+            left: 20px;
+            right: 20px;
+            height: 2px;
+            background: #ccc;
+        }
+        .timeline-bar {
+            position: absolute;
+            height: 22px;
+            border-radius: 4px;
+            opacity: 0.85;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.65em;
+            font-weight: 700;
+            color: white;
+        }
+        .state-display { background: white; border-radius: 8px; padding: 10px; font-family: 'Courier New', monospace; font-size: 0.8em; }
+        .state-row { display: flex; justify-content: space-between; padding: 4px 0; border-bottom: 1px solid #e0e0e0; }
+        .state-row:last-child { border-bottom: none; }
+        .state-label { font-weight: 600; color: #e91e63; }
+        .log-container { background: white; border-radius: 8px; padding: 10px; max-height: 150px; overflow-y: auto; font-family: 'Courier New', monospace; font-size: 0.6em; }
+        .log-entry { padding: 3px 6px; margin: 2px 0; border-radius: 4px; border-left: 3px solid #e91e63; background: #f8f9fa; }
+        .log-entry.success { border-left-color: #28a745; background: #d4edda; }
+        .log-entry.warning { border-left-color: #ffc107; background: #fff3cd; }
+        .log-entry.info { border-left-color: #17a2b8; background: #d1ecf1; }
+        @media (max-width: 800px) { .main-content { grid-template-columns: 1fr; } }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>➕ Insert Interval</h1>
+            <div class="subtitle">Brute Force - Add, Sort, Then Merge</div>
+            <div class="complexity-badge">Time: O(n log n) | Space: O(n)</div>
+        </header>
+        <div class="main-content">
+            <div class="left-panel">
+                <div class="card">
+                    <div class="card-title">⚙️ Controls</div>
+                    <div class="controls">
+                        <button class="btn-primary" id="playBtn">▶️ Play</button>
+                        <button class="btn-warning" id="pauseBtn" disabled>⏸️ Pause</button>
+                        <button class="btn-success" id="stepBtn">⏭️ Step</button>
+                        <button class="btn-secondary" id="resetBtn">🔄 Reset</button>
+                        <div class="speed-control">
+                            <label>Speed:</label>
+                            <input type="range" id="speedSlider" min="1" max="10" value="5">
+                            <span id="speedValue">5x</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="card">
+                    <div class="card-title">📋 Intervals + New Interval</div>
+                    <div class="intervals-display" id="intervalsDisplay"></div>
+                </div>
+                <div class="card">
+                    <div class="card-title">✅ Merged Result</div>
+                    <div class="merged-display" id="mergedDisplay">
+                        <span style="color:#888">Empty</span>
+                    </div>
+                </div>
+                <div class="card">
+                    <div class="card-title">📊 Timeline</div>
+                    <div class="timeline" id="timeline">
+                        <div class="timeline-axis"></div>
+                    </div>
+                </div>
+                <div class="card">
+                    <div class="phase-indicator" id="phaseIndicator">Ready to start</div>
+                </div>
+            </div>
+            <div class="right-panel">
+                <div class="card">
+                    <div class="card-title">📋 Current State</div>
+                    <div class="state-display">
+                        <div class="state-row"><span class="state-label">Phase:</span><span id="phaseState">Add</span></div>
+                        <div class="state-row"><span class="state-label">Index:</span><span id="indexState">-</span></div>
+                        <div class="state-row"><span class="state-label">Count:</span><span id="countState">2</span></div>
+                    </div>
+                </div>
+                <div class="card" style="flex: 1;">
+                    <div class="card-title">📝 Execution Log</div>
+                    <div class="log-container" id="logContainer"><div class="log-entry info">Add new, sort, then merge.</div></div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script>
+        let intervals = [[1,3],[6,9]];
+        const newInterval = [2,5];
+        let combined = [];
+        let merged = [];
+        
+        let phase = 'add'; // 'add', 'sort', 'merge', 'done'
+        let idx = 1;
+        let isRunning = false;
+        let speed = 5;
+        let stepCount = 0;
+        let done = false;
+        let currentIdx = -1;
+
+        function init() {
+            intervals = [[1,3],[6,9]];
+            combined = [];
+            merged = [];
+            phase = 'add';
+            idx = 1;
+            currentIdx = -1;
+            stepCount = 0;
+            done = false;
+            
+            clearLog();
+            addLog('intervals = [[1,3],[6,9]]', 'info');
+            addLog('newInterval = [2,5]', 'info');
+            updateState();
+            render();
+        }
+
+        function render() {
+            const display = document.getElementById('intervalsDisplay');
+            const arr = phase === 'add' ? intervals : combined;
+            display.innerHTML = arr.map((int, i) => {
+                let cls = 'interval';
+                if (phase === 'add' && JSON.stringify(int) === JSON.stringify(newInterval)) cls += ' new';
+                else if (phase === 'merge') {
+                    if (i < idx) cls += ' merged';
+                    else if (i === idx) cls += ' current';
+                }
+                return `<div class="${cls}">[${int[0]},${int[1]}]</div>`;
+            }).join('');
+            
+            if (phase === 'add' && combined.length === 0) {
+                display.innerHTML += `<div class="interval new" style="opacity:0.5">[${newInterval[0]},${newInterval[1]}] ← to add</div>`;
+            }
+            
+            const mergedDisp = document.getElementById('mergedDisplay');
+            if (merged.length === 0) {
+                mergedDisp.innerHTML = '<span style="color:#888">Empty</span>';
+            } else {
+                mergedDisp.innerHTML = merged.map((int, i) => {
+                    let cls = 'merged-interval';
+                    if (i === merged.length - 1) cls += ' last';
+                    return `<div class="${cls}">[${int[0]},${int[1]}]</div>`;
+                }).join('');
+            }
+            
+            // Timeline
+            const timeline = document.getElementById('timeline');
+            const all = merged.length > 0 ? merged : (combined.length > 0 ? combined : [...intervals, newInterval]);
+            const maxEnd = Math.max(...all.map(int => int[1])) + 2;
+            const colors = ['#e57373', '#64b5f6', '#81c784', '#ffb74d'];
+            timeline.innerHTML = '<div class="timeline-axis"></div>' + 
+                all.map((int, i) => {
+                    const left = 20 + (int[0] / maxEnd) * (timeline.offsetWidth - 40);
+                    const width = Math.max(((int[1] - int[0]) / maxEnd) * (timeline.offsetWidth - 40), 25);
+                    const top = 8 + i * 20;
+                    return `<div class="timeline-bar" style="left:${left}px;width:${width}px;top:${top}px;background:${colors[i % colors.length]}">[${int[0]},${int[1]}]</div>`;
+                }).join('');
+            
+            const phaseIndicator = document.getElementById('phaseIndicator');
+            if (phase === 'add') {
+                phaseIndicator.className = 'phase-indicator phase-add';
+                phaseIndicator.textContent = 'Phase 1: Add newInterval to list';
+            } else if (phase === 'sort') {
+                phaseIndicator.className = 'phase-indicator phase-sort';
+                phaseIndicator.textContent = 'Phase 2: Sort by start time';
+            } else if (phase === 'merge') {
+                phaseIndicator.className = 'phase-indicator phase-merge';
+                phaseIndicator.textContent = `Phase 3: Merge overlapping (${idx}/${combined.length})`;
+            } else {
+                phaseIndicator.className = 'phase-indicator phase-done';
+                phaseIndicator.textContent = `Done! Result: ${JSON.stringify(merged)}`;
+            }
+            
+            document.getElementById('countState').textContent = (combined.length || intervals.length + 1);
+        }
+
+        function updateState() {
+            document.getElementById('phaseState').textContent = phase;
+            document.getElementById('indexState').textContent = phase === 'merge' ? idx : '-';
+        }
+
+        function addLog(msg, type = 'info') {
+            const log = document.getElementById('logContainer');
+            log.innerHTML += `<div class="log-entry ${type}">[${stepCount}] ${msg}</div>`;
+            log.scrollTop = log.scrollHeight;
+        }
+
+        function clearLog() { document.getElementById('logContainer').innerHTML = ''; }
+
+        function step() {
+            if (done) { stopExecution(); return; }
+            stepCount++;
+            
+            if (phase === 'add') {
+                combined = [...intervals, [...newInterval]];
+                addLog(`Added [${newInterval}] → ${JSON.stringify(combined)}`, 'success');
+                phase = 'sort';
+            } else if (phase === 'sort') {
+                combined.sort((a, b) => a[0] - b[0]);
+                addLog(`Sorted: ${JSON.stringify(combined)}`, 'success');
+                merged = [[...combined[0]]];
+                idx = 1;
+                phase = 'merge';
+                addLog(`Init merged: [[${combined[0]}]]`, 'info');
+            } else if (phase === 'merge') {
+                if (idx < combined.length) {
+                    const current = combined[idx];
+                    const last = merged[merged.length - 1];
+                    
+                    if (current[0] <= last[1]) {
+                        last[1] = Math.max(last[1], current[1]);
+                        addLog(`[${current}] overlaps → extend to [${last}]`, 'success');
+                    } else {
+                        merged.push([...current]);
+                        addLog(`[${current}] no overlap → add new`, 'warning');
+                    }
+                    idx++;
+                }
+                
+                if (idx >= combined.length) {
+                    phase = 'done';
+                    done = true;
+                    addLog(`Done! ${JSON.stringify(merged)}`, 'success');
+                }
+            }
+            
+            updateState();
+            render();
+        }
+
+        function play() {
+            if (isRunning) return;
+            isRunning = true;
+            document.getElementById('playBtn').disabled = true;
+            document.getElementById('pauseBtn').disabled = false;
+            document.getElementById('stepBtn').disabled = true;
+            runLoop();
+        }
+
+        function pause() {
+            isRunning = false;
+            document.getElementById('playBtn').disabled = false;
+            document.getElementById('pauseBtn').disabled = true;
+            document.getElementById('stepBtn').disabled = false;
+        }
+
+        function stopExecution() {
+            isRunning = false;
+            document.getElementById('playBtn').disabled = true;
+            document.getElementById('pauseBtn').disabled = true;
+            document.getElementById('stepBtn').disabled = true;
+        }
+
+        function runLoop() {
+            if (!isRunning) return;
+            step();
+            if (isRunning && !done) {
+                setTimeout(runLoop, 500 / speed);
+            } else {
+                stopExecution();
+            }
+        }
+
+        function reset() {
+            isRunning = false;
+            document.getElementById('playBtn').disabled = false;
+            document.getElementById('pauseBtn').disabled = true;
+            document.getElementById('stepBtn').disabled = false;
+            init();
+        }
+
+        document.getElementById('playBtn').addEventListener('click', play);
+        document.getElementById('pauseBtn').addEventListener('click', pause);
+        document.getElementById('stepBtn').addEventListener('click', step);
+        document.getElementById('resetBtn').addEventListener('click', reset);
+        document.getElementById('speedSlider').addEventListener('input', (e) => {
+            speed = parseInt(e.target.value);
+            document.getElementById('speedValue').textContent = speed + 'x';
+        });
+
+        init();
+    </script>
+</body>
+</html>

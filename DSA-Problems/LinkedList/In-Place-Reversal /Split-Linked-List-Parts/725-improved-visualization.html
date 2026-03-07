@@ -1,0 +1,964 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>725 - Improved: Two-Pass with Sizes Array</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #0f0c29 0%, #302b63 50%, #24243e 100%);
+            min-height: 100vh;
+            padding: 18px;
+            color: #e0e0e0
+        }
+
+        .container {
+            max-width: 1360px;
+            margin: 0 auto;
+            background: rgba(25, 25, 50, .95);
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, .5), 0 0 40px rgba(230, 126, 34, .07);
+            overflow: hidden;
+            border: 1px solid rgba(255, 255, 255, .06)
+        }
+
+        header {
+            background: linear-gradient(135deg, #d35400, #e67e22);
+            color: #fff;
+            padding: 22px;
+            text-align: center
+        }
+
+        h1 {
+            font-size: 1.15em;
+            margin-bottom: 5px
+        }
+
+        .subtitle {
+            font-size: .84em;
+            opacity: .92
+        }
+
+        .badge {
+            display: inline-block;
+            background: rgba(255, 255, 255, .2);
+            padding: 5px 14px;
+            border-radius: 15px;
+            margin-top: 7px;
+            font-size: .78em
+        }
+
+        .main-content {
+            display: grid;
+            grid-template-columns: 1fr 280px;
+            gap: 16px;
+            padding: 18px
+        }
+
+        .card {
+            background: rgba(40, 40, 75, .8);
+            border-radius: 14px;
+            padding: 15px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, .2);
+            margin-bottom: 14px;
+            border: 1px solid rgba(255, 255, 255, .05)
+        }
+
+        .card-title {
+            font-size: .88em;
+            font-weight: 600;
+            margin-bottom: 10px;
+            color: #e67e22
+        }
+
+        button {
+            padding: 7px 14px;
+            border: none;
+            border-radius: 8px;
+            font-size: .82em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all .3s
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, .3)
+        }
+
+        button:disabled {
+            opacity: .4;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #d35400, #e67e22);
+            color: #fff
+        }
+
+        .btn-success {
+            background: linear-gradient(135deg, #27ae60, #2ecc71);
+            color: #fff
+        }
+
+        .btn-warning {
+            background: linear-gradient(135deg, #f39c12, #e67e22);
+            color: #fff
+        }
+
+        .btn-secondary {
+            background: rgba(100, 100, 140, .7);
+            color: #fff
+        }
+
+        .btn-info {
+            background: linear-gradient(135deg, #3498db, #2980b9);
+            color: #fff
+        }
+
+        .controls {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            align-items: center
+        }
+
+        .speed-control {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            flex: 1;
+            min-width: 140px
+        }
+
+        .speed-control label {
+            font-size: .8em;
+            color: #aaa
+        }
+
+        .speed-control input[type="range"] {
+            flex: 1;
+            height: 5px;
+            accent-color: #e67e22
+        }
+
+        .speed-control span {
+            font-size: .8em;
+            color: #e67e22;
+            min-width: 24px
+        }
+
+        .input-section {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+            flex-wrap: wrap
+        }
+
+        .input-section input {
+            padding: 7px 10px;
+            border-radius: 8px;
+            border: 1px solid rgba(255, 255, 255, .15);
+            background: rgba(20, 20, 45, .8);
+            color: #e0e0e0;
+            font-size: .85em;
+            font-family: 'Courier New', monospace;
+            min-width: 100px
+        }
+
+        .input-section input:focus {
+            outline: none;
+            border-color: #e67e22
+        }
+
+        .input-section label {
+            font-size: .82em;
+            color: #aaa
+        }
+
+        /* Linked list */
+        .ll-area {
+            padding: 10px;
+            background: rgba(20, 20, 50, .4);
+            border-radius: 10px;
+            min-height: 56px
+        }
+
+        .ptr-row {
+            display: flex;
+            gap: 0;
+            min-height: 16px;
+            align-items: center;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin-bottom: 2px
+        }
+
+        .ptr-cell {
+            width: 44px;
+            text-align: center;
+            font-size: .48em;
+            font-weight: 700;
+            margin: 0 1px
+        }
+
+        .ptr-spacer {
+            width: 14px;
+            margin: 0 1px
+        }
+
+        .p-curr {
+            color: #f39c12
+        }
+
+        .p-cut {
+            color: #e74c3c
+        }
+
+        .ll-row {
+            display: flex;
+            gap: 0;
+            align-items: center;
+            justify-content: center;
+            flex-wrap: wrap
+        }
+
+        .nd {
+            width: 44px;
+            height: 44px;
+            border-radius: 10px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 1.05em;
+            border: 2.5px solid rgba(150, 150, 200, .12);
+            background: rgba(60, 60, 100, .12);
+            font-family: 'Courier New', monospace;
+            color: #666;
+            transition: all .35s
+        }
+
+        .nd-sub {
+            font-size: .38em;
+            color: #555;
+            margin-top: 1px
+        }
+
+        .nd.count-nd {
+            border-color: #f1c40f;
+            background: rgba(241, 196, 15, .08);
+            color: #f1c40f
+        }
+
+        .nd.walk-nd {
+            border-color: #e67e22;
+            background: rgba(230, 126, 34, .1);
+            color: #e67e22;
+            box-shadow: 0 0 8px rgba(230, 126, 34, .1)
+        }
+
+        .nd.cut-nd {
+            border-color: #e74c3c;
+            background: rgba(231, 76, 60, .1);
+            color: #e74c3c;
+            box-shadow: 0 0 8px rgba(231, 76, 60, .1)
+        }
+
+        .nd.part-nd {
+            border-color: #2ecc71;
+            background: rgba(46, 204, 113, .06);
+            color: #2ecc71
+        }
+
+        .nd.done-nd {
+            border-color: #2ecc71;
+            background: rgba(46, 204, 113, .06);
+            color: #2ecc71
+        }
+
+        .arrow {
+            color: #555;
+            font-size: .78em;
+            margin: 0 1px;
+            transition: all .3s
+        }
+
+        .arrow.cut-a {
+            color: #e74c3c;
+            font-weight: 700
+        }
+
+        .arrow.done-a {
+            color: #2ecc71
+        }
+
+        /* Group colors on nodes */
+        .grp-row {
+            display: flex;
+            gap: 0;
+            min-height: 14px;
+            align-items: center;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin-top: 2px
+        }
+
+        .grp-cell {
+            width: 44px;
+            text-align: center;
+            font-size: .42em;
+            font-weight: 700;
+            margin: 0 1px;
+            border-radius: 3px;
+            padding: 1px 0
+        }
+
+        .grp-spacer {
+            width: 14px;
+            margin: 0 1px
+        }
+
+        /* Sizes display */
+        .sizes-row {
+            display: flex;
+            gap: 4px;
+            padding: 8px 10px;
+            background: rgba(20, 20, 50, .4);
+            border-radius: 8px;
+            min-height: 36px;
+            align-items: center;
+            justify-content: center;
+            flex-wrap: wrap
+        }
+
+        .sz {
+            padding: 4px 10px;
+            border-radius: 6px;
+            font-size: .8em;
+            font-weight: 700;
+            font-family: 'Courier New', monospace;
+            border: 1.5px solid rgba(150, 150, 200, .1);
+            color: #666;
+            transition: all .3s
+        }
+
+        .sz.computed {
+            border-color: #e67e22;
+            color: #e67e22;
+            background: rgba(230, 126, 34, .06)
+        }
+
+        .sz.active {
+            border-color: #f1c40f;
+            color: #f1c40f;
+            background: rgba(241, 196, 15, .08);
+            box-shadow: 0 0 6px rgba(241, 196, 15, .1)
+        }
+
+        .sz.done-sz {
+            border-color: #2ecc71;
+            color: #2ecc71;
+            background: rgba(46, 204, 113, .06)
+        }
+
+        /* Parts result */
+        .parts-area {
+            padding: 10px;
+            background: rgba(20, 20, 50, .4);
+            border-radius: 10px;
+            min-height: 40px
+        }
+
+        .part-row {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            margin: 4px 0;
+            flex-wrap: wrap
+        }
+
+        .part-label {
+            font-size: .62em;
+            font-weight: 700;
+            padding: 3px 8px;
+            border-radius: 5px;
+            min-width: 36px;
+            text-align: center
+        }
+
+        .pl-active {
+            background: rgba(230, 126, 34, .1);
+            border: 1px solid rgba(230, 126, 34, .15);
+            color: #e67e22
+        }
+
+        .pl-done {
+            background: rgba(46, 204, 113, .06);
+            border: 1px solid rgba(46, 204, 113, .1);
+            color: #2ecc71
+        }
+
+        .pl-empty {
+            background: rgba(100, 100, 140, .06);
+            border: 1px solid rgba(100, 100, 140, .1);
+            color: #666
+        }
+
+        .pn {
+            width: 36px;
+            height: 34px;
+            border-radius: 7px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: .88em;
+            font-family: 'Courier New', monospace;
+            border: 2px solid;
+            transition: all .35s
+        }
+
+        .p-arrow {
+            color: #555;
+            font-size: .68em;
+            margin: 0 1px
+        }
+
+        .status-ind {
+            text-align: center;
+            padding: 11px;
+            border-radius: 10px;
+            font-weight: 700;
+            font-size: .85em;
+            transition: all .3s
+        }
+
+        .si-neutral {
+            background: rgba(100, 100, 140, .12);
+            color: #888
+        }
+
+        .si-run {
+            background: rgba(230, 126, 34, .06);
+            color: #e67e22;
+            border: 1px solid rgba(230, 126, 34, .12)
+        }
+
+        .si-done {
+            background: rgba(46, 204, 113, .12);
+            color: #2ecc71;
+            border: 1px solid rgba(46, 204, 113, .25)
+        }
+
+        .state-display {
+            background: rgba(20, 20, 50, .5);
+            border-radius: 8px;
+            padding: 10px;
+            font-family: 'Courier New', monospace;
+            font-size: .68em
+        }
+
+        .state-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 4px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, .05)
+        }
+
+        .state-row:last-child {
+            border-bottom: none
+        }
+
+        .state-label {
+            font-weight: 600;
+            color: #e67e22
+        }
+
+        .state-val {
+            color: #ccc;
+            text-align: right;
+            max-width: 150px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap
+        }
+
+        .log-container {
+            background: rgba(20, 20, 50, .5);
+            border-radius: 8px;
+            padding: 10px;
+            max-height: 230px;
+            overflow-y: auto;
+            font-family: 'Courier New', monospace;
+            font-size: .54em
+        }
+
+        .log-entry {
+            padding: 3px 7px;
+            margin: 2px 0;
+            border-radius: 4px;
+            border-left: 3px solid #555;
+            background: rgba(40, 40, 70, .5);
+            line-height: 1.5
+        }
+
+        .log-entry.success {
+            border-left-color: #2ecc71;
+            background: rgba(46, 204, 113, .08);
+            color: #2ecc71
+        }
+
+        .log-entry.warning {
+            border-left-color: #f39c12;
+            background: rgba(243, 156, 18, .08);
+            color: #f39c12
+        }
+
+        .log-entry.info {
+            border-left-color: #3498db;
+            background: rgba(52, 152, 219, .08);
+            color: #8ec8f0
+        }
+
+        .log-entry.purple {
+            border-left-color: #9b59b6;
+            background: rgba(155, 89, 182, .08);
+            color: #bb6bd9
+        }
+
+        .log-entry.orange {
+            border-left-color: #e67e22;
+            background: rgba(230, 126, 34, .08);
+            color: #e67e22
+        }
+
+        .log-entry.error {
+            border-left-color: #e74c3c;
+            background: rgba(231, 76, 60, .08);
+            color: #e74c3c
+        }
+
+        .log-container::-webkit-scrollbar {
+            width: 5px
+        }
+
+        .log-container::-webkit-scrollbar-track {
+            background: transparent
+        }
+
+        .log-container::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, .15);
+            border-radius: 3px
+        }
+
+        @media(max-width:960px) {
+            .main-content {
+                grid-template-columns: 1fr
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <header>
+            <h1>✂️ Split Linked List in Parts</h1>
+            <div class="subtitle">Improved — Count + Pre-Computed Sizes + Walk & Cut In-Place</div>
+            <div class="badge">Time: O(n) | Space: O(k) — sizes array + result, reuses original nodes</div>
+        </header>
+        <div class="main-content">
+            <div class="left-panel">
+                <div class="card">
+                    <div class="card-title">⚙️ Controls</div>
+                    <div class="controls">
+                        <button class="btn-primary" id="playBtn">▶️ Play</button>
+                        <button class="btn-warning" id="pauseBtn" disabled>⏸️ Pause</button>
+                        <button class="btn-success" id="stepBtn">⏭️ Step</button>
+                        <button class="btn-secondary" id="resetBtn">🔄 Reset</button>
+                        <div class="speed-control">
+                            <label>Speed:</label>
+                            <input type="range" id="speedSlider" min="1" max="10" value="5">
+                            <span id="speedValue">5x</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="card">
+                    <div class="card-title">✏️ Custom Input</div>
+                    <div class="input-section">
+                        <label>List:</label>
+                        <input type="text" id="listInput" value="1,2,3,4,5,6,7,8,9,10" placeholder="values"
+                            style="flex:1">
+                        <label>k:</label>
+                        <input type="text" id="kInput" value="3" placeholder="k" style="width:40px">
+                        <button class="btn-info" id="applyBtn">Apply</button>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-title">🔗 Linked List (n=<span id="nDisp">10</span>)</div>
+                    <div class="ll-area">
+                        <div class="ptr-row" id="ptrRow"></div>
+                        <div class="ll-row" id="llDisplay"></div>
+                        <div class="grp-row" id="grpRow"></div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-title">📐 sizes[] — base=<span id="baseDisp">?</span>, rem=<span
+                            id="remDisp">?</span></div>
+                    <div class="sizes-row" id="sizesDisplay"><span style="color:#555">—</span></div>
+                </div>
+
+                <div class="card">
+                    <div class="card-title">📋 Result Parts (k=<span id="kDisp">3</span>)</div>
+                    <div class="parts-area" id="partsDisplay"><span style="color:#555">—</span></div>
+                </div>
+
+                <div class="card">
+                    <div class="status-ind si-neutral" id="statusInd">Ready — press Play or Step</div>
+                </div>
+            </div>
+
+            <div class="right-panel">
+                <div class="card">
+                    <div class="card-title">📋 Current State</div>
+                    <div class="state-display">
+                        <div class="state-row"><span class="state-label">Phase:</span><span class="state-val"
+                                id="stPhase">init</span></div>
+                        <div class="state-row"><span class="state-label">n:</span><span class="state-val"
+                                id="stN">—</span></div>
+                        <div class="state-row"><span class="state-label">k:</span><span class="state-val"
+                                id="stK">—</span></div>
+                        <div class="state-row"><span class="state-label">base:</span><span class="state-val"
+                                id="stBase">—</span></div>
+                        <div class="state-row"><span class="state-label">remainder:</span><span class="state-val"
+                                id="stRem">—</span></div>
+                        <div class="state-row"><span class="state-label">curr part:</span><span class="state-val"
+                                id="stPart">—</span></div>
+                        <div class="state-row"><span class="state-label">walk step:</span><span class="state-val"
+                                id="stWalk">—</span></div>
+                        <div class="state-row"><span class="state-label">curr node:</span><span class="state-val"
+                                id="stCurr">—</span></div>
+                    </div>
+                </div>
+                <div class="card" style="flex:1">
+                    <div class="card-title">📝 Execution Log</div>
+                    <div class="log-container" id="logContainer">
+                        <div class="log-entry info">Pass 1: count n. Compute sizes. Pass 2: walk & cut.</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let initVals = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
+        let K = 3;
+
+        // Linked list as array of {val, next}
+        let nodes = [];
+        let n, base, remainder;
+        let countIdx = -1;
+        let sizes = [];
+        let currPart = -1;
+        let walkStep = -1;
+        let currIdx = -1;       // current node index in linked list
+        let cutIdx = -1;        // node we're about to cut after
+        let partAssign = [];    // which part each node belongs to (-1 = unassigned)
+        let parts = [];         // result: array of {headIdx, vals[]}
+        let cutPoints = new Set();
+
+        const PCOLORS = ['#e74c3c', '#3498db', '#2ecc71', '#f39c12', '#e67e22', '#1abc9c', '#9b59b6', '#34495e', '#d35400', '#16a085'];
+
+        // phases: init | count | compute | split-start | walk | cut | done
+        let phase = 'init';
+        let stepCount = 0, isRunning = false, speed = 5, isDone = false;
+
+        const $ = id => document.getElementById(id);
+        const logC = $('logContainer');
+        function addLog(m, t = 'info') { logC.innerHTML += `<div class="log-entry ${t}">[${stepCount}] ${m}</div>`; logC.scrollTop = logC.scrollHeight }
+        function clearLog() { logC.innerHTML = '' }
+
+        function buildList() {
+            nodes = [];
+            for (let i = 0; i < initVals.length; i++) {
+                nodes.push({ val: initVals[i], next: i + 1 < initVals.length ? i + 1 : -1 });
+            }
+        }
+
+        function nv(i) { return i >= 0 && i < nodes.length ? nodes[i].val : 'null'; }
+
+        function render() {
+            $('nDisp').textContent = n >= 0 ? n : initVals.length;
+            $('kDisp').textContent = K;
+            $('baseDisp').textContent = base >= 0 ? base : '?';
+            $('remDisp').textContent = remainder >= 0 ? remainder : '?';
+
+            // Pointer row
+            let pH = '';
+            for (let i = 0; i < nodes.length; i++) {
+                let labels = [];
+                if (i === currIdx && (phase === 'walk' || phase === 'cut' || phase === 'split-start')) labels.push('<span class="p-curr">curr</span>');
+                if (i === cutIdx && phase === 'cut') labels.push('<span class="p-cut">✂cut</span>');
+                pH += `<div class="ptr-cell">${labels.join(' ')}</div>`;
+                if (i < nodes.length - 1) pH += `<div class="ptr-spacer"></div>`;
+            }
+            $('ptrRow').innerHTML = pH;
+
+            // Linked list
+            let llH = '';
+            for (let i = 0; i < nodes.length; i++) {
+                let cls = 'nd';
+                if (phase === 'count' && i === countIdx) cls += ' count-nd';
+                else if (i === currIdx && (phase === 'walk' || phase === 'split-start')) cls += ' walk-nd';
+                else if (i === cutIdx && phase === 'cut') cls += ' cut-nd';
+                else if (partAssign[i] >= 0) cls += ' part-nd';
+                else if (phase === 'done') cls += ' done-nd';
+
+                const color = partAssign[i] >= 0 ? PCOLORS[partAssign[i] % PCOLORS.length] : null;
+                const style = color ? `border-color:${color};color:${color}` : '';
+
+                llH += `<div class="ll-node"><div class="${cls}" style="${style}">${nodes[i].val}<span class="nd-sub">${i}</span></div>`;
+                if (i < nodes.length - 1) {
+                    let isCut = cutPoints.has(i);
+                    let aCls = 'arrow';
+                    if (isCut) aCls += ' cut-a';
+                    else if (phase === 'done') aCls += ' done-a';
+                    llH += `<span class="${aCls}">${isCut ? ' ✂ ' : ' → '}</span>`;
+                }
+                llH += '</div>';
+            }
+            $('llDisplay').innerHTML = llH;
+
+            // Group labels under nodes
+            let gH = '';
+            for (let i = 0; i < nodes.length; i++) {
+                const pi = partAssign[i];
+                const color = pi >= 0 ? PCOLORS[pi % PCOLORS.length] : 'transparent';
+                gH += `<div class="grp-cell" style="color:${color}">${pi >= 0 ? 'P' + pi : ''}</div>`;
+                if (i < nodes.length - 1) gH += `<div class="grp-spacer"></div>`;
+            }
+            $('grpRow').innerHTML = gH;
+
+            // Sizes
+            if (sizes.length > 0) {
+                let sH = '';
+                for (let i = 0; i < sizes.length; i++) {
+                    let cls = 'sz computed';
+                    if (i === currPart && phase !== 'done') cls = 'sz active';
+                    else if (i < currPart || phase === 'done') cls = 'sz done-sz';
+                    sH += `<div class="${cls}">P${i}:${sizes[i]}</div>`;
+                }
+                $('sizesDisplay').innerHTML = sH;
+            } else {
+                $('sizesDisplay').innerHTML = '<span style="color:#555">—</span>';
+            }
+
+            // Parts
+            if (parts.length > 0) {
+                let rpH = '';
+                for (let i = 0; i < parts.length; i++) {
+                    const p = parts[i];
+                    const color = PCOLORS[i % PCOLORS.length];
+                    const done = i < currPart || phase === 'done';
+                    const active = i === currPart && phase !== 'done';
+                    rpH += `<div class="part-row">`;
+                    rpH += `<div class="part-label ${done ? 'pl-done' : active ? 'pl-active' : 'pl-empty'}" style="${done ? 'border-color:' + color + ';color:' + color : ''}">P${i}</div>`;
+                    if (p.vals.length === 0) {
+                        rpH += `<span style="color:#666;font-size:.72em;font-style:italic;margin-left:6px">null</span>`;
+                    } else {
+                        for (let j = 0; j < p.vals.length; j++) {
+                            rpH += `<div class="pn" style="border-color:${color};color:${color};background:${color}11">${p.vals[j]}</div>`;
+                            if (j < p.vals.length - 1) rpH += `<span class="p-arrow"> → </span>`;
+                        }
+                    }
+                    rpH += `</div>`;
+                }
+                $('partsDisplay').innerHTML = rpH;
+            } else {
+                $('partsDisplay').innerHTML = '<span style="color:#555">—</span>';
+            }
+
+            // State
+            $('stPhase').textContent = phase;
+            $('stN').textContent = n >= 0 ? n : '—';
+            $('stK').textContent = K;
+            $('stBase').textContent = base >= 0 ? base : '—';
+            $('stRem').textContent = remainder >= 0 ? remainder : '—';
+            $('stPart').textContent = currPart >= 0 ? `P${currPart} (size=${sizes[currPart] || 0})` : '—';
+            $('stWalk').textContent = walkStep >= 0 ? `${walkStep}/${sizes[currPart] || 0}` : '—';
+            $('stCurr').textContent = currIdx >= 0 ? `node(${nv(currIdx)}) @${currIdx}` : '—';
+        }
+
+        function doStep() {
+            if (isDone) { stopExec(); return; }
+            stepCount++;
+
+            switch (phase) {
+                case 'init': {
+                    buildList();
+                    n = -1; base = -1; remainder = -1; countIdx = 0;
+                    sizes = []; currPart = -1; walkStep = -1; currIdx = -1; cutIdx = -1;
+                    partAssign = new Array(nodes.length).fill(-1);
+                    parts = []; cutPoints = new Set();
+                    addLog(`List: [${initVals.join(',')}], k=${K}`, 'info');
+                    addLog(`━━ Pass 1: Count nodes ━━`, 'orange');
+                    phase = 'count';
+                    $('statusInd').className = 'status-ind si-run';
+                    $('statusInd').textContent = 'Pass 1: Counting...';
+                    render();
+                    break;
+                }
+                case 'count': {
+                    if (countIdx >= nodes.length) {
+                        n = nodes.length;
+                        addLog(`  n = ${n}`, 'success');
+                        phase = 'compute';
+                        render();
+                        doStep();
+                        return;
+                    }
+                    addLog(`  Count: node(${nv(countIdx)}), seen ${countIdx + 1}`, 'info');
+                    render();
+                    countIdx++;
+                    break;
+                }
+                case 'compute': {
+                    base = Math.floor(n / K);
+                    remainder = n % K;
+                    for (let i = 0; i < K; i++) sizes.push(base + (i < remainder ? 1 : 0));
+                    addLog(`  base = ⌊${n}/${K}⌋ = ${base}, remainder = ${n}%${K} = ${remainder}`, 'orange');
+                    addLog(`  sizes = [${sizes.join(',')}]`, 'orange');
+                    addLog(`━━ Pass 2: Walk & cut in-place ━━`, 'purple');
+                    currPart = 0; currIdx = 0; walkStep = 0;
+                    for (let i = 0; i < K; i++) parts.push({ headIdx: -1, vals: [] });
+                    $('statusInd').textContent = 'Pass 2: Walk & cut...';
+                    phase = 'split-start';
+                    render();
+                    break;
+                }
+                case 'split-start': {
+                    if (currPart >= K) {
+                        const summary = parts.map((p, i) => `P${i}:[${p.vals.join(',')}]`).join(' ');
+                        addLog(`✅ Done! ${summary}`, 'success');
+                        phase = 'done'; isDone = true;
+                        currPart = K;
+                        $('statusInd').className = 'status-ind si-done';
+                        $('statusInd').textContent = `✅ Done! ${K} parts created`;
+                        render(); stopExec(); return;
+                    }
+                    const sz = sizes[currPart];
+                    if (sz === 0) {
+                        addLog(`  P${currPart}: size=0 → null`, 'warning');
+                        parts[currPart] = { headIdx: -1, vals: [] };
+                        currPart++;
+                        render();
+                        return;
+                    }
+                    parts[currPart].headIdx = currIdx;
+                    addLog(`  P${currPart}: head = node(${nv(currIdx)}), size=${sz}`, 'orange');
+                    walkStep = 1;
+                    // Assign first node
+                    partAssign[currIdx] = currPart;
+                    parts[currPart].vals.push(nv(currIdx));
+                    if (sz === 1) {
+                        // Single node part — cut immediately
+                        phase = 'cut';
+                        cutIdx = currIdx;
+                        render();
+                        return;
+                    }
+                    phase = 'walk';
+                    render();
+                    break;
+                }
+                case 'walk': {
+                    const sz = sizes[currPart];
+                    if (walkStep >= sz) {
+                        // Time to cut
+                        cutIdx = currIdx;
+                        phase = 'cut';
+                        render();
+                        doStep();
+                        return;
+                    }
+                    // Advance
+                    currIdx = nodes[currIdx].next;
+                    partAssign[currIdx] = currPart;
+                    parts[currPart].vals.push(nv(currIdx));
+                    walkStep++;
+                    addLog(`    Walk: → node(${nv(currIdx)}), step ${walkStep}/${sz}`, 'info');
+                    if (walkStep >= sz) {
+                        cutIdx = currIdx;
+                        phase = 'cut';
+                    }
+                    render();
+                    break;
+                }
+                case 'cut': {
+                    const nextIdx = nodes[cutIdx].next;
+                    if (nextIdx >= 0 || cutIdx < nodes.length) {
+                        nodes[cutIdx].next = -1;
+                        cutPoints.add(cutIdx);
+                        addLog(`    ✂ Cut: node(${nv(cutIdx)}).next = null`, 'error');
+                    }
+                    currIdx = nextIdx >= 0 ? nextIdx : -1;
+                    currPart++;
+                    walkStep = 0;
+                    phase = 'split-start';
+                    render();
+                    break;
+                }
+            }
+        }
+
+        function play() { if (isRunning || isDone) return; isRunning = true; $('playBtn').disabled = true; $('pauseBtn').disabled = false; $('stepBtn').disabled = true; runLoop() }
+        function pause() { isRunning = false; $('playBtn').disabled = false; $('pauseBtn').disabled = true; $('stepBtn').disabled = false }
+        function stopExec() { isRunning = false; $('playBtn').disabled = true; $('pauseBtn').disabled = true; $('stepBtn').disabled = true }
+        function runLoop() { if (!isRunning) return; doStep(); if (isRunning && !isDone) setTimeout(runLoop, 400 / speed) }
+
+        function init() {
+            buildList();
+            n = -1; base = -1; remainder = -1; countIdx = 0;
+            sizes = []; currPart = -1; walkStep = -1; currIdx = -1; cutIdx = -1;
+            partAssign = new Array(nodes.length).fill(-1);
+            parts = []; cutPoints = new Set();
+            phase = 'init'; stepCount = 0; isDone = false;
+            $('statusInd').className = 'status-ind si-neutral';
+            $('statusInd').textContent = 'Ready — press Play or Step';
+            $('playBtn').disabled = false; $('pauseBtn').disabled = true; $('stepBtn').disabled = false;
+            clearLog(); addLog('Pass 1: count n. Compute sizes. Pass 2: walk & cut.', 'info');
+            render();
+        }
+
+        $('playBtn').addEventListener('click', play);
+        $('pauseBtn').addEventListener('click', pause);
+        $('stepBtn').addEventListener('click', () => { if (!isDone) doStep() });
+        $('resetBtn').addEventListener('click', () => { isRunning = false; init() });
+        $('speedSlider').addEventListener('input', e => { speed = parseInt(e.target.value); $('speedValue').textContent = speed + 'x' });
+        $('applyBtn').addEventListener('click', () => {
+            const lv = $('listInput').value.trim();
+            const kv = $('kInput').value.trim();
+            const vs = lv ? lv.split(',').map(x => parseInt(x.trim())).filter(x => !isNaN(x)) : [];
+            const kn = parseInt(kv);
+            if (isNaN(kn) || kn < 1) { alert('k must be ≥ 1'); return }
+            initVals = [...vs]; K = kn; isRunning = false; init();
+        });
+
+        init();
+    </script>
+</body>
+
+</html>

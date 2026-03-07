@@ -1,0 +1,904 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>904. Fruit Into Baskets - Sliding Window</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 50%, #90caf9 100%);
+            min-height: 100vh;
+            padding: 20px;
+            color: #333;
+        }
+
+        .container {
+            max-width: 1150px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.25);
+            overflow: hidden;
+        }
+
+        header {
+            background: linear-gradient(135deg, #1565c0 0%, #1e88e5 50%, #42a5f5 100%);
+            color: white;
+            padding: 25px;
+            text-align: center;
+        }
+
+        h1 {
+            font-size: 1.5em;
+            margin-bottom: 6px;
+        }
+
+        .subtitle {
+            font-size: 1em;
+            opacity: 0.9;
+        }
+
+        .complexity-badge {
+            display: inline-block;
+            background: rgba(255, 255, 255, 0.2);
+            padding: 6px 14px;
+            border-radius: 15px;
+            margin-top: 8px;
+            font-size: 0.85em;
+        }
+
+        .main-content {
+            display: grid;
+            grid-template-columns: 1fr 290px;
+            gap: 20px;
+            padding: 20px;
+        }
+
+        .card {
+            background: #f8f9fa;
+            border-radius: 12px;
+            padding: 16px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+            margin-bottom: 16px;
+        }
+
+        .card-title {
+            font-size: 0.95em;
+            font-weight: 600;
+            margin-bottom: 12px;
+            color: #1565c0;
+        }
+
+        /* Controls */
+        .controls {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            align-items: center;
+        }
+
+        button {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 8px;
+            font-size: 0.85em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+        }
+
+        button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #1565c0 0%, #42a5f5 100%);
+            color: white;
+        }
+
+        .btn-success {
+            background: linear-gradient(135deg, #2e7d32 0%, #66bb6a 100%);
+            color: white;
+        }
+
+        .btn-warning {
+            background: linear-gradient(135deg, #f9a825 0%, #ffca28 100%);
+            color: #333;
+        }
+
+        .btn-secondary {
+            background: #6c757d;
+            color: white;
+        }
+
+        .speed-control {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            flex: 1;
+            min-width: 140px;
+        }
+
+        .speed-control input[type="range"] {
+            flex: 1;
+            height: 5px;
+            accent-color: #1565c0;
+        }
+
+        /* Custom input */
+        .input-row {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .input-row input {
+            flex: 1;
+            min-width: 150px;
+            padding: 8px 12px;
+            border: 2px solid #bbdefb;
+            border-radius: 8px;
+            font-size: 0.9em;
+            font-family: 'Courier New', monospace;
+            outline: none;
+            transition: border-color 0.3s;
+        }
+
+        .input-row input:focus {
+            border-color: #1565c0;
+        }
+
+        /* Array Display */
+        .array-container {
+            display: flex;
+            gap: 6px;
+            min-height: 100px;
+            padding: 30px 10px 28px;
+            background: #fff;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            position: relative;
+            flex-wrap: wrap;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .array-item {
+            width: 52px;
+            height: 52px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            color: white;
+            position: relative;
+            transition: all 0.25s ease;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.12);
+            font-size: 1.15em;
+            background: #455a64;
+            z-index: 1;
+        }
+
+        .array-item.in-window {
+            background: linear-gradient(135deg, #42a5f5 0%, #1e88e5 100%);
+            transform: scale(1.08);
+            z-index: 2;
+        }
+
+        .array-item.shrinking {
+            background: linear-gradient(135deg, #ef5350 0%, #c62828 100%);
+            transform: scale(1.08);
+            z-index: 2;
+            animation: pulse-red 0.4s ease;
+        }
+
+        .array-item.expanding {
+            background: linear-gradient(135deg, #66bb6a 0%, #43a047 100%);
+            transform: scale(1.12);
+            z-index: 3;
+            animation: pulse-green 0.4s ease;
+        }
+
+        .array-item.best-window {
+            background: linear-gradient(135deg, #ff8f00 0%, #ffb300 100%);
+            transform: scale(1.08);
+            z-index: 2;
+        }
+
+        .array-item .idx-label {
+            position: absolute;
+            top: -18px;
+            font-size: 0.6em;
+            color: #888;
+            width: 100%;
+            text-align: center;
+        }
+
+        .pointer-label {
+            position: absolute;
+            font-size: 0.55em;
+            font-weight: 700;
+            padding: 1px 5px;
+            border-radius: 4px;
+            color: white;
+            white-space: nowrap;
+        }
+
+        .pointer-left {
+            bottom: -22px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #e65100;
+        }
+
+        .pointer-right {
+            top: -28px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #1b5e20;
+        }
+
+        @keyframes pulse-red {
+
+            0%,
+            100% {
+                box-shadow: 0 4px 8px rgba(0, 0, 0, 0.12);
+            }
+
+            50% {
+                box-shadow: 0 0 20px rgba(229, 57, 53, 0.6);
+            }
+        }
+
+        @keyframes pulse-green {
+
+            0%,
+            100% {
+                box-shadow: 0 4px 8px rgba(0, 0, 0, 0.12);
+            }
+
+            50% {
+                box-shadow: 0 0 20px rgba(67, 160, 71, 0.6);
+            }
+        }
+
+        /* Freq map display */
+        .freq-map-container {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin-top: 8px;
+        }
+
+        .freq-entry {
+            background: #fff;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            padding: 8px 14px;
+            text-align: center;
+            transition: all 0.3s ease;
+            min-width: 70px;
+        }
+
+        .freq-entry.active {
+            border-color: #42a5f5;
+            box-shadow: 0 0 10px rgba(66, 165, 245, 0.25);
+        }
+
+        .freq-entry.removing {
+            border-color: #ef5350;
+            box-shadow: 0 0 10px rgba(239, 83, 80, 0.3);
+            animation: pulse-red 0.4s ease;
+        }
+
+        .freq-entry .freq-emoji {
+            font-size: 1.5em;
+        }
+
+        .freq-entry .freq-type {
+            font-size: 0.7em;
+            color: #888;
+            margin: 2px 0;
+        }
+
+        .freq-entry .freq-count {
+            font-size: 1.1em;
+            font-weight: 700;
+            color: #1565c0;
+        }
+
+        /* Baskets */
+        .baskets-row {
+            display: flex;
+            gap: 12px;
+            justify-content: center;
+            margin-top: 4px;
+        }
+
+        .basket-icon {
+            font-size: 1.2em;
+            padding: 4px 10px;
+            background: #e3f2fd;
+            border-radius: 8px;
+        }
+
+        /* State & Log */
+        .state-display {
+            background: white;
+            border-radius: 8px;
+            padding: 10px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.85em;
+        }
+
+        .state-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 5px 0;
+            border-bottom: 1px solid #eee;
+        }
+
+        .state-row:last-child {
+            border-bottom: none;
+        }
+
+        .highlight-val {
+            color: #1565c0;
+            font-weight: bold;
+        }
+
+        .highlight-best {
+            color: #e65100;
+            font-weight: bold;
+        }
+
+        .log-container {
+            background: white;
+            border-radius: 8px;
+            padding: 10px;
+            max-height: 250px;
+            overflow-y: auto;
+            font-family: 'Courier New', monospace;
+            font-size: 0.65em;
+        }
+
+        .log-entry {
+            padding: 3px 6px;
+            margin: 2px 0;
+            border-radius: 4px;
+            border-left: 3px solid #ccc;
+            background: #f9f9f9;
+        }
+
+        .log-entry.expand {
+            border-left-color: #43a047;
+            background: #e8f5e9;
+        }
+
+        .log-entry.shrink {
+            border-left-color: #e53935;
+            background: #ffebee;
+        }
+
+        .log-entry.info {
+            border-left-color: #1565c0;
+            background: #e3f2fd;
+        }
+
+        .log-entry.best {
+            border-left-color: #e65100;
+            background: #fff3e0;
+        }
+
+        .log-entry.found {
+            border-left-color: #2e7d32;
+            background: #e8f5e9;
+        }
+
+        .log-entry.check {
+            border-left-color: #f9a825;
+            background: #fff8e1;
+        }
+
+        .result-display {
+            text-align: center;
+            padding: 12px;
+            background: linear-gradient(135deg, #1565c0 0%, #1e88e5 100%);
+            color: white;
+            border-radius: 10px;
+            margin-top: 12px;
+            font-size: 1.15em;
+            font-weight: bold;
+        }
+
+        .strategy-text {
+            font-size: 0.88em;
+            color: #555;
+            line-height: 1.6;
+        }
+
+        .strategy-text code {
+            background: #e3f2fd;
+            padding: 1px 5px;
+            border-radius: 3px;
+            font-size: 0.9em;
+            color: #1565c0;
+        }
+
+        .fruit-legend {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            justify-content: center;
+            margin-top: 8px;
+            font-size: 0.8em;
+            color: #666;
+        }
+
+        .fruit-legend span {
+            background: #e3f2fd;
+            padding: 2px 8px;
+            border-radius: 12px;
+        }
+
+        /* Window length indicator */
+        .window-bar {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 6px;
+            margin-top: 6px;
+            font-size: 0.85em;
+            color: #555;
+        }
+
+        .window-bar .bar-segment {
+            height: 6px;
+            border-radius: 3px;
+            transition: width 0.3s;
+        }
+
+        .window-bar .bar-active {
+            background: #42a5f5;
+        }
+
+        .window-bar .bar-best {
+            background: #ff8f00;
+        }
+
+        @media (max-width: 800px) {
+            .main-content {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <header>
+            <h1>🍎 904. Fruit Into Baskets</h1>
+            <div class="subtitle">Sliding Window + HashMap (Optimal)</div>
+            <div class="complexity-badge">Time: O(n) | Space: O(1)</div>
+        </header>
+
+        <div class="main-content">
+            <div class="left-panel">
+                <div class="card">
+                    <div class="card-title">⚙️ Controls</div>
+                    <div class="controls">
+                        <button class="btn-primary" id="playBtn">▶️ Play</button>
+                        <button class="btn-warning" id="pauseBtn" disabled>⏸️ Pause</button>
+                        <button class="btn-success" id="stepBtn">⏭️ Step</button>
+                        <button class="btn-secondary" id="resetBtn">🔄 Reset</button>
+                        <div class="speed-control">
+                            <label>Speed:</label>
+                            <input type="range" id="speedSlider" min="1" max="10" value="5">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-title">🎯 Custom Input</div>
+                    <div class="input-row">
+                        <input type="text" id="customInput" placeholder="e.g. 1,2,3,2,2" value="1,2,3,2,2">
+                        <button class="btn-primary" id="loadBtn">Load</button>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-title">🌳 Fruit Trees — Sliding Window</div>
+                    <div class="array-container" id="arrayContainer"></div>
+                    <div class="fruit-legend" id="fruitLegend"></div>
+                    <div class="window-bar" id="windowBar"></div>
+                </div>
+
+                <div class="card">
+                    <div class="card-title">📦 Frequency Map <span style="font-weight:400;color:#888;font-size:0.85em">(
+                            fruit_type → count in window )</span></div>
+                    <div class="freq-map-container" id="freqMapContainer">
+                        <span style="color:#aaa;font-size:0.9em">Empty</span>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-title">ℹ️ Strategy</div>
+                    <div class="strategy-text">
+                        Maintain a window <code>[left, right]</code> and a frequency map.<br>
+                        <strong>Expand</strong> <code>right</code> each step, adding the fruit to the map.<br>
+                        If <code>map.size &gt; 2</code>, <strong>shrink</strong> from <code>left</code> until ≤ 2 types
+                        remain.<br>
+                        After each valid state, update <code>maxPicked = max(maxPicked, right − left + 1)</code>.
+                    </div>
+                </div>
+            </div>
+
+            <div class="right-panel">
+                <div class="card">
+                    <div class="card-title">📊 Current State</div>
+                    <div class="state-display">
+                        <div class="state-row"><span>left:</span><span id="leftVal">—</span></div>
+                        <div class="state-row"><span>right:</span><span id="rightVal">—</span></div>
+                        <div class="state-row"><span>Window Size:</span><span id="winSizeVal"
+                                class="highlight-val">0</span></div>
+                        <div class="state-row"><span>Distinct Types:</span><span id="distinctVal">0</span></div>
+                        <div class="state-row"><span>Phase:</span><span id="phaseVal">—</span></div>
+                        <div class="state-row"><span>Best So Far:</span><span id="bestVal"
+                                class="highlight-best">0</span></div>
+                    </div>
+                    <div class="result-display" id="resultDisplay">
+                        Max Fruits: <span id="resultVal">—</span>
+                    </div>
+                </div>
+
+                <div class="card" style="flex-grow: 1; display: flex; flex-direction: column;">
+                    <div class="card-title">📝 Execution Log</div>
+                    <div class="log-container" id="logContainer"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ─── Fruit Emoji Mapping ───
+        const FRUIT_EMOJIS = ['🍎', '🍊', '🍋', '🍇', '🍌', '🍓', '🫐', '🍑', '🥝', '🍒', '🥭', '🍍'];
+        function fruitEmoji(type) {
+            return FRUIT_EMOJIS[type % FRUIT_EMOJIS.length];
+        }
+
+        // ─── State ───
+        let fruits = [1, 2, 3, 2, 2];
+        let n = fruits.length;
+        let left = 0, right = -1;
+        let freq = new Map();        // fruit_type → count
+        let maxPicked = 0;
+        let bestStart = -1, bestEnd = -1;
+
+        // phase: idle | expand | shrink | record | done
+        let phase = 'idle';
+        let animHighlight = '';      // 'expanding' | 'shrinking' | ''
+        let shrinkingIdx = -1;
+
+        let isRunning = false;
+        let timer = null;
+        let speed = 5;
+        let stepNum = 0;
+
+        // ─── Init ───
+        function init() {
+            n = fruits.length;
+            left = 0; right = -1;
+            freq = new Map();
+            maxPicked = 0;
+            bestStart = -1; bestEnd = -1;
+            phase = 'idle';
+            animHighlight = '';
+            shrinkingIdx = -1;
+            stepNum = 0;
+            isRunning = false;
+            if (timer) clearTimeout(timer);
+            timer = null;
+
+            clearLog();
+            addLog(`Array: [${fruits.join(', ')}], length=${n}`, 'info');
+            addLog(`Sliding window: expand right, shrink left when > 2 types`, 'info');
+            render();
+            updateControls();
+        }
+
+        // ─── Render ───
+        function render() {
+            renderArray();
+            renderFreqMap();
+            renderState();
+            renderLegend();
+            renderWindowBar();
+        }
+
+        function renderArray() {
+            const container = document.getElementById('arrayContainer');
+            container.innerHTML = '';
+
+            fruits.forEach((val, idx) => {
+                const el = document.createElement('div');
+                let cls = 'array-item';
+
+                if (phase === 'done' && idx >= bestStart && idx <= bestEnd) {
+                    cls += ' best-window';
+                } else if (animHighlight === 'shrinking' && idx === shrinkingIdx) {
+                    cls += ' shrinking';
+                } else if (animHighlight === 'expanding' && idx === right) {
+                    cls += ' expanding';
+                } else if (phase !== 'idle' && phase !== 'done' && right >= 0 && idx >= left && idx <= right) {
+                    cls += ' in-window';
+                }
+
+                el.className = cls;
+                el.innerHTML = `<span class="idx-label">${idx}</span>${fruitEmoji(val)}`;
+
+                // Pointer labels
+                if (phase !== 'idle' && phase !== 'done') {
+                    if (idx === left && idx === right) {
+                        el.innerHTML += `<span class="pointer-label pointer-left">left=${left}</span>`;
+                        el.innerHTML += `<span class="pointer-label pointer-right">right=${right}</span>`;
+                    } else if (idx === left) {
+                        el.innerHTML += `<span class="pointer-label pointer-left">left=${left}</span>`;
+                    } else if (idx === right) {
+                        el.innerHTML += `<span class="pointer-label pointer-right">right=${right}</span>`;
+                    }
+                }
+
+                container.appendChild(el);
+            });
+        }
+
+        function renderFreqMap() {
+            const container = document.getElementById('freqMapContainer');
+            container.innerHTML = '';
+
+            if (freq.size === 0) {
+                container.innerHTML = '<span style="color:#aaa;font-size:0.9em">Empty</span>';
+                return;
+            }
+
+            for (const [type, count] of freq) {
+                const entry = document.createElement('div');
+                let cls = 'freq-entry active';
+                if (animHighlight === 'shrinking' && shrinkingIdx >= 0 && fruits[shrinkingIdx] === type) {
+                    cls = 'freq-entry removing';
+                }
+                entry.className = cls;
+                entry.innerHTML = `
+                    <div class="freq-emoji">${fruitEmoji(type)}</div>
+                    <div class="freq-type">type ${type}</div>
+                    <div class="freq-count">×${count}</div>
+                `;
+                container.appendChild(entry);
+            }
+        }
+
+        function renderState() {
+            document.getElementById('leftVal').textContent = phase === 'idle' || phase === 'done' ? '—' : left;
+            document.getElementById('rightVal').textContent = phase === 'idle' || phase === 'done' ? '—' : right;
+
+            const winSize = phase !== 'idle' && phase !== 'done' && right >= 0 ? right - left + 1 : 0;
+            document.getElementById('winSizeVal').textContent = winSize;
+            document.getElementById('distinctVal').textContent = freq.size;
+
+            let phaseText = '—';
+            if (phase === 'expand') phaseText = '➕ Expanding right';
+            else if (phase === 'shrink') phaseText = '➖ Shrinking left';
+            else if (phase === 'record') phaseText = '📝 Recording best';
+            else if (phase === 'done') phaseText = '✅ Finished';
+            document.getElementById('phaseVal').textContent = phaseText;
+
+            document.getElementById('bestVal').textContent = maxPicked;
+            document.getElementById('resultVal').textContent = phase === 'done' ? maxPicked : '—';
+        }
+
+        function renderLegend() {
+            const unique = [...new Set(fruits)].sort((a, b) => a - b);
+            const legend = document.getElementById('fruitLegend');
+            legend.innerHTML = unique.map(t => `<span>${fruitEmoji(t)} = type ${t}</span>`).join('');
+        }
+
+        function renderWindowBar() {
+            const bar = document.getElementById('windowBar');
+            if (phase === 'idle') {
+                bar.innerHTML = '';
+                return;
+            }
+            const winSize = right >= 0 ? right - left + 1 : 0;
+            const pctCur = ((winSize / n) * 100).toFixed(1);
+            const pctBest = ((maxPicked / n) * 100).toFixed(1);
+            bar.innerHTML = `
+                Window: ${winSize} 
+                <span class="bar-segment bar-active" style="width:${pctCur}%;min-width:4px;display:inline-block"></span>
+                &nbsp;|&nbsp; Best: ${maxPicked}
+                <span class="bar-segment bar-best" style="width:${pctBest}%;min-width:4px;display:inline-block"></span>
+            `;
+        }
+
+        // ─── Step Logic ───
+        function step() {
+            if (phase === 'done') return;
+            stepNum++;
+
+            switch (phase) {
+                case 'idle':
+                    // First expansion
+                    right = 0;
+                    freq.set(fruits[right], 1);
+                    animHighlight = 'expanding';
+                    phase = 'record';
+                    addLog(`▶ Start: right=0, pick ${fruitEmoji(fruits[0])}(type ${fruits[0]}). freq={${fmtFreq()}}`, 'expand');
+                    break;
+
+                case 'expand':
+                    right++;
+                    if (right >= n) {
+                        phase = 'done';
+                        animHighlight = '';
+                        addLog(`✅ right reached end. Answer = ${maxPicked} (window [${bestStart}..${bestEnd}])`, 'found');
+                        break;
+                    }
+                    const ft = fruits[right];
+                    freq.set(ft, (freq.get(ft) || 0) + 1);
+                    animHighlight = 'expanding';
+
+                    if (freq.size > 2) {
+                        addLog(`➕ right=${right}: add ${fruitEmoji(ft)}(type ${ft}). freq={${fmtFreq()}}. size=${freq.size} > 2 → must shrink!`, 'expand');
+                        phase = 'shrink';
+                    } else {
+                        addLog(`➕ right=${right}: add ${fruitEmoji(ft)}(type ${ft}). freq={${fmtFreq()}}. size=${freq.size} ≤ 2 ✓`, 'expand');
+                        phase = 'record';
+                    }
+                    break;
+
+                case 'shrink':
+                    // Remove from left
+                    const lf = fruits[left];
+                    const newCount = freq.get(lf) - 1;
+                    shrinkingIdx = left;
+                    animHighlight = 'shrinking';
+
+                    if (newCount === 0) {
+                        freq.delete(lf);
+                        addLog(`  ➖ shrink left=${left}: remove ${fruitEmoji(lf)}(type ${lf}), count→0 → delete. freq={${fmtFreq()}}`, 'shrink');
+                    } else {
+                        freq.set(lf, newCount);
+                        addLog(`  ➖ shrink left=${left}: ${fruitEmoji(lf)}(type ${lf}) count ${newCount + 1}→${newCount}. freq={${fmtFreq()}}`, 'shrink');
+                    }
+                    left++;
+
+                    if (freq.size <= 2) {
+                        addLog(`  ✓ freq.size=${freq.size} ≤ 2. Window valid: [${left}..${right}]`, 'info');
+                        phase = 'record';
+                    }
+                    // else stays in shrink
+                    break;
+
+                case 'record':
+                    animHighlight = '';
+                    shrinkingIdx = -1;
+                    const winSize = right - left + 1;
+                    if (winSize > maxPicked) {
+                        maxPicked = winSize;
+                        bestStart = left;
+                        bestEnd = right;
+                        addLog(`🏆 Window [${left}..${right}] len=${winSize} → New best! maxPicked=${maxPicked}`, 'best');
+                    } else {
+                        addLog(`📝 Window [${left}..${right}] len=${winSize}. Best stays ${maxPicked}`, 'check');
+                    }
+                    phase = 'expand';
+                    break;
+            }
+
+            render();
+            updateControls();
+        }
+
+        function fmtFreq() {
+            if (freq.size === 0) return '';
+            return [...freq].map(([t, c]) => `${fruitEmoji(t)}${t}:${c}`).join(', ');
+        }
+
+        // ─── Log ───
+        function addLog(msg, type = 'info') {
+            const log = document.getElementById('logContainer');
+            const entry = document.createElement('div');
+            entry.className = `log-entry ${type}`;
+            entry.textContent = `[${stepNum}] ${msg}`;
+            log.appendChild(entry);
+            log.scrollTop = log.scrollHeight;
+        }
+        function clearLog() {
+            document.getElementById('logContainer').innerHTML = '';
+        }
+
+        // ─── Playback ───
+        function play() {
+            if (isRunning || phase === 'done') return;
+            isRunning = true;
+            updateControls();
+            runLoop();
+        }
+        function runLoop() {
+            if (!isRunning || phase === 'done') {
+                isRunning = false;
+                updateControls();
+                return;
+            }
+            step();
+            if (phase !== 'done') {
+                const delay = 1100 - (speed * 100);
+                timer = setTimeout(runLoop, Math.max(50, delay));
+            } else {
+                isRunning = false;
+                updateControls();
+            }
+        }
+        function pause() {
+            isRunning = false;
+            if (timer) clearTimeout(timer);
+            updateControls();
+        }
+        function resetViz() {
+            pause();
+            init();
+        }
+
+        function updateControls() {
+            document.getElementById('playBtn').disabled = isRunning || phase === 'done';
+            document.getElementById('pauseBtn').disabled = !isRunning;
+            document.getElementById('stepBtn').disabled = isRunning || phase === 'done';
+            document.getElementById('resetBtn').disabled = isRunning;
+            document.getElementById('loadBtn').disabled = isRunning;
+        }
+
+        // ─── Custom Input ───
+        function loadCustomInput() {
+            const raw = document.getElementById('customInput').value.trim();
+            const parsed = raw.split(',').map(s => parseInt(s.trim(), 10)).filter(v => !isNaN(v));
+            if (parsed.length === 0) {
+                alert('Please enter a valid comma-separated list of integers, e.g. 1,2,3,2,2');
+                return;
+            }
+            fruits = parsed;
+            resetViz();
+        }
+
+        // ─── Event Listeners ───
+        document.getElementById('playBtn').addEventListener('click', play);
+        document.getElementById('pauseBtn').addEventListener('click', pause);
+        document.getElementById('stepBtn').addEventListener('click', step);
+        document.getElementById('resetBtn').addEventListener('click', resetViz);
+        document.getElementById('loadBtn').addEventListener('click', loadCustomInput);
+        document.getElementById('speedSlider').addEventListener('input', e => speed = parseInt(e.target.value));
+        document.getElementById('customInput').addEventListener('keydown', e => {
+            if (e.key === 'Enter') loadCustomInput();
+        });
+
+        // ─── Start ───
+        init();
+    </script>
+</body>
+
+</html>

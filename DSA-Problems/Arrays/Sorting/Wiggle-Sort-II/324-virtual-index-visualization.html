@@ -1,0 +1,416 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Wiggle Sort II - Virtual Indexing</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            min-height: 100vh;
+            padding: 20px;
+            color: #333;
+        }
+        .container {
+            max-width: 1100px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            overflow: hidden;
+        }
+        header {
+            background: linear-gradient(135deg, #a18cd1 0%, #fbc2eb 100%);
+            color: white;
+            padding: 25px;
+            text-align: center;
+        }
+        h1 { font-size: 1.5em; margin-bottom: 8px; }
+        .subtitle { font-size: 1em; opacity: 0.9; }
+        .complexity-badge {
+            display: inline-block;
+            background: rgba(255,255,255,0.2);
+            padding: 6px 14px;
+            border-radius: 15px;
+            margin-top: 8px;
+            font-size: 0.85em;
+        }
+        .main-content {
+            display: grid;
+            grid-template-columns: 1fr 260px;
+            gap: 20px;
+            padding: 20px;
+        }
+        .card {
+            background: #f8f9fa;
+            border-radius: 12px;
+            padding: 16px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            margin-bottom: 16px;
+        }
+        .card-title {
+            font-size: 0.95em;
+            font-weight: 600;
+            margin-bottom: 12px;
+            color: #667eea;
+        }
+        .controls { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+        button {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 8px;
+            font-size: 0.85em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        button:hover { transform: translateY(-2px); }
+        button:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+        .btn-primary { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; }
+        .btn-success { background: linear-gradient(135deg, #28a745 0%, #20c997 100%); color: white; }
+        .btn-warning { background: linear-gradient(135deg, #ffc107 0%, #ff9800 100%); color: white; }
+        .btn-secondary { background: #6c757d; color: white; }
+        .speed-control { display: flex; align-items: center; gap: 6px; flex: 1; min-width: 140px; }
+        .speed-control input[type="range"] { flex: 1; height: 5px; }
+        
+        .array-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-wrap: wrap;
+            padding: 20px 10px;
+            gap: 15px;
+            position: relative;
+        }
+        
+        .array-item {
+            width: 50px;
+            height: 50px;
+            border-radius: 8px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            color: white;
+            position: relative;
+            transition: all 0.4s ease;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            font-size: 1.1em;
+        }
+        
+        .idx-label {
+            position: absolute;
+            top: -20px;
+            font-size: 0.6em;
+            color: #666;
+            font-weight: 600;
+        }
+        
+        /* Value Colors - Similar to Sort Colors logic */
+        .val-small { background: #ff7675; } /* Red-ish for < Median */
+        .val-median { background: #ffeaa7; color: #d63031; } /* Yellow-ish for = Median */
+        .val-large { background: #74b9ff; } /* Blue-ish for > Median */
+        
+        /* Pointers */
+        .pointer-marker {
+            position: absolute;
+            bottom: -25px;
+            font-size: 0.8em;
+            font-weight: 700;
+            transition: all 0.4s ease;
+        }
+        .ptr-i { color: #6c5ce7; bottom: -40px; }
+        .ptr-left { color: #00b894; bottom: -25px; }
+        .ptr-right { color: #d63031; bottom: -25px; }
+        
+        .virtual-map-display {
+            background: #dfe6e9;
+            padding: 10px;
+            border-radius: 8px;
+            font-family: monospace;
+            font-size: 0.9em;
+            margin-top: 10px;
+        }
+        .map-highlight { background: #ffeaa7; font-weight: bold; padding: 2px 4px; border-radius: 4px; }
+        
+        .logic-panel {
+            background: #fff3e0;
+            border-radius: 8px;
+            padding: 12px;
+            border-left: 4px solid #ff9800;
+            margin-bottom: 10px;
+            font-size: 0.9em;
+        }
+        .logic-step { opacity: 0.5; margin-bottom: 4px; transition: opacity 0.3s; }
+        .logic-step.active { opacity: 1; font-weight: 700; color: #e65100; transform: scale(1.02); transform-origin: left; }
+        
+        .swap-anim { animation: pulse 0.4s ease; z-index: 10; transform: scale(1.2); }
+        @keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.3); } 100% { transform: scale(1); } }
+
+        .state-display { background: white; border-radius: 8px; padding: 10px; font-family: 'Courier New', monospace; font-size: 0.75em; }
+        .state-row { display: flex; justify-content: space-between; padding: 4px 0; border-bottom: 1px solid #e0e0e0; }
+        .log-container { background: white; border-radius: 8px; padding: 10px; max-height: 140px; overflow-y: auto; font-family: 'Courier New', monospace; font-size: 0.55em; }
+        .log-entry { padding: 3px 6px; margin: 2px 0; border-radius: 4px; border-left: 3px solid #667eea; background: #f8f9fa; }
+        .log-entry.mapping { border-left-color: #0984e3; background: #dff9fb; }
+        .log-entry.swap { border-left-color: #d63031; background: #fab1a0; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🌀 Wiggle Sort II</h1>
+            <div class="subtitle">Optimal - Virtual Indexing (3-Way Partition)</div>
+            <div class="complexity-badge">Time: O(N) | Space: O(1)</div>
+        </header>
+        <div class="main-content">
+            <div class="left-panel">
+                <div class="card">
+                    <div class="card-title">⚙️ Controls</div>
+                    <div class="controls">
+                        <button class="btn-primary" id="playBtn">▶️ Play</button>
+                        <button class="btn-warning" id="pauseBtn" disabled>⏸️ Pause</button>
+                        <button class="btn-success" id="stepBtn">⏭️ Step</button>
+                        <button class="btn-secondary" id="resetBtn">🔄 Reset</button>
+                        <div class="speed-control">
+                            <label>Speed:</label>
+                            <input type="range" id="speedSlider" min="1" max="10" value="5">
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="card">
+                    <div class="card-title">🎯 Array (Physical Layout)</div>
+                    <div class="array-container" id="arrayContainer"></div>
+                    
+                    <div class="virtual-map-display" id="mapDisplay">
+                        Virtual Map A(i) => nums[(1 + 2*i) % (n | 1)]
+                    </div>
+                </div>
+                
+                <div class="card">
+                    <div class="card-title">🤔 3-Way Partition Logic (on Virtual Index)</div>
+                    <div class="logic-panel" id="logicPanel">
+                        <div class="logic-step" id="rule0">Val > Median: Swap(A(i), A(left)), left++, i++ (Put at Odd idx)</div>
+                        <div class="logic-step" id="rule1">Val < Median: Swap(A(i), A(right)), right-- (Put at Even idx)</div>
+                        <div class="logic-step" id="rule2">Val == Median: i++ (Leave in middle)</div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="right-panel">
+                <div class="card">
+                    <div class="card-title">📋 State</div>
+                    <div class="state-display">
+                        <div class="state-row"><span>Median:</span><span id="medianVal">1</span></div>
+                        <div class="state-row"><span>i (Virtual):</span><span id="iVal">0</span></div>
+                        <div class="state-row"><span>Map(i) (Physical):</span><span id="mapIVal">1</span></div>
+                        <div class="state-row"><span>Left (Start):</span><span id="leftVal">0</span></div>
+                        <div class="state-row"><span>Right (End):</span><span id="rightVal">N-1</span></div>
+                    </div>
+                </div>
+                <div class="card" style="flex: 1;">
+                    <div class="card-title">📝 Execution Log</div>
+                    <div class="log-container" id="logContainer">
+                        <div class="log-entry info">Ready. Virtual Indexing + 3-Way Partition.</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const originalArray = [1, 5, 1, 1, 6, 4]; // Median is 1
+        let nums = [];
+        let n = originalArray.length;
+        let median = 1;
+        
+        let i = 0;
+        let left = 0;
+        let right = n - 1;
+        
+        let isRunning = false;
+        let speed = 5;
+        let stepCount = 0;
+        let done = false;
+        let timer = null;
+
+        // Virtual Index Mapping Function
+        const map = (idx) => (1 + 2 * idx) % (n | 1);
+
+        function init() {
+            nums = [...originalArray];
+            n = nums.length;
+            
+            // Pre-calculate median (For visualization purposes, we assume known median)
+            const sorted = [...nums].sort((a,b) => a-b);
+            median = sorted[Math.floor((n-1)/2)];
+            
+            i = 0;
+            left = 0;
+            right = n - 1;
+            stepCount = 0;
+            done = false;
+            
+            clearLog();
+            addLog(`Init: Median=${median}. N=${n}.`, 'info');
+            render();
+            updateControls();
+        }
+
+        function render() {
+            const container = document.getElementById('arrayContainer');
+            container.innerHTML = '';
+            
+            // Render items
+            nums.forEach((val, idx) => {
+                const el = document.createElement('div');
+                let cls = 'val-median';
+                if (val > median) cls = 'val-large';
+                if (val < median) cls = 'val-small';
+                
+                el.className = `array-item ${cls}`;
+                el.textContent = val;
+                el.id = `item-${idx}`; 
+                
+                // Add index label
+                const lbl = document.createElement('div');
+                lbl.className = 'idx-label';
+                lbl.textContent = idx;
+                el.appendChild(lbl);
+                
+                container.appendChild(el);
+            });
+            
+            // Update State Panel
+            document.getElementById('medianVal').textContent = median;
+            document.getElementById('iVal').textContent = i;
+            document.getElementById('mapIVal').textContent = i <= right ? map(i) : '-';
+            document.getElementById('leftVal').textContent = left;
+            document.getElementById('rightVal').textContent = right;
+        }
+        
+        function highlightRule(ruleId) {
+            ['rule0', 'rule1', 'rule2'].forEach(id => {
+                document.getElementById(id).classList.remove('active');
+            });
+            if(ruleId) document.getElementById(ruleId).classList.add('active');
+        }
+
+        function swap(physI, physJ) {
+            [nums[physI], nums[physJ]] = [nums[physJ], nums[physI]];
+            
+            const el1 = document.getElementById(`item-${physI}`);
+            const el2 = document.getElementById(`item-${physJ}`);
+            if(el1) el1.classList.add('swap-anim');
+            if(el2) el2.classList.add('swap-anim');
+            setTimeout(() => {
+                if(el1) el1.classList.remove('swap-anim');
+                if(el2) el2.classList.remove('swap-anim');
+            }, 400);
+        }
+
+        function addLog(msg, type = 'info') {
+            const log = document.getElementById('logContainer');
+            log.innerHTML += `<div class="log-entry ${type}">[${stepCount}] ${msg}</div>`;
+            log.scrollTop = log.scrollHeight;
+        }
+
+        function clearLog() { document.getElementById('logContainer').innerHTML = ''; }
+
+        function step() {
+            if (i > right) {
+                done = true;
+                addLog(`Done! Virtual Indexing complete.`, 'success');
+                highlightRule(null);
+                stop();
+                return;
+            }
+            
+            stepCount++;
+            
+            // Current Virtual Index i maps to Physical Index map(i)
+            let physI = map(i);
+            let val = nums[physI];
+            
+            addLog(`i=${i} -> Map(${physI}). Val=${val}`, 'mapping');
+            
+            if (val > median) {
+                // "Large" -> Move to Virtual Start (left)
+                highlightRule('rule0');
+                let physLeft = map(left);
+                addLog(`Val(${val}) > Median. Swap with A(left=${left}) -> Map(${physLeft})`, 'swap');
+                
+                swap(physI, physLeft);
+                left++;
+                i++;
+            } else if (val < median) {
+                // "Small" -> Move to Virtual End (right)
+                highlightRule('rule1');
+                let physRight = map(right);
+                addLog(`Val(${val}) < Median. Swap with A(right=${right}) -> Map(${physRight})`, 'swap');
+                
+                swap(physI, physRight);
+                right--;
+                // Do NOT increment i, re-check swapped value
+            } else {
+                // "Median" -> Leave in middle
+                highlightRule('rule2');
+                addLog(`Val(${val}) == Median. Skip.`, 'info');
+                i++;
+            }
+            
+            render();
+            
+            if (i > right) {
+                done = true;
+                addLog("Done! Process complete.", "success");
+                stop();
+            }
+        }
+
+        function play() {
+            if (isRunning) return;
+            isRunning = true;
+            updateControls();
+            runLoop();
+        }
+        
+        function runLoop() {
+            if (!isRunning) return;
+            step();
+            if(!done){
+                 timer = setTimeout(runLoop, 1500 - (speed * 100));
+            }
+        }
+
+        function stop() {
+            isRunning = false;
+            updateControls();
+            if(timer) clearTimeout(timer);
+        }
+
+        function reset() {
+            stop();
+            init();
+        }
+
+        function updateControls() {
+            document.getElementById('playBtn').disabled = isRunning || done;
+            document.getElementById('pauseBtn').disabled = !isRunning;
+            document.getElementById('stepBtn').disabled = isRunning || done;
+            document.getElementById('resetBtn').disabled = isRunning;
+        }
+
+        document.getElementById('playBtn').addEventListener('click', play);
+        document.getElementById('pauseBtn').addEventListener('click', stop);
+        document.getElementById('stepBtn').addEventListener('click', step);
+        document.getElementById('resetBtn').addEventListener('click', reset);
+        document.getElementById('speedSlider').addEventListener('input', (e) => speed = parseInt(e.target.value));
+
+        init();
+    </script>
+</body>
+</html>

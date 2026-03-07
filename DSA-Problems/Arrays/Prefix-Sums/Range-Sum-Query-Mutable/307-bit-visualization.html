@@ -1,0 +1,668 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Range Sum Query Mutable - Binary Indexed Tree</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #0f0c29 0%, #1a1a2e 50%, #16213e 100%);
+            min-height: 100vh;
+            padding: 20px;
+            color: #e0e0e0;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: #1a1a2e;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.6);
+            overflow: hidden;
+        }
+        header {
+            background: linear-gradient(135deg, #00b894 0%, #00cec9 50%, #0984e3 100%);
+            color: white;
+            padding: 22px;
+            text-align: center;
+        }
+        h1 { font-size: 1.35em; margin-bottom: 6px; }
+        .subtitle { font-size: 0.95em; opacity: 0.9; }
+        .complexity-badge {
+            display: inline-block;
+            background: rgba(255,255,255,0.18);
+            padding: 5px 14px;
+            border-radius: 15px;
+            margin-top: 6px;
+            font-size: 0.82em;
+        }
+        .main-content {
+            display: grid;
+            grid-template-columns: 1fr 280px;
+            gap: 16px;
+            padding: 16px;
+        }
+        .card {
+            background: #16213e;
+            border-radius: 12px;
+            padding: 14px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.4);
+            margin-bottom: 14px;
+        }
+        .card-title {
+            font-size: 0.9em;
+            font-weight: 600;
+            margin-bottom: 10px;
+            color: #55efc4;
+        }
+
+        /* Controls */
+        .controls { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+        button {
+            padding: 7px 14px; border: none; border-radius: 8px;
+            font-size: 0.82em; font-weight: 600; cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        button:hover { transform: translateY(-2px); filter: brightness(1.15); }
+        button:disabled { opacity: 0.4; cursor: not-allowed; transform: none; }
+        .btn-primary { background: linear-gradient(135deg, #00b894, #00cec9); color: white; }
+        .btn-success { background: linear-gradient(135deg, #0984e3, #74b9ff); color: white; }
+        .btn-warning { background: linear-gradient(135deg, #fdcb6e, #e17055); color: white; }
+        .btn-secondary { background: #636e72; color: white; }
+        .speed-control { display: flex; align-items: center; gap: 6px; flex: 1; min-width: 130px; font-size: 0.82em; }
+        .speed-control input[type="range"] { flex: 1; height: 4px; accent-color: #00b894; }
+
+        .input-row { display: flex; gap: 8px; align-items: center; margin-top: 10px; }
+        .input-row input {
+            flex: 1; padding: 7px 10px; border-radius: 8px;
+            border: 1px solid #3d4f7c; background: #0f0c29;
+            color: #e0e0e0; font-family: 'Courier New', monospace; font-size: 0.85em;
+        }
+        .input-row input:focus { outline: none; border-color: #00b894; }
+
+        /* Viz */
+        .viz-area {
+            padding: 14px 10px;
+            background: #0f0c29;
+            border: 1px solid #2d3a56;
+            border-radius: 10px;
+        }
+        .row-label {
+            font-size: 0.68em; font-weight: 700;
+            text-transform: uppercase; letter-spacing: 0.8px;
+            margin-bottom: 4px; padding-left: 2px;
+        }
+        .label-nums { color: #74b9ff; }
+        .label-bit { color: #55efc4; }
+        .label-range { color: #fdcb6e; font-size: 0.55em; }
+
+        .arr-row {
+            display: flex; justify-content: center;
+            gap: 4px; margin-bottom: 10px;
+        }
+
+        /* nums cells */
+        .num-cell {
+            width: 52px; height: 46px;
+            border-radius: 8px;
+            display: flex; align-items: center; justify-content: center;
+            font-weight: 700; font-size: 1.05em;
+            position: relative;
+            transition: all 0.35s ease;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.3);
+        }
+        .num-cell .cidx {
+            position: absolute; bottom: -14px;
+            font-size: 0.46em; color: #636e72;
+        }
+        .nc-default { background: linear-gradient(145deg, #2d3a56, #3d4f7c); color: #b2bec3; }
+        .nc-update { background: linear-gradient(145deg, #e17055, #d63031); color: white; box-shadow: 0 0 14px rgba(225,112,85,0.4); }
+
+        /* BIT cells */
+        .bit-cell {
+            width: 52px; height: 46px;
+            border-radius: 8px;
+            display: flex; flex-direction: column;
+            align-items: center; justify-content: center;
+            font-weight: 700; font-size: 1em;
+            font-family: 'Courier New', monospace;
+            position: relative;
+            transition: all 0.35s ease;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.3);
+        }
+        .bit-cell .cidx {
+            position: absolute; bottom: -14px;
+            font-size: 0.46em; color: #636e72;
+        }
+        .bit-cell .rng-label {
+            position: absolute; top: -16px;
+            font-size: 0.4em; color: #fdcb6e; white-space: nowrap;
+        }
+        .bc-default { background: linear-gradient(145deg, #1e3a5f, #2d5f8a); color: #74b9ff; border: 1px solid #0984e344; }
+        .bc-query { background: linear-gradient(145deg, #00b894, #55efc4); color: #2d3436; border: 1px solid #00b894; box-shadow: 0 0 14px rgba(85,239,196,0.4); }
+        .bc-update { background: linear-gradient(145deg, #e17055, #d63031); color: white; border: 1px solid #e17055; box-shadow: 0 0 14px rgba(225,112,85,0.4); }
+        .bc-build { background: linear-gradient(145deg, #fdcb6e, #f39c12); color: #2d3436; border: 1px solid #fdcb6e; box-shadow: 0 0 14px rgba(253,203,110,0.4); }
+
+        /* Formula bar */
+        .formula-bar {
+            text-align: center; padding: 10px;
+            background: #16213e; border-radius: 8px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.82em; min-height: 40px;
+            display: flex; align-items: center; justify-content: center;
+        }
+
+        /* LSB explanation */
+        .lsb-bar {
+            display: flex; justify-content: center; gap: 14px;
+            padding: 6px; margin-top: 4px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.7em;
+        }
+        .lsb-item { color: #a29bfe; }
+
+        /* Operation chips */
+        .ops-queue { display: flex; flex-wrap: wrap; gap: 6px; padding: 8px; background: #0f0c29; border-radius: 8px; }
+        .op-chip {
+            padding: 5px 10px; border-radius: 6px;
+            font-family: 'Courier New', monospace; font-size: 0.72em;
+            font-weight: 600;
+        }
+        .op-pending { background: #2d3a56; color: #636e72; border: 1px solid #3d4f7c; }
+        .op-active { background: #00b89433; color: #55efc4; border: 1px solid #00b894; box-shadow: 0 0 8px rgba(0,184,148,0.3); }
+        .op-done { background: #00b89422; color: #00b894; border: 1px solid #00b89466; }
+
+        /* State & Log */
+        .state-display { background: #0f0c29; border-radius: 8px; padding: 10px; font-family: 'Courier New', monospace; font-size: 0.78em; }
+        .state-row { display: flex; justify-content: space-between; padding: 3px 0; border-bottom: 1px solid #2d3a56; }
+        .state-val { font-weight: bold; }
+
+        .log-container {
+            background: #0f0c29; border-radius: 8px; padding: 8px;
+            max-height: 220px; overflow-y: auto;
+            font-family: 'Courier New', monospace; font-size: 0.56em;
+        }
+        .log-entry { padding: 3px 6px; margin: 2px 0; border-radius: 4px; border-left: 3px solid #4a5568; background: #16213e; }
+        .log-entry.build { border-left-color: #fdcb6e; }
+        .log-entry.query { border-left-color: #00b894; }
+        .log-entry.update { border-left-color: #e17055; }
+        .log-entry.result { border-left-color: #a29bfe; }
+        .log-entry.done { border-left-color: #55efc4; }
+
+        .result-display {
+            text-align: center; padding: 12px;
+            background: linear-gradient(135deg, #16213e, #0f0c29);
+            border: 1px solid #00b894;
+            color: white; border-radius: 8px;
+            margin-top: 10px; font-size: 0.95em; font-weight: bold;
+            font-family: 'Courier New', monospace;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Range Sum Query – Mutable</h1>
+            <div class="subtitle">Better: Binary Indexed Tree (Fenwick Tree)</div>
+            <div class="complexity-badge">update: O(log N) | sumRange: O(log N)</div>
+        </header>
+
+        <div class="main-content">
+            <div class="left-panel">
+                <div class="card">
+                    <div class="card-title">⚙️ Controls</div>
+                    <div class="controls">
+                        <button class="btn-primary" id="playBtn">▶ Play</button>
+                        <button class="btn-warning" id="pauseBtn" disabled>⏸ Pause</button>
+                        <button class="btn-success" id="stepBtn">⏭ Step</button>
+                        <button class="btn-secondary" id="resetBtn">↺ Reset</button>
+                        <div class="speed-control">
+                            <label>Speed:</label>
+                            <input type="range" id="speedSlider" min="1" max="10" value="5">
+                        </div>
+                    </div>
+                    <div class="input-row">
+                        <input type="text" id="customInput" placeholder="nums, e.g. 1,3,5" value="1,3,5">
+                        <button class="btn-secondary" id="loadBtn">Load</button>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-title">📊 nums[] (0-indexed)</div>
+                    <div class="viz-area">
+                        <div class="arr-row" id="numsRow"></div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-title">🌳 BIT[] (1-indexed) — each cell stores a partial sum</div>
+                    <div class="viz-area">
+                        <div class="arr-row" id="bitRow"></div>
+                        <div class="lsb-bar" id="lsbBar"></div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-title">📐 Operation Detail</div>
+                    <div class="formula-bar" id="formulaBar">
+                        <span style="color:#4a5568">Press Step to begin</span>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-title">📋 Operation Queue</div>
+                    <div class="ops-queue" id="opsQueue"></div>
+                </div>
+            </div>
+
+            <div class="right-panel">
+                <div class="card">
+                    <div class="card-title">📊 State</div>
+                    <div class="state-display">
+                        <div class="state-row"><span>Phase:</span><span class="state-val" style="color:#55efc4" id="phaseVal">Ready</span></div>
+                        <div class="state-row"><span>Operation:</span><span class="state-val" style="color:#74b9ff" id="opVal">-</span></div>
+                        <div class="state-row"><span>BIT index:</span><span class="state-val" style="color:#fdcb6e" id="bitIdxVal">-</span></div>
+                        <div class="state-row"><span>Traversal:</span><span class="state-val" style="color:#a29bfe" id="travVal">-</span></div>
+                        <div class="state-row"><span>Accumulator:</span><span class="state-val" style="color:#55efc4" id="accumVal">-</span></div>
+                        <div class="state-row"><span>Last Result:</span><span class="state-val" style="color:#fdcb6e" id="resVal">-</span></div>
+                    </div>
+                    <div class="result-display" id="resultDisplay">Output: [...]</div>
+                </div>
+
+                <div class="card" style="flex-grow:1;display:flex;flex-direction:column;">
+                    <div class="card-title">📝 Execution Log</div>
+                    <div class="log-container" id="logContainer"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let initNums = [1, 3, 5];
+        let ops = [
+            { type: 'sumRange', args: [0, 2] },
+            { type: 'update',   args: [1, 2] },
+            { type: 'sumRange', args: [0, 2] },
+        ];
+
+        let N;
+        let events = [];
+
+        function lsb(x) { return x & (-x); }
+
+        // Compute what range BIT[i] covers: [i - lsb(i) + 1 .. i]
+        function bitRange(i) {
+            return [i - lsb(i) + 1, i];
+        }
+
+        function buildTrace() {
+            events = [];
+            N = initNums.length;
+            const nums = [...initNums];
+            const bit = new Array(N + 1).fill(0);
+            const results = [];
+
+            // Build BIT
+            events.push({ type: 'build-start', nums: [...nums], bit: [...bit] });
+            for (let i = 0; i < N; i++) {
+                const touched = [];
+                for (let k = i + 1; k <= N; k += lsb(k)) {
+                    bit[k] += nums[i];
+                    touched.push(k);
+                }
+                events.push({ type: 'build-step', elemIdx: i, val: nums[i], touched: [...touched], nums: [...nums], bit: [...bit] });
+            }
+            events.push({ type: 'build-done', nums: [...nums], bit: [...bit] });
+
+            // Operations
+            for (let opIdx = 0; opIdx < ops.length; opIdx++) {
+                const op = ops[opIdx];
+                if (op.type === 'sumRange') {
+                    const [l, r] = op.args;
+
+                    // query(r+1) - query(l)
+                    // query(r+1): prefix sum [1..r+1] i.e. sum of nums[0..r]
+                    events.push({ type: 'query-start', opIdx, l, r, nums: [...nums], bit: [...bit] });
+
+                    // Query right: prefix sum up to index r+1
+                    let sumR = 0;
+                    const touchedR = [];
+                    for (let k = r + 1; k > 0; k -= lsb(k)) {
+                        sumR += bit[k];
+                        touchedR.push(k);
+                        events.push({ type: 'query-step', opIdx, side: 'right', queryBitIdx: r + 1, curK: k, addedVal: bit[k], runningSum: sumR, touched: [...touchedR], nums: [...nums], bit: [...bit] });
+                    }
+
+                    // Query left: prefix sum up to index l
+                    let sumL = 0;
+                    const touchedL = [];
+                    if (l > 0) {
+                        for (let k = l; k > 0; k -= lsb(k)) {
+                            sumL += bit[k];
+                            touchedL.push(k);
+                            events.push({ type: 'query-step', opIdx, side: 'left', queryBitIdx: l, curK: k, addedVal: bit[k], runningSum: sumL, touched: [...touchedL], nums: [...nums], bit: [...bit] });
+                        }
+                    }
+
+                    const res = sumR - sumL;
+                    results.push(res);
+                    events.push({ type: 'query-end', opIdx, l, r, sumR, sumL, result: res, results: [...results], nums: [...nums], bit: [...bit] });
+
+                } else {
+                    const [idx, val] = op.args;
+                    const delta = val - nums[idx];
+                    const oldVal = nums[idx];
+                    nums[idx] = val;
+
+                    events.push({ type: 'update-start', opIdx, idx, val, oldVal, delta, nums: [...nums], bit: [...bit] });
+
+                    const touched = [];
+                    for (let k = idx + 1; k <= N; k += lsb(k)) {
+                        bit[k] += delta;
+                        touched.push(k);
+                        events.push({ type: 'update-step', opIdx, curK: k, delta, touched: [...touched], nums: [...nums], bit: [...bit] });
+                    }
+
+                    results.push(null);
+                    events.push({ type: 'update-end', opIdx, results: [...results], nums: [...nums], bit: [...bit] });
+                }
+            }
+            events.push({ type: 'done', results: [...results] });
+        }
+
+        // Animation state
+        let eventIdx = 0;
+        let curNums = [], curBit = [];
+        let hlBitSet = new Set();
+        let hlBitType = '';
+        let hlNumIdx = -1;
+        let curPhase = 'Ready';
+        let curOp = '';
+        let curBitIdx = '';
+        let curTraversal = '';
+        let curAccum = '';
+        let lastResult = null;
+        let results = [];
+        let curOpIdx = -1;
+        let isDone = false;
+        let formulaHtml = '<span style="color:#4a5568">Press Step to begin</span>';
+
+        let isRunning = false, timer = null, speed = 5, stepCount = 0;
+
+        function init() {
+            buildTrace();
+            N = initNums.length;
+            eventIdx = 0;
+            curNums = [...initNums];
+            curBit = new Array(N + 1).fill(0);
+            hlBitSet = new Set();
+            hlBitType = '';
+            hlNumIdx = -1;
+            curPhase = 'Ready'; curOp = ''; curBitIdx = ''; curTraversal = ''; curAccum = '';
+            lastResult = null; results = []; curOpIdx = -1;
+            isDone = false; stepCount = 0;
+            formulaHtml = '<span style="color:#4a5568">Press Step to begin</span>';
+
+            clearLog();
+            addLog(`NumArray([${initNums.join(', ')}])`, 'info');
+            render();
+            updateControls();
+        }
+
+        function step() {
+            if (eventIdx >= events.length) return;
+            stepCount++;
+            hlBitSet = new Set();
+            hlBitType = '';
+            hlNumIdx = -1;
+
+            const ev = events[eventIdx++];
+            curNums = ev.nums ? [...ev.nums] : curNums;
+            curBit = ev.bit ? [...ev.bit] : curBit;
+
+            switch (ev.type) {
+                case 'build-start':
+                    curPhase = 'Build';
+                    addLog('Building BIT from nums[]…', 'build');
+                    formulaHtml = '<span style="color:#fdcb6e">Inserting each element into BIT</span>';
+                    break;
+
+                case 'build-step':
+                    hlNumIdx = ev.elemIdx;
+                    ev.touched.forEach(k => hlBitSet.add(k));
+                    hlBitType = 'build';
+                    addLog(`Insert nums[${ev.elemIdx}]=${ev.val} → BIT[${ev.touched.join(',')}]`, 'build');
+                    formulaHtml = `<span style="color:#fdcb6e">nums[${ev.elemIdx}]=${ev.val} → BIT[${ev.touched.join(', ')}] updated</span>`;
+                    break;
+
+                case 'build-done':
+                    curPhase = 'Ready';
+                    addLog(`✔ BIT built: [${ev.bit.join(', ')}]`, 'build');
+                    formulaHtml = '<span style="color:#55efc4">BIT construction complete</span>';
+                    break;
+
+                case 'query-start':
+                    curOpIdx = ev.opIdx;
+                    curPhase = 'Query';
+                    curOp = `sumRange(${ev.l},${ev.r})`;
+                    addLog(`→ sumRange(${ev.l},${ev.r}): query(${ev.r+1}) − query(${ev.l})`, 'query');
+                    formulaHtml = `<span style="color:#55efc4">query(${ev.r+1}) − query(${ev.l})</span>`;
+                    break;
+
+                case 'query-step': {
+                    const sideLabel = ev.side === 'right' ? 'R' : 'L';
+                    const sideColor = ev.side === 'right' ? '#55efc4' : '#a29bfe';
+                    hlBitSet.add(ev.curK);
+                    hlBitType = 'query';
+                    curBitIdx = ev.curK;
+                    curTraversal = `${ev.curK} → ${ev.curK} - ${lsb(ev.curK)} = ${ev.curK - lsb(ev.curK)}`;
+                    curAccum = `${ev.runningSum}`;
+                    addLog(`  ${sideLabel}: BIT[${ev.curK}]=${ev.addedVal}, sum=${ev.runningSum}, next=${ev.curK}-${lsb(ev.curK)}=${ev.curK - lsb(ev.curK)}`, 'query');
+                    formulaHtml = `<span style="color:${sideColor}">${sideLabel}: sum += BIT[${ev.curK}] (${ev.addedVal}) → ${ev.runningSum}</span>`;
+                    break;
+                }
+
+                case 'query-end':
+                    lastResult = ev.result;
+                    results = [...ev.results];
+                    curPhase = 'Ready';
+                    curBitIdx = ''; curTraversal = ''; curAccum = '';
+                    addLog(`  ✔ query(${ev.r+1})=${ev.sumR}, query(${ev.l})=${ev.sumL}, result=${ev.sumR}−${ev.sumL}=${ev.result}`, 'result');
+                    formulaHtml = `<span style="color:#55efc4">${ev.sumR} − ${ev.sumL} = <b>${ev.result}</b></span>`;
+                    break;
+
+                case 'update-start':
+                    curOpIdx = ev.opIdx;
+                    curPhase = 'Update';
+                    curOp = `update(${ev.idx},${ev.val})`;
+                    hlNumIdx = ev.idx;
+                    addLog(`→ update(${ev.idx},${ev.val}): old=${ev.oldVal}, delta=${ev.delta}`, 'update');
+                    formulaHtml = `<span style="color:#e17055">nums[${ev.idx}]: ${ev.oldVal} → ${ev.val}, delta=${ev.delta}</span>`;
+                    break;
+
+                case 'update-step':
+                    ev.touched.forEach(k => hlBitSet.add(k));
+                    hlBitType = 'update';
+                    curBitIdx = ev.curK;
+                    curTraversal = `${ev.curK} → ${ev.curK} + ${lsb(ev.curK)} = ${ev.curK + lsb(ev.curK)}`;
+                    addLog(`  BIT[${ev.curK}] += ${ev.delta} → ${ev.bit[ev.curK]}, next=${ev.curK}+${lsb(ev.curK)}=${ev.curK + lsb(ev.curK)}`, 'update');
+                    formulaHtml = `<span style="color:#e17055">BIT[${ev.curK}] += (${ev.delta}) → ${ev.bit[ev.curK]}</span>`;
+                    break;
+
+                case 'update-end':
+                    results = [...ev.results];
+                    curPhase = 'Ready';
+                    curBitIdx = ''; curTraversal = '';
+                    addLog(`  ✔ Update complete`, 'result');
+                    formulaHtml = '<span style="color:#55efc4">Update propagation complete</span>';
+                    break;
+
+                case 'done':
+                    isDone = true;
+                    results = [...ev.results];
+                    const resStr = ev.results.map(r => r === null ? 'null' : r).join(', ');
+                    addLog(`✅ All operations done. Output: [${resStr}]`, 'done');
+                    formulaHtml = '<span style="color:#55efc4">✅ Complete</span>';
+                    stop();
+                    break;
+            }
+            render();
+        }
+
+        function render() {
+            renderNums();
+            renderBit();
+            renderLSB();
+            renderFormula();
+            renderOps();
+            renderState();
+        }
+
+        function renderNums() {
+            const row = document.getElementById('numsRow');
+            row.innerHTML = '';
+            for (let i = 0; i < curNums.length; i++) {
+                const el = document.createElement('div');
+                let cls = 'num-cell';
+                if (i === hlNumIdx) cls += ' nc-update';
+                else cls += ' nc-default';
+                el.className = cls;
+                el.textContent = curNums[i];
+                const lbl = document.createElement('div');
+                lbl.className = 'cidx'; lbl.textContent = i;
+                el.appendChild(lbl);
+                row.appendChild(el);
+            }
+        }
+
+        function renderBit() {
+            const row = document.getElementById('bitRow');
+            row.innerHTML = '';
+            for (let i = 0; i <= N; i++) {
+                const el = document.createElement('div');
+                let cls = 'bit-cell';
+                if (hlBitSet.has(i)) {
+                    if (hlBitType === 'query') cls += ' bc-query';
+                    else if (hlBitType === 'update') cls += ' bc-update';
+                    else cls += ' bc-build';
+                } else {
+                    cls += ' bc-default';
+                }
+                el.className = cls;
+                el.textContent = curBit[i];
+
+                // Range label for i > 0
+                if (i > 0) {
+                    const [rs, re] = bitRange(i);
+                    const rng = document.createElement('div');
+                    rng.className = 'rng-label';
+                    rng.textContent = `[${rs}..${re}]`;
+                    el.appendChild(rng);
+                }
+
+                const lbl = document.createElement('div');
+                lbl.className = 'cidx'; lbl.textContent = i;
+                el.appendChild(lbl);
+                row.appendChild(el);
+            }
+        }
+
+        function renderLSB() {
+            const bar = document.getElementById('lsbBar');
+            let html = '';
+            for (let i = 1; i <= N; i++) {
+                html += `<span class="lsb-item">LSB(${i})=${lsb(i)}</span>`;
+            }
+            bar.innerHTML = html;
+        }
+
+        function renderFormula() {
+            document.getElementById('formulaBar').innerHTML = formulaHtml;
+        }
+
+        function renderOps() {
+            const queue = document.getElementById('opsQueue');
+            queue.innerHTML = '';
+            for (let i = 0; i < ops.length; i++) {
+                const op = ops[i];
+                const chip = document.createElement('span');
+                chip.className = 'op-chip';
+                let label = op.type === 'sumRange'
+                    ? `sumRange(${op.args[0]},${op.args[1]})`
+                    : `update(${op.args[0]},${op.args[1]})`;
+                if (i < results.length) {
+                    const r = results[i];
+                    if (r !== null) label += ` → ${r}`;
+                    else if (op.type === 'update') label += ' ✔';
+                    chip.className += ' op-done';
+                } else if (i === curOpIdx) {
+                    chip.className += ' op-active';
+                } else {
+                    chip.className += ' op-pending';
+                }
+                chip.textContent = label;
+                queue.appendChild(chip);
+            }
+        }
+
+        function renderState() {
+            document.getElementById('phaseVal').textContent = curPhase;
+            document.getElementById('opVal').textContent = curOp || '-';
+            document.getElementById('bitIdxVal').textContent = curBitIdx || '-';
+            document.getElementById('travVal').textContent = curTraversal || '-';
+            document.getElementById('accumVal').textContent = curAccum || '-';
+            document.getElementById('resVal').textContent = lastResult !== null ? lastResult : '-';
+            const resStr = results.map(r => r === null ? 'null' : r).join(', ');
+            document.getElementById('resultDisplay').textContent = `Output: [${resStr || '...'}]`;
+        }
+
+        function addLog(msg, type = 'info') {
+            const log = document.getElementById('logContainer');
+            log.innerHTML += `<div class="log-entry ${type}">[${stepCount}] ${msg}</div>`;
+            log.scrollTop = log.scrollHeight;
+        }
+        function clearLog() { document.getElementById('logContainer').innerHTML = ''; }
+
+        function play() { if (isRunning) return; isRunning = true; updateControls(); runLoop(); }
+        function runLoop() {
+            if (!isRunning || eventIdx >= events.length) { stop(); return; }
+            step();
+            timer = setTimeout(runLoop, Math.max(60, 1100 - speed * 100));
+        }
+        function stop() { isRunning = false; if (timer) clearTimeout(timer); updateControls(); }
+        function reset() { stop(); init(); }
+        function updateControls() {
+            const done = eventIdx >= events.length;
+            document.getElementById('playBtn').disabled = isRunning || done;
+            document.getElementById('pauseBtn').disabled = !isRunning;
+            document.getElementById('stepBtn').disabled = isRunning || done;
+            document.getElementById('resetBtn').disabled = isRunning;
+        }
+
+        function loadCustom() {
+            const raw = document.getElementById('customInput').value.trim();
+            const arr = raw.split(',').map(s => parseInt(s.trim())).filter(v => !isNaN(v));
+            if (arr.length === 0) return;
+            initNums = arr;
+            const n = arr.length;
+            ops = [
+                { type: 'sumRange', args: [0, n - 1] },
+                { type: 'update',   args: [Math.min(1, n - 1), 2] },
+                { type: 'sumRange', args: [0, n - 1] },
+            ];
+            stop(); init();
+        }
+
+        document.getElementById('playBtn').addEventListener('click', play);
+        document.getElementById('pauseBtn').addEventListener('click', stop);
+        document.getElementById('stepBtn').addEventListener('click', step);
+        document.getElementById('resetBtn').addEventListener('click', reset);
+        document.getElementById('loadBtn').addEventListener('click', loadCustom);
+        document.getElementById('speedSlider').addEventListener('input', e => speed = parseInt(e.target.value));
+        document.getElementById('customInput').addEventListener('keydown', e => { if (e.key === 'Enter') loadCustom(); });
+
+        init();
+    </script>
+</body>
+</html>

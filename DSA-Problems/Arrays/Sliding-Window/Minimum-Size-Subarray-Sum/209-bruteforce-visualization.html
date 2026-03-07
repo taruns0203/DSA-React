@@ -1,0 +1,423 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Min Subarray Sum - Brute Force</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            min-height: 100vh;
+            padding: 20px;
+            color: #333;
+        }
+        .container {
+            max-width: 1100px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            overflow: hidden;
+        }
+        header {
+            background: linear-gradient(135deg, #FF6B6B 0%, #FF8E53 100%);
+            color: white;
+            padding: 25px;
+            text-align: center;
+        }
+        h1 { font-size: 1.5em; margin-bottom: 8px; }
+        .subtitle { font-size: 1em; opacity: 0.9; }
+        .complexity-badge {
+            display: inline-block;
+            background: rgba(255,255,255,0.2);
+            padding: 6px 14px;
+            border-radius: 15px;
+            margin-top: 8px;
+            font-size: 0.85em;
+        }
+        .main-content {
+            display: grid;
+            grid-template-columns: 1fr 280px;
+            gap: 20px;
+            padding: 20px;
+        }
+        .card {
+            background: #f8f9fa;
+            border-radius: 12px;
+            padding: 16px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            margin-bottom: 16px;
+        }
+        .card-title {
+            font-size: 0.95em;
+            font-weight: 600;
+            margin-bottom: 12px;
+            color: #FF6B6B;
+        }
+        
+        /* Controls */
+        .controls { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+        button {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 8px;
+            font-size: 0.85em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        button:hover { transform: translateY(-2px); }
+        button:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+        .btn-primary { background: linear-gradient(135deg, #FF6B6B 0%, #FF8E53 100%); color: white; }
+        .btn-success { background: linear-gradient(135deg, #28a745 0%, #20c997 100%); color: white; }
+        .btn-warning { background: linear-gradient(135deg, #ffc107 0%, #ff9800 100%); color: white; }
+        .btn-secondary { background: #6c757d; color: white; }
+        .speed-control { display: flex; align-items: center; gap: 6px; flex: 1; min-width: 140px; }
+        .speed-control input[type="range"] { flex: 1; height: 5px; accent-color: #FF6B6B; }
+
+        /* Array Display */
+        .array-container {
+            display: flex;
+            gap: 10px;
+            min-height: 80px;
+            padding: 20px 10px;
+            background: #fff;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            position: relative;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+        
+        .array-item {
+            width: 50px;
+            height: 50px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            color: white;
+            position: relative;
+            transition: all 0.2s ease;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            font-size: 1.1em;
+            background: #2f3640;
+            z-index: 1;
+        }
+        
+        .array-item.in-range {
+            background: #FF8E53;
+            transform: scale(1.05);
+            z-index: 2;
+        }
+        
+        .array-item.start-idx {
+            border-bottom: 4px solid #3498db;
+        }
+        .array-item.current-idx {
+            border-top: 4px solid #27ae60;
+        }
+
+        .idx-label {
+            position: absolute;
+            top: -20px;
+            font-size: 0.6em;
+            color: #888;
+            width: 100%;
+            text-align: center;
+        }
+        
+        /* Subarray Highlight Bar */
+        .subarray-highlight {
+            position: absolute;
+            height: 4px;
+            background: #FF6B6B;
+            bottom: 5px;
+            transition: all 0.2s ease;
+            border-radius: 2px;
+            opacity: 0.8;
+        }
+
+        /* State & Log */
+        .state-display { background: white; border-radius: 8px; padding: 10px; font-family: 'Courier New', monospace; font-size: 0.85em; }
+        .state-row { display: flex; justify-content: space-between; padding: 4px 0; border-bottom: 1px solid #eee; }
+        .highlight-val { color: #FF6B6B; font-weight: bold; }
+        
+        .log-container { 
+            background: white; border-radius: 8px; padding: 10px; 
+            max-height: 200px; overflow-y: auto; 
+            font-family: 'Courier New', monospace; font-size: 0.65em; 
+        }
+        .log-entry { padding: 3px 6px; margin: 2px 0; border-radius: 4px; border-left: 3px solid #ccc; background: #f9f9f9; }
+        .log-entry.check { border-left-color: #f1c40f; background: #fef9e7; }
+        .log-entry.found { border-left-color: #27ae60; background: #eafaf1; }
+        .log-entry.fail { border-left-color: #e74c3c; background: #fdedec; }
+        .log-entry.info { border-left-color: #3498db; background: #ebf5fb; }
+        
+        .min-len-display {
+            text-align: center;
+            padding: 10px;
+            background: #2f3640;
+            color: white;
+            border-radius: 8px;
+            margin-top: 10px;
+            font-size: 1.2em;
+            font-weight: bold;
+        }
+        
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Min Size Subarray Sum</h1>
+            <div class="subtitle">Brute Force: Try All Subarrays</div>
+            <div class="complexity-badge">Time: O(N²) | Space: O(1)</div>
+        </header>
+
+        <div class="main-content">
+            <div class="left-panel">
+                <div class="card">
+                    <div class="card-title">⚙️ Controls</div>
+                    <div class="controls">
+                        <button class="btn-primary" id="playBtn">▶️ Play</button>
+                        <button class="btn-warning" id="pauseBtn" disabled>⏸️ Pause</button>
+                        <button class="btn-success" id="stepBtn">⏭️ Step</button>
+                        <button class="btn-secondary" id="resetBtn">🔄 Reset</button>
+                        <div class="speed-control">
+                            <label>Speed:</label>
+                            <input type="range" id="speedSlider" min="1" max="10" value="5">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+                        <div class="card-title" style="margin:0">🔍 Array View</div>
+                        <div style="font-weight:bold; color:#FF6B6B">Target: <span id="targetDisplay">7</span></div>
+                    </div>
+                    
+                    <div class="array-container" id="arrayContainer"></div>
+                </div>
+                
+                <div class="card">
+                    <div class="card-title">ℹ️ Strategy</div>
+                    <div style="font-size: 0.9em; color: #555;">
+                        Iterate start index <code>i</code> from 0 to N-1.<br>
+                        For each <code>i</code>, iterate end index <code>j</code> from <code>i</code> to N-1.<br>
+                        Accumulate sum. If <code>sum >= target</code>, record length and break (optimization).
+                    </div>
+                </div>
+            </div>
+
+            <div class="right-panel">
+                <div class="card">
+                    <div class="card-title">📊 State</div>
+                    <div class="state-display">
+                        <div class="state-row"><span>i (start):</span><span id="iVal">-</span></div>
+                        <div class="state-row"><span>j (end):</span><span id="jVal">-</span></div>
+                        <div class="state-row"><span>Current Sum:</span><span id="sumVal" class="highlight-val">0</span></div>
+                        <div class="state-row"><span>Length (j-i+1):</span><span id="lenVal">-</span></div>
+                    </div>
+                    <div class="min-len-display">
+                        Min Length: <span id="minLenVal">∞</span>
+                    </div>
+                </div>
+
+                <div class="card" style="flex-grow: 1; display: flex; flex-direction: column;">
+                    <div class="card-title">📝 Execution Log</div>
+                    <div class="log-container" id="logContainer"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Data
+        const TARGET = 7;
+        const nums = [2, 3, 1, 2, 4, 3];
+        
+        let i = 0;
+        let j = 0;
+        let currentSum = 0;
+        let minLen = Infinity;
+        let n = nums.length;
+        
+        // State
+        let phase = 'init'; // init, adding, success, next_i, done
+        let isRunning = false;
+        let timer = null;
+        let speed = 5;
+        let stepCount = 0;
+
+        function init() {
+            i = 0;
+            j = 0;
+            currentSum = 0;
+            minLen = Infinity;
+            phase = 'init';
+            stepCount = 0;
+            
+            clearLog();
+            addLog(`Target: ${TARGET}. Array: [${nums.join(', ')}]`, "info");
+            
+            render();
+            updateControls();
+        }
+
+        function createArrayItem(val, idx) {
+            const el = document.createElement('div');
+            let cls = 'array-item';
+            
+            if (idx >= i && idx <= j && phase !== 'init' && phase !== 'done' && phase !== 'next_i') {
+                cls += ' in-range';
+            }
+            if (idx === i && phase !== 'done') cls += ' start-idx';
+            if (idx === j && phase !== 'done' && phase !== 'next_i' && phase !== 'init') cls += ' current-idx';
+            
+            el.className = cls;
+            el.textContent = val;
+            
+            const lbl = document.createElement('div');
+            lbl.className = 'idx-label';
+            lbl.textContent = idx;
+            el.appendChild(lbl);
+            
+            return el;
+        }
+
+        function render() {
+            const container = document.getElementById('arrayContainer');
+            container.innerHTML = '';
+            
+            nums.forEach((val, idx) => {
+                container.appendChild(createArrayItem(val, idx));
+            });
+            
+            // State Updates
+            document.getElementById('iVal').textContent = phase === 'done' ? '-' : i;
+            document.getElementById('jVal').textContent = (phase === 'init' || phase === 'done' || phase === 'next_i') ? '-' : j;
+            document.getElementById('sumVal').textContent = currentSum;
+            document.getElementById('lenVal').textContent = (phase === 'init' || phase === 'done' || phase === 'next_i') ? '-' : (j - i + 1);
+            document.getElementById('minLenVal').textContent = minLen === Infinity ? '∞' : minLen;
+            document.getElementById('targetDisplay').textContent = TARGET;
+        }
+
+        function step() {
+            stepCount++;
+            
+            if (phase === 'init') {
+                phase = 'adding';
+                i = 0;
+                j = 0;
+                currentSum = nums[0]; // Start first window
+                addLog(`Start i=${i}. Init sum=${currentSum}`, "info");
+            }
+            else if (phase === 'adding') {
+                // Check current sum
+                if (currentSum >= TARGET) {
+                    const len = j - i + 1;
+                    addLog(`Sum ${currentSum} >= ${TARGET}. Valid! Length=${len}`, "found");
+                    
+                    if (len < minLen) {
+                        minLen = len;
+                        addLog(`New MinLength found: ${minLen}`, "found");
+                    }
+                    
+                    // Optimization: Break inner loop since growing j won't help find smaller length
+                    phase = 'next_i';
+                } else {
+                    // Try to extend
+                    if (j < n - 1) {
+                        j++;
+                        const val = nums[j];
+                        currentSum += val;
+                        addLog(`Extend to j=${j} (add ${val}). Sum=${currentSum}`, "check");
+                    } else {
+                        // Reached end for this i
+                        addLog(`Reached end for i=${i}. Sum ${currentSum} < ${TARGET}.`, "fail");
+                        phase = 'next_i';
+                    }
+                }
+            }
+            else if (phase === 'next_i') {
+                i++;
+                if (i < n) {
+                    j = i;
+                    currentSum = nums[i];
+                    phase = 'adding';
+                    addLog(`Move to i=${i}. Reset j=${i}. Check sum=${currentSum}`, "info");
+                    
+                    // Small optimization check
+                    if (currentSum >= TARGET) {
+                         // Will be caught in next 'adding' phase step
+                    }
+                } else {
+                    phase = 'done';
+                    const final = minLen === Infinity ? 0 : minLen;
+                    addLog(`Done! Final Result: ${final}`, "success");
+                    stop();
+                }
+            }
+            
+            render();
+        }
+
+        function addLog(msg, type = 'info') {
+            const log = document.getElementById('logContainer');
+            log.innerHTML += `<div class="log-entry ${type}">[${stepCount}] ${msg}</div>`;
+            log.scrollTop = log.scrollHeight;
+        }
+
+        function clearLog() { document.getElementById('logContainer').innerHTML = ''; }
+
+        function play() {
+            if (isRunning) return;
+            isRunning = true;
+            updateControls();
+            runLoop();
+        }
+
+        function runLoop() {
+            if (!isRunning) return;
+            step();
+            if (phase !== 'done') {
+                const delay = 1000 - (speed * 90);
+                timer = setTimeout(runLoop, Math.max(50, delay));
+            }
+        }
+
+        function stop() {
+            isRunning = false;
+            if (timer) clearTimeout(timer);
+            updateControls();
+        }
+
+        function reset() {
+            stop();
+            init();
+        }
+
+        function updateControls() {
+            document.getElementById('playBtn').disabled = isRunning || phase === 'done';
+            document.getElementById('pauseBtn').disabled = !isRunning;
+            document.getElementById('stepBtn').disabled = isRunning || phase === 'done';
+            document.getElementById('resetBtn').disabled = isRunning;
+        }
+
+        // Listeners
+        document.getElementById('playBtn').addEventListener('click', play);
+        document.getElementById('pauseBtn').addEventListener('click', stop);
+        document.getElementById('stepBtn').addEventListener('click', step);
+        document.getElementById('resetBtn').addEventListener('click', reset);
+        document.getElementById('speedSlider').addEventListener('input', (e) => speed = parseInt(e.target.value));
+
+        // Start
+        init();
+
+    </script>
+</body>
+</html>

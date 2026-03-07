@@ -1,0 +1,842 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>83 - Improved: Recursive Deduplication</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #0f0c29 0%, #302b63 50%, #24243e 100%);
+            min-height: 100vh;
+            padding: 18px;
+            color: #e0e0e0
+        }
+
+        .container {
+            max-width: 1360px;
+            margin: 0 auto;
+            background: rgba(25, 25, 50, .95);
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, .5), 0 0 40px rgba(230, 126, 34, .07);
+            overflow: hidden;
+            border: 1px solid rgba(255, 255, 255, .06)
+        }
+
+        header {
+            background: linear-gradient(135deg, #d35400, #e67e22);
+            color: #fff;
+            padding: 22px;
+            text-align: center
+        }
+
+        h1 {
+            font-size: 1.15em;
+            margin-bottom: 5px
+        }
+
+        .subtitle {
+            font-size: .84em;
+            opacity: .92
+        }
+
+        .badge {
+            display: inline-block;
+            background: rgba(255, 255, 255, .2);
+            padding: 5px 14px;
+            border-radius: 15px;
+            margin-top: 7px;
+            font-size: .78em
+        }
+
+        .main-content {
+            display: grid;
+            grid-template-columns: 1fr 280px;
+            gap: 16px;
+            padding: 18px
+        }
+
+        .card {
+            background: rgba(40, 40, 75, .8);
+            border-radius: 14px;
+            padding: 15px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, .2);
+            margin-bottom: 14px;
+            border: 1px solid rgba(255, 255, 255, .05)
+        }
+
+        .card-title {
+            font-size: .88em;
+            font-weight: 600;
+            margin-bottom: 10px;
+            color: #e67e22
+        }
+
+        button {
+            padding: 7px 14px;
+            border: none;
+            border-radius: 8px;
+            font-size: .82em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all .3s
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, .3)
+        }
+
+        button:disabled {
+            opacity: .4;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #d35400, #e67e22);
+            color: #fff
+        }
+
+        .btn-success {
+            background: linear-gradient(135deg, #27ae60, #2ecc71);
+            color: #fff
+        }
+
+        .btn-warning {
+            background: linear-gradient(135deg, #f39c12, #e67e22);
+            color: #fff
+        }
+
+        .btn-secondary {
+            background: rgba(100, 100, 140, .7);
+            color: #fff
+        }
+
+        .btn-info {
+            background: linear-gradient(135deg, #8e44ad, #9b59b6);
+            color: #fff
+        }
+
+        .controls {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            align-items: center
+        }
+
+        .speed-control {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            flex: 1;
+            min-width: 140px
+        }
+
+        .speed-control label {
+            font-size: .8em;
+            color: #aaa
+        }
+
+        .speed-control input[type="range"] {
+            flex: 1;
+            height: 5px;
+            accent-color: #e67e22
+        }
+
+        .speed-control span {
+            font-size: .8em;
+            color: #e67e22;
+            min-width: 24px
+        }
+
+        .input-section {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+            flex-wrap: wrap
+        }
+
+        .input-section input {
+            padding: 7px 10px;
+            border-radius: 8px;
+            border: 1px solid rgba(255, 255, 255, .15);
+            background: rgba(20, 20, 45, .8);
+            color: #e0e0e0;
+            font-size: .85em;
+            font-family: 'Courier New', monospace;
+            flex: 1;
+            min-width: 120px
+        }
+
+        .input-section input:focus {
+            outline: none;
+            border-color: #e67e22
+        }
+
+        .input-section label {
+            font-size: .82em;
+            color: #aaa;
+            white-space: nowrap
+        }
+
+        /* Linked list */
+        .ll-area {
+            padding: 14px;
+            background: rgba(20, 20, 50, .4);
+            border-radius: 10px;
+            min-height: 70px;
+            overflow-x: auto
+        }
+
+        .ll-row {
+            display: flex;
+            align-items: center;
+            gap: 0;
+            min-height: 60px;
+            padding: 8px 0;
+            flex-wrap: nowrap
+        }
+
+        .node-box {
+            width: 48px;
+            height: 48px;
+            border-radius: 10px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            font-family: 'Courier New', monospace;
+            font-weight: 700;
+            border: 2.5px solid;
+            transition: all .35s;
+            flex-shrink: 0;
+            position: relative
+        }
+
+        .node-box.idle {
+            border-color: rgba(100, 100, 140, .3);
+            background: rgba(40, 40, 70, .6);
+            color: #aaa
+        }
+
+        .node-box.recursing {
+            border-color: #9b59b6;
+            background: rgba(155, 89, 182, .06);
+            color: #9b59b6;
+            box-shadow: 0 0 10px rgba(155, 89, 182, .1)
+        }
+
+        .node-box.base {
+            border-color: #3498db;
+            background: rgba(52, 152, 219, .06);
+            color: #3498db;
+            box-shadow: 0 0 10px rgba(52, 152, 219, .1)
+        }
+
+        .node-box.comparing {
+            border-color: #f1c40f;
+            background: rgba(241, 196, 15, .06);
+            color: #f1c40f;
+            box-shadow: 0 0 12px rgba(241, 196, 15, .12)
+        }
+
+        .node-box.kept {
+            border-color: #2ecc71;
+            background: rgba(46, 204, 113, .05);
+            color: #2ecc71
+        }
+
+        .node-box.skipped {
+            border-color: #e74c3c;
+            background: rgba(231, 76, 60, .06);
+            color: #e74c3c;
+            opacity: .4;
+            text-decoration: line-through
+        }
+
+        .node-val {
+            font-size: 1em
+        }
+
+        .node-idx {
+            font-size: .35em;
+            color: #666;
+            margin-top: 1px
+        }
+
+        .arrow {
+            width: 24px;
+            height: 2px;
+            background: rgba(150, 150, 200, .15);
+            position: relative;
+            flex-shrink: 0
+        }
+
+        .arrow::after {
+            content: '▶';
+            font-size: .5em;
+            color: rgba(150, 150, 200, .25);
+            position: absolute;
+            right: -4px;
+            top: -5px
+        }
+
+        .null-marker {
+            font-size: .7em;
+            color: #555;
+            font-family: 'Courier New', monospace;
+            padding: 0 6px;
+            flex-shrink: 0
+        }
+
+        /* Call stack */
+        .stack-area {
+            padding: 12px;
+            background: rgba(20, 20, 50, .4);
+            border-radius: 10px
+        }
+
+        .stack-frames {
+            display: flex;
+            flex-direction: column;
+            gap: 4px
+        }
+
+        .stack-frame {
+            padding: 8px 12px;
+            border-radius: 8px;
+            font-family: 'Courier New', monospace;
+            font-size: .7em;
+            border-left: 4px solid;
+            transition: all .3s;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 8px
+        }
+
+        .sf-active {
+            border-left-color: #f1c40f;
+            background: rgba(241, 196, 15, .06);
+            color: #f1c40f
+        }
+
+        .sf-waiting {
+            border-left-color: #9b59b6;
+            background: rgba(155, 89, 182, .04);
+            color: #9b59b6
+        }
+
+        .sf-returning {
+            border-left-color: #2ecc71;
+            background: rgba(46, 204, 113, .06);
+            color: #2ecc71
+        }
+
+        .sf-skip {
+            border-left-color: #e74c3c;
+            background: rgba(231, 76, 60, .06);
+            color: #e74c3c
+        }
+
+        .sf-name {
+            font-weight: 600;
+            flex: 1
+        }
+
+        .sf-return {
+            font-size: .9em;
+            opacity: .8
+        }
+
+        .stack-empty {
+            font-size: .75em;
+            color: #555;
+            text-align: center;
+            padding: 10px
+        }
+
+        .action-box {
+            padding: 12px;
+            background: rgba(20, 20, 50, .4);
+            border-radius: 10px;
+            text-align: center;
+            font-family: 'Courier New', monospace;
+            font-size: .8em;
+            min-height: 44px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            flex-wrap: wrap
+        }
+
+        .result-box {
+            padding: 14px;
+            border-radius: 10px;
+            text-align: center;
+            font-weight: 700;
+            font-size: 1em;
+            transition: all .3s
+        }
+
+        .rb-neutral {
+            background: rgba(100, 100, 140, .12);
+            color: #888
+        }
+
+        .rb-run {
+            background: rgba(230, 126, 34, .06);
+            color: #e67e22;
+            border: 1px solid rgba(230, 126, 34, .12)
+        }
+
+        .rb-done {
+            background: rgba(46, 204, 113, .12);
+            color: #2ecc71;
+            border: 1px solid rgba(46, 204, 113, .25)
+        }
+
+        .state-display {
+            background: rgba(20, 20, 50, .5);
+            border-radius: 8px;
+            padding: 10px;
+            font-family: 'Courier New', monospace;
+            font-size: .63em
+        }
+
+        .state-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 3px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, .05)
+        }
+
+        .state-row:last-child {
+            border-bottom: none
+        }
+
+        .state-label {
+            font-weight: 600;
+            color: #e67e22
+        }
+
+        .state-val {
+            color: #ccc;
+            text-align: right;
+            max-width: 130px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap
+        }
+
+        .log-container {
+            background: rgba(20, 20, 50, .5);
+            border-radius: 8px;
+            padding: 10px;
+            max-height: 300px;
+            overflow-y: auto;
+            font-family: 'Courier New', monospace;
+            font-size: .5em
+        }
+
+        .log-entry {
+            padding: 3px 7px;
+            margin: 2px 0;
+            border-radius: 4px;
+            border-left: 3px solid #555;
+            background: rgba(40, 40, 70, .5);
+            line-height: 1.5
+        }
+
+        .log-entry.success {
+            border-left-color: #2ecc71;
+            background: rgba(46, 204, 113, .08);
+            color: #2ecc71
+        }
+
+        .log-entry.warning {
+            border-left-color: #f39c12;
+            background: rgba(243, 156, 18, .08);
+            color: #f39c12
+        }
+
+        .log-entry.info {
+            border-left-color: #3498db;
+            background: rgba(52, 152, 219, .08);
+            color: #8ec8f0
+        }
+
+        .log-entry.orange {
+            border-left-color: #e67e22;
+            background: rgba(230, 126, 34, .08);
+            color: #e67e22
+        }
+
+        .log-entry.error {
+            border-left-color: #e74c3c;
+            background: rgba(231, 76, 60, .08);
+            color: #e74c3c
+        }
+
+        .log-entry.purple {
+            border-left-color: #9b59b6;
+            background: rgba(155, 89, 182, .08);
+            color: #bb6bd9
+        }
+
+        .log-container::-webkit-scrollbar {
+            width: 5px
+        }
+
+        .log-container::-webkit-scrollbar-track {
+            background: transparent
+        }
+
+        .log-container::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, .15);
+            border-radius: 3px
+        }
+
+        @media(max-width:960px) {
+            .main-content {
+                grid-template-columns: 1fr
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <header>
+            <h1>🔗 Remove Duplicates from Sorted List (83)</h1>
+            <div class="subtitle">Improved — Recursive Deduplication</div>
+            <div class="badge">Time: O(n) | Space: O(n) call stack</div>
+        </header>
+        <div class="main-content">
+            <div class="left-panel">
+                <div class="card">
+                    <div class="card-title">⚙️ Controls</div>
+                    <div class="controls">
+                        <button class="btn-primary" id="playBtn">▶️ Play</button>
+                        <button class="btn-warning" id="pauseBtn" disabled>⏸️ Pause</button>
+                        <button class="btn-success" id="stepBtn">⏭️ Step</button>
+                        <button class="btn-secondary" id="resetBtn">🔄 Reset</button>
+                        <div class="speed-control">
+                            <label>Speed:</label>
+                            <input type="range" id="speedSlider" min="1" max="10" value="5">
+                            <span id="speedValue">5x</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="card">
+                    <div class="card-title">✏️ Custom Input</div>
+                    <div class="input-section">
+                        <label>values (sorted):</label>
+                        <input type="text" id="arrInput" value="1,1,2,3,3" placeholder="e.g. 1,1,2,3,3">
+                        <button class="btn-info" id="applyBtn">Apply</button>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-title">🔗 Linked List</div>
+                    <div class="ll-area">
+                        <div class="ll-row" id="llDisplay"></div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-title">📚 Call Stack — recurse to end, then unwind</div>
+                    <div class="stack-area">
+                        <div class="stack-frames" id="stackDisplay">
+                            <div class="stack-empty">empty</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-title">🔍 Action</div>
+                    <div class="action-box" id="actionBox"><span style="color:#555">—</span></div>
+                </div>
+
+                <div class="card">
+                    <div class="result-box rb-neutral" id="resultBox">Ready — press Play or Step</div>
+                </div>
+            </div>
+
+            <div class="right-panel">
+                <div class="card">
+                    <div class="card-title">📋 Current State</div>
+                    <div class="state-display">
+                        <div class="state-row"><span class="state-label">Direction:</span><span class="state-val"
+                                id="stDir">—</span></div>
+                        <div class="state-row"><span class="state-label">Depth:</span><span class="state-val"
+                                id="stDepth">0</span></div>
+                        <div class="state-row"><span class="state-label">head.val:</span><span class="state-val"
+                                id="stHeadV">—</span></div>
+                        <div class="state-row"><span class="state-label">head.next.val:</span><span class="state-val"
+                                id="stNextV">—</span></div>
+                        <div class="state-row"><span class="state-label">Equal?:</span><span class="state-val"
+                                id="stEq">—</span></div>
+                        <div class="state-row"><span class="state-label">Return:</span><span class="state-val"
+                                id="stRet">—</span></div>
+                        <div class="state-row"><span class="state-label">Stack depth:</span><span class="state-val"
+                                id="stStackD">0</span></div>
+                    </div>
+                </div>
+                <div class="card" style="flex:1">
+                    <div class="card-title">📝 Execution Log</div>
+                    <div class="log-container" id="logContainer">
+                        <div class="log-entry info">Recurse to end, then unwind. Compare head.val with head.next.val.
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let VALS = [1, 1, 2, 3, 3];
+        let nodeStates = [];
+        let stack = []; // {idx, status, returnLabel}
+
+        // Pre-compute all animation steps
+        let animSteps = [];
+        let animIdx = 0;
+
+        let stepCount = 0, isRunning = false, speed = 5, isDone = false;
+
+        const $ = id => document.getElementById(id);
+        const logC = $('logContainer');
+        function addLog(m, t = 'info') { logC.innerHTML += `<div class="log-entry ${t}">[${stepCount}] ${m}</div>`; logC.scrollTop = logC.scrollHeight }
+        function clearLog() { logC.innerHTML = '' }
+
+        function buildSteps() {
+            animSteps = [];
+            const n = VALS.length;
+            if (n === 0) {
+                animSteps.push({ type: 'done', result: [] });
+                return;
+            }
+
+            // Recursive descent
+            for (let i = 0; i < n; i++) {
+                if (i === n - 1 || (i === n - 1)) {
+                    // Base case: last node or null next
+                    animSteps.push({ type: 'recurse', idx: i, depth: i });
+                    animSteps.push({ type: 'base', idx: i, depth: i });
+                } else {
+                    animSteps.push({ type: 'recurse', idx: i, depth: i });
+                }
+            }
+
+            // Unwind from end
+            // Now simulate the actual recursive returns
+            // head.next = deleteDuplicates(head.next) already resolved
+            // Compare head.val with (resolved) head.next.val
+            let kept = new Array(n).fill(true);
+            for (let i = n - 2; i >= 0; i--) {
+                // Find next kept node after i
+                let nextKept = -1;
+                for (let j = i + 1; j < n; j++) {
+                    if (kept[j]) { nextKept = j; break; }
+                }
+                if (nextKept >= 0 && VALS[i] === VALS[nextKept]) {
+                    animSteps.push({ type: 'compare', idx: i, nextIdx: nextKept, equal: true, depth: i });
+                    animSteps.push({ type: 'skip', idx: i, nextIdx: nextKept, depth: i });
+                    kept[i] = false;
+                } else {
+                    animSteps.push({ type: 'compare', idx: i, nextIdx: nextKept, equal: false, depth: i });
+                    animSteps.push({ type: 'keep', idx: i, depth: i });
+                }
+            }
+
+            const result = [];
+            for (let i = 0; i < n; i++) if (kept[i]) result.push(VALS[i]);
+            animSteps.push({ type: 'done', result });
+        }
+
+        function renderLL() {
+            const c = $('llDisplay');
+            c.innerHTML = '';
+            for (let i = 0; i < VALS.length; i++) {
+                const box = document.createElement('div');
+                box.className = 'node-box ' + (nodeStates[i] || 'idle');
+                box.innerHTML = `<div class="node-val">${VALS[i]}</div><div class="node-idx">idx ${i}</div>`;
+                c.appendChild(box);
+                if (i < VALS.length - 1) {
+                    const arr = document.createElement('div');
+                    arr.className = 'arrow';
+                    c.appendChild(arr);
+                }
+            }
+            const arr = document.createElement('div');
+            arr.className = 'arrow';
+            c.appendChild(arr);
+            const nl = document.createElement('div');
+            nl.className = 'null-marker';
+            nl.textContent = 'null';
+            c.appendChild(nl);
+        }
+
+        function renderStack() {
+            const c = $('stackDisplay');
+            c.innerHTML = '';
+            if (stack.length === 0) {
+                c.innerHTML = '<div class="stack-empty">empty</div>';
+                return;
+            }
+            // Show bottom to top (bottom first in DOM = top of visual stack at bottom)
+            for (let i = stack.length - 1; i >= 0; i--) {
+                const f = stack[i];
+                const div = document.createElement('div');
+                div.className = 'stack-frame ' + f.cls;
+                div.innerHTML = `<span class="sf-name">${'  '.repeat(i)}${i === stack.length - 1 ? '→ ' : '  '}dedup(node[${f.idx}]=${VALS[f.idx]})</span>` +
+                    `<span class="sf-return">${f.ret || ''}</span>`;
+                c.appendChild(div);
+            }
+            $('stStackD').textContent = stack.length;
+        }
+
+        function doStep() {
+            if (isDone) { stopExec(); return; }
+            if (animIdx >= animSteps.length) { isDone = true; stopExec(); return; }
+            stepCount++;
+
+            const step = animSteps[animIdx++];
+
+            switch (step.type) {
+                case 'recurse': {
+                    nodeStates[step.idx] = 'recursing';
+                    stack.push({ idx: step.idx, cls: 'sf-waiting', ret: '...' });
+                    const indent = '  '.repeat(step.depth);
+                    addLog(`${indent}📥 dedup(node[${step.idx}]=${VALS[step.idx]}) — recurse deeper`, 'purple');
+                    $('stDir').textContent = '📥 Descending';
+                    $('stDepth').textContent = step.depth;
+                    $('stHeadV').textContent = VALS[step.idx];
+                    $('actionBox').innerHTML = `<span style="color:#9b59b6">📥 Recurse into node[${step.idx}]=${VALS[step.idx]}</span>`;
+                    $('resultBox').className = 'result-box rb-run';
+                    $('resultBox').textContent = 'Recursing deeper...';
+                    renderLL(); renderStack();
+                    break;
+                }
+                case 'base': {
+                    nodeStates[step.idx] = 'base';
+                    if (stack.length) stack[stack.length - 1].cls = 'sf-returning';
+                    if (stack.length) stack[stack.length - 1].ret = `→ node[${step.idx}]`;
+                    const indent = '  '.repeat(step.depth);
+                    addLog(`${indent}🛑 Base case! node[${step.idx}].next=null → return node[${step.idx}]`, 'info');
+                    $('stDir').textContent = '🛑 Base case';
+                    $('stRet').textContent = `node[${step.idx}]`;
+                    nodeStates[step.idx] = 'kept';
+                    $('actionBox').innerHTML = `<span style="color:#3498db">Base case: return node[${step.idx}]=${VALS[step.idx]}</span>`;
+                    renderLL(); renderStack();
+                    break;
+                }
+                case 'compare': {
+                    nodeStates[step.idx] = 'comparing';
+                    if (step.nextIdx >= 0) nodeStates[step.nextIdx] = 'comparing';
+                    const indent = '  '.repeat(step.depth);
+                    const eq = step.equal;
+                    $('stDir').textContent = '📤 Unwinding';
+                    $('stHeadV').textContent = VALS[step.idx];
+                    $('stNextV').textContent = step.nextIdx >= 0 ? VALS[step.nextIdx] : 'null';
+                    $('stEq').textContent = eq ? `✓ ${VALS[step.idx]}===${VALS[step.nextIdx]}` : `✗ ${VALS[step.idx]}≠${step.nextIdx >= 0 ? VALS[step.nextIdx] : 'null'}`;
+                    if (eq) {
+                        addLog(`${indent}📤 Unwind node[${step.idx}]: val=${VALS[step.idx]} === next.val=${VALS[step.nextIdx]} → DUPLICATE`, 'warning');
+                        $('actionBox').innerHTML = `<span style="color:#f39c12">${VALS[step.idx]} === ${VALS[step.nextIdx]} → duplicate! Skip node[${step.idx}]</span>`;
+                    } else {
+                        addLog(`${indent}📤 Unwind node[${step.idx}]: val=${VALS[step.idx]} ≠ next.val=${step.nextIdx >= 0 ? VALS[step.nextIdx] : 'null'} → KEEP`, 'info');
+                        $('actionBox').innerHTML = `<span style="color:#3498db">${VALS[step.idx]} ≠ ${step.nextIdx >= 0 ? VALS[step.nextIdx] : 'null'} → keep node[${step.idx}]</span>`;
+                    }
+                    renderLL(); renderStack();
+                    break;
+                }
+                case 'skip': {
+                    nodeStates[step.idx] = 'skipped';
+                    if (step.nextIdx >= 0 && nodeStates[step.nextIdx] === 'comparing') nodeStates[step.nextIdx] = 'kept';
+                    if (stack.length) {
+                        const top = stack[stack.length - 1];
+                        top.cls = 'sf-skip';
+                        top.ret = `→ skip! return node[${step.nextIdx}]`;
+                    }
+                    stack.pop();
+                    const indent = '  '.repeat(step.depth);
+                    addLog(`${indent}  ✂ return head.next (skip node[${step.idx}])`, 'error');
+                    $('stRet').textContent = `skip→node[${step.nextIdx}]`;
+                    renderLL(); renderStack();
+                    break;
+                }
+                case 'keep': {
+                    nodeStates[step.idx] = 'kept';
+                    if (stack.length) {
+                        const top = stack[stack.length - 1];
+                        top.cls = 'sf-returning';
+                        top.ret = `→ return node[${step.idx}]`;
+                    }
+                    stack.pop();
+                    const indent = '  '.repeat(step.depth);
+                    addLog(`${indent}  ✓ return head (keep node[${step.idx}]=${VALS[step.idx]})`, 'success');
+                    $('stRet').textContent = `keep node[${step.idx}]`;
+                    renderLL(); renderStack();
+                    break;
+                }
+                case 'done': {
+                    isDone = true;
+                    addLog(`✅ Recursion complete! Result: [${step.result}]`, 'success');
+                    $('resultBox').className = 'result-box rb-done';
+                    $('resultBox').textContent = `✅ Output: [${step.result}]`;
+                    $('actionBox').innerHTML = `<span style="color:#2ecc71;font-weight:700">Done! [${step.result}]</span>`;
+                    $('stDir').textContent = '✅ Complete';
+                    renderLL(); renderStack();
+                    stopExec();
+                    break;
+                }
+            }
+            $('stDepth').textContent = stack.length;
+        }
+
+        function play() { if (isRunning || isDone) return; isRunning = true; $('playBtn').disabled = true; $('pauseBtn').disabled = false; $('stepBtn').disabled = true; runLoop() }
+        function pause() { isRunning = false; $('playBtn').disabled = false; $('pauseBtn').disabled = true; $('stepBtn').disabled = false }
+        function stopExec() { isRunning = false; $('playBtn').disabled = true; $('pauseBtn').disabled = true; $('stepBtn').disabled = true }
+        function runLoop() { if (!isRunning) return; doStep(); if (isRunning && !isDone) setTimeout(runLoop, Math.max(150, 650 - speed * 55)) }
+
+        function init() {
+            const s = $('arrInput').value || '1,1,2,3,3';
+            VALS = s.split(',').map(x => parseInt(x.trim())).filter(x => !isNaN(x));
+            nodeStates = new Array(VALS.length).fill('idle');
+            stack = []; animIdx = 0;
+            stepCount = 0; isDone = false;
+            buildSteps();
+            $('resultBox').className = 'result-box rb-neutral';
+            $('resultBox').textContent = 'Ready — press Play or Step';
+            $('actionBox').innerHTML = '<span style="color:#555">—</span>';
+            $('stDir').textContent = '—'; $('stDepth').textContent = '0';
+            $('stHeadV').textContent = '—'; $('stNextV').textContent = '—';
+            $('stEq').textContent = '—'; $('stRet').textContent = '—'; $('stStackD').textContent = '0';
+            $('playBtn').disabled = false; $('pauseBtn').disabled = true; $('stepBtn').disabled = false;
+            clearLog(); addLog('Recurse to end, then unwind. Compare head.val with head.next.val.', 'info');
+            renderLL(); renderStack();
+        }
+
+        $('playBtn').addEventListener('click', play);
+        $('pauseBtn').addEventListener('click', pause);
+        $('stepBtn').addEventListener('click', () => { if (!isDone) doStep() });
+        $('resetBtn').addEventListener('click', () => { isRunning = false; init() });
+        $('speedSlider').addEventListener('input', e => { speed = parseInt(e.target.value); $('speedValue').textContent = speed + 'x' });
+        $('applyBtn').addEventListener('click', () => { isRunning = false; init() });
+
+        init();
+    </script>
+</body>
+
+</html>

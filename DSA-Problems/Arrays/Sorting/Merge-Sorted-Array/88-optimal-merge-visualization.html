@@ -1,0 +1,465 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Merge Sorted Array - Optimal (Two Pointers)</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            min-height: 100vh;
+            padding: 20px;
+            color: #333;
+        }
+        .container {
+            max-width: 1100px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            overflow: hidden;
+        }
+        header {
+            background: linear-gradient(135deg, #a18cd1 0%, #fbc2eb 100%);
+            color: white;
+            padding: 25px;
+            text-align: center;
+        }
+        h1 { font-size: 1.5em; margin-bottom: 8px; }
+        .subtitle { font-size: 1em; opacity: 0.9; }
+        .complexity-badge {
+            display: inline-block;
+            background: rgba(255,255,255,0.2);
+            padding: 6px 14px;
+            border-radius: 15px;
+            margin-top: 8px;
+            font-size: 0.85em;
+        }
+        .main-content {
+            display: grid;
+            grid-template-columns: 1fr 280px;
+            gap: 20px;
+            padding: 20px;
+        }
+        .card {
+            background: #f8f9fa;
+            border-radius: 12px;
+            padding: 16px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            margin-bottom: 16px;
+        }
+        .card-title {
+            font-size: 0.95em;
+            font-weight: 600;
+            margin-bottom: 12px;
+            color: #667eea;
+        }
+        
+        /* Controls */
+        .controls { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+        button {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 8px;
+            font-size: 0.85em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        button:hover { transform: translateY(-2px); }
+        button:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+        .btn-primary { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; }
+        .btn-success { background: linear-gradient(135deg, #28a745 0%, #20c997 100%); color: white; }
+        .btn-warning { background: linear-gradient(135deg, #ffc107 0%, #ff9800 100%); color: white; }
+        .btn-secondary { background: #6c757d; color: white; }
+        .speed-control { display: flex; align-items: center; gap: 6px; flex: 1; min-width: 140px; }
+        .speed-control input[type="range"] { flex: 1; height: 5px; }
+
+        /* Arrays */
+        .array-section { margin-bottom: 25px; }
+        .array-label { font-weight: 600; margin-bottom: 8px; color: #555; font-size: 0.9em; }
+        .array-container {
+            display: flex;
+            gap: 15px;
+            min-height: 80px;
+            padding: 20px 10px;
+            background: #fff;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            position: relative;
+            flex-wrap: wrap;
+        }
+        
+        .array-item {
+            width: 50px;
+            height: 50px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            color: white;
+            position: relative;
+            transition: all 0.4s ease;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            font-size: 1.1em;
+            background: #3498db;
+        }
+        .array-item.empty { background: #dfe6e9; color: #b2bec3; box-shadow: none; border: 2px dashed #b2bec3; }
+        .array-item.nums2 { background: #e67e22; }
+        
+        /* Pointers */
+        .ptr {
+            position: absolute;
+            bottom: -35px;
+            font-size: 0.8em;
+            font-weight: 700;
+            transition: all 0.4s ease;
+            text-align: center;
+            width: 50px;
+        }
+        .ptr::before { content: '▲'; display: block; }
+        
+        .ptr-p1 { color: #3498db; bottom: -35px; }
+        .ptr-p1::after { content: 'p1'; display: block; }
+        
+        .ptr-p { color: #8e44ad; bottom: -55px; } /* Lower to avoid overlap */
+        .ptr-p::after { content: 'p'; display: block; }
+        
+        .ptr-p2 { color: #e67e22; bottom: -35px; }
+        .ptr-p2::after { content: 'p2'; display: block; }
+
+        .idx-label {
+            position: absolute;
+            top: -20px;
+            font-size: 0.6em;
+            color: #888;
+            width: 100%;
+            text-align: center;
+        }
+        
+        /* Highlight specific items being compared */
+        .comparing { transform: scale(1.15); z-index: 10; box-shadow: 0 0 15px rgba(0,0,0,0.3); border: 2px solid #333; }
+        .placed { animation: land 0.5s ease; }
+        
+        @keyframes land {
+            0% { transform: scale(1.5); opacity: 0; }
+            50% { transform: scale(1.2); opacity: 1; }
+            100% { transform: scale(1); }
+        }
+
+        /* State & Log */
+        .state-display { background: white; border-radius: 8px; padding: 10px; font-family: 'Courier New', monospace; font-size: 0.85em; }
+        .state-row { display: flex; justify-content: space-between; padding: 4px 0; border-bottom: 1px solid #eee; }
+        
+        .log-container { 
+            background: white; border-radius: 8px; padding: 10px; 
+            max-height: 200px; overflow-y: auto; 
+            font-family: 'Courier New', monospace; font-size: 0.65em; 
+        }
+        .log-entry { padding: 3px 6px; margin: 2px 0; border-radius: 4px; border-left: 3px solid #ccc; background: #f9f9f9; }
+        .log-entry.compare { border-left-color: #f1c40f; background: #fef9e7; }
+        .log-entry.move { border-left-color: #27ae60; background: #eafaf1; }
+        .log-entry.info { border-left-color: #3498db; background: #ebf5fb; }
+        
+        .logic-panel {
+            background: #fff3e0;
+            border-radius: 8px;
+            padding: 12px;
+            border-left: 4px solid #ff9800;
+            margin-bottom: 10px;
+            font-size: 0.9em;
+        }
+        .logic-step { opacity: 0.5; margin-bottom: 4px; transition: opacity 0.3s; }
+        .logic-step.active { opacity: 1; font-weight: 700; color: #e65100; transform: scale(1.02); transform-origin: left; }
+        
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Merge Sorted Array</h1>
+            <div class="subtitle">Optimal: Two Pointers (From End)</div>
+            <div class="complexity-badge">Time: O(M+N) | Space: O(1)</div>
+        </header>
+
+        <div class="main-content">
+            <div class="left-panel">
+                <div class="card">
+                    <div class="card-title">⚙️ Controls</div>
+                    <div class="controls">
+                        <button class="btn-primary" id="playBtn">▶️ Play</button>
+                        <button class="btn-warning" id="pauseBtn" disabled>⏸️ Pause</button>
+                        <button class="btn-success" id="stepBtn">⏭️ Step</button>
+                        <button class="btn-secondary" id="resetBtn">🔄 Reset</button>
+                        <div class="speed-control">
+                            <label>Speed:</label>
+                            <input type="range" id="speedSlider" min="1" max="10" value="5">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-title">arrays</div>
+                    
+                    <div class="array-section">
+                        <div class="array-label">nums1 (Size: m + n)</div>
+                        <div class="array-container" id="nums1Container"></div>
+                    </div>
+                    
+                    <div class="array-section">
+                        <div class="array-label">nums2 (Size: n)</div>
+                        <div class="array-container" id="nums2Container"></div>
+                    </div>
+                </div>
+                
+                <div class="card">
+                    <div class="card-title">🤔 Logic</div>
+                    <div class="logic-panel" id="logicPanel">
+                        <div class="logic-step" id="rule1">If nums1[p1] > nums2[p2]: Place nums1[p1] at p, p1--</div>
+                        <div class="logic-step" id="rule2">Else (nums2 larger/equal): Place nums2[p2] at p, p2--</div>
+                        <div class="logic-step" id="rule3">Decrement p</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="right-panel">
+                <div class="card">
+                    <div class="card-title">📊 Pointers</div>
+                    <div class="state-display">
+                        <div class="state-row"><span>p1 (nums1 end):</span><span id="p1Val">-</span></div>
+                        <div class="state-row"><span>p2 (nums2 end):</span><span id="p2Val">-</span></div>
+                        <div class="state-row"><span>p (Total end):</span><span id="pVal">-</span></div>
+                    </div>
+                </div>
+
+                <div class="card" style="flex-grow: 1; display: flex; flex-direction: column;">
+                    <div class="card-title">📝 Execution Log</div>
+                    <div class="log-container" id="logContainer"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Data
+        const initialM = 3;
+        const initialNums1 = [1, 2, 8, 0, 0, 0]; // m=3, n=3. Changed vals slightly for clarity
+        const nums2Data = [2, 5, 6];
+        
+        let nums1 = [];
+        let m = 3;
+        let n = nums2Data.length;
+        
+        let p1 = 0;
+        let p2 = 0;
+        let p = 0;
+        
+        let isRunning = false;
+        let timer = null;
+        let speed = 5;
+        let stepCount = 0;
+        let done = false;
+
+        function init() {
+            nums1 = [...initialNums1];
+            m = initialM;
+            n = nums2Data.length;
+            
+            p1 = m - 1;
+            p2 = n - 1;
+            p = m + n - 1;
+            
+            done = false;
+            stepCount = 0;
+            
+            clearLog();
+            addLog("Ready. Start comparison from the end.", "info");
+            
+            render();
+            updateControls();
+        }
+
+        function createArrayItem(val, idx, type='nums1') {
+            const el = document.createElement('div');
+            let cls = 'array-item';
+            
+            if (type === 'nums1') {
+                if (idx >= m && val === 0) cls += ' empty'; 
+                // Note: we don't know 'merged' status easily here unless we track source.
+                // For simplified viz, just rely on color.
+            } else {
+                cls += ' nums2';
+            }
+            
+            // Highlight logic
+            if (type === 'nums1' && idx === p1) cls += ' comparing';
+            if (type === 'nums2' && idx === p2) cls += ' comparing';
+            if (type === 'nums1' && idx === p+1) cls += ' placed'; // Just placed
+            
+            el.className = cls;
+            el.textContent = val;
+            
+            // Ptr Logic - messy to put inside item if moving, usually separate absolute logic better.
+            // But we can put ID on container item
+            el.id = `${type}-${idx}`;
+            
+            const lbl = document.createElement('div');
+            lbl.className = 'idx-label';
+            lbl.textContent = idx;
+            el.appendChild(lbl);
+            
+            return el;
+        }
+
+        function render() {
+            const c1 = document.getElementById('nums1Container');
+            c1.innerHTML = '';
+            
+            nums1.forEach((val, idx) => {
+                c1.appendChild(createArrayItem(val, idx, 'nums1'));
+            });
+            
+            // Add pointers to c1
+            if (p1 >= 0) {
+                const ptr1 = document.createElement('div');
+                ptr1.className = 'ptr ptr-p1';
+                // Approximate position: 15px gap + 50px width.
+                // Or retrieve element position.
+                // Simpler: use CSS Left based on index
+                // (50px width + 15px gap) * idx + 10px padding
+                ptr1.style.left = `${(65 * p1) + 10}px`; 
+                c1.appendChild(ptr1);
+            }
+            
+            if (p >= 0) {
+                const ptrP = document.createElement('div');
+                ptrP.className = 'ptr ptr-p';
+                ptrP.style.left = `${(65 * p) + 10}px`;
+                c1.appendChild(ptrP);
+            }
+
+            const c2 = document.getElementById('nums2Container');
+            c2.innerHTML = '';
+            nums2Data.forEach((val, idx) => {
+                const el = createArrayItem(val, idx, 'nums2');
+                if(idx > p2) {
+                     el.style.opacity = '0.5'; 
+                     el.style.background = '#ccc';
+                }
+                c2.appendChild(el);
+            });
+            
+            if (p2 >= 0) {
+                const ptr2 = document.createElement('div');
+                ptr2.className = 'ptr ptr-p2';
+                ptr2.style.left = `${(65 * p2) + 10}px`;
+                c2.appendChild(ptr2);
+            }
+
+            // Update State
+            document.getElementById('p1Val').textContent = p1;
+            document.getElementById('p2Val').textContent = p2;
+            document.getElementById('pVal').textContent = p;
+        }
+        
+        function highlightRule(id) {
+            ['rule1', 'rule2', 'rule3'].forEach(r => document.getElementById(r).classList.remove('active'));
+            if(id) document.getElementById(id).classList.add('active');
+        }
+
+        function step() {
+            if (p2 < 0) {
+                done = true;
+                addLog("Done! All elements from nums2 merged.", "success");
+                stop();
+                return;
+            }
+            
+            stepCount++;
+            
+            // Logic
+            let val1 = p1 >= 0 ? nums1[p1] : -Infinity;
+            let val2 = nums2Data[p2];
+            
+            addLog(`Compare nums1[${p1}] (${val1 === -Infinity ? 'min' : val1}) vs nums2[${p2}] (${val2})`, "compare");
+            
+            if (p1 >= 0 && val1 > val2) {
+                highlightRule('rule1');
+                nums1[p] = val1;
+                addLog(`nums1[${p1}] is larger. Move ${val1} to nums1[${p}].`, "move");
+                p1--;
+            } else {
+                highlightRule('rule2');
+                nums1[p] = val2;
+                addLog(`nums2[${p2}] is larger/equal. Move ${val2} to nums1[${p}].`, "move");
+                p2--;
+            }
+            
+            p--;
+            render();
+            
+            if (p2 < 0) {
+                done = true;
+                addLog("Done! Array merged.", "success");
+                stop();
+            }
+        }
+
+        function addLog(msg, type = 'info') {
+            const log = document.getElementById('logContainer');
+            log.innerHTML += `<div class="log-entry ${type}">[${stepCount}] ${msg}</div>`;
+            log.scrollTop = log.scrollHeight;
+        }
+
+        function clearLog() { document.getElementById('logContainer').innerHTML = ''; }
+
+        function play() {
+            if (isRunning) return;
+            isRunning = true;
+            updateControls();
+            runLoop();
+        }
+
+        function runLoop() {
+            if (!isRunning) return;
+            step();
+            if (!done) {
+                const delay = 1400 - (speed * 120);
+                timer = setTimeout(runLoop, Math.max(100, delay));
+            }
+        }
+
+        function stop() {
+            isRunning = false;
+            if (timer) clearTimeout(timer);
+            updateControls();
+        }
+
+        function reset() {
+            stop();
+            init();
+        }
+
+        function updateControls() {
+            document.getElementById('playBtn').disabled = isRunning || done;
+            document.getElementById('pauseBtn').disabled = !isRunning;
+            document.getElementById('stepBtn').disabled = isRunning || done;
+            document.getElementById('resetBtn').disabled = isRunning;
+        }
+
+        // Listeners
+        document.getElementById('playBtn').addEventListener('click', play);
+        document.getElementById('pauseBtn').addEventListener('click', stop);
+        document.getElementById('stepBtn').addEventListener('click', step);
+        document.getElementById('resetBtn').addEventListener('click', reset);
+        document.getElementById('speedSlider').addEventListener('input', (e) => speed = parseInt(e.target.value));
+
+        // Start
+        init();
+
+    </script>
+</body>
+</html>

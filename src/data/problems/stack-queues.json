@@ -9,36 +9,666 @@
       "color": "var(--accent)",
       "problems": {
         "implement-queue-using-stacks": {
-          "title": "Implement Queue using Stacks Here",
-          "problemSlug": "implement-queue-using-stacks"
+          "breadcrumb": [
+            "Stack & Queue",
+            "Design",
+            "Implement Queue using Stacks"
+          ],
+          "title": "Implement Queue using Stacks",
+          "difficulty": "Medium",
+          "problemSlug": "implement-queue-using-stacks",
+          "categoryPath": "stack-queue/design",
+          "tags": ["Stack", "Queue", "Design", "Amortized Analysis"],
+          "description": "Implement a first-in-first-out (FIFO) queue using only two stacks. The implemented queue should support push, pop, peek, and empty operations.",
+          "examples": [
+            {
+              "input": "Input:\n[\"MyQueue\",\"push\",\"push\",\"peek\",\"pop\",\"empty\"]\n[[],[1],[2],[],[],[]]",
+              "output": "[null,null,null,1,1,false]",
+              "explanation": "push(1)\npush(2)\npeek() -> 1\npop() -> 1\nempty() -> false"
+            }
+          ],
+          "constraints": [
+            "1 ≤ x ≤ 9",
+            "At most 100 calls will be made to push, pop, peek, and empty.",
+            "All the calls to pop and peek are valid."
+          ],
+          "approaches": [
+            {
+              "title": "Brute Force — Transfer on Every Pop/Peek",
+              "badge": "Brute Force",
+              "intuition": "Use one stack for push. Whenever pop or peek is called, transfer all elements to another stack to reverse order, perform operation, then transfer back.",
+              "steps": [
+                "Push elements onto stack1.",
+                "For pop/peek:",
+                "  Move all elements to stack2.",
+                "  Perform operation.",
+                "  Move elements back to stack1."
+              ],
+              "code": "var MyQueue = function() {\n    this.stack1 = [];\n    this.stack2 = [];\n};\n\nMyQueue.prototype.push = function(x) {\n    this.stack1.push(x);\n};\n\nMyQueue.prototype.pop = function() {\n    while (this.stack1.length) {\n        this.stack2.push(this.stack1.pop());\n    }\n    const value = this.stack2.pop();\n    while (this.stack2.length) {\n        this.stack1.push(this.stack2.pop());\n    }\n    return value;\n};\n\nMyQueue.prototype.peek = function() {\n    while (this.stack1.length) {\n        this.stack2.push(this.stack1.pop());\n    }\n    const value = this.stack2[this.stack2.length - 1];\n    while (this.stack2.length) {\n        this.stack1.push(this.stack2.pop());\n    }\n    return value;\n};\n\nMyQueue.prototype.empty = function() {\n    return this.stack1.length === 0;\n};",
+              "language": "javascript",
+              "timeComplexity": "O(n) per pop/peek",
+              "timeType": "warning",
+              "spaceComplexity": "O(n)",
+              "spaceType": "warning",
+              "pros": [
+                "Very straightforward",
+                "Easy to reason about reversal logic"
+              ],
+              "cons": ["Inefficient — repeated transfers", "Not optimal"],
+              "visualLink": "/legacy/Stack-Queue/Design/Queue-Using-Stacks/1-transfer-everytime.html",
+              "notesLink": ""
+            },
+            {
+              "title": "Improved — Lazy Transfer (Two Stack Method)",
+              "badge": "Improved",
+              "intuition": "Use two stacks: inStack for push operations, outStack for pop/peek operations. Only transfer elements when outStack is empty.",
+              "steps": [
+                "Push into inStack.",
+                "For pop/peek:",
+                "  If outStack is empty, transfer all from inStack to outStack.",
+                "  Perform operation on outStack."
+              ],
+              "code": "var MyQueue = function() {\n    this.inStack = [];\n    this.outStack = [];\n};\n\nMyQueue.prototype.push = function(x) {\n    this.inStack.push(x);\n};\n\nMyQueue.prototype.pop = function() {\n    if (!this.outStack.length) {\n        while (this.inStack.length) {\n            this.outStack.push(this.inStack.pop());\n        }\n    }\n    return this.outStack.pop();\n};\n\nMyQueue.prototype.peek = function() {\n    if (!this.outStack.length) {\n        while (this.inStack.length) {\n            this.outStack.push(this.inStack.pop());\n        }\n    }\n    return this.outStack[this.outStack.length - 1];\n};\n\nMyQueue.prototype.empty = function() {\n    return this.inStack.length === 0 && this.outStack.length === 0;\n};",
+              "language": "javascript",
+              "timeComplexity": "Amortized O(1)",
+              "timeType": "good",
+              "spaceComplexity": "O(n)",
+              "spaceType": "warning",
+              "pros": [
+                "Efficient amortized constant time",
+                "Clean and practical",
+                "Standard interview solution"
+              ],
+              "cons": ["Requires understanding amortized analysis"],
+              "visualLink": "/legacy/Stack-Queue/Design/Queue-Using-Stacks/2-lazy-transfer.html",
+              "notesLink": ""
+            },
+            {
+              "title": "Optimal — Lazy Transfer (Amortized O(1))",
+              "badge": "Optimal",
+              "intuition": "Each element is moved at most once from inStack to outStack. Therefore, although a single operation may take O(n), the amortized cost per operation is O(1).",
+              "steps": [
+                "Push always goes to inStack.",
+                "Pop/peek only transfers when outStack is empty.",
+                "Each element is transferred at most once."
+              ],
+              "code": "var MyQueue = function() {\n    this.inStack = [];\n    this.outStack = [];\n};\n\nMyQueue.prototype.push = function(x) {\n    this.inStack.push(x);\n};\n\nMyQueue.prototype.pop = function() {\n    if (!this.outStack.length) {\n        while (this.inStack.length) {\n            this.outStack.push(this.inStack.pop());\n        }\n    }\n    return this.outStack.pop();\n};\n\nMyQueue.prototype.peek = function() {\n    if (!this.outStack.length) {\n        while (this.inStack.length) {\n            this.outStack.push(this.inStack.pop());\n        }\n    }\n    return this.outStack[this.outStack.length - 1];\n};\n\nMyQueue.prototype.empty = function() {\n    return this.inStack.length === 0 && this.outStack.length === 0;\n};",
+              "language": "javascript",
+              "timeComplexity": "Amortized O(1)",
+              "timeType": "good",
+              "spaceComplexity": "O(n)",
+              "spaceType": "warning",
+              "pros": [
+                "Optimal amortized time",
+                "Clean design pattern",
+                "Classic data structure question"
+              ],
+              "cons": ["Requires understanding amortized complexity"],
+              "visualLink": "/legacy/Stack-Queue/Design/Queue-Using-Stacks/3-amortized-analysis.html",
+              "notesLink": ""
+            }
+          ]
         },
         "implement-stack-using-queues": {
+          "breadcrumb": [
+            "Stack & Queue",
+            "Design",
+            "Implement Stack using Queues"
+          ],
           "title": "Implement Stack using Queues",
-          "problemSlug": "implement-stack-using-queues"
+          "difficulty": "Medium",
+          "problemSlug": "implement-stack-using-queues",
+          "categoryPath": "stack-queue/design",
+          "tags": ["Stack", "Queue", "Design", "Simulation"],
+          "description": "Implement a last-in-first-out (LIFO) stack using only two queues. The implemented stack should support push, pop, top, and empty operations.",
+          "examples": [
+            {
+              "input": "Input:\n[\"MyStack\",\"push\",\"push\",\"top\",\"pop\",\"empty\"]\n[[],[1],[2],[],[],[]]",
+              "output": "[null,null,null,2,2,false]",
+              "explanation": "push(1)\npush(2)\ntop() -> 2\npop() -> 2\nempty() -> false"
+            }
+          ],
+          "constraints": [
+            "1 ≤ x ≤ 9",
+            "At most 100 calls will be made to push, pop, top, and empty.",
+            "All calls to pop and top are valid."
+          ],
+          "approaches": [
+            {
+              "title": "Brute Force — Two Queues (Expensive Pop)",
+              "badge": "Brute Force",
+              "intuition": "Push elements into q1. For pop, move all elements except last into q2, remove last, then swap queues.",
+              "steps": [
+                "Push into q1 normally.",
+                "For pop:",
+                "  Move first n-1 elements from q1 to q2.",
+                "  Remove last element from q1.",
+                "  Swap q1 and q2."
+              ],
+              "code": "var MyStack = function() {\n    this.q1 = [];\n    this.q2 = [];\n};\n\nMyStack.prototype.push = function(x) {\n    this.q1.push(x);\n};\n\nMyStack.prototype.pop = function() {\n    while (this.q1.length > 1) {\n        this.q2.push(this.q1.shift());\n    }\n    const value = this.q1.shift();\n    [this.q1, this.q2] = [this.q2, this.q1];\n    return value;\n};\n\nMyStack.prototype.top = function() {\n    while (this.q1.length > 1) {\n        this.q2.push(this.q1.shift());\n    }\n    const value = this.q1[0];\n    this.q2.push(this.q1.shift());\n    [this.q1, this.q2] = [this.q2, this.q1];\n    return value;\n};\n\nMyStack.prototype.empty = function() {\n    return this.q1.length === 0;\n};",
+              "language": "javascript",
+              "timeComplexity": "Push: O(1), Pop: O(n)",
+              "timeType": "warning",
+              "spaceComplexity": "O(n)",
+              "spaceType": "warning",
+              "pros": ["Simple to reason about", "Clear LIFO simulation logic"],
+              "cons": ["Pop and top are expensive"],
+              "visualLink": "/legacy/Stack-Queue/Design/Stack-Using-Queues/1-expensive-pop.html",
+              "notesLink": ""
+            },
+            {
+              "title": "Improved — Two Queues (Expensive Push)",
+              "badge": "Improved",
+              "intuition": "Maintain stack order inside q1 at all times. On push, insert into q2, move all from q1 to q2, then swap.",
+              "steps": [
+                "Push new element into q2.",
+                "Move all elements from q1 to q2.",
+                "Swap q1 and q2.",
+                "Now q1 always has stack order (top at front)."
+              ],
+              "code": "var MyStack = function() {\n    this.q1 = [];\n    this.q2 = [];\n};\n\nMyStack.prototype.push = function(x) {\n    this.q2.push(x);\n    while (this.q1.length) {\n        this.q2.push(this.q1.shift());\n    }\n    [this.q1, this.q2] = [this.q2, this.q1];\n};\n\nMyStack.prototype.pop = function() {\n    return this.q1.shift();\n};\n\nMyStack.prototype.top = function() {\n    return this.q1[0];\n};\n\nMyStack.prototype.empty = function() {\n    return this.q1.length === 0;\n};",
+              "language": "javascript",
+              "timeComplexity": "Push: O(n), Pop: O(1)",
+              "timeType": "warning",
+              "spaceComplexity": "O(n)",
+              "spaceType": "warning",
+              "pros": [
+                "Pop and top are constant time",
+                "Maintains correct stack order always"
+              ],
+              "cons": ["Push operation becomes expensive"],
+              "visualLink": "/legacy/Stack-Queue/Design/Stack-Using-Queues/2-expensive-push.html",
+              "notesLink": ""
+            },
+            {
+              "title": "Optimal — One Queue Only",
+              "badge": "Optimal",
+              "intuition": "Use a single queue. After pushing an element, rotate the queue so that the new element comes to the front.",
+              "steps": [
+                "Push element into queue.",
+                "Rotate previous elements to back (size-1 times).",
+                "Now the newest element is at front."
+              ],
+              "code": "var MyStack = function() {\n    this.q = [];\n};\n\nMyStack.prototype.push = function(x) {\n    this.q.push(x);\n    for (let i = 0; i < this.q.length - 1; i++) {\n        this.q.push(this.q.shift());\n    }\n};\n\nMyStack.prototype.pop = function() {\n    return this.q.shift();\n};\n\nMyStack.prototype.top = function() {\n    return this.q[0];\n};\n\nMyStack.prototype.empty = function() {\n    return this.q.length === 0;\n};",
+              "language": "javascript",
+              "timeComplexity": "Push: O(n), Pop: O(1)",
+              "timeType": "warning",
+              "spaceComplexity": "O(n)",
+              "spaceType": "warning",
+              "pros": [
+                "Uses only one queue",
+                "Elegant rotation trick",
+                "Clean implementation"
+              ],
+              "cons": ["Push operation is O(n)"],
+              "visualLink": "/legacy/Stack-Queue/Design/Stack-Using-Queues/3-single-queue.html",
+              "notesLink": ""
+            }
+          ]
         },
         "design-browser-history": {
+          "breadcrumb": ["Stack & Queue", "Design", "Design Browser History"],
           "title": "Design Browser History",
-          "problemSlug": "design-browser-history"
+          "difficulty": "Medium",
+          "problemSlug": "design-browser-history",
+          "categoryPath": "stack-queue/design",
+          "tags": ["Stack", "Design", "Simulation", "Array"],
+          "description": "You have a browser with one tab. You start on the homepage. Implement the BrowserHistory class that supports visit, back, and forward operations.",
+          "examples": [
+            {
+              "input": "Input:\n[\"BrowserHistory\",\"visit\",\"visit\",\"visit\",\"back\",\"back\",\"forward\",\"visit\",\"forward\",\"back\",\"back\"]\n[[\"leetcode.com\"],[\"google.com\"],[\"facebook.com\"],[\"youtube.com\"],[1],[1],[1],[\"linkedin.com\"],[2],[2],[7]]",
+              "output": "[null,null,null,null,\"facebook.com\",\"google.com\",\"facebook.com\",null,\"linkedin.com\",\"google.com\",\"leetcode.com\"]",
+              "explanation": "BrowserHistory(\"leetcode.com\")\nvisit(\"google.com\")\nvisit(\"facebook.com\")\nvisit(\"youtube.com\")\nback(1) -> facebook.com\nback(1) -> google.com\nforward(1) -> facebook.com\nvisit(\"linkedin.com\")\nforward(2) -> linkedin.com\nback(2) -> google.com\nback(7) -> leetcode.com"
+            }
+          ],
+          "constraints": [
+            "1 ≤ homepage.length ≤ 20",
+            "1 ≤ url.length ≤ 20",
+            "1 ≤ steps ≤ 100",
+            "homepage and url consist of '.' or lowercase English letters.",
+            "At most 5000 calls will be made to visit, back, and forward."
+          ],
+          "approaches": [
+            {
+              "title": "Brute Force — Two Stacks",
+              "badge": "Brute Force",
+              "intuition": "Use two stacks: backStack and forwardStack. Visiting clears forwardStack. Back moves current to forwardStack. Forward moves current to backStack.",
+              "steps": [
+                "Maintain current page.",
+                "Visit: push current to backStack, clear forwardStack.",
+                "Back: move current to forwardStack.",
+                "Forward: move current to backStack."
+              ],
+              "code": "var BrowserHistory = function(homepage) {\n    this.current = homepage;\n    this.backStack = [];\n    this.forwardStack = [];\n};\n\nBrowserHistory.prototype.visit = function(url) {\n    this.backStack.push(this.current);\n    this.current = url;\n    this.forwardStack = [];\n};\n\nBrowserHistory.prototype.back = function(steps) {\n    while (steps > 0 && this.backStack.length) {\n        this.forwardStack.push(this.current);\n        this.current = this.backStack.pop();\n        steps--;\n    }\n    return this.current;\n};\n\nBrowserHistory.prototype.forward = function(steps) {\n    while (steps > 0 && this.forwardStack.length) {\n        this.backStack.push(this.current);\n        this.current = this.forwardStack.pop();\n        steps--;\n    }\n    return this.current;\n};",
+              "language": "javascript",
+              "timeComplexity": "O(steps) per operation",
+              "timeType": "warning",
+              "spaceComplexity": "O(n)",
+              "spaceType": "warning",
+              "pros": ["Very intuitive", "Mimics real browser logic"],
+              "cons": ["Uses two stacks", "Extra space overhead"],
+              "visualLink": "/legacy/Stack-Queue/Design/Browser-History/1-two-stack.html",
+              "notesLink": ""
+            },
+            {
+              "title": "Improved — Single Array with Pointer",
+              "badge": "Improved",
+              "intuition": "Store all visited URLs in an array. Maintain a current index pointer. On visit, truncate forward history manually.",
+              "steps": [
+                "Keep history array.",
+                "Track currentIndex.",
+                "Visit: remove elements after currentIndex.",
+                "Back/Forward: move pointer safely within bounds."
+              ],
+              "code": "var BrowserHistory = function(homepage) {\n    this.history = [homepage];\n    this.currentIndex = 0;\n};\n\nBrowserHistory.prototype.visit = function(url) {\n    this.history = this.history.slice(0, this.currentIndex + 1);\n    this.history.push(url);\n    this.currentIndex++;\n};\n\nBrowserHistory.prototype.back = function(steps) {\n    this.currentIndex = Math.max(0, this.currentIndex - steps);\n    return this.history[this.currentIndex];\n};\n\nBrowserHistory.prototype.forward = function(steps) {\n    this.currentIndex = Math.min(\n        this.history.length - 1,\n        this.currentIndex + steps\n    );\n    return this.history[this.currentIndex];\n};",
+              "language": "javascript",
+              "timeComplexity": "Visit: O(n), Back/Forward: O(1)",
+              "timeType": "warning",
+              "spaceComplexity": "O(n)",
+              "spaceType": "warning",
+              "pros": ["Cleaner logic", "Easy pointer control"],
+              "cons": ["Slice operation is O(n)"],
+              "visualLink": "/legacy/Stack-Queue/Design/Browser-History/2-array-pointer.html",
+              "notesLink": ""
+            },
+            {
+              "title": "Optimal — Array with Logical End Pointer",
+              "badge": "Optimal",
+              "intuition": "Use array with current pointer and max pointer (logical end). Avoid slicing. Simply overwrite forward history logically.",
+              "steps": [
+                "Maintain history array.",
+                "Track currentIndex and maxIndex.",
+                "Visit: increment currentIndex and overwrite.",
+                "Back/Forward: move currentIndex within [0, maxIndex]."
+              ],
+              "code": "var BrowserHistory = function(homepage) {\n    this.history = [homepage];\n    this.currentIndex = 0;\n    this.maxIndex = 0;\n};\n\nBrowserHistory.prototype.visit = function(url) {\n    this.currentIndex++;\n    this.history[this.currentIndex] = url;\n    this.maxIndex = this.currentIndex;\n};\n\nBrowserHistory.prototype.back = function(steps) {\n    this.currentIndex = Math.max(0, this.currentIndex - steps);\n    return this.history[this.currentIndex];\n};\n\nBrowserHistory.prototype.forward = function(steps) {\n    this.currentIndex = Math.min(this.maxIndex, this.currentIndex + steps);\n    return this.history[this.currentIndex];\n};",
+              "language": "javascript",
+              "timeComplexity": "O(1) per operation",
+              "timeType": "good",
+              "spaceComplexity": "O(n)",
+              "spaceType": "warning",
+              "pros": [
+                "True O(1) operations",
+                "No slicing or stack transfers",
+                "Most efficient design",
+                "Clean state machine model"
+              ],
+              "cons": ["Requires careful pointer reasoning"],
+              "visualLink": "/legacy/Stack-Queue/Design/Browser-History/3-logical-pointer.html",
+              "notesLink": ""
+            }
+          ]
         },
         "design-hit-counter": {
+          "breadcrumb": ["Stack & Queue", "Design", "Design Hit Counter"],
           "title": "Design Hit Counter",
-          "problemSlug": "design-hit-counter"
+          "difficulty": "Medium",
+          "problemSlug": "design-hit-counter",
+          "categoryPath": "stack-queue/design",
+          "tags": ["Queue", "Design", "Sliding Window", "Circular Buffer"],
+          "description": "Design a hit counter that counts the number of hits received in the past 5 minutes (300 seconds). Each function accepts a timestamp (in seconds granularity). It is guaranteed that calls are made in chronological order.",
+          "examples": [
+            {
+              "input": "Input:\n[\"HitCounter\",\"hit\",\"hit\",\"hit\",\"getHits\",\"hit\",\"getHits\",\"getHits\"]\n[[],[1],[2],[3],[4],[300],[300],[301]]",
+              "output": "[null,null,null,null,3,null,4,3]",
+              "explanation": "At timestamp 4 → hits at 1,2,3 → total = 3\nAt timestamp 300 → hits at 1,2,3,300 → total = 4\nAt timestamp 301 → hits at 2,3,300 → total = 3"
+            }
+          ],
+          "constraints": [
+            "1 ≤ timestamp ≤ 2 * 10^9",
+            "All calls are made in chronological order.",
+            "At most 300 calls will be made to hit and getHits."
+          ],
+          "approaches": [
+            {
+              "title": "Brute Force — Store All Timestamps",
+              "badge": "Brute Force",
+              "intuition": "Store every hit timestamp in an array. For getHits, iterate through all timestamps and count those within the last 300 seconds.",
+              "steps": [
+                "Maintain an array of timestamps.",
+                "On hit(timestamp): push timestamp.",
+                "On getHits(timestamp): iterate and count hits >= timestamp - 299."
+              ],
+              "code": "var HitCounter = function() {\n    this.hits = [];\n};\n\nHitCounter.prototype.hit = function(timestamp) {\n    this.hits.push(timestamp);\n};\n\nHitCounter.prototype.getHits = function(timestamp) {\n    let count = 0;\n    for (let t of this.hits) {\n        if (t > timestamp - 300) count++;\n    }\n    return count;\n};",
+              "language": "javascript",
+              "timeComplexity": "hit: O(1), getHits: O(n)",
+              "timeType": "warning",
+              "spaceComplexity": "O(n)",
+              "spaceType": "warning",
+              "pros": ["Very simple to implement", "Easy to reason about"],
+              "cons": [
+                "Inefficient for large number of hits",
+                "Does not clean up old timestamps"
+              ],
+              "visualLink": "/legacy/Stack-Queue/Design/Hit-Counter/1-store-all.html",
+              "notesLink": ""
+            },
+            {
+              "title": "Improved — Queue with Cleanup",
+              "badge": "Improved",
+              "intuition": "Maintain a queue of timestamps. On each getHits or hit, remove timestamps older than 300 seconds.",
+              "steps": [
+                "Use a queue to store timestamps.",
+                "On hit(timestamp): push timestamp.",
+                "Before getHits: remove timestamps <= timestamp - 300."
+              ],
+              "code": "var HitCounter = function() {\n    this.queue = [];\n};\n\nHitCounter.prototype.hit = function(timestamp) {\n    this.queue.push(timestamp);\n};\n\nHitCounter.prototype.getHits = function(timestamp) {\n    while (this.queue.length && this.queue[0] <= timestamp - 300) {\n        this.queue.shift();\n    }\n    return this.queue.length;\n};",
+              "language": "javascript",
+              "timeComplexity": "Amortized O(1) per operation",
+              "timeType": "good",
+              "spaceComplexity": "O(w) where w ≤ hits in 5 minutes",
+              "spaceType": "warning",
+              "pros": [
+                "Automatically removes outdated hits",
+                "Efficient sliding window"
+              ],
+              "cons": ["Uses dynamic memory proportional to recent hits"],
+              "visualLink": "/legacy/Stack-Queue/Design/Hit-Counter/2-queue-cleanup.html",
+              "notesLink": ""
+            },
+            {
+              "title": "Optimal — Circular Buffer with Counts",
+              "badge": "Optimal",
+              "intuition": "Since the window is fixed at 300 seconds, use two arrays of size 300: one for timestamps and one for hit counts. Use modulo 300 indexing to reuse slots.",
+              "steps": [
+                "Maintain two arrays: times[300], counts[300].",
+                "Index = timestamp % 300.",
+                "If times[index] !== timestamp → reset slot.",
+                "Else increment count.",
+                "For getHits: sum counts where timestamp - times[i] < 300."
+              ],
+              "code": "var HitCounter = function() {\n    this.times = new Array(300).fill(0);\n    this.counts = new Array(300).fill(0);\n};\n\nHitCounter.prototype.hit = function(timestamp) {\n    const index = timestamp % 300;\n    if (this.times[index] !== timestamp) {\n        this.times[index] = timestamp;\n        this.counts[index] = 1;\n    } else {\n        this.counts[index]++;\n    }\n};\n\nHitCounter.prototype.getHits = function(timestamp) {\n    let total = 0;\n    for (let i = 0; i < 300; i++) {\n        if (timestamp - this.times[i] < 300) {\n            total += this.counts[i];\n        }\n    }\n    return total;\n};",
+              "language": "javascript",
+              "timeComplexity": "O(300) = O(1)",
+              "timeType": "good",
+              "spaceComplexity": "O(300) = O(1)",
+              "spaceType": "good",
+              "pros": [
+                "Constant space",
+                "Constant time per operation",
+                "Efficient fixed-size sliding window",
+                "Interview-preferred optimized design"
+              ],
+              "cons": ["Requires understanding modulo indexing"],
+              "visualLink": "/legacy/Stack-Queue/Design/Hit-Counter/3-circular-buffer.html",
+              "notesLink": ""
+            }
+          ]
         },
         "design-circular-queue": {
+          "breadcrumb": ["Stack & Queue", "Design", "Design Circular Queue"],
           "title": "Design Circular Queue",
-          "problemSlug": "design-circular-queue"
+          "difficulty": "Medium",
+          "problemSlug": "design-circular-queue",
+          "categoryPath": "stack-queue/design",
+          "tags": ["Queue", "Design", "Circular Buffer", "Ring Buffer"],
+          "description": "Design your implementation of the circular queue. The circular queue is a linear data structure in which the operations are performed based on FIFO principle and the last position is connected back to the first position to make a circle.",
+          "examples": [
+            {
+              "input": "Input:\n[\"MyCircularQueue\",\"enQueue\",\"enQueue\",\"enQueue\",\"enQueue\",\"Rear\",\"isFull\",\"deQueue\",\"enQueue\",\"Rear\"]\n[[3],[1],[2],[3],[4],[],[],[],[4],[]]",
+              "output": "[null,true,true,true,false,3,true,true,true,4]",
+              "explanation": "MyCircularQueue(3)\nenQueue(1)\nenQueue(2)\nenQueue(3)\nenQueue(4) -> false (full)\nRear() -> 3\nisFull() -> true\ndeQueue() -> true\nenQueue(4) -> true\nRear() -> 4"
+            }
+          ],
+          "constraints": [
+            "1 ≤ k ≤ 1000",
+            "0 ≤ value ≤ 1000",
+            "At most 3000 calls will be made to enQueue, deQueue, Front, Rear, isEmpty, and isFull."
+          ],
+          "approaches": [
+            {
+              "title": "Brute Force — Dynamic Array with Shifting",
+              "badge": "Brute Force",
+              "intuition": "Use a normal array. On deQueue, shift all elements left. This works but defeats circular efficiency.",
+              "steps": [
+                "Maintain array and capacity.",
+                "enQueue: push if size < capacity.",
+                "deQueue: remove first element using shift."
+              ],
+              "code": "var MyCircularQueue = function(k) {\n    this.capacity = k;\n    this.queue = [];\n};\n\nMyCircularQueue.prototype.enQueue = function(value) {\n    if (this.queue.length === this.capacity) return false;\n    this.queue.push(value);\n    return true;\n};\n\nMyCircularQueue.prototype.deQueue = function() {\n    if (this.queue.length === 0) return false;\n    this.queue.shift();\n    return true;\n};\n\nMyCircularQueue.prototype.Front = function() {\n    return this.queue.length ? this.queue[0] : -1;\n};\n\nMyCircularQueue.prototype.Rear = function() {\n    return this.queue.length ? this.queue[this.queue.length - 1] : -1;\n};\n\nMyCircularQueue.prototype.isEmpty = function() {\n    return this.queue.length === 0;\n};\n\nMyCircularQueue.prototype.isFull = function() {\n    return this.queue.length === this.capacity;\n};",
+              "language": "javascript",
+              "timeComplexity": "enQueue: O(1), deQueue: O(n)",
+              "timeType": "warning",
+              "spaceComplexity": "O(k)",
+              "spaceType": "good",
+              "pros": ["Simple to implement", "Easy to understand"],
+              "cons": ["Shift makes deQueue O(n)", "Not truly circular"],
+              "visualLink": "/legacy/Stack-Queue/Design/Circular-Queue/1-shifting-array.html",
+              "notesLink": ""
+            },
+            {
+              "title": "Optimal — Ring Buffer with Head/Tail Pointers",
+              "badge": "Optimal",
+              "intuition": "Use fixed-size array. Maintain head, tail, and count. Use modulo arithmetic for circular behavior.",
+              "steps": [
+                "Initialize array of size k.",
+                "Track head, tail, and count.",
+                "enQueue: write at tail, move tail = (tail+1)%k.",
+                "deQueue: move head = (head+1)%k."
+              ],
+              "code": "var MyCircularQueue = function(k) {\n    this.capacity = k;\n    this.queue = new Array(k);\n    this.head = 0;\n    this.tail = 0;\n    this.count = 0;\n};\n\nMyCircularQueue.prototype.enQueue = function(value) {\n    if (this.isFull()) return false;\n    this.queue[this.tail] = value;\n    this.tail = (this.tail + 1) % this.capacity;\n    this.count++;\n    return true;\n};\n\nMyCircularQueue.prototype.deQueue = function() {\n    if (this.isEmpty()) return false;\n    this.head = (this.head + 1) % this.capacity;\n    this.count--;\n    return true;\n};\n\nMyCircularQueue.prototype.Front = function() {\n    return this.isEmpty() ? -1 : this.queue[this.head];\n};\n\nMyCircularQueue.prototype.Rear = function() {\n    return this.isEmpty()\n        ? -1\n        : this.queue[(this.tail - 1 + this.capacity) % this.capacity];\n};\n\nMyCircularQueue.prototype.isEmpty = function() {\n    return this.count === 0;\n};\n\nMyCircularQueue.prototype.isFull = function() {\n    return this.count === this.capacity;\n};",
+              "language": "javascript",
+              "timeComplexity": "O(1) for all operations",
+              "timeType": "good",
+              "spaceComplexity": "O(k)",
+              "spaceType": "good",
+              "pros": [
+                "True O(1) operations",
+                "Efficient memory usage",
+                "Classic ring buffer implementation"
+              ],
+              "cons": ["Requires careful modulo arithmetic"],
+              "visualLink": "/legacy/Stack-Queue/Design/Circular-Queue/2-ring-buffer.html",
+              "notesLink": ""
+            },
+            {
+              "title": "Alternative — Without Count (Sacrifice One Slot)",
+              "badge": "Alternative",
+              "intuition": "Instead of tracking count, use condition: queue is full when (tail + 1) % k === head. This sacrifices one slot to distinguish full from empty.",
+              "steps": [
+                "Initialize array of size k+1.",
+                "Use head and tail pointers only.",
+                "Full when (tail + 1) % capacity === head."
+              ],
+              "code": "var MyCircularQueue = function(k) {\n    this.capacity = k + 1;\n    this.queue = new Array(this.capacity);\n    this.head = 0;\n    this.tail = 0;\n};\n\nMyCircularQueue.prototype.enQueue = function(value) {\n    if (this.isFull()) return false;\n    this.queue[this.tail] = value;\n    this.tail = (this.tail + 1) % this.capacity;\n    return true;\n};\n\nMyCircularQueue.prototype.deQueue = function() {\n    if (this.isEmpty()) return false;\n    this.head = (this.head + 1) % this.capacity;\n    return true;\n};\n\nMyCircularQueue.prototype.Front = function() {\n    return this.isEmpty() ? -1 : this.queue[this.head];\n};\n\nMyCircularQueue.prototype.Rear = function() {\n    return this.isEmpty()\n        ? -1\n        : this.queue[(this.tail - 1 + this.capacity) % this.capacity];\n};\n\nMyCircularQueue.prototype.isEmpty = function() {\n    return this.head === this.tail;\n};\n\nMyCircularQueue.prototype.isFull = function() {\n    return (this.tail + 1) % this.capacity === this.head;\n};",
+              "language": "javascript",
+              "timeComplexity": "O(1) for all operations",
+              "timeType": "good",
+              "spaceComplexity": "O(k)",
+              "spaceType": "good",
+              "pros": [
+                "No count variable needed",
+                "Clean pointer-only solution"
+              ],
+              "cons": ["Uses one extra slot", "Slightly less intuitive"],
+              "visualLink": "/legacy/Stack-Queue/Design/Circular-Queue/3-sacrifice-slot.html",
+              "notesLink": ""
+            }
+          ]
         },
         "design-twitter": {
+          "breadcrumb": ["Stack & Queue", "Design", "Design Twitter"],
           "title": "Design Twitter",
-          "problemSlug": "design-twitter"
+          "difficulty": "Medium",
+          "problemSlug": "design-twitter",
+          "categoryPath": "stack-queue/design",
+          "tags": ["Heap", "HashMap", "Design", "K-Way Merge"],
+          "description": "Design a simplified version of Twitter where users can post tweets, follow/unfollow other users, and retrieve the 10 most recent tweets in the user's news feed. The news feed must be ordered from most recent to least recent.",
+          "examples": [
+            {
+              "input": "Input:\n[\"Twitter\",\"postTweet\",\"getNewsFeed\",\"follow\",\"postTweet\",\"getNewsFeed\",\"unfollow\",\"getNewsFeed\"]\n[[],[1,5],[1],[1,2],[2,6],[1],[1,2],[1]]",
+              "output": "[null,null,[5],null,null,[6,5],null,[5]]",
+              "explanation": "User 1 posts tweet 5\nUser 1 news feed -> [5]\nUser 1 follows user 2\nUser 2 posts tweet 6\nUser 1 news feed -> [6,5]\nUser 1 unfollows user 2\nUser 1 news feed -> [5]"
+            }
+          ],
+          "constraints": [
+            "1 ≤ userId, followerId, followeeId ≤ 500",
+            "0 ≤ tweetId ≤ 10^4",
+            "All calls are valid.",
+            "At most 3 * 10^4 calls will be made."
+          ],
+          "approaches": [
+            {
+              "title": "Brute Force — Collect, Sort, Return",
+              "badge": "Brute Force",
+              "intuition": "Store all tweets globally. For getNewsFeed, filter tweets from the user and their followees, sort by timestamp, and return top 10.",
+              "steps": [
+                "Maintain global tweet list with timestamps.",
+                "Maintain follow map.",
+                "On getNewsFeed: filter + sort descending."
+              ],
+              "code": "var Twitter = function() {\n    this.time = 0;\n    this.tweets = [];\n    this.followMap = new Map();\n};\n\nTwitter.prototype.postTweet = function(userId, tweetId) {\n    this.tweets.push({ userId, tweetId, time: this.time++ });\n};\n\nTwitter.prototype.getNewsFeed = function(userId) {\n    const followees = this.followMap.get(userId) || new Set();\n    followees.add(userId);\n\n    return this.tweets\n        .filter(t => followees.has(t.userId))\n        .sort((a, b) => b.time - a.time)\n        .slice(0, 10)\n        .map(t => t.tweetId);\n};\n\nTwitter.prototype.follow = function(followerId, followeeId) {\n    if (!this.followMap.has(followerId)) {\n        this.followMap.set(followerId, new Set());\n    }\n    this.followMap.get(followerId).add(followeeId);\n};\n\nTwitter.prototype.unfollow = function(followerId, followeeId) {\n    if (this.followMap.has(followerId)) {\n        this.followMap.get(followerId).delete(followeeId);\n    }\n};",
+              "language": "javascript",
+              "timeComplexity": "getNewsFeed: O(n log n)",
+              "timeType": "bad",
+              "spaceComplexity": "O(n)",
+              "spaceType": "warning",
+              "pros": ["Simple implementation", "Easy to reason about"],
+              "cons": ["Sorting every time is expensive", "Does not scale"],
+              "visualLink": "/legacy/Stack-Queue/Design/Twitter/1-collect-sort.html",
+              "notesLink": ""
+            },
+            {
+              "title": "Improved — Per-User Tweet Lists + Merge",
+              "badge": "Improved",
+              "intuition": "Store tweets per user. For getNewsFeed, collect tweets from user and followees, merge them, then sort top 10.",
+              "steps": [
+                "Maintain map: userId -> tweet list.",
+                "On getNewsFeed: gather all relevant tweets.",
+                "Sort only collected tweets."
+              ],
+              "code": "var Twitter = function() {\n    this.time = 0;\n    this.tweets = new Map();\n    this.followMap = new Map();\n};\n\nTwitter.prototype.postTweet = function(userId, tweetId) {\n    if (!this.tweets.has(userId)) {\n        this.tweets.set(userId, []);\n    }\n    this.tweets.get(userId).push({ tweetId, time: this.time++ });\n};\n\nTwitter.prototype.getNewsFeed = function(userId) {\n    const users = new Set(this.followMap.get(userId) || []);\n    users.add(userId);\n\n    let allTweets = [];\n    for (let uid of users) {\n        if (this.tweets.has(uid)) {\n            allTweets.push(...this.tweets.get(uid));\n        }\n    }\n\n    return allTweets\n        .sort((a, b) => b.time - a.time)\n        .slice(0, 10)\n        .map(t => t.tweetId);\n};\n\nTwitter.prototype.follow = function(followerId, followeeId) {\n    if (!this.followMap.has(followerId)) {\n        this.followMap.set(followerId, new Set());\n    }\n    this.followMap.get(followerId).add(followeeId);\n};\n\nTwitter.prototype.unfollow = function(followerId, followeeId) {\n    if (this.followMap.has(followerId)) {\n        this.followMap.get(followerId).delete(followeeId);\n    }\n};",
+              "language": "javascript",
+              "timeComplexity": "getNewsFeed: O(k log k)",
+              "timeType": "warning",
+              "spaceComplexity": "O(n)",
+              "spaceType": "warning",
+              "pros": ["Avoids scanning global tweets", "Better scalability"],
+              "cons": ["Still sorts potentially large list"],
+              "visualLink": "/legacy/Stack-Queue/Design/Twitter/2-per-user-merge.html",
+              "notesLink": ""
+            },
+            {
+              "title": "Optimal — Min-Heap K-Way Merge",
+              "badge": "Optimal",
+              "intuition": "Each user’s tweets are already sorted by time. Use a max heap (or min heap with negated time) to perform k-way merge and extract top 10 tweets efficiently.",
+              "steps": [
+                "Maintain per-user tweet lists.",
+                "Push most recent tweet from each relevant user into heap.",
+                "Extract max, then push next tweet from same user.",
+                "Repeat until 10 tweets collected."
+              ],
+              "code": "var Twitter = function() {\n    this.time = 0;\n    this.tweets = new Map();\n    this.followMap = new Map();\n};\n\nTwitter.prototype.postTweet = function(userId, tweetId) {\n    if (!this.tweets.has(userId)) {\n        this.tweets.set(userId, []);\n    }\n    this.tweets.get(userId).push({ tweetId, time: this.time++ });\n};\n\nTwitter.prototype.getNewsFeed = function(userId) {\n    const users = new Set(this.followMap.get(userId) || []);\n    users.add(userId);\n\n    const heap = [];\n\n    for (let uid of users) {\n        const userTweets = this.tweets.get(uid);\n        if (userTweets && userTweets.length) {\n            const index = userTweets.length - 1;\n            heap.push({ ...userTweets[index], uid, index });\n        }\n    }\n\n    heap.sort((a, b) => b.time - a.time);\n\n    const result = [];\n\n    while (heap.length && result.length < 10) {\n        const top = heap.shift();\n        result.push(top.tweetId);\n\n        if (top.index > 0) {\n            const nextTweet = this.tweets.get(top.uid)[top.index - 1];\n            heap.push({ ...nextTweet, uid: top.uid, index: top.index - 1 });\n            heap.sort((a, b) => b.time - a.time);\n        }\n    }\n\n    return result;\n};\n\nTwitter.prototype.follow = function(followerId, followeeId) {\n    if (!this.followMap.has(followerId)) {\n        this.followMap.set(followerId, new Set());\n    }\n    this.followMap.get(followerId).add(followeeId);\n};\n\nTwitter.prototype.unfollow = function(followerId, followeeId) {\n    if (this.followMap.has(followerId)) {\n        this.followMap.get(followerId).delete(followeeId);\n    }\n};",
+              "language": "javascript",
+              "timeComplexity": "O(10 log k)",
+              "timeType": "good",
+              "spaceComplexity": "O(n)",
+              "spaceType": "warning",
+              "pros": [
+                "Efficient top-10 retrieval",
+                "Scales well",
+                "Classic k-way merge pattern"
+              ],
+              "cons": ["Requires heap logic", "More complex implementation"],
+              "visualLink": "/legacy/Stack-Queue/Design/Twitter/3-heap-merge.html",
+              "notesLink": ""
+            }
+          ]
         },
         "design-snake-game": {
           "title": "Design Snake Game",
           "problemSlug": "design-snake-game"
         },
         "max-frequency-stack": {
-          "title": "Max Frequency Stack",
-          "problemSlug": "max-frequency-stack"
+          "breadcrumb": ["Stack & Queue", "Design", "Maximum Frequency Stack"],
+          "title": "Maximum Frequency Stack",
+          "difficulty": "Medium",
+          "problemSlug": "maximum-frequency-stack",
+          "categoryPath": "stack-queue/design",
+          "tags": ["Stack", "HashMap", "Design", "Frequency"],
+          "description": "Design a stack-like data structure that supports push and pop operations. The pop operation should remove and return the most frequent element in the stack. If there is a tie for most frequent, return the most recently pushed element among them.",
+          "examples": [
+            {
+              "input": "Input:\n[\"FreqStack\",\"push\",\"push\",\"push\",\"push\",\"push\",\"push\",\"pop\",\"pop\",\"pop\",\"pop\"]\n[[],[5],[7],[5],[7],[4],[5],[],[],[],[]]",
+              "output": "[null,null,null,null,null,null,null,5,7,5,4]",
+              "explanation": "push(5)\npush(7)\npush(5)\npush(7)\npush(4)\npush(5)\npop() -> 5 (freq=3)\npop() -> 7 (freq=2, most recent among freq=2)\npop() -> 5\npop() -> 4"
+            }
+          ],
+          "constraints": [
+            "0 ≤ val ≤ 10^9",
+            "At most 2 * 10^4 calls will be made to push and pop.",
+            "It is guaranteed that pop will not be called on an empty stack."
+          ],
+          "approaches": [
+            {
+              "title": "Brute Force — Scan on Every Pop",
+              "badge": "Brute Force",
+              "intuition": "Maintain a stack and a frequency map. On pop, scan the entire stack to find the most frequent element (breaking ties by recency).",
+              "steps": [
+                "Push elements onto array.",
+                "Maintain frequency map.",
+                "On pop: scan to find max frequency element.",
+                "Remove that element from stack."
+              ],
+              "code": "var FreqStack = function() {\n    this.stack = [];\n    this.freq = new Map();\n};\n\nFreqStack.prototype.push = function(val) {\n    this.stack.push(val);\n    this.freq.set(val, (this.freq.get(val) || 0) + 1);\n};\n\nFreqStack.prototype.pop = function() {\n    let maxFreq = 0;\n    for (let val of this.stack) {\n        maxFreq = Math.max(maxFreq, this.freq.get(val));\n    }\n\n    for (let i = this.stack.length - 1; i >= 0; i--) {\n        if (this.freq.get(this.stack[i]) === maxFreq) {\n            const val = this.stack.splice(i, 1)[0];\n            this.freq.set(val, this.freq.get(val) - 1);\n            return val;\n        }\n    }\n};",
+              "language": "javascript",
+              "timeComplexity": "push: O(1), pop: O(n)",
+              "timeType": "bad",
+              "spaceComplexity": "O(n)",
+              "spaceType": "warning",
+              "pros": ["Easy to reason about", "Direct simulation"],
+              "cons": ["Pop operation is slow", "Not scalable"],
+              "visualLink": "/legacy/Stack-Queue/Design/Freq-Stack/1-bruteforce.html",
+              "notesLink": ""
+            },
+            {
+              "title": "Improved — Maintain Frequency Map Incrementally",
+              "badge": "Improved",
+              "intuition": "Keep track of frequencies dynamically and track the current maximum frequency. Still scan during pop but avoid recomputing max frequency.",
+              "steps": [
+                "Maintain freq map.",
+                "Track current maxFreq.",
+                "On pop: scan from top to find element with maxFreq."
+              ],
+              "code": "var FreqStack = function() {\n    this.stack = [];\n    this.freq = new Map();\n    this.maxFreq = 0;\n};\n\nFreqStack.prototype.push = function(val) {\n    const f = (this.freq.get(val) || 0) + 1;\n    this.freq.set(val, f);\n    this.maxFreq = Math.max(this.maxFreq, f);\n    this.stack.push(val);\n};\n\nFreqStack.prototype.pop = function() {\n    for (let i = this.stack.length - 1; i >= 0; i--) {\n        const val = this.stack[i];\n        if (this.freq.get(val) === this.maxFreq) {\n            this.stack.splice(i, 1);\n            this.freq.set(val, this.freq.get(val) - 1);\n            if (!Array.from(this.freq.values()).includes(this.maxFreq)) {\n                this.maxFreq--;\n            }\n            return val;\n        }\n    }\n};",
+              "language": "javascript",
+              "timeComplexity": "push: O(1), pop: O(n)",
+              "timeType": "warning",
+              "spaceComplexity": "O(n)",
+              "spaceType": "warning",
+              "pros": ["Avoids recomputing max frequency", "Cleaner logic"],
+              "cons": ["Still scans stack"],
+              "visualLink": "/legacy/Stack-Queue/Design/Freq-Stack/2-incremental.html",
+              "notesLink": ""
+            },
+            {
+              "title": "Optimal — Group-by-Frequency Stacks",
+              "badge": "Optimal",
+              "intuition": "Maintain two maps: val → frequency and frequency → stack of values. Track maxFreq. Push into the stack corresponding to its frequency. Pop from stack at maxFreq.",
+              "steps": [
+                "Maintain freq map (val → frequency).",
+                "Maintain group map (freq → stack of values).",
+                "Track maxFreq.",
+                "Push: increment freq and push into group[freq].",
+                "Pop: remove from group[maxFreq], decrement freq."
+              ],
+              "code": "var FreqStack = function() {\n    this.freq = new Map();\n    this.group = new Map();\n    this.maxFreq = 0;\n};\n\nFreqStack.prototype.push = function(val) {\n    const f = (this.freq.get(val) || 0) + 1;\n    this.freq.set(val, f);\n\n    if (!this.group.has(f)) {\n        this.group.set(f, []);\n    }\n    this.group.get(f).push(val);\n\n    this.maxFreq = Math.max(this.maxFreq, f);\n};\n\nFreqStack.prototype.pop = function() {\n    const stack = this.group.get(this.maxFreq);\n    const val = stack.pop();\n\n    this.freq.set(val, this.freq.get(val) - 1);\n\n    if (stack.length === 0) {\n        this.group.delete(this.maxFreq);\n        this.maxFreq--;\n    }\n\n    return val;\n};",
+              "language": "javascript",
+              "timeComplexity": "O(1) for both push and pop",
+              "timeType": "good",
+              "spaceComplexity": "O(n)",
+              "spaceType": "warning",
+              "pros": [
+                "True O(1) operations",
+                "Elegant frequency grouping",
+                "Handles tie-breaking naturally",
+                "Interview-preferred solution"
+              ],
+              "cons": ["Requires two maps", "Slightly more complex logic"],
+              "visualLink": "/legacy/Stack-Queue/Design/Freq-Stack/3-group-by-frequency.html",
+              "notesLink": ""
+            }
+          ]
         },
         "baseball-game": {
           "title": "Baseball Game",
@@ -53,24 +683,499 @@
       "color": "var(--accent-3)",
       "problems": {
         "next-greater-element-i": {
+          "breadcrumb": ["Stack & Queue", "Design", "Next Greater Element I"],
           "title": "Next Greater Element I",
-          "problemSlug": "next-greater-element-i"
+          "difficulty": "Medium",
+          "problemSlug": "next-greater-element-i",
+          "categoryPath": "stack-queue/design",
+          "tags": ["Stack", "Monotonic Stack", "HashMap", "Array"],
+          "description": "You are given two arrays nums1 and nums2 where nums1 is a subset of nums2. For each element in nums1, find the next greater element in nums2. The next greater element is the first element greater than it to its right. If none exists, return -1.",
+          "examples": [
+            {
+              "input": "nums1 = [4,1,2], nums2 = [1,3,4,2]",
+              "output": "[-1,3,-1]",
+              "explanation": "4 → no greater element → -1\n1 → next greater is 3\n2 → no greater element → -1"
+            },
+            {
+              "input": "nums1 = [2,4], nums2 = [1,2,3,4]",
+              "output": "[3,-1]",
+              "explanation": "2 → next greater is 3\n4 → no greater element → -1"
+            }
+          ],
+          "constraints": [
+            "1 ≤ nums1.length ≤ nums2.length ≤ 1000",
+            "0 ≤ nums1[i], nums2[i] ≤ 10^4",
+            "All integers in nums1 and nums2 are unique.",
+            "nums1 is a subset of nums2."
+          ],
+          "approaches": [
+            {
+              "title": "Brute Force — Double Scan",
+              "badge": "Brute Force",
+              "intuition": "For each element in nums1, locate it in nums2 and then scan to the right to find the next greater element.",
+              "steps": [
+                "For each element in nums1:",
+                "  Find its index in nums2.",
+                "  Scan right until a greater element is found.",
+                "  If none found, return -1."
+              ],
+              "code": "var nextGreaterElement = function(nums1, nums2) {\n    const result = [];\n\n    for (let num of nums1) {\n        const index = nums2.indexOf(num);\n        let next = -1;\n\n        for (let i = index + 1; i < nums2.length; i++) {\n            if (nums2[i] > num) {\n                next = nums2[i];\n                break;\n            }\n        }\n\n        result.push(next);\n    }\n\n    return result;\n};",
+              "language": "javascript",
+              "timeComplexity": "O(n * m)",
+              "timeType": "bad",
+              "spaceComplexity": "O(1)",
+              "spaceType": "good",
+              "pros": ["Very simple logic", "Easy to implement"],
+              "cons": ["Repeated scanning", "Inefficient for large arrays"],
+              "visualLink": "/legacy/Stack-Queue/Monotonic-Stack/496/1-bruteforce.html",
+              "notesLink": ""
+            },
+            {
+              "title": "Improved — HashMap + Linear Scan",
+              "badge": "Improved",
+              "intuition": "Precompute next greater element for every number in nums2 using nested loops, store in a HashMap. Then answer queries for nums1 in O(1).",
+              "steps": [
+                "For each element in nums2:",
+                "  Scan right to find next greater.",
+                "  Store in map.",
+                "Build result using map for nums1."
+              ],
+              "code": "var nextGreaterElement = function(nums1, nums2) {\n    const map = new Map();\n\n    for (let i = 0; i < nums2.length; i++) {\n        let next = -1;\n        for (let j = i + 1; j < nums2.length; j++) {\n            if (nums2[j] > nums2[i]) {\n                next = nums2[j];\n                break;\n            }\n        }\n        map.set(nums2[i], next);\n    }\n\n    return nums1.map(num => map.get(num));\n};",
+              "language": "javascript",
+              "timeComplexity": "O(n^2)",
+              "timeType": "warning",
+              "spaceComplexity": "O(n)",
+              "spaceType": "warning",
+              "pros": [
+                "Avoids repeated search for nums1",
+                "Cleaner result construction"
+              ],
+              "cons": ["Still quadratic time"],
+              "visualLink": "/legacy/Stack-Queue/Monotonic-Stack/496/2-hashmap-scan.html",
+              "notesLink": ""
+            },
+            {
+              "title": "Optimal — Monotonic Stack + HashMap",
+              "badge": "Optimal",
+              "intuition": "Traverse nums2 once using a decreasing stack. When a larger element appears, it resolves the next greater for elements in stack.",
+              "steps": [
+                "Initialize empty stack and map.",
+                "Iterate nums2:",
+                "  While stack not empty and current > stack top:",
+                "    map[stack.pop()] = current",
+                "  Push current onto stack.",
+                "For remaining stack elements: map[value] = -1.",
+                "Build result using map for nums1."
+              ],
+              "code": "var nextGreaterElement = function(nums1, nums2) {\n    const stack = [];\n    const map = new Map();\n\n    for (let num of nums2) {\n        while (stack.length && num > stack[stack.length - 1]) {\n            map.set(stack.pop(), num);\n        }\n        stack.push(num);\n    }\n\n    while (stack.length) {\n        map.set(stack.pop(), -1);\n    }\n\n    return nums1.map(num => map.get(num));\n};",
+              "language": "javascript",
+              "timeComplexity": "O(n)",
+              "timeType": "good",
+              "spaceComplexity": "O(n)",
+              "spaceType": "warning",
+              "pros": [
+                "Single pass solution",
+                "Efficient and scalable",
+                "Classic monotonic stack pattern",
+                "Interview-preferred solution"
+              ],
+              "cons": ["Requires understanding stack pattern"],
+              "visualLink": "/legacy/Stack-Queue/Monotonic-Stack/496/3-monotonic-stack.html",
+              "notesLink": ""
+            }
+          ]
         },
         "largest-rectangle-in-histogram": {
+          "breadcrumb": [
+            "Stack & Queue",
+            "Design",
+            "Largest Rectangle in Histogram"
+          ],
           "title": "Largest Rectangle in Histogram",
-          "problemSlug": "largest-rectangle-in-histogram"
+          "difficulty": "Medium",
+          "problemSlug": "largest-rectangle-in-histogram",
+          "categoryPath": "stack-queue/design",
+          "tags": ["Stack", "Monotonic Stack", "Array", "Histogram"],
+          "description": "Given an array of integers heights representing the histogram's bar height where the width of each bar is 1, return the area of the largest rectangle in the histogram.",
+          "examples": [
+            {
+              "input": "heights = [2,1,5,6,2,3]",
+              "output": "10",
+              "explanation": "The largest rectangle is formed by heights 5 and 6 → area = 5 * 2 = 10."
+            },
+            {
+              "input": "heights = [2,4]",
+              "output": "4",
+              "explanation": "The largest rectangle is the single bar with height 4."
+            }
+          ],
+          "constraints": ["1 ≤ heights.length ≤ 10^5", "0 ≤ heights[i] ≤ 10^4"],
+          "approaches": [
+            {
+              "title": "Brute Force — Try Every Pair",
+              "badge": "Brute Force",
+              "intuition": "For every possible starting index, expand to the right and compute the minimum height in that range to calculate area.",
+              "steps": [
+                "For each i:",
+                "  Track minimum height from i to j.",
+                "  Compute area = minHeight * (j - i + 1).",
+                "  Track maximum."
+              ],
+              "code": "var largestRectangleArea = function(heights) {\n    let maxArea = 0;\n\n    for (let i = 0; i < heights.length; i++) {\n        let minHeight = Infinity;\n        for (let j = i; j < heights.length; j++) {\n            minHeight = Math.min(minHeight, heights[j]);\n            maxArea = Math.max(maxArea, minHeight * (j - i + 1));\n        }\n    }\n\n    return maxArea;\n};",
+              "language": "javascript",
+              "timeComplexity": "O(n^2)",
+              "timeType": "bad",
+              "spaceComplexity": "O(1)",
+              "spaceType": "good",
+              "pros": ["Simple idea", "Easy to reason about"],
+              "cons": ["Too slow for large inputs"],
+              "visualLink": "/legacy/Stack-Queue/Monotonic-Stack/84/1-bruteforce.html",
+              "notesLink": ""
+            },
+            {
+              "title": "Improved — Expand Around Each Bar",
+              "badge": "Improved",
+              "intuition": "For each bar, expand left and right until a smaller height is found. Compute area using that width.",
+              "steps": [
+                "For each index i:",
+                "  Expand left while height >= heights[i].",
+                "  Expand right while height >= heights[i].",
+                "  Compute area."
+              ],
+              "code": "var largestRectangleArea = function(heights) {\n    let maxArea = 0;\n\n    for (let i = 0; i < heights.length; i++) {\n        let left = i;\n        let right = i;\n\n        while (left > 0 && heights[left - 1] >= heights[i]) left--;\n        while (right < heights.length - 1 && heights[right + 1] >= heights[i]) right++;\n\n        const width = right - left + 1;\n        maxArea = Math.max(maxArea, heights[i] * width);\n    }\n\n    return maxArea;\n};",
+              "language": "javascript",
+              "timeComplexity": "O(n^2) worst case",
+              "timeType": "warning",
+              "spaceComplexity": "O(1)",
+              "spaceType": "good",
+              "pros": ["Better intuition per bar", "Clear boundary logic"],
+              "cons": ["Still quadratic in worst case"],
+              "visualLink": "/legacy/Stack-Queue/Monotonic-Stack/84/2-expand-each.html",
+              "notesLink": ""
+            },
+            {
+              "title": "Optimal — Monotonic Stack",
+              "badge": "Optimal",
+              "intuition": "Use a monotonic increasing stack to determine previous and next smaller elements. When a smaller bar appears, compute area for bars popped from stack.",
+              "steps": [
+                "Append 0 at end to flush stack.",
+                "Traverse heights:",
+                "  While stack not empty and current height < top height:",
+                "    Pop index.",
+                "    Compute area using width between boundaries.",
+                "Push current index."
+              ],
+              "code": "var largestRectangleArea = function(heights) {\n    heights.push(0);\n    const stack = [];\n    let maxArea = 0;\n\n    for (let i = 0; i < heights.length; i++) {\n        while (stack.length && heights[i] < heights[stack[stack.length - 1]]) {\n            const height = heights[stack.pop()];\n            const width = stack.length === 0\n                ? i\n                : i - stack[stack.length - 1] - 1;\n            maxArea = Math.max(maxArea, height * width);\n        }\n        stack.push(i);\n    }\n\n    return maxArea;\n};",
+              "language": "javascript",
+              "timeComplexity": "O(n)",
+              "timeType": "good",
+              "spaceComplexity": "O(n)",
+              "spaceType": "warning",
+              "pros": [
+                "Linear time solution",
+                "Each element pushed and popped once",
+                "Classic monotonic stack pattern",
+                "Interview gold-standard solution"
+              ],
+              "cons": ["Requires careful boundary handling"],
+              "visualLink": "/legacy/Stack-Queue/Monotonic-Stack/84/3-monotonic-stack.html",
+              "notesLink": ""
+            }
+          ]
         },
         "online-stock-span": {
+          "breadcrumb": ["Stack & Queue", "Monotonic", "Online Stock Span"],
           "title": "Online Stock Span",
-          "problemSlug": "online-stock-span"
+          "difficulty": "Medium",
+          "problemSlug": "online-stock-span",
+          "categoryPath": "stack-queue/monotonic",
+          "tags": ["Stack", "Monotonic Stack", "Design", "Streaming"],
+          "description": "Design an algorithm that collects daily stock prices and returns the span of the stock’s price for the current day. The span is the number of consecutive days (including today) where the price was less than or equal to today’s price.",
+          "examples": [
+            {
+              "input": "Input:\n[\"StockSpanner\",\"next\",\"next\",\"next\",\"next\",\"next\",\"next\",\"next\"]\n[[],[100],[80],[60],[70],[60],[75],[85]]",
+              "output": "[null,1,1,1,2,1,4,6]",
+              "explanation": "Day 1: 100 → span = 1\nDay 2: 80 → span = 1\nDay 3: 60 → span = 1\nDay 4: 70 → span = 2\nDay 5: 60 → span = 1\nDay 6: 75 → span = 4\nDay 7: 85 → span = 6"
+            }
+          ],
+          "constraints": [
+            "1 ≤ price ≤ 10^5",
+            "At most 10^4 calls will be made to next."
+          ],
+          "approaches": [
+            {
+              "title": "Brute Force — Scan Backwards",
+              "badge": "Brute Force",
+              "intuition": "For each new price, scan backwards through all previous prices until a higher price is found.",
+              "steps": [
+                "Maintain array of prices.",
+                "For each next(price):",
+                "  Start from previous day and count consecutive days with price <= current."
+              ],
+              "code": "var StockSpanner = function() {\n    this.prices = [];\n};\n\nStockSpanner.prototype.next = function(price) {\n    this.prices.push(price);\n    let span = 1;\n\n    for (let i = this.prices.length - 2; i >= 0; i--) {\n        if (this.prices[i] <= price) {\n            span++;\n        } else {\n            break;\n        }\n    }\n\n    return span;\n};",
+              "language": "javascript",
+              "timeComplexity": "O(n) per call",
+              "timeType": "bad",
+              "spaceComplexity": "O(n)",
+              "spaceType": "warning",
+              "pros": ["Very straightforward", "Easy to understand"],
+              "cons": ["Repeated scanning", "Worst-case O(n^2) total"],
+              "visualLink": "/legacy/Stack-Queue/Monotonic-Stack/901/1-bruteforce.html",
+              "notesLink": ""
+            },
+
+            {
+              "title": "Improved — Store Spans with Prices",
+              "badge": "Improved",
+              "intuition": "Store (price, span) pairs. When a new price arrives, combine spans of smaller or equal prices.",
+              "steps": [
+                "Maintain array of [price, span].",
+                "For next(price):",
+                "  Initialize span = 1.",
+                "  Merge previous entries while price >= previous price."
+              ],
+              "code": "var StockSpanner = function() {\n    this.stack = [];\n};\n\nStockSpanner.prototype.next = function(price) {\n    let span = 1;\n\n    while (this.stack.length && this.stack[this.stack.length - 1][0] <= price) {\n        span += this.stack.pop()[1];\n    }\n\n    this.stack.push([price, span]);\n    return span;\n};",
+              "language": "javascript",
+              "timeComplexity": "Amortized O(1)",
+              "timeType": "good",
+              "spaceComplexity": "O(n)",
+              "spaceType": "warning",
+              "pros": [
+                "Avoids repeated scanning",
+                "Efficient span compression"
+              ],
+              "cons": ["Requires storing spans explicitly"],
+              "visualLink": "/legacy/Stack-Queue/Monotonic-Stack/901/2-store-span.html",
+              "notesLink": ""
+            },
+            {
+              "title": "Optimal — Monotonic Stack",
+              "badge": "Optimal",
+              "intuition": "Maintain a monotonic decreasing stack of [price, span]. Each price is pushed once and popped once.",
+              "steps": [
+                "Use stack storing [price, span].",
+                "While top price <= current price:",
+                "  Add its span to current span and pop.",
+                "Push merged [price, span]."
+              ],
+              "code": "var StockSpanner = function() {\n    this.stack = [];\n};\n\nStockSpanner.prototype.next = function(price) {\n    let span = 1;\n\n    while (this.stack.length && this.stack[this.stack.length - 1][0] <= price) {\n        span += this.stack.pop()[1];\n    }\n\n    this.stack.push([price, span]);\n    return span;\n};",
+              "language": "javascript",
+              "timeComplexity": "Amortized O(1)",
+              "timeType": "good",
+              "spaceComplexity": "O(n)",
+              "spaceType": "warning",
+              "pros": [
+                "Each element pushed and popped once",
+                "Streaming-friendly design",
+                "Classic monotonic decreasing stack",
+                "Interview-preferred solution"
+              ],
+              "cons": ["Requires amortized analysis understanding"],
+              "visualLink": "/legacy/Stack-Queue/Monotonic-Stack/901/3-monotonic-stack.html",
+              "notesLink": ""
+            }
+          ]
         },
         "daily-temperatures": {
+          "breadcrumb": ["Stack & Queue", "Monotonic", "Daily Temperatures"],
           "title": "Daily Temperatures",
-          "problemSlug": "daily-temperatures"
+          "difficulty": "Medium",
+          "problemSlug": "daily-temperatures",
+          "categoryPath": "stack-queue/monotonic",
+          "tags": ["Stack", "Monotonic Stack", "Array", "Next Greater Element"],
+          "description": "Given an array of integers temperatures representing daily temperatures, return an array answer such that answer[i] is the number of days you have to wait after the ith day to get a warmer temperature. If there is no future day for which this is possible, keep answer[i] = 0 instead.",
+          "examples": [
+            {
+              "input": "temperatures = [73,74,75,71,69,72,76,73]",
+              "output": "[1,1,4,2,1,1,0,0]",
+              "explanation": "Day 0 (73) → wait 1 day for 74\nDay 2 (75) → wait 4 days for 76\nDay 6 (76) → no warmer day → 0"
+            },
+            {
+              "input": "temperatures = [30,40,50,60]",
+              "output": "[1,1,1,0]",
+              "explanation": "Each day has a warmer next day except the last."
+            }
+          ],
+          "constraints": [
+            "1 ≤ temperatures.length ≤ 10^5",
+            "30 ≤ temperatures[i] ≤ 100"
+          ],
+          "approaches": [
+            {
+              "title": "Brute Force — Double Scan",
+              "badge": "Brute Force",
+              "intuition": "For each day, scan forward until a warmer temperature is found.",
+              "steps": [
+                "For each index i:",
+                "  Scan j = i+1 to end.",
+                "  If temperatures[j] > temperatures[i], record j-i.",
+                "  Else continue."
+              ],
+              "code": "var dailyTemperatures = function(temperatures) {\n    const n = temperatures.length;\n    const result = new Array(n).fill(0);\n\n    for (let i = 0; i < n; i++) {\n        for (let j = i + 1; j < n; j++) {\n            if (temperatures[j] > temperatures[i]) {\n                result[i] = j - i;\n                break;\n            }\n        }\n    }\n\n    return result;\n};",
+              "language": "javascript",
+              "timeComplexity": "O(n^2)",
+              "timeType": "bad",
+              "spaceComplexity": "O(n)",
+              "spaceType": "warning",
+              "pros": ["Simple logic", "Easy to implement"],
+              "cons": ["Too slow for large input"],
+              "visualLink": "/legacy/Stack-Queue/Monotonic-Stack/739/1-bruteforce.html",
+              "notesLink": ""
+            },
+            {
+              "title": "Improved — Right-to-Left with Jumping",
+              "badge": "Improved",
+              "intuition": "Traverse from right to left. Use previously computed answers to jump forward instead of scanning step by step.",
+              "steps": [
+                "Initialize result array.",
+                "Traverse from right to left.",
+                "If next day is warmer → 1.",
+                "Else jump using result[j] until warmer found or no future."
+              ],
+              "code": "var dailyTemperatures = function(temperatures) {\n    const n = temperatures.length;\n    const result = new Array(n).fill(0);\n\n    for (let i = n - 2; i >= 0; i--) {\n        let j = i + 1;\n        while (j < n && temperatures[j] <= temperatures[i]) {\n            if (result[j] === 0) {\n                j = n;\n                break;\n            }\n            j += result[j];\n        }\n        if (j < n) {\n            result[i] = j - i;\n        }\n    }\n\n    return result;\n};",
+              "language": "javascript",
+              "timeComplexity": "Amortized O(n)",
+              "timeType": "good",
+              "spaceComplexity": "O(n)",
+              "spaceType": "warning",
+              "pros": ["Avoids repeated scanning", "Uses DP-style jumping"],
+              "cons": ["Less intuitive", "Trickier to reason about"],
+              "visualLink": "/legacy/Stack-Queue/Monotonic-Stack/739/2-right-to-left.html",
+              "notesLink": ""
+            },
+            {
+              "title": "Optimal — Monotonic Stack",
+              "badge": "Optimal",
+              "intuition": "Maintain a decreasing stack of indices. When a warmer day appears, resolve all previous colder days.",
+              "steps": [
+                "Initialize empty stack (stores indices).",
+                "Traverse from left to right.",
+                "While stack not empty and current temp > temp at stack top:",
+                "  Pop index and compute difference.",
+                "Push current index."
+              ],
+              "code": "var dailyTemperatures = function(temperatures) {\n    const n = temperatures.length;\n    const result = new Array(n).fill(0);\n    const stack = [];\n\n    for (let i = 0; i < n; i++) {\n        while (stack.length && temperatures[i] > temperatures[stack[stack.length - 1]]) {\n            const prevIndex = stack.pop();\n            result[prevIndex] = i - prevIndex;\n        }\n        stack.push(i);\n    }\n\n    return result;\n};",
+              "language": "javascript",
+              "timeComplexity": "O(n)",
+              "timeType": "good",
+              "spaceComplexity": "O(n)",
+              "spaceType": "warning",
+              "pros": [
+                "Each index pushed and popped once",
+                "Very clean logic",
+                "Classic next-greater pattern",
+                "Interview-preferred solution"
+              ],
+              "cons": ["Requires stack pattern recognition"],
+              "visualLink": "/legacy/Stack-Queue/Monotonic-Stack/739/3-monotonic-stack.html",
+              "notesLink": ""
+            }
+          ]
         },
         "remove-duplicate-letters": {
+          "breadcrumb": [
+            "Stack & Queue",
+            "Monotonic",
+            "Remove Duplicate Letters"
+          ],
           "title": "Remove Duplicate Letters",
-          "problemSlug": "remove-duplicate-letters"
+          "difficulty": "Medium",
+          "problemSlug": "remove-duplicate-letters",
+          "categoryPath": "stack-queue/monotonic",
+          "tags": ["Stack", "Monotonic Stack", "Greedy", "String"],
+          "description": "Given a string s, remove duplicate letters so that every letter appears once and only once. You must make sure your result is the smallest in lexicographical order among all possible results.",
+          "examples": [
+            {
+              "input": "s = \"bcabc\"",
+              "output": "\"abc\"",
+              "explanation": "Remove duplicate letters while keeping lexicographically smallest result."
+            },
+            {
+              "input": "s = \"cbacdcbc\"",
+              "output": "\"acdb\"",
+              "explanation": "Result contains all unique letters and is smallest possible lexicographically."
+            }
+          ],
+          "constraints": [
+            "1 ≤ s.length ≤ 10^4",
+            "s consists of lowercase English letters."
+          ],
+          "approaches": [
+            {
+              "title": "Brute Force — Generate All Subsequences",
+              "badge": "Brute Force",
+              "intuition": "Generate all subsequences that contain unique letters and pick the lexicographically smallest one.",
+              "steps": [
+                "Generate all subsequences.",
+                "Filter subsequences containing all unique characters exactly once.",
+                "Sort valid candidates lexicographically.",
+                "Return smallest."
+              ],
+              "code": "var removeDuplicateLetters = function(s) {\n    const set = new Set(s);\n    const uniqueCount = set.size;\n    const results = [];\n\n    function backtrack(index, path) {\n        if (path.length > uniqueCount) return;\n        if (index === s.length) {\n            if (new Set(path).size === uniqueCount) {\n                results.push(path);\n            }\n            return;\n        }\n        backtrack(index + 1, path);\n        if (!path.includes(s[index])) {\n            backtrack(index + 1, path + s[index]);\n        }\n    }\n\n    backtrack(0, \"\");\n    results.sort();\n    return results[0];\n};",
+              "language": "javascript",
+              "timeComplexity": "O(2^n)",
+              "timeType": "bad",
+              "spaceComplexity": "O(2^n)",
+              "spaceType": "bad",
+              "pros": ["Conceptually straightforward"],
+              "cons": ["Exponential time", "Not feasible for constraints"],
+              "visualLink": "/legacy/Stack-Queue/Monotonic-Stack/316/1-bruteforce.html",
+              "notesLink": ""
+            },
+            {
+              "title": "Improved — Greedy with Recursion",
+              "badge": "Improved",
+              "intuition": "At each step, choose the smallest possible character whose removal still allows all characters to appear later.",
+              "steps": [
+                "Count frequency of each character.",
+                "Find smallest lexicographic character such that all unique letters still appear in suffix.",
+                "Recurse on remaining substring after removing chosen character occurrences."
+              ],
+              "code": "var removeDuplicateLetters = function(s) {\n    if (s.length === 0) return \"\";\n\n    const lastIndex = {};\n    for (let i = 0; i < s.length; i++) {\n        lastIndex[s[i]] = i;\n    }\n\n    let pos = 0;\n    for (let i = 0; i < s.length; i++) {\n        if (s[i] < s[pos]) pos = i;\n        if (i === lastIndex[s[i]]) break;\n    }\n\n    const char = s[pos];\n    const remaining = s.slice(pos + 1).replace(new RegExp(char, 'g'), '');\n\n    return char + removeDuplicateLetters(remaining);\n};",
+              "language": "javascript",
+              "timeComplexity": "O(n^2)",
+              "timeType": "warning",
+              "spaceComplexity": "O(n)",
+              "spaceType": "warning",
+              "pros": ["Greedy insight", "Cleaner than brute force"],
+              "cons": [
+                "Recursive string rebuilding",
+                "Still not fully optimal"
+              ],
+              "visualLink": "/legacy/Stack-Queue/Monotonic-Stack/316/2-greedy-recursive.html",
+              "notesLink": ""
+            },
+            {
+              "title": "Optimal — Monotonic Stack with Greedy",
+              "badge": "Optimal",
+              "intuition": "Use a monotonic increasing stack to maintain lexicographic order. Pop characters if the current character is smaller AND the popped character appears later again.",
+              "steps": [
+                "Count frequency of characters.",
+                "Maintain stack and visited set.",
+                "For each character:",
+                "  Decrease its frequency.",
+                "  If already in stack → skip.",
+                "  While stack not empty AND current < stack top AND stack top appears later:",
+                "    Pop from stack and remove from visited.",
+                "  Push current into stack."
+              ],
+              "code": "var removeDuplicateLetters = function(s) {\n    const freq = {};\n    for (let ch of s) freq[ch] = (freq[ch] || 0) + 1;\n\n    const stack = [];\n    const seen = new Set();\n\n    for (let ch of s) {\n        freq[ch]--;\n        if (seen.has(ch)) continue;\n\n        while (stack.length && ch < stack[stack.length - 1] && freq[stack[stack.length - 1]] > 0) {\n            seen.delete(stack.pop());\n        }\n\n        stack.push(ch);\n        seen.add(ch);\n    }\n\n    return stack.join('');\n};",
+              "language": "javascript",
+              "timeComplexity": "O(n)",
+              "timeType": "good",
+              "spaceComplexity": "O(n)",
+              "spaceType": "warning",
+              "pros": [
+                "Linear time",
+                "Each character pushed and popped once",
+                "Elegant greedy + stack combo",
+                "Interview gold-standard solution"
+              ],
+              "cons": ["Requires deep understanding of greedy condition"],
+              "visualLink": "/legacy/Stack-Queue/Monotonic-Stack/316/3-monotonic-stack.html",
+              "notesLink": ""
+            }
+          ]
         }
       }
     },

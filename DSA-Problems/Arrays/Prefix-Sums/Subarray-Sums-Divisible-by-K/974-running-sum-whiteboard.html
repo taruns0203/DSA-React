@@ -1,0 +1,863 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>974. Subarray Sums Divisible by K - Running Sum O(n²)</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+            min-height: 100vh;
+            color: #e8e8e8;
+            padding: 15px;
+        }
+
+        .container {
+            max-width: 1100px;
+            margin: 0 auto;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 15px;
+        }
+
+        h1 {
+            font-size: 1.45rem;
+            background: linear-gradient(90deg, #ffd93d, #00d9ff);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 5px;
+        }
+
+        .subtitle {
+            color: #888;
+            font-size: 0.9rem;
+        }
+
+        .complexity-badge {
+            display: inline-block;
+            background: rgba(255, 217, 61, 0.2);
+            border: 1px solid #ffd93d;
+            color: #ffd93d;
+            padding: 4px 12px;
+            border-radius: 18px;
+            font-size: 0.8rem;
+            margin-top: 8px;
+        }
+
+        .whiteboard {
+            background: rgba(255, 255, 255, 0.03);
+            border-radius: 16px;
+            padding: 18px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .improvement-info {
+            background: rgba(0, 255, 136, 0.1);
+            border: 1px solid rgba(0, 255, 136, 0.3);
+            border-radius: 10px;
+            padding: 10px;
+            margin-bottom: 12px;
+            text-align: center;
+        }
+
+        .improvement-info p {
+            color: #00ff88;
+            font-size: 0.8rem;
+        }
+
+        .k-badge {
+            display: inline-block;
+            background: rgba(168, 85, 247, 0.2);
+            border: 2px solid #a855f7;
+            color: #a855f7;
+            padding: 5px 15px;
+            border-radius: 18px;
+            font-size: 0.95rem;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+        /* Array Display */
+        .array-container {
+            display: flex;
+            justify-content: center;
+            gap: 8px;
+            margin: 18px 0;
+            flex-wrap: wrap;
+        }
+
+        .array-cell {
+            width: 55px;
+            height: 55px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            background: rgba(255, 255, 255, 0.05);
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            border-radius: 10px;
+            font-size: 1.2rem;
+            font-weight: bold;
+            position: relative;
+            transition: all 0.3s ease;
+        }
+
+        .array-cell .index {
+            position: absolute;
+            top: -18px;
+            font-size: 0.6rem;
+            color: #888;
+        }
+
+        .array-cell.outside {
+            opacity: 0.3;
+        }
+
+        .array-cell.start {
+            background: rgba(255, 107, 107, 0.2);
+            border-color: #ff6b6b;
+        }
+
+        .array-cell.in-range {
+            background: rgba(168, 85, 247, 0.2);
+            border-color: #a855f7;
+        }
+
+        .array-cell.current {
+            background: rgba(255, 217, 61, 0.3);
+            border-color: #ffd93d;
+            box-shadow: 0 0 15px rgba(255, 217, 61, 0.4);
+            transform: scale(1.08);
+        }
+
+        .array-cell.valid {
+            background: rgba(0, 255, 136, 0.3);
+            border-color: #00ff88;
+            box-shadow: 0 0 15px rgba(0, 255, 136, 0.4);
+        }
+
+        .pointer {
+            position: absolute;
+            bottom: -22px;
+            font-size: 0.55rem;
+            padding: 2px 5px;
+            border-radius: 3px;
+        }
+
+        .pointer.i-ptr {
+            background: rgba(255, 107, 107, 0.3);
+            color: #ff6b6b;
+        }
+
+        .pointer.j-ptr {
+            background: rgba(0, 217, 255, 0.3);
+            color: #00d9ff;
+        }
+
+        /* Running Sum Display */
+        .running-sum-display {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 10px;
+            padding: 12px;
+            margin: 12px 0;
+            text-align: center;
+        }
+
+        .running-title {
+            font-size: 0.8rem;
+            color: #00ff88;
+            margin-bottom: 8px;
+        }
+
+        .running-content {
+            font-family: 'Courier New', monospace;
+            font-size: 1rem;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .running-prev {
+            padding: 5px 12px;
+            background: rgba(168, 85, 247, 0.2);
+            border: 1px solid #a855f7;
+            border-radius: 6px;
+            color: #a855f7;
+        }
+
+        .running-add {
+            padding: 5px 12px;
+            background: rgba(255, 217, 61, 0.25);
+            border: 1px solid #ffd93d;
+            border-radius: 6px;
+            color: #ffd93d;
+        }
+
+        .running-operator {
+            color: #888;
+            font-size: 1.2rem;
+        }
+
+        .running-result {
+            padding: 5px 14px;
+            background: rgba(0, 217, 255, 0.2);
+            border: 2px solid #00d9ff;
+            border-radius: 8px;
+            color: #00d9ff;
+            font-weight: bold;
+        }
+
+        /* Check Box */
+        .check-box {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            padding: 12px;
+            margin: 12px 0;
+            text-align: center;
+        }
+
+        .check-formula {
+            font-family: 'Courier New', monospace;
+            font-size: 1rem;
+            color: #ffd93d;
+            margin-bottom: 8px;
+        }
+
+        .check-result {
+            padding: 5px 15px;
+            border-radius: 15px;
+            display: inline-block;
+            font-size: 0.9rem;
+        }
+
+        .check-result.valid {
+            background: rgba(0, 255, 136, 0.2);
+            color: #00ff88;
+        }
+
+        .check-result.invalid {
+            background: rgba(255, 107, 107, 0.2);
+            color: #ff6b6b;
+        }
+
+        .check-result.info {
+            background: rgba(0, 217, 255, 0.2);
+            color: #00d9ff;
+        }
+
+        /* Found List */
+        .found-section {
+            background: rgba(0, 255, 136, 0.1);
+            border: 1px solid rgba(0, 255, 136, 0.3);
+            border-radius: 10px;
+            padding: 10px;
+            margin: 10px 0;
+        }
+
+        .found-title {
+            font-size: 0.75rem;
+            color: #00ff88;
+            margin-bottom: 5px;
+        }
+
+        .found-list {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .found-item {
+            background: rgba(0, 255, 136, 0.2);
+            padding: 4px 10px;
+            border-radius: 10px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.75rem;
+            color: #00ff88;
+        }
+
+        /* Variables Panel */
+        .variables-panel {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 8px;
+            margin: 12px 0;
+        }
+
+        .variable-card {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+            padding: 8px;
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+
+        .variable-card.highlight {
+            border-color: #ffd93d;
+            box-shadow: 0 0 10px rgba(255, 217, 61, 0.3);
+        }
+
+        .variable-card.success {
+            border-color: #00ff88;
+            box-shadow: 0 0 10px rgba(0, 255, 136, 0.3);
+        }
+
+        .variable-name {
+            font-size: 0.6rem;
+            color: #888;
+            margin-bottom: 2px;
+        }
+
+        .variable-value {
+            font-size: 1.2rem;
+            font-weight: bold;
+            color: #fff;
+        }
+
+        /* Action Log */
+        .action-log {
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 8px;
+            padding: 8px;
+            margin: 10px 0;
+            font-family: 'Courier New', monospace;
+            font-size: 0.65rem;
+            max-height: 55px;
+            overflow-y: auto;
+        }
+
+        .log-entry {
+            padding: 2px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            opacity: 0;
+            transform: translateX(-20px);
+            animation: slideIn 0.3s ease forwards;
+        }
+
+        @keyframes slideIn {
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        .log-step {
+            color: #a855f7;
+        }
+
+        .log-action {
+            color: #888;
+        }
+
+        .log-value {
+            color: #00ff88;
+        }
+
+        /* Controls */
+        .controls {
+            display: flex;
+            justify-content: center;
+            gap: 8px;
+            margin-top: 12px;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            padding: 8px 18px;
+            border: none;
+            border-radius: 18px;
+            font-size: 0.85rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 600;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #ffd93d, #00d9ff);
+            color: #1a1a2e;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(255, 217, 61, 0.3);
+        }
+
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.1);
+            color: #fff;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .btn-secondary:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        /* Speed Control */
+        .speed-control {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-top: 10px;
+            justify-content: center;
+        }
+
+        .speed-control label {
+            color: #888;
+            font-size: 0.7rem;
+        }
+
+        .speed-slider {
+            width: 90px;
+            height: 4px;
+            -webkit-appearance: none;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 2px;
+            outline: none;
+        }
+
+        .speed-slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 12px;
+            height: 12px;
+            background: linear-gradient(135deg, #ffd93d, #00d9ff);
+            border-radius: 50%;
+            cursor: pointer;
+        }
+
+        /* Result Display */
+        .result-display {
+            text-align: center;
+            padding: 18px;
+            margin-top: 12px;
+            background: linear-gradient(135deg, rgba(0, 255, 136, 0.1), rgba(0, 217, 255, 0.1));
+            border-radius: 12px;
+            border: 1px solid rgba(0, 255, 136, 0.3);
+            display: none;
+        }
+
+        .result-display.show {
+            display: block;
+            animation: fadeIn 0.5s ease;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .result-label {
+            font-size: 0.85rem;
+            color: #888;
+            margin-bottom: 5px;
+        }
+
+        .result-value {
+            font-size: 2.2rem;
+            font-weight: bold;
+            background: linear-gradient(90deg, #00ff88, #00d9ff);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        /* Progress */
+        .progress-container {
+            margin: 10px 0;
+        }
+
+        .progress-bar {
+            height: 4px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 2px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #ffd93d, #00d9ff);
+            width: 0%;
+            transition: width 0.3s ease;
+        }
+
+        .step-counter {
+            text-align: center;
+            margin-top: 5px;
+            font-size: 0.7rem;
+            color: #888;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <header>
+            <h1>📊 Subarray Sums Divisible by K</h1>
+            <p class="subtitle">Improved Approach - Running Sum</p>
+            <span class="complexity-badge">⏱️ O(n²) Time · 📦 O(1) Space</span>
+        </header>
+
+        <div class="whiteboard">
+            <div class="improvement-info">
+                <p>🚀 Use running sum: sum += nums[j] — No need to recalculate from scratch!</p>
+            </div>
+
+            <div style="text-align: center;">
+                <span class="k-badge">k = 5</span>
+            </div>
+
+            <div style="text-align: center; margin-bottom: 8px;">
+                <span style="color: #888; font-size: 0.85rem;">nums = [4, 5, 0, -2, -3, 1]</span>
+            </div>
+
+            <div class="array-container" id="arrayContainer"></div>
+
+            <div class="running-sum-display">
+                <div class="running-title">Running Sum (extends with j)</div>
+                <div class="running-content" id="runningContent">
+                    <span style="color: #888;">sum accumulates as j moves right</span>
+                </div>
+            </div>
+
+            <div class="check-box" id="checkBox">
+                <div class="check-formula" id="checkFormula">sum % 5 == 0 ?</div>
+                <div class="check-result info" id="checkResult">-</div>
+            </div>
+
+            <div class="found-section">
+                <div class="found-title">✅ Valid Subarrays (sum divisible by 5):</div>
+                <div class="found-list" id="foundList">
+                    <span style="color: #888; font-size: 0.75rem;">None yet...</span>
+                </div>
+            </div>
+
+            <div class="variables-panel">
+                <div class="variable-card" id="iCard">
+                    <div class="variable-name">i (start)</div>
+                    <div class="variable-value" id="iValue">-</div>
+                </div>
+                <div class="variable-card" id="jCard">
+                    <div class="variable-name">j (end)</div>
+                    <div class="variable-value" id="jValue">-</div>
+                </div>
+                <div class="variable-card" id="sumCard">
+                    <div class="variable-name">running sum</div>
+                    <div class="variable-value" id="sumValue">0</div>
+                </div>
+                <div class="variable-card" id="modCard">
+                    <div class="variable-name">sum % 5</div>
+                    <div class="variable-value" id="modValue">-</div>
+                </div>
+                <div class="variable-card" id="countCard">
+                    <div class="variable-name">count</div>
+                    <div class="variable-value" id="countValue">0</div>
+                </div>
+            </div>
+
+            <div class="action-log" id="actionLog"></div>
+
+            <div class="progress-container">
+                <div class="progress-bar">
+                    <div class="progress-fill" id="progressFill"></div>
+                </div>
+                <div class="step-counter" id="stepCounter">Step 0 of 21</div>
+            </div>
+
+            <div class="result-display" id="resultDisplay">
+                <div class="result-label">✨ Total Subarrays Divisible by K!</div>
+                <div class="result-value" id="finalResult">7</div>
+            </div>
+
+            <div class="controls">
+                <button class="btn btn-secondary" id="resetBtn" onclick="reset()">↺ Reset</button>
+                <button class="btn btn-secondary" id="prevBtn" onclick="prevStep()" disabled>← Prev</button>
+                <button class="btn btn-primary" id="nextBtn" onclick="nextStep()">Start →</button>
+                <button class="btn btn-secondary" id="autoBtn" onclick="autoPlay()">▶ Auto</button>
+            </div>
+
+            <div class="speed-control">
+                <label>Speed:</label>
+                <input type="range" class="speed-slider" id="speedSlider" min="300" max="1200" value="500">
+                <span id="speedValue">500ms</span>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const nums = [4, 5, 0, -2, -3, 1];
+        const k = 5;
+        let currentStep = 0;
+        let isPlaying = false;
+        let playInterval = null;
+        let foundSubarrays = [];
+
+        // Generate all steps with running sum approach
+        const steps = [];
+        steps.push({ type: 'init' });
+
+        for (let i = 0; i < nums.length; i++) {
+            // New starting position
+            steps.push({
+                type: 'new-start',
+                i: i,
+                desc: `New starting position i = ${i}`
+            });
+
+            let sum = 0;
+            for (let j = i; j < nums.length; j++) {
+                const prevSum = sum;
+                sum += nums[j];
+                const mod = ((sum % k) + k) % k;
+                const isValid = mod === 0;
+
+                steps.push({
+                    type: 'extend',
+                    i, j,
+                    prevSum,
+                    addVal: nums[j],
+                    sum,
+                    mod,
+                    isValid,
+                    subarray: nums.slice(i, j + 1)
+                });
+            }
+        }
+
+        steps.push({ type: 'done' });
+
+        function initArray() {
+            const container = document.getElementById('arrayContainer');
+            container.innerHTML = '';
+            nums.forEach((num, idx) => {
+                const cell = document.createElement('div');
+                cell.className = 'array-cell';
+                cell.id = `cell-${idx}`;
+                cell.innerHTML = `<span class="index">idx ${idx}</span>${num}`;
+                container.appendChild(cell);
+            });
+        }
+
+        function updateDisplay() {
+            // Reset cells
+            nums.forEach((num, idx) => {
+                const cell = document.getElementById(`cell-${idx}`);
+                cell.className = 'array-cell';
+                cell.innerHTML = `<span class="index">idx ${idx}</span>${num}`;
+            });
+
+            const step = steps[currentStep];
+            const checkFormula = document.getElementById('checkFormula');
+            const checkResult = document.getElementById('checkResult');
+            const runningContent = document.getElementById('runningContent');
+
+            if (step.type === 'init') {
+                document.getElementById('iValue').textContent = '-';
+                document.getElementById('jValue').textContent = '-';
+                document.getElementById('sumValue').textContent = '0';
+                document.getElementById('modValue').textContent = '-';
+                document.getElementById('countValue').textContent = '0';
+
+                runningContent.innerHTML = '<span style="color: #888;">sum accumulates as j moves right</span>';
+                checkFormula.textContent = 'sum % 5 == 0 ?';
+                checkResult.textContent = 'Initialize count = 0';
+                checkResult.className = 'check-result info';
+                addLog('Init', 'count = 0', 'Start');
+
+            } else if (step.type === 'new-start') {
+                document.getElementById('iValue').textContent = step.i;
+                document.getElementById('jValue').textContent = '-';
+                document.getElementById('sumValue').textContent = '0';
+                document.getElementById('modValue').textContent = '-';
+
+                document.getElementById(`cell-${step.i}`).classList.add('start');
+
+                runningContent.innerHTML = `<span class="running-result">sum = 0</span> <span style="color: #888;">(reset for new i=${step.i})</span>`;
+                checkFormula.textContent = `i = ${step.i}, reset sum = 0`;
+                checkResult.textContent = 'Starting new outer loop';
+                checkResult.className = 'check-result info';
+                addLog(`i=${step.i}`, 'New start', 'sum = 0');
+
+            } else if (step.type === 'extend') {
+                document.getElementById('iValue').textContent = step.i;
+                document.getElementById('jValue').textContent = step.j;
+                document.getElementById('sumValue').textContent = step.sum;
+                document.getElementById('modValue').textContent = step.mod;
+
+                document.getElementById('sumCard').classList.add('highlight');
+                setTimeout(() => document.getElementById('sumCard').classList.remove('highlight'), 300);
+
+                // Highlight cells
+                for (let x = step.i; x <= step.j; x++) {
+                    const cell = document.getElementById(`cell-${x}`);
+                    if (x === step.i) {
+                        cell.classList.add('start');
+                        cell.innerHTML += '<span class="pointer i-ptr">i</span>';
+                    }
+                    if (x === step.j) {
+                        cell.classList.add(step.isValid ? 'valid' : 'current');
+                        cell.innerHTML += '<span class="pointer j-ptr">j</span>';
+                    } else if (x > step.i) {
+                        cell.classList.add('in-range');
+                    }
+                }
+
+                // Show running sum calculation
+                const addDisplay = step.addVal >= 0 ? step.addVal : `(${step.addVal})`;
+                runningContent.innerHTML = `
+                    <span class="running-prev">${step.prevSum}</span>
+                    <span class="running-operator">+</span>
+                    <span class="running-add">${addDisplay}</span>
+                    <span class="running-operator">=</span>
+                    <span class="running-result">${step.sum}</span>
+                `;
+
+                checkFormula.textContent = `${step.sum} % 5 = ${step.mod}`;
+
+                if (step.isValid) {
+                    const cnt = foundSubarrays.length + 1;
+                    document.getElementById('countValue').textContent = cnt;
+                    document.getElementById('countCard').classList.add('success');
+                    setTimeout(() => document.getElementById('countCard').classList.remove('success'), 300);
+
+                    foundSubarrays.push(`[${step.subarray.join(',')}]`);
+                    updateFoundList();
+
+                    checkResult.textContent = `✅ Divisible! count = ${cnt}`;
+                    checkResult.className = 'check-result valid';
+                    addLog(`[${step.i},${step.j}]`, `sum=${step.sum}`, '✓ Valid');
+                } else {
+                    checkResult.textContent = `❌ Not divisible (${step.mod} ≠ 0)`;
+                    checkResult.className = 'check-result invalid';
+                }
+
+            } else if (step.type === 'done') {
+                document.getElementById('iValue').textContent = '✓';
+                document.getElementById('jValue').textContent = '✓';
+
+                runningContent.innerHTML = '<span style="color: #00ff88;">No recalculation needed → O(n²) instead of O(n³)!</span>';
+                checkFormula.textContent = '🎉 All subarrays checked!';
+                checkResult.textContent = `Total = ${foundSubarrays.length}`;
+                checkResult.className = 'check-result valid';
+
+                document.getElementById('resultDisplay').classList.add('show');
+                document.getElementById('finalResult').textContent = foundSubarrays.length;
+                addLog('Done', 'Complete', `Count = ${foundSubarrays.length}`);
+            }
+
+            document.getElementById('progressFill').style.width = ((currentStep + 1) / steps.length * 100) + '%';
+            document.getElementById('stepCounter').textContent = `Step ${currentStep + 1} of ${steps.length}`;
+            document.getElementById('prevBtn').disabled = currentStep === 0;
+            document.getElementById('nextBtn').disabled = currentStep >= steps.length - 1;
+            document.getElementById('nextBtn').textContent = currentStep === 0 ? 'Start →' : 'Next →';
+        }
+
+        function updateFoundList() {
+            const list = document.getElementById('foundList');
+            if (foundSubarrays.length === 0) {
+                list.innerHTML = '<span style="color: #888; font-size: 0.75rem;">None yet...</span>';
+            } else {
+                list.innerHTML = foundSubarrays.map(s => `<div class="found-item">${s}</div>`).join('');
+            }
+        }
+
+        function addLog(step, action, result) {
+            const log = document.getElementById('actionLog');
+            const entry = document.createElement('div');
+            entry.className = 'log-entry';
+            entry.innerHTML = `<span class="log-step">[${step}]</span> <span class="log-action">${action}</span> → <span class="log-value">${result}</span>`;
+            log.appendChild(entry);
+            log.scrollTop = log.scrollHeight;
+        }
+
+        function nextStep() {
+            if (currentStep < steps.length - 1) {
+                currentStep++;
+                updateDisplay();
+            }
+        }
+
+        function prevStep() {
+            if (currentStep > 0) {
+                foundSubarrays = [];
+                for (let i = 1; i < currentStep; i++) {
+                    if (steps[i].type === 'extend' && steps[i].isValid) {
+                        foundSubarrays.push(`[${steps[i].subarray.join(',')}]`);
+                    }
+                }
+                updateFoundList();
+                document.getElementById('countValue').textContent = foundSubarrays.length;
+
+                currentStep--;
+                document.getElementById('actionLog').innerHTML = '';
+                document.getElementById('resultDisplay').classList.remove('show');
+                updateDisplay();
+            }
+        }
+
+        function reset() {
+            stopAutoPlay();
+            currentStep = 0;
+            foundSubarrays = [];
+            document.getElementById('actionLog').innerHTML = '';
+            document.getElementById('resultDisplay').classList.remove('show');
+            document.getElementById('countValue').textContent = '0';
+            updateFoundList();
+            document.getElementById('progressFill').style.width = '0%';
+            document.getElementById('stepCounter').textContent = `Step 0 of ${steps.length}`;
+            document.getElementById('nextBtn').textContent = 'Start →';
+            document.getElementById('nextBtn').disabled = false;
+            document.getElementById('prevBtn').disabled = true;
+            initArray();
+        }
+
+        function autoPlay() {
+            if (isPlaying) { stopAutoPlay(); return; }
+            isPlaying = true;
+            document.getElementById('autoBtn').textContent = '⏸ Pause';
+            const speed = parseInt(document.getElementById('speedSlider').value);
+            playInterval = setInterval(() => {
+                if (currentStep < steps.length - 1) nextStep();
+                else stopAutoPlay();
+            }, speed);
+        }
+
+        function stopAutoPlay() {
+            isPlaying = false;
+            document.getElementById('autoBtn').textContent = '▶ Auto';
+            if (playInterval) { clearInterval(playInterval); playInterval = null; }
+        }
+
+        document.getElementById('speedSlider').addEventListener('input', function () {
+            document.getElementById('speedValue').textContent = this.value + 'ms';
+            if (isPlaying) { stopAutoPlay(); autoPlay(); }
+        });
+
+        initArray();
+    </script>
+</body>
+
+</html>

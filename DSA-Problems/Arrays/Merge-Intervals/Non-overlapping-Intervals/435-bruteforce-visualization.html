@@ -1,0 +1,481 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Non-overlapping Intervals - Brute Force</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #f6d365 0%, #fda085 100%);
+            min-height: 100vh;
+            padding: 20px;
+            color: #333;
+        }
+        .container {
+            max-width: 1100px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            overflow: hidden;
+        }
+        header {
+            background: linear-gradient(135deg, #f6d365 0%, #fda085 100%);
+            color: #333;
+            padding: 25px;
+            text-align: center;
+        }
+        h1 { font-size: 1.5em; margin-bottom: 8px; }
+        .subtitle { font-size: 1em; opacity: 0.8; }
+        .complexity-badge {
+            display: inline-block;
+            background: rgba(255,255,255,0.5);
+            padding: 6px 14px;
+            border-radius: 15px;
+            margin-top: 8px;
+            font-size: 0.85em;
+        }
+        .main-content {
+            display: grid;
+            grid-template-columns: 1fr 260px;
+            gap: 20px;
+            padding: 20px;
+        }
+        .card {
+            background: #f8f9fa;
+            border-radius: 12px;
+            padding: 16px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            margin-bottom: 16px;
+        }
+        .card-title {
+            font-size: 0.95em;
+            font-weight: 600;
+            margin-bottom: 12px;
+            color: #e65100;
+        }
+        .controls { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+        button {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 8px;
+            font-size: 0.85em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        button:hover { transform: translateY(-2px); }
+        button:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+        .btn-primary { background: linear-gradient(135deg, #f6d365 0%, #fda085 100%); color: #333; }
+        .btn-success { background: linear-gradient(135deg, #28a745 0%, #20c997 100%); color: white; }
+        .btn-warning { background: linear-gradient(135deg, #ffc107 0%, #ff9800 100%); color: white; }
+        .btn-secondary { background: #6c757d; color: white; }
+        .speed-control { display: flex; align-items: center; gap: 6px; flex: 1; min-width: 140px; }
+        .speed-control input[type="range"] { flex: 1; height: 5px; }
+        .intervals-display {
+            display: flex;
+            gap: 8px;
+            padding: 12px;
+            background: white;
+            border-radius: 8px;
+            flex-wrap: wrap;
+            justify-content: center;
+            min-height: 55px;
+            align-items: center;
+        }
+        .interval-wrapper {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        .interval {
+            padding: 8px 12px;
+            border-radius: 8px;
+            font-weight: 700;
+            font-size: 0.85em;
+            background: #e8eaf6;
+            border: 3px solid #5c6bc0;
+            transition: all 0.3s;
+        }
+        .interval-idx { font-size: 0.65em; color: #666; margin-top: 2px; }
+        .interval.selected { background: #c8e6c9; border-color: #43a047; }
+        .interval.not-selected { background: #f5f5f5; border-color: #bdbdbd; opacity: 0.5; }
+        .interval.checking { background: #fff9c4; border-color: #f9a825; animation: pulse 0.5s; }
+        .interval.conflict { background: #ffcdd2; border-color: #e53935; }
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.08); }
+        }
+        .subset-display {
+            display: flex;
+            gap: 8px;
+            padding: 12px;
+            background: white;
+            border-radius: 8px;
+            flex-wrap: wrap;
+            justify-content: center;
+            min-height: 50px;
+            align-items: center;
+        }
+        .subset-interval {
+            padding: 6px 10px;
+            border-radius: 6px;
+            font-weight: 700;
+            font-size: 0.8em;
+            background: #c8e6c9;
+            border: 2px solid #43a047;
+        }
+        .subset-interval.conflict { background: #ffcdd2; border-color: #e53935; }
+        .bitmask-display {
+            display: flex;
+            gap: 4px;
+            padding: 10px;
+            background: white;
+            border-radius: 8px;
+            justify-content: center;
+            font-family: 'Courier New', monospace;
+            font-size: 1.2em;
+            font-weight: 700;
+        }
+        .bit { padding: 4px 8px; border-radius: 4px; }
+        .bit-1 { background: #c8e6c9; color: #2e7d32; }
+        .bit-0 { background: #f5f5f5; color: #9e9e9e; }
+        .result-display {
+            padding: 15px;
+            background: #e8f5e9;
+            border-radius: 8px;
+            text-align: center;
+        }
+        .result-label { font-size: 0.85em; color: #666; }
+        .result-value { font-size: 1.5em; font-weight: 700; color: #2e7d32; }
+        .best-display {
+            padding: 10px;
+            background: #fff9c4;
+            border-radius: 8px;
+            text-align: center;
+            font-size: 0.85em;
+        }
+        .validity-indicator {
+            text-align: center;
+            padding: 10px;
+            border-radius: 8px;
+            font-weight: 600;
+        }
+        .valid { background: #c8e6c9; color: #2e7d32; }
+        .invalid { background: #ffcdd2; color: #c62828; }
+        .state-display { background: white; border-radius: 8px; padding: 10px; font-family: 'Courier New', monospace; font-size: 0.75em; }
+        .state-row { display: flex; justify-content: space-between; padding: 4px 0; border-bottom: 1px solid #e0e0e0; }
+        .state-row:last-child { border-bottom: none; }
+        .state-label { font-weight: 600; color: #e65100; }
+        .log-container { background: white; border-radius: 8px; padding: 10px; max-height: 130px; overflow-y: auto; font-family: 'Courier New', monospace; font-size: 0.55em; }
+        .log-entry { padding: 3px 6px; margin: 2px 0; border-radius: 4px; border-left: 3px solid #e65100; background: #f8f9fa; }
+        .log-entry.success { border-left-color: #28a745; background: #d4edda; }
+        .log-entry.warning { border-left-color: #ffc107; background: #fff3cd; }
+        .log-entry.info { border-left-color: #17a2b8; background: #d1ecf1; }
+        @media (max-width: 900px) { .main-content { grid-template-columns: 1fr; } }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🚫 Non-overlapping Intervals</h1>
+            <div class="subtitle">Brute Force - Try All Subsets</div>
+            <div class="complexity-badge">Time: O(2ⁿ × n log n) | Space: O(n)</div>
+        </header>
+        <div class="main-content">
+            <div class="left-panel">
+                <div class="card">
+                    <div class="card-title">⚙️ Controls</div>
+                    <div class="controls">
+                        <button class="btn-primary" id="playBtn">▶️ Play</button>
+                        <button class="btn-warning" id="pauseBtn" disabled>⏸️ Pause</button>
+                        <button class="btn-success" id="stepBtn">⏭️ Step</button>
+                        <button class="btn-secondary" id="resetBtn">🔄 Reset</button>
+                        <div class="speed-control">
+                            <label>Speed:</label>
+                            <input type="range" id="speedSlider" min="1" max="10" value="5">
+                            <span id="speedValue">5x</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="card">
+                    <div class="card-title">📋 All Intervals</div>
+                    <div class="intervals-display" id="intervalsDisplay"></div>
+                </div>
+                <div class="card">
+                    <div class="card-title">🔢 Current Bitmask (subset)</div>
+                    <div class="bitmask-display" id="bitmaskDisplay"></div>
+                </div>
+                <div class="card">
+                    <div class="card-title">📊 Current Subset (sorted)</div>
+                    <div class="subset-display" id="subsetDisplay">
+                        <span style="color:#888">Empty</span>
+                    </div>
+                </div>
+                <div class="card">
+                    <div class="validity-indicator" id="validityIndicator">Ready</div>
+                </div>
+                <div class="card" style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+                    <div class="result-display">
+                        <div class="result-label">Max Keep</div>
+                        <div class="result-value" id="maxKeepValue">0</div>
+                    </div>
+                    <div class="result-display" style="background:#fff3e0">
+                        <div class="result-label">Min Removals</div>
+                        <div class="result-value" id="removalsValue" style="color:#e65100">4</div>
+                    </div>
+                </div>
+                <div class="card">
+                    <div class="best-display" id="bestDisplay">Best subset: none yet</div>
+                </div>
+            </div>
+            <div class="right-panel">
+                <div class="card">
+                    <div class="card-title">📋 Current State</div>
+                    <div class="state-display">
+                        <div class="state-row"><span class="state-label">Mask:</span><span id="maskState">0</span></div>
+                        <div class="state-row"><span class="state-label">Total:</span><span id="totalState">16</span></div>
+                        <div class="state-row"><span class="state-label">Size:</span><span id="sizeState">0</span></div>
+                        <div class="state-row"><span class="state-label">Valid:</span><span id="validState">-</span></div>
+                    </div>
+                </div>
+                <div class="card" style="flex: 1;">
+                    <div class="card-title">📝 Execution Log</div>
+                    <div class="log-container" id="logContainer"><div class="log-entry info">Try all 2ⁿ subsets, check each.</div></div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script>
+        const intervals = [[1,2],[2,3],[3,4],[1,3]];
+        const n = intervals.length;
+        const totalSubsets = 1 << n;
+        
+        let mask = 0;
+        let maxKeep = 0;
+        let bestSubset = [];
+        let currentSubset = [];
+        let isValid = false;
+        let conflictPair = [-1, -1];
+        let isRunning = false;
+        let speed = 5;
+        let stepCount = 0;
+        let done = false;
+
+        function init() {
+            mask = 0;
+            maxKeep = 0;
+            bestSubset = [];
+            currentSubset = [];
+            isValid = false;
+            conflictPair = [-1, -1];
+            stepCount = 0;
+            done = false;
+            
+            clearLog();
+            addLog(`intervals = ${JSON.stringify(intervals)}`, 'info');
+            addLog(`Total subsets: 2^${n} = ${totalSubsets}`, 'info');
+            updateState();
+            render();
+        }
+
+        function getSubset(mask) {
+            const subset = [];
+            for (let i = 0; i < n; i++) {
+                if (mask & (1 << i)) {
+                    subset.push({interval: [...intervals[i]], idx: i});
+                }
+            }
+            return subset;
+        }
+
+        function checkNonOverlapping(subset) {
+            if (subset.length <= 1) return { valid: true, conflict: [-1, -1] };
+            
+            const sorted = [...subset].sort((a, b) => a.interval[0] - b.interval[0]);
+            
+            for (let i = 1; i < sorted.length; i++) {
+                if (sorted[i].interval[0] < sorted[i-1].interval[1]) {
+                    return { valid: false, conflict: [sorted[i-1].idx, sorted[i].idx] };
+                }
+            }
+            return { valid: true, conflict: [-1, -1] };
+        }
+
+        function toBinary(num, bits) {
+            return num.toString(2).padStart(bits, '0');
+        }
+
+        function render() {
+            // Intervals display
+            const display = document.getElementById('intervalsDisplay');
+            display.innerHTML = intervals.map((int, i) => {
+                let cls = 'interval';
+                const inSubset = mask & (1 << i);
+                if (inSubset) {
+                    if (conflictPair.includes(i)) cls += ' conflict';
+                    else cls += ' selected';
+                } else {
+                    cls += ' not-selected';
+                }
+                return `<div class="interval-wrapper">
+                    <div class="${cls}">[${int[0]},${int[1]}]</div>
+                    <div class="interval-idx">${i}</div>
+                </div>`;
+            }).join('');
+            
+            // Bitmask display
+            const bitmaskDisp = document.getElementById('bitmaskDisplay');
+            const bits = toBinary(mask, n).split('').reverse();
+            bitmaskDisp.innerHTML = bits.map((b, i) => 
+                `<span class="bit bit-${b}">${b}</span>`
+            ).join('');
+            
+            // Subset display
+            const subsetDisp = document.getElementById('subsetDisplay');
+            if (currentSubset.length === 0) {
+                subsetDisp.innerHTML = '<span style="color:#888">Empty subset</span>';
+            } else {
+                const sorted = [...currentSubset].sort((a, b) => a.interval[0] - b.interval[0]);
+                subsetDisp.innerHTML = sorted.map(item => {
+                    let cls = 'subset-interval';
+                    if (conflictPair.includes(item.idx)) cls += ' conflict';
+                    return `<div class="${cls}">[${item.interval[0]},${item.interval[1]}]</div>`;
+                }).join('');
+            }
+            
+            // Validity indicator
+            const validityInd = document.getElementById('validityIndicator');
+            if (done) {
+                validityInd.className = 'validity-indicator valid';
+                validityInd.textContent = `Done! Min removals = ${n - maxKeep}`;
+            } else if (currentSubset.length === 0) {
+                validityInd.className = 'validity-indicator';
+                validityInd.style.background = '#f5f5f5';
+                validityInd.style.color = '#666';
+                validityInd.textContent = 'Empty subset (size 0)';
+            } else if (isValid) {
+                validityInd.className = 'validity-indicator valid';
+                validityInd.textContent = `✓ Valid! Size = ${currentSubset.length}`;
+            } else {
+                validityInd.className = 'validity-indicator invalid';
+                validityInd.textContent = `✗ Overlap at idx ${conflictPair[0]}, ${conflictPair[1]}`;
+            }
+            
+            // Results
+            document.getElementById('maxKeepValue').textContent = maxKeep;
+            document.getElementById('removalsValue').textContent = n - maxKeep;
+            
+            // Best display
+            const bestDisp = document.getElementById('bestDisplay');
+            if (bestSubset.length > 0) {
+                const bestStr = bestSubset.map(item => `[${item.interval}]`).join(', ');
+                bestDisp.textContent = `Best: ${bestStr} (size ${maxKeep})`;
+            } else {
+                bestDisp.textContent = 'Best subset: none yet';
+            }
+        }
+
+        function updateState() {
+            document.getElementById('maskState').textContent = `${mask} (${toBinary(mask, n)})`;
+            document.getElementById('totalState').textContent = totalSubsets;
+            document.getElementById('sizeState').textContent = currentSubset.length;
+            document.getElementById('validState').textContent = currentSubset.length === 0 ? '-' : (isValid ? 'Yes' : 'No');
+        }
+
+        function addLog(msg, type = 'info') {
+            const log = document.getElementById('logContainer');
+            log.innerHTML += `<div class="log-entry ${type}">[${stepCount}] ${msg}</div>`;
+            log.scrollTop = log.scrollHeight;
+        }
+
+        function clearLog() { document.getElementById('logContainer').innerHTML = ''; }
+
+        function step() {
+            if (done) { stopExecution(); return; }
+            stepCount++;
+            
+            if (mask >= totalSubsets) {
+                done = true;
+                addLog(`Done! maxKeep=${maxKeep}, removals=${n - maxKeep}`, 'success');
+                updateState();
+                render();
+                return;
+            }
+            
+            currentSubset = getSubset(mask);
+            const result = checkNonOverlapping(currentSubset);
+            isValid = result.valid;
+            conflictPair = result.conflict;
+            
+            if (isValid && currentSubset.length > maxKeep) {
+                maxKeep = currentSubset.length;
+                bestSubset = [...currentSubset];
+                addLog(`mask=${mask}: size=${currentSubset.length} ✓ NEW BEST!`, 'success');
+            } else if (isValid) {
+                addLog(`mask=${mask}: size=${currentSubset.length} ✓ valid`, 'info');
+            } else {
+                addLog(`mask=${mask}: overlap at [${intervals[conflictPair[0]]}],[${intervals[conflictPair[1]]}]`, 'warning');
+            }
+            
+            mask++;
+            updateState();
+            render();
+        }
+
+        function play() {
+            if (isRunning) return;
+            isRunning = true;
+            document.getElementById('playBtn').disabled = true;
+            document.getElementById('pauseBtn').disabled = false;
+            document.getElementById('stepBtn').disabled = true;
+            runLoop();
+        }
+
+        function pause() {
+            isRunning = false;
+            document.getElementById('playBtn').disabled = false;
+            document.getElementById('pauseBtn').disabled = true;
+            document.getElementById('stepBtn').disabled = false;
+        }
+
+        function stopExecution() {
+            isRunning = false;
+            document.getElementById('playBtn').disabled = true;
+            document.getElementById('pauseBtn').disabled = true;
+            document.getElementById('stepBtn').disabled = true;
+        }
+
+        function runLoop() {
+            if (!isRunning) return;
+            step();
+            if (isRunning && !done) {
+                setTimeout(runLoop, 400 / speed);
+            } else {
+                stopExecution();
+            }
+        }
+
+        function reset() {
+            isRunning = false;
+            document.getElementById('playBtn').disabled = false;
+            document.getElementById('pauseBtn').disabled = true;
+            document.getElementById('stepBtn').disabled = false;
+            init();
+        }
+
+        document.getElementById('playBtn').addEventListener('click', play);
+        document.getElementById('pauseBtn').addEventListener('click', pause);
+        document.getElementById('stepBtn').addEventListener('click', step);
+        document.getElementById('resetBtn').addEventListener('click', reset);
+        document.getElementById('speedSlider').addEventListener('input', (e) => {
+            speed = parseInt(e.target.value);
+            document.getElementById('speedValue').textContent = speed + 'x';
+        });
+
+        init();
+    </script>
+</body>
+</html>

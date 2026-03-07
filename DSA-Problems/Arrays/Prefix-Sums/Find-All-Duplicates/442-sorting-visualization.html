@@ -1,0 +1,474 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Find All Duplicates - Sorting</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #0f0c29 0%, #302b63 50%, #24243e 100%);
+            min-height: 100vh; padding: 20px; color: #e0e0e0;
+        }
+        .container {
+            max-width: 1150px; margin: 0 auto;
+            background: #1a1a2e; border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.6); overflow: hidden;
+        }
+        header {
+            background: linear-gradient(135deg, #e17055 0%, #fdcb6e 50%, #e17055 100%);
+            color: white; padding: 22px; text-align: center;
+        }
+        h1 { font-size: 1.25em; margin-bottom: 6px; }
+        .subtitle { font-size: 0.92em; opacity: 0.9; }
+        .complexity-badge {
+            display: inline-block; background: rgba(255,255,255,0.18);
+            padding: 5px 14px; border-radius: 15px; margin-top: 6px; font-size: 0.82em;
+        }
+        .main-content {
+            display: grid; grid-template-columns: 1fr 265px;
+            gap: 14px; padding: 14px;
+        }
+        .card {
+            background: #16213e; border-radius: 12px; padding: 13px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.4); margin-bottom: 12px;
+        }
+        .card-title { font-size: 0.88em; font-weight: 600; margin-bottom: 9px; color: #fdcb6e; }
+
+        .controls { display: flex; flex-wrap: wrap; gap: 7px; align-items: center; }
+        button {
+            padding: 7px 13px; border: none; border-radius: 8px;
+            font-size: 0.8em; font-weight: 600; cursor: pointer; transition: all 0.3s ease;
+        }
+        button:hover { transform: translateY(-2px); filter: brightness(1.15); }
+        button:disabled { opacity: 0.4; cursor: not-allowed; transform: none; }
+        .btn-primary { background: linear-gradient(135deg, #e17055, #fdcb6e); color: white; }
+        .btn-success { background: linear-gradient(135deg, #00b894, #55efc4); color: white; }
+        .btn-warning { background: linear-gradient(135deg, #6c5ce7, #a29bfe); color: white; }
+        .btn-secondary { background: #636e72; color: white; }
+        .speed-control { display: flex; align-items: center; gap: 5px; flex: 1; min-width: 120px; font-size: 0.8em; }
+        .speed-control input[type="range"] { flex: 1; height: 4px; accent-color: #fdcb6e; }
+        .input-row { display: flex; gap: 7px; align-items: center; margin-top: 9px; flex-wrap: wrap; }
+        .input-row label { font-size: 0.76em; color: #b2bec3; white-space: nowrap; }
+        .input-row input {
+            flex: 1; padding: 6px 9px; border-radius: 8px;
+            border: 1px solid #3d4f7c; background: #0f0c29;
+            color: #e0e0e0; font-family: 'Courier New', monospace; font-size: 0.84em;
+        }
+        .input-row input:focus { outline: none; border-color: #fdcb6e; }
+
+        .viz-area {
+            padding: 14px 10px; background: #0a0e1a;
+            border: 1px solid #2d3a56; border-radius: 10px;
+        }
+        .row-label {
+            font-size: 0.58em; font-weight: 700; text-transform: uppercase;
+            letter-spacing: 0.8px; margin-bottom: 4px; padding-left: 2px;
+        }
+        .label-orig { color: #74b9ff; }
+        .label-sorted { color: #fdcb6e; }
+
+        .arr-row {
+            display: flex; justify-content: center;
+            gap: 5px; margin-bottom: 6px; flex-wrap: wrap;
+        }
+        .arr-cell {
+            width: 52px; height: 50px; border-radius: 8px;
+            display: flex; align-items: center; justify-content: center;
+            font-weight: 700; font-size: 1.1em; position: relative;
+            transition: all 0.35s ease;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.3);
+        }
+        .arr-cell .cidx {
+            position: absolute; bottom: -14px;
+            font-size: 0.44em; color: #636e72;
+        }
+        .arr-cell .ptr-label {
+            position: absolute; top: -15px;
+            font-size: 0.42em; font-weight: 700;
+            padding: 1px 6px; border-radius: 4px;
+        }
+        .ptr-i { background: #e17055; color: white; }
+        .ptr-prev { background: #0984e3; color: white; }
+
+        .cell-default { background: linear-gradient(145deg, #2d3a56, #3d4f7c); color: #b2bec3; }
+        .cell-sorted { background: linear-gradient(145deg, #fdcb6e, #f39c12); color: #2d3436; box-shadow: 0 0 10px rgba(253,203,110,0.3); }
+        .cell-cur { background: linear-gradient(145deg, #e17055, #d63031); color: white; box-shadow: 0 0 14px rgba(225,112,85,0.5); }
+        .cell-prev { background: linear-gradient(145deg, #0984e3, #74b9ff); color: white; box-shadow: 0 0 14px rgba(116,185,255,0.5); }
+        .cell-match { background: linear-gradient(145deg, #00b894, #55efc4); color: #2d3436; box-shadow: 0 0 16px rgba(85,239,196,0.6); }
+        .cell-no { background: linear-gradient(145deg, #636e72, #b2bec3); color: #2d3436; }
+        .cell-checked { background: linear-gradient(145deg, #2d3a56, #3d4f7c); color: #636e72; }
+        .cell-dup-done { background: linear-gradient(145deg, #00b894, #55efc4); color: #2d3436; box-shadow: 0 0 10px rgba(85,239,196,0.3); }
+
+        .action-bar {
+            text-align: center; padding: 12px;
+            background: #16213e; border-radius: 8px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.85em; min-height: 42px;
+            display: flex; align-items: center; justify-content: center; gap: 10px;
+        }
+        .badge {
+            display: inline-block; padding: 4px 14px; border-radius: 6px;
+            font-weight: 700; font-size: 0.85em;
+        }
+        .badge-match { background: #00b89433; color: #55efc4; border: 1px solid #00b894; }
+        .badge-no { background: #63727233; color: #b2bec3; border: 1px solid #636e72; }
+        .badge-sort { background: #fdcb6e33; color: #fdcb6e; border: 1px solid #fdcb6e; }
+
+        .found-list {
+            display: flex; flex-wrap: wrap; gap: 6px;
+            padding: 6px; min-height: 30px;
+        }
+        .found-chip {
+            padding: 4px 12px; border-radius: 6px;
+            font-family: 'Courier New', monospace; font-size: 0.85em;
+            background: #00b89422; color: #55efc4; border: 1px solid #00b89466;
+            font-weight: 700;
+        }
+
+        .state-display { background: #0f0c29; border-radius: 8px; padding: 10px; font-family: 'Courier New', monospace; font-size: 0.76em; }
+        .state-row { display: flex; justify-content: space-between; padding: 3px 0; border-bottom: 1px solid #2d3a56; }
+        .state-val { font-weight: bold; }
+        .log-container {
+            background: #0f0c29; border-radius: 8px; padding: 7px;
+            max-height: 210px; overflow-y: auto;
+            font-family: 'Courier New', monospace; font-size: 0.54em;
+        }
+        .log-entry { padding: 3px 5px; margin: 2px 0; border-radius: 4px; border-left: 3px solid #4a5568; background: #16213e; }
+        .log-entry.sort { border-left-color: #fdcb6e; }
+        .log-entry.match { border-left-color: #00b894; }
+        .log-entry.miss { border-left-color: #636e72; }
+        .log-entry.info { border-left-color: #74b9ff; }
+        .log-entry.done { border-left-color: #fdcb6e; }
+
+        .result-display {
+            text-align: center; padding: 10px;
+            background: linear-gradient(135deg, #16213e, #0f0c29);
+            border: 1px solid #fdcb6e; color: white; border-radius: 8px;
+            margin-top: 8px; font-size: 0.9em; font-weight: bold;
+            font-family: 'Courier New', monospace;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>442. Find All Duplicates in an Array</h1>
+            <div class="subtitle">Improved: Sorting + Adjacent Scan</div>
+            <div class="complexity-badge">Time: O(N log N) | Space: O(1)</div>
+        </header>
+
+        <div class="main-content">
+            <div class="left-panel">
+                <div class="card">
+                    <div class="card-title">⚙️ Controls</div>
+                    <div class="controls">
+                        <button class="btn-primary" id="playBtn">▶ Play</button>
+                        <button class="btn-warning" id="pauseBtn" disabled>⏸ Pause</button>
+                        <button class="btn-success" id="stepBtn">⏭ Step</button>
+                        <button class="btn-secondary" id="resetBtn">↺ Reset</button>
+                        <div class="speed-control">
+                            <label>Speed:</label>
+                            <input type="range" id="speedSlider" min="1" max="10" value="5">
+                        </div>
+                    </div>
+                    <div class="input-row">
+                        <label>nums:</label>
+                        <input type="text" id="numsInput" value="4,3,2,7,8,2,3,1">
+                        <button class="btn-secondary" id="loadBtn">Load</button>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-title">📊 Original nums[]</div>
+                    <div class="viz-area">
+                        <div class="arr-row" id="origRow"></div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-title">📊 Sorted nums[]</div>
+                    <div class="viz-area">
+                        <div class="arr-row" id="sortedRow"></div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-title">🔍 Comparison</div>
+                    <div class="action-bar" id="actionBar">
+                        <span style="color:#4a5568">Press Step to begin</span>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-title">✅ Duplicates Found</div>
+                    <div class="found-list" id="foundList">
+                        <span style="color:#636e72;font-size:0.75em;">None yet</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="right-panel">
+                <div class="card">
+                    <div class="card-title">📊 State</div>
+                    <div class="state-display">
+                        <div class="state-row"><span>Phase:</span><span class="state-val" style="color:#fdcb6e" id="phaseVal">Ready</span></div>
+                        <div class="state-row"><span>i:</span><span class="state-val" style="color:#e17055" id="iVal">-</span></div>
+                        <div class="state-row"><span>nums[i]:</span><span class="state-val" style="color:#e17055" id="niVal">-</span></div>
+                        <div class="state-row"><span>nums[i-1]:</span><span class="state-val" style="color:#74b9ff" id="npVal">-</span></div>
+                        <div class="state-row"><span>Equal?</span><span class="state-val" style="color:#55efc4" id="eqVal">-</span></div>
+                        <div class="state-row"><span>result:</span><span class="state-val" style="color:#55efc4" id="resVal">[]</span></div>
+                    </div>
+                    <div class="result-display" id="resultDisplay">Result: []</div>
+                </div>
+
+                <div class="card" style="flex-grow:1;display:flex;flex-direction:column;">
+                    <div class="card-title">📝 Execution Log</div>
+                    <div class="log-container" id="logContainer"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let initNums = [4, 3, 2, 7, 8, 2, 3, 1];
+
+        let sortedNums = [];
+        let events = [];
+
+        function buildTrace() {
+            events = [];
+            sortedNums = [...initNums].sort((a, b) => a - b);
+            const n = sortedNums.length;
+            const result = [];
+
+            events.push({ type: 'init' });
+            events.push({ type: 'sorted', arr: [...sortedNums] });
+
+            for (let i = 1; i < n; i++) {
+                const match = sortedNums[i] === sortedNums[i - 1];
+                if (match) {
+                    result.push(sortedNums[i]);
+                }
+                events.push({
+                    type: 'compare', i,
+                    cur: sortedNums[i], prev: sortedNums[i - 1],
+                    match, result: [...result]
+                });
+            }
+            events.push({ type: 'done', result: [...result] });
+        }
+
+        let eventIdx = 0;
+        let curPhase = 'Ready';
+        let curI = -1;
+        let curMatch = null;
+        let curResult = [];
+        let isSorted = false;
+        let isDone = false;
+        let actionHtml = '<span style="color:#4a5568">Press Step to begin</span>';
+
+        let isRunning = false, timer = null, speed = 5, stepCount = 0;
+
+        function init() {
+            buildTrace();
+            eventIdx = 0;
+            curPhase = 'Ready'; curI = -1;
+            curMatch = null; curResult = [];
+            isSorted = false; isDone = false; stepCount = 0;
+            actionHtml = '<span style="color:#4a5568">Press Step to begin</span>';
+            clearLog();
+            addLog(`nums = [${initNums.join(', ')}]`, 'info');
+            render();
+            updateControls();
+        }
+
+        function step() {
+            if (eventIdx >= events.length) return;
+            stepCount++;
+            const ev = events[eventIdx++];
+
+            switch (ev.type) {
+                case 'init':
+                    curPhase = 'Sort';
+                    addLog('Step 1: Sort the array', 'info');
+                    actionHtml = '<span style="color:#fdcb6e">Sorting the array…</span>';
+                    break;
+
+                case 'sorted':
+                    isSorted = true;
+                    curPhase = 'Scan';
+                    addLog(`Sorted: [${ev.arr.join(', ')}]`, 'sort');
+                    addLog('Step 2: Scan adjacent pairs for duplicates', 'info');
+                    actionHtml = `<span class="badge badge-sort">✓ Sorted!</span> <span>Now scanning adjacent pairs…</span>`;
+                    break;
+
+                case 'compare':
+                    curI = ev.i;
+                    curMatch = ev.match;
+                    curResult = [...ev.result];
+
+                    if (ev.match) {
+                        addLog(`i=${ev.i}: nums[${ev.i}]=${ev.cur} == nums[${ev.i-1}]=${ev.prev} ✅ DUPLICATE → result=[${ev.result.join(',')}]`, 'match');
+                        actionHtml = `<span>nums[${ev.i}]=${ev.cur} == nums[${ev.i-1}]=${ev.prev}</span> <span class="badge badge-match">✓ DUPLICATE</span>`;
+                    } else {
+                        addLog(`i=${ev.i}: nums[${ev.i}]=${ev.cur} ≠ nums[${ev.i-1}]=${ev.prev}`, 'miss');
+                        actionHtml = `<span>nums[${ev.i}]=${ev.cur} ≠ nums[${ev.i-1}]=${ev.prev}</span> <span class="badge badge-no">✗</span>`;
+                    }
+                    break;
+
+                case 'done':
+                    isDone = true;
+                    curPhase = 'Done';
+                    curResult = [...ev.result];
+                    curI = -1;
+                    addLog(`✅ Done! Duplicates = [${ev.result.join(', ')}]`, 'done');
+                    actionHtml = `<span style="color:#55efc4;font-weight:bold">✅ Result: [${ev.result.join(', ')}]</span>`;
+                    stop();
+                    break;
+            }
+            render();
+        }
+
+        function render() {
+            renderOrig();
+            renderSorted();
+            renderAction();
+            renderFound();
+            renderState();
+        }
+
+        function renderOrig() {
+            const row = document.getElementById('origRow');
+            row.innerHTML = '';
+            for (let idx = 0; idx < initNums.length; idx++) {
+                const el = document.createElement('div');
+                el.className = 'arr-cell cell-default';
+                el.textContent = initNums[idx];
+                const lbl = document.createElement('div');
+                lbl.className = 'cidx'; lbl.textContent = idx;
+                el.appendChild(lbl);
+                row.appendChild(el);
+            }
+        }
+
+        function renderSorted() {
+            const row = document.getElementById('sortedRow');
+            row.innerHTML = '';
+            if (!isSorted) {
+                row.innerHTML = '<span style="color:#636e72;font-size:0.8em;padding:12px;">Awaiting sort…</span>';
+                return;
+            }
+            for (let idx = 0; idx < sortedNums.length; idx++) {
+                const el = document.createElement('div');
+                let cls = 'arr-cell';
+
+                if (isDone) {
+                    cls += curResult.includes(sortedNums[idx]) ? ' cell-match' : ' cell-checked';
+                } else if (idx === curI && idx === curI - 1) {
+                    cls += ' cell-match';
+                } else if (curMatch === true && (idx === curI || idx === curI - 1)) {
+                    cls += ' cell-match';
+                } else if (idx === curI) {
+                    cls += ' cell-cur';
+                } else if (idx === curI - 1) {
+                    cls += ' cell-prev';
+                } else if (curI >= 0 && idx < curI - 1) {
+                    cls += ' cell-checked';
+                } else {
+                    cls += ' cell-sorted';
+                }
+                el.className = cls;
+                el.textContent = sortedNums[idx];
+
+                if (!isDone && idx === curI) {
+                    const p = document.createElement('div');
+                    p.className = 'ptr-label ptr-i'; p.textContent = 'i';
+                    el.appendChild(p);
+                }
+                if (!isDone && idx === curI - 1 && curI >= 1) {
+                    const p = document.createElement('div');
+                    p.className = 'ptr-label ptr-prev'; p.textContent = 'i-1';
+                    el.appendChild(p);
+                }
+
+                const lbl = document.createElement('div');
+                lbl.className = 'cidx'; lbl.textContent = idx;
+                el.appendChild(lbl);
+                row.appendChild(el);
+            }
+        }
+
+        function renderAction() {
+            document.getElementById('actionBar').innerHTML = actionHtml;
+        }
+
+        function renderFound() {
+            const list = document.getElementById('foundList');
+            list.innerHTML = '';
+            if (curResult.length === 0) {
+                list.innerHTML = '<span style="color:#636e72;font-size:0.75em;">None yet</span>';
+                return;
+            }
+            for (const v of curResult) {
+                const chip = document.createElement('span');
+                chip.className = 'found-chip';
+                chip.textContent = v;
+                list.appendChild(chip);
+            }
+        }
+
+        function renderState() {
+            document.getElementById('phaseVal').textContent = curPhase;
+            document.getElementById('iVal').textContent = curI >= 0 ? curI : '-';
+            document.getElementById('niVal').textContent = curI >= 0 ? sortedNums[curI] : '-';
+            document.getElementById('npVal').textContent = curI >= 1 ? sortedNums[curI - 1] : '-';
+            document.getElementById('eqVal').textContent = curMatch !== null ? (curMatch ? '✅ Yes' : '❌ No') : '-';
+            document.getElementById('resVal').textContent = `[${curResult.join(', ')}]`;
+            document.getElementById('resultDisplay').textContent = `Result: [${curResult.join(', ')}]`;
+        }
+
+        function addLog(msg, type = 'info') {
+            const log = document.getElementById('logContainer');
+            log.innerHTML += `<div class="log-entry ${type}">[${stepCount}] ${msg}</div>`;
+            log.scrollTop = log.scrollHeight;
+        }
+        function clearLog() { document.getElementById('logContainer').innerHTML = ''; }
+
+        function play() { if (isRunning) return; isRunning = true; updateControls(); runLoop(); }
+        function runLoop() {
+            if (!isRunning || eventIdx >= events.length) { stop(); return; }
+            step();
+            timer = setTimeout(runLoop, Math.max(60, 1100 - speed * 100));
+        }
+        function stop() { isRunning = false; if (timer) clearTimeout(timer); updateControls(); }
+        function reset() { stop(); init(); }
+        function updateControls() {
+            const done = eventIdx >= events.length;
+            document.getElementById('playBtn').disabled = isRunning || done;
+            document.getElementById('pauseBtn').disabled = !isRunning;
+            document.getElementById('stepBtn').disabled = isRunning || done;
+            document.getElementById('resetBtn').disabled = isRunning;
+        }
+
+        function loadCustom() {
+            const raw = document.getElementById('numsInput').value.trim();
+            const arr = raw.split(',').map(s => parseInt(s.trim())).filter(v => !isNaN(v) && v >= 1);
+            if (arr.length === 0) return;
+            initNums = arr;
+            stop(); init();
+        }
+
+        document.getElementById('playBtn').addEventListener('click', play);
+        document.getElementById('pauseBtn').addEventListener('click', stop);
+        document.getElementById('stepBtn').addEventListener('click', step);
+        document.getElementById('resetBtn').addEventListener('click', reset);
+        document.getElementById('loadBtn').addEventListener('click', loadCustom);
+        document.getElementById('speedSlider').addEventListener('input', e => speed = parseInt(e.target.value));
+        document.getElementById('numsInput').addEventListener('keydown', e => { if (e.key === 'Enter') loadCustom(); });
+
+        init();
+    </script>
+</body>
+</html>

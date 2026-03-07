@@ -1,0 +1,859 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>86 - Brute-Force: Collect, Separate, Rebuild (Partition List)</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #0f0c29 0%, #302b63 50%, #24243e 100%);
+            min-height: 100vh;
+            padding: 18px;
+            color: #e0e0e0
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: rgba(25, 25, 50, .95);
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, .5), 0 0 40px rgba(192, 57, 43, .07);
+            overflow: hidden;
+            border: 1px solid rgba(255, 255, 255, .06)
+        }
+
+        header {
+            background: linear-gradient(135deg, #c0392b, #e74c3c);
+            color: #fff;
+            padding: 22px;
+            text-align: center
+        }
+
+        h1 {
+            font-size: 1.15em;
+            margin-bottom: 5px
+        }
+
+        .subtitle {
+            font-size: .84em;
+            opacity: .92
+        }
+
+        .badge {
+            display: inline-block;
+            background: rgba(255, 255, 255, .2);
+            padding: 5px 14px;
+            border-radius: 15px;
+            margin-top: 7px;
+            font-size: .78em
+        }
+
+        .main-content {
+            display: grid;
+            grid-template-columns: 1fr 280px;
+            gap: 16px;
+            padding: 18px
+        }
+
+        .card {
+            background: rgba(40, 40, 75, .8);
+            border-radius: 14px;
+            padding: 15px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, .2);
+            margin-bottom: 14px;
+            border: 1px solid rgba(255, 255, 255, .05)
+        }
+
+        .card-title {
+            font-size: .88em;
+            font-weight: 600;
+            margin-bottom: 10px;
+            color: #e74c3c
+        }
+
+        button {
+            padding: 7px 14px;
+            border: none;
+            border-radius: 8px;
+            font-size: .82em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all .3s
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, .3)
+        }
+
+        button:disabled {
+            opacity: .4;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #c0392b, #e74c3c);
+            color: #fff
+        }
+
+        .btn-success {
+            background: linear-gradient(135deg, #27ae60, #2ecc71);
+            color: #fff
+        }
+
+        .btn-warning {
+            background: linear-gradient(135deg, #f39c12, #e67e22);
+            color: #fff
+        }
+
+        .btn-secondary {
+            background: rgba(100, 100, 140, .7);
+            color: #fff
+        }
+
+        .btn-info {
+            background: linear-gradient(135deg, #3498db, #2980b9);
+            color: #fff
+        }
+
+        .controls {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            align-items: center
+        }
+
+        .speed-control {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            flex: 1;
+            min-width: 140px
+        }
+
+        .speed-control label {
+            font-size: .8em;
+            color: #aaa
+        }
+
+        .speed-control input[type="range"] {
+            flex: 1;
+            height: 5px;
+            accent-color: #e74c3c
+        }
+
+        .speed-control span {
+            font-size: .8em;
+            color: #e74c3c;
+            min-width: 24px
+        }
+
+        .input-section {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+            flex-wrap: wrap
+        }
+
+        .input-section input {
+            padding: 7px 10px;
+            border-radius: 8px;
+            border: 1px solid rgba(255, 255, 255, .15);
+            background: rgba(20, 20, 45, .8);
+            color: #e0e0e0;
+            font-size: .82em;
+            font-family: 'Courier New', monospace;
+        }
+
+        .input-section input:focus {
+            outline: none;
+            border-color: #e74c3c
+        }
+
+        .input-section label {
+            font-size: .82em;
+            color: #aaa
+        }
+
+        /* Linked List */
+        .ll-row {
+            display: flex;
+            gap: 0;
+            padding: 10px;
+            background: rgba(20, 20, 50, .4);
+            border-radius: 10px;
+            min-height: 56px;
+            align-items: center;
+            justify-content: center;
+            flex-wrap: wrap
+        }
+
+        .nd {
+            width: 46px;
+            height: 46px;
+            border-radius: 10px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 1.08em;
+            border: 2.5px solid rgba(150, 150, 200, .12);
+            background: rgba(60, 60, 100, .08);
+            font-family: 'Courier New', monospace;
+            color: #888;
+            transition: all .35s
+        }
+
+        .nd-sub {
+            font-size: .36em;
+            color: #555;
+            margin-top: 1px
+        }
+
+        .nd.collecting {
+            border-color: #f1c40f;
+            background: rgba(241, 196, 15, .12);
+            color: #f1c40f;
+            box-shadow: 0 0 10px rgba(241, 196, 15, .15);
+            transform: scale(1.08)
+        }
+
+        .nd.less-hl {
+            border-color: #2ecc71;
+            background: rgba(46, 204, 113, .1);
+            color: #2ecc71
+        }
+
+        .nd.geq-hl {
+            border-color: #e74c3c;
+            background: rgba(231, 76, 60, .1);
+            color: #e74c3c
+        }
+
+        .nd.writing {
+            border-color: #9b59b6;
+            background: rgba(155, 89, 182, .12);
+            color: #bb6bd9;
+            box-shadow: 0 0 10px rgba(155, 89, 182, .15);
+            transform: scale(1.08)
+        }
+
+        .nd.done-nd {
+            border-color: #2ecc71;
+            background: rgba(46, 204, 113, .06);
+            color: #2ecc71
+        }
+
+        .arrow {
+            color: #555;
+            font-size: .72em;
+            margin: 0 2px
+        }
+
+        .arrow.done-a {
+            color: #2ecc71
+        }
+
+        /* Array cells */
+        .arr-row {
+            display: flex;
+            gap: 3px;
+            padding: 10px;
+            background: rgba(20, 20, 50, .4);
+            border-radius: 10px;
+            min-height: 50px;
+            align-items: center;
+            justify-content: center;
+            flex-wrap: wrap
+        }
+
+        .ac {
+            width: 42px;
+            height: 42px;
+            border-radius: 8px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: .95em;
+            border: 2px solid rgba(150, 150, 200, .1);
+            background: rgba(60, 60, 100, .06);
+            font-family: 'Courier New', monospace;
+            color: #666;
+            transition: all .35s
+        }
+
+        .ac-idx {
+            font-size: .38em;
+            color: #555;
+            margin-top: 1px
+        }
+
+        .ac.filled {
+            border-color: #f1c40f;
+            background: rgba(241, 196, 15, .06);
+            color: #f1c40f
+        }
+
+        .ac.adding {
+            border-color: #f1c40f;
+            background: rgba(241, 196, 15, .15);
+            color: #f1c40f;
+            box-shadow: 0 0 10px rgba(241, 196, 15, .2);
+            transform: scale(1.1)
+        }
+
+        .ac.less-c {
+            border-color: #2ecc71;
+            background: rgba(46, 204, 113, .08);
+            color: #2ecc71
+        }
+
+        .ac.geq-c {
+            border-color: #e74c3c;
+            background: rgba(231, 76, 60, .08);
+            color: #e74c3c
+        }
+
+        .ac.merged-c {
+            border-color: #9b59b6;
+            background: rgba(155, 89, 182, .06);
+            color: #bb6bd9
+        }
+
+        .ac.reading {
+            border-color: #9b59b6;
+            background: rgba(155, 89, 182, .15);
+            color: #bb6bd9;
+            box-shadow: 0 0 10px rgba(155, 89, 182, .2);
+            transform: scale(1.08)
+        }
+
+        .x-badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 8px;
+            background: rgba(231, 76, 60, .15);
+            border: 1px solid rgba(231, 76, 60, .3);
+            color: #e74c3c;
+            font-weight: 700;
+            font-size: .85em;
+            font-family: 'Courier New', monospace;
+            margin-left: 8px
+        }
+
+        .status-ind {
+            text-align: center;
+            padding: 11px;
+            border-radius: 10px;
+            font-weight: 700;
+            font-size: .85em;
+            transition: all .3s
+        }
+
+        .si-neutral {
+            background: rgba(100, 100, 140, .12);
+            color: #888
+        }
+
+        .si-run {
+            background: rgba(231, 76, 60, .06);
+            color: #e74c3c;
+            border: 1px solid rgba(231, 76, 60, .12)
+        }
+
+        .si-done {
+            background: rgba(46, 204, 113, .12);
+            color: #2ecc71;
+            border: 1px solid rgba(46, 204, 113, .25)
+        }
+
+        .state-display {
+            background: rgba(20, 20, 50, .5);
+            border-radius: 8px;
+            padding: 10px;
+            font-family: 'Courier New', monospace;
+            font-size: .68em
+        }
+
+        .state-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 4px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, .05)
+        }
+
+        .state-row:last-child {
+            border-bottom: none
+        }
+
+        .state-label {
+            font-weight: 600;
+            color: #e74c3c
+        }
+
+        .state-val {
+            color: #ccc;
+            text-align: right;
+            max-width: 155px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap
+        }
+
+        .log-container {
+            background: rgba(20, 20, 50, .5);
+            border-radius: 8px;
+            padding: 10px;
+            max-height: 260px;
+            overflow-y: auto;
+            font-family: 'Courier New', monospace;
+            font-size: .54em
+        }
+
+        .log-entry {
+            padding: 3px 7px;
+            margin: 2px 0;
+            border-radius: 4px;
+            border-left: 3px solid #555;
+            background: rgba(40, 40, 70, .5);
+            line-height: 1.5
+        }
+
+        .log-entry.success {
+            border-left-color: #2ecc71;
+            background: rgba(46, 204, 113, .08);
+            color: #2ecc71
+        }
+
+        .log-entry.warning {
+            border-left-color: #f39c12;
+            background: rgba(243, 156, 18, .08);
+            color: #f39c12
+        }
+
+        .log-entry.info {
+            border-left-color: #3498db;
+            background: rgba(52, 152, 219, .08);
+            color: #8ec8f0
+        }
+
+        .log-entry.purple {
+            border-left-color: #9b59b6;
+            background: rgba(155, 89, 182, .08);
+            color: #bb6bd9
+        }
+
+        .log-entry.orange {
+            border-left-color: #e67e22;
+            background: rgba(230, 126, 34, .08);
+            color: #e67e22
+        }
+
+        .log-entry.error {
+            border-left-color: #e74c3c;
+            background: rgba(231, 76, 60, .08);
+            color: #e74c3c
+        }
+
+        .log-container::-webkit-scrollbar {
+            width: 5px
+        }
+
+        .log-container::-webkit-scrollbar-track {
+            background: transparent
+        }
+
+        .log-container::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, .15);
+            border-radius: 3px
+        }
+
+        @media(max-width:960px) {
+            .main-content {
+                grid-template-columns: 1fr
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <header>
+            <h1>📋 Partition List</h1>
+            <div class="subtitle">Brute-Force — Collect to Array, Separate (filter), Rebuild List</div>
+            <div class="badge">Time: O(n) | Space: O(n) — values + filter arrays + new nodes</div>
+        </header>
+        <div class="main-content">
+            <div class="left-panel">
+                <div class="card">
+                    <div class="card-title">⚙️ Controls</div>
+                    <div class="controls">
+                        <button class="btn-primary" id="playBtn">▶️ Play</button>
+                        <button class="btn-warning" id="pauseBtn" disabled>⏸️ Pause</button>
+                        <button class="btn-success" id="stepBtn">⏭️ Step</button>
+                        <button class="btn-secondary" id="resetBtn">🔄 Reset</button>
+                        <div class="speed-control">
+                            <label>Speed:</label>
+                            <input type="range" id="speedSlider" min="1" max="10" value="5">
+                            <span id="speedValue">5x</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="card">
+                    <div class="card-title">✏️ Custom Input</div>
+                    <div class="input-section">
+                        <label>List:</label>
+                        <input type="text" id="listInput" value="1,4,3,2,5,2" placeholder="values" style="flex:1">
+                        <label>x:</label>
+                        <input type="text" id="xInput" value="3" placeholder="x" style="width:45px">
+                        <button class="btn-info" id="applyBtn">Apply</button>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-title">🔗 Original Linked List <span class="x-badge">x = <span
+                                id="xDisp">3</span></span></div>
+                    <div class="ll-row" id="llDisplay"></div>
+                </div>
+
+                <div class="card">
+                    <div class="card-title">📦 values[] — Collected</div>
+                    <div class="arr-row" id="valuesDisplay"><span style="color:#555">—</span></div>
+                </div>
+
+                <div class="card" style="display:grid; grid-template-columns:1fr 1fr; gap:12px">
+                    <div>
+                        <div class="card-title" style="color:#2ecc71">✅ less[] (val &lt; x)</div>
+                        <div class="arr-row" id="lessDisplay"><span style="color:#555">—</span></div>
+                    </div>
+                    <div>
+                        <div class="card-title" style="color:#e74c3c">🚫 greaterEq[] (val ≥ x)</div>
+                        <div class="arr-row" id="geqDisplay"><span style="color:#555">—</span></div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-title" style="color:#9b59b6">🔀 merged[] — Concatenated Result</div>
+                    <div class="arr-row" id="mergedDisplay"><span style="color:#555">—</span></div>
+                </div>
+
+                <div class="card">
+                    <div class="card-title">🔗 Rebuilt Linked List</div>
+                    <div class="ll-row" id="resultDisplay"><span style="color:#555">—</span></div>
+                </div>
+
+                <div class="card">
+                    <div class="status-ind si-neutral" id="statusInd">Ready — press Play or Step</div>
+                </div>
+            </div>
+
+            <div class="right-panel">
+                <div class="card">
+                    <div class="card-title">📋 Current State</div>
+                    <div class="state-display">
+                        <div class="state-row"><span class="state-label">Phase:</span><span class="state-val"
+                                id="stPhase">init</span></div>
+                        <div class="state-row"><span class="state-label">x:</span><span class="state-val"
+                                id="stX">—</span></div>
+                        <div class="state-row"><span class="state-label">curr node:</span><span class="state-val"
+                                id="stCurr">—</span></div>
+                        <div class="state-row"><span class="state-label">values[]:</span><span class="state-val"
+                                id="stVals">[]</span></div>
+                        <div class="state-row"><span class="state-label">less[]:</span><span class="state-val"
+                                id="stLess">[]</span></div>
+                        <div class="state-row"><span class="state-label">greaterEq[]:</span><span class="state-val"
+                                id="stGeq">[]</span></div>
+                        <div class="state-row"><span class="state-label">merged[]:</span><span class="state-val"
+                                id="stMerged">[]</span></div>
+                    </div>
+                </div>
+                <div class="card" style="flex:1">
+                    <div class="card-title">📝 Execution Log</div>
+                    <div class="log-container" id="logContainer">
+                        <div class="log-entry info">Collect → filter into less/geq → concat → rebuild.</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let initVals = [1, 4, 3, 2, 5, 2];
+        let X = 3;
+
+        // Animation state
+        let values = [], lessArr = [], geqArr = [], mergedArr = [];
+        let collectIdx = -1, filterIdx = -1, mergePhase = false, rebuildIdx = -1;
+
+        // Visual state per node index in linked list
+        let llStates = {};   // idx → class
+        let valStates = {};  // idx → class
+        let lessStates = {}, geqStates = {}, mergedStates = {};
+        let resultNodes = [];
+        let resultStates = {};
+
+        let steps = [], stepIdx = 0, stepCount = 0;
+        let isRunning = false, speed = 5, isDone = false, phase = 'init';
+
+        const $ = id => document.getElementById(id);
+        const logC = $('logContainer');
+        function addLog(m, t = 'info') { logC.innerHTML += `<div class="log-entry ${t}">[${stepCount}] ${m}</div>`; logC.scrollTop = logC.scrollHeight }
+        function clearLog() { logC.innerHTML = '' }
+
+        /* ── Build steps ────────────────────────────── */
+        function buildSteps() {
+            steps = [];
+            const n = initVals.length;
+            if (n === 0) { steps.push({ type: 'done-empty' }); return; }
+
+            steps.push({ type: 'start' });
+
+            // Phase 1: Collect
+            for (let i = 0; i < n; i++) {
+                steps.push({ type: 'collect', idx: i, val: initVals[i] });
+            }
+            steps.push({ type: 'collect-done' });
+
+            // Phase 2: Filter
+            for (let i = 0; i < n; i++) {
+                steps.push({ type: 'filter', idx: i, val: initVals[i], isLess: initVals[i] < X });
+            }
+            steps.push({ type: 'filter-done' });
+
+            // Phase 3: Merge
+            const less = initVals.filter(v => v < X);
+            const geq = initVals.filter(v => v >= X);
+            steps.push({ type: 'merge', less: [...less], geq: [...geq], merged: [...less, ...geq] });
+
+            // Phase 4: Rebuild
+            const merged = [...less, ...geq];
+            for (let i = 0; i < merged.length; i++) {
+                steps.push({ type: 'rebuild', idx: i, val: merged[i] });
+            }
+            steps.push({ type: 'done', result: merged });
+        }
+
+        /* ── Render ──────────────────────────────────── */
+        function renderLL() {
+            let h = '';
+            for (let i = 0; i < initVals.length; i++) {
+                let cls = 'nd';
+                if (llStates[i]) cls += ' ' + llStates[i];
+                if (isDone) cls = 'nd done-nd';
+                const cmp = initVals[i] < X ? '<' : '≥';
+                h += `<div class="${cls}">${initVals[i]}<span class="nd-sub">${cmp}${X}</span></div>`;
+                if (i < initVals.length - 1) h += `<span class="arrow${isDone ? ' done-a' : ''}">→</span>`;
+            }
+            h += `<span class="arrow" style="opacity:.5">→∅</span>`;
+            $('llDisplay').innerHTML = h;
+        }
+
+        function renderArr(containerId, arr, states, emptyText) {
+            if (!arr || arr.length === 0) { $(containerId).innerHTML = `<span style="color:#555">${emptyText || '—'}</span>`; return; }
+            let h = '';
+            for (let i = 0; i < arr.length; i++) {
+                let cls = 'ac filled';
+                if (states[i]) cls = 'ac ' + states[i];
+                h += `<div class="${cls}">${arr[i]}<span class="ac-idx">[${i}]</span></div>`;
+            }
+            $(containerId).innerHTML = h;
+        }
+
+        function renderResult() {
+            if (resultNodes.length === 0) { $('resultDisplay').innerHTML = '<span style="color:#555">—</span>'; return; }
+            let h = '';
+            for (let i = 0; i < resultNodes.length; i++) {
+                let cls = 'nd';
+                if (resultStates[i]) cls += ' ' + resultStates[i];
+                if (isDone) cls = 'nd done-nd';
+                h += `<div class="${cls}">${resultNodes[i]}</div>`;
+                if (i < resultNodes.length - 1) h += `<span class="arrow${isDone ? ' done-a' : ''}">→</span>`;
+            }
+            h += `<span class="arrow" style="opacity:.5">→∅</span>`;
+            $('resultDisplay').innerHTML = h;
+        }
+
+        function renderState() {
+            $('stPhase').textContent = phase;
+            $('stX').textContent = X;
+            $('stVals').textContent = values.length ? `[${values.join(',')}]` : '[]';
+            $('stLess').textContent = lessArr.length ? `[${lessArr.join(',')}]` : '[]';
+            $('stGeq').textContent = geqArr.length ? `[${geqArr.join(',')}]` : '[]';
+            $('stMerged').textContent = mergedArr.length ? `[${mergedArr.join(',')}]` : '[]';
+        }
+
+        function render() {
+            renderLL();
+            renderArr('valuesDisplay', values, valStates, '—');
+            renderArr('lessDisplay', lessArr, lessStates, '—');
+            renderArr('geqDisplay', geqArr, geqStates, '—');
+            renderArr('mergedDisplay', mergedArr, mergedStates, '—');
+            renderResult();
+            renderState();
+        }
+
+        /* ── Execute step ───────────────────────────── */
+        function doStep() {
+            if (isDone || stepIdx >= steps.length) { stopExec(); return; }
+            stepCount++;
+            const s = steps[stepIdx++];
+
+            // Clear transient highlights
+            for (const k in llStates) if (llStates[k] === 'collecting') llStates[k] = '';
+            for (const k in valStates) if (valStates[k] === 'adding') valStates[k] = 'filled';
+            for (const k in lessStates) if (lessStates[k] === 'adding') lessStates[k] = 'less-c';
+            for (const k in geqStates) if (geqStates[k] === 'adding') geqStates[k] = 'geq-c';
+            for (const k in mergedStates) if (mergedStates[k] === 'reading') mergedStates[k] = 'merged-c';
+            for (const k in resultStates) if (resultStates[k] === 'writing') resultStates[k] = '';
+
+            switch (s.type) {
+                case 'start':
+                    phase = 'collect';
+                    addLog(`━━ Phase 1: Collect values from list ━━`, 'orange');
+                    addLog(`List: [${initVals.join(',')}], x = ${X}`, 'info');
+                    $('statusInd').className = 'status-ind si-run';
+                    $('statusInd').textContent = 'Phase 1: Collecting values...';
+                    break;
+
+                case 'collect':
+                    llStates[s.idx] = 'collecting';
+                    values.push(s.val);
+                    valStates[values.length - 1] = 'adding';
+                    $('stCurr').textContent = `node(${s.val}) [${s.idx}]`;
+                    addLog(`  values.push(${s.val}) → [${values.join(',')}]`, 'warning');
+                    break;
+
+                case 'collect-done':
+                    $('stCurr').textContent = 'null';
+                    addLog(`✅ Collected! values = [${values.join(',')}]`, 'success');
+                    addLog(`━━ Phase 2: Filter into less/greaterEq ━━`, 'orange');
+                    phase = 'filter';
+                    $('statusInd').textContent = 'Phase 2: Filtering by x...';
+                    break;
+
+                case 'filter': {
+                    // Highlight the value being checked
+                    for (const k in valStates) valStates[k] = 'filled';
+                    valStates[s.idx] = s.isLess ? 'less-c' : 'geq-c';
+                    llStates[s.idx] = s.isLess ? 'less-hl' : 'geq-hl';
+
+                    if (s.isLess) {
+                        lessArr.push(s.val);
+                        lessStates[lessArr.length - 1] = 'adding';
+                        addLog(`  ${s.val} < ${X} → less.push(${s.val}) → [${lessArr.join(',')}]`, 'success');
+                    } else {
+                        geqArr.push(s.val);
+                        geqStates[geqArr.length - 1] = 'adding';
+                        addLog(`  ${s.val} ≥ ${X} → greaterEq.push(${s.val}) → [${geqArr.join(',')}]`, 'error');
+                    }
+                    $('stCurr').textContent = `val=${s.val} ${s.isLess ? '< ' : '≥ '}${X}`;
+                    break;
+                }
+
+                case 'filter-done':
+                    addLog(`✅ Filtered! less=[${lessArr.join(',')}], geaterEq=[${geqArr.join(',')}]`, 'success');
+                    addLog(`━━ Phase 3: Merge (concat) ━━`, 'orange');
+                    phase = 'merge';
+                    $('statusInd').textContent = 'Phase 3: Merging arrays...';
+                    break;
+
+                case 'merge':
+                    mergedArr = s.merged;
+                    for (let i = 0; i < s.less.length; i++) mergedStates[i] = 'less-c';
+                    for (let i = 0; i < s.geq.length; i++) mergedStates[s.less.length + i] = 'geq-c';
+                    addLog(`  merged = less.concat(greaterEq)`, 'purple');
+                    addLog(`  merged = [${mergedArr.join(',')}]`, 'purple');
+                    addLog(`━━ Phase 4: Rebuild linked list ━━`, 'orange');
+                    phase = 'rebuild';
+                    $('statusInd').textContent = 'Phase 4: Rebuilding list...';
+                    break;
+
+                case 'rebuild':
+                    mergedStates[s.idx] = 'reading';
+                    resultNodes.push(s.val);
+                    resultStates[s.idx] = 'writing';
+                    if (s.idx === 0) {
+                        addLog(`  newHead = Node(${s.val})`, 'purple');
+                    } else {
+                        addLog(`  → Node(${s.val})`, 'purple');
+                    }
+                    break;
+
+                case 'done':
+                    isDone = true; phase = 'done';
+                    addLog(`🎉 Done! Result: [${s.result.join(' → ')}]`, 'success');
+                    $('statusInd').className = 'status-ind si-done';
+                    $('statusInd').textContent = `✅ Done! [${s.result.join(' → ')}]`;
+                    stopExec();
+                    break;
+
+                case 'done-empty':
+                    isDone = true; phase = 'done';
+                    addLog(`🎉 Empty list → return null`, 'success');
+                    $('statusInd').className = 'status-ind si-done';
+                    $('statusInd').textContent = '✅ Done! null (empty list)';
+                    stopExec();
+                    break;
+            }
+
+            render();
+        }
+
+        /* ── Playback ───────────────────────────────── */
+        function play() { if (isRunning || isDone) return; isRunning = true; $('playBtn').disabled = true; $('pauseBtn').disabled = false; $('stepBtn').disabled = true; runLoop() }
+        function pause() { isRunning = false; $('playBtn').disabled = false; $('pauseBtn').disabled = true; $('stepBtn').disabled = false }
+        function stopExec() { isRunning = false; $('playBtn').disabled = true; $('pauseBtn').disabled = true; $('stepBtn').disabled = true }
+        function runLoop() { if (!isRunning) return; doStep(); if (isRunning && !isDone) setTimeout(runLoop, 400 / speed) }
+
+        /* ── Init ───────────────────────────────────── */
+        function init() {
+            values = []; lessArr = []; geqArr = []; mergedArr = [];
+            collectIdx = -1; filterIdx = -1; rebuildIdx = -1;
+            llStates = {}; valStates = {}; lessStates = {}; geqStates = {};
+            mergedStates = {}; resultNodes = []; resultStates = {};
+            phase = 'init'; stepIdx = 0; stepCount = 0; isDone = false; isRunning = false;
+
+            buildSteps();
+
+            $('xDisp').textContent = X;
+            $('stCurr').textContent = '—';
+            $('statusInd').className = 'status-ind si-neutral';
+            $('statusInd').textContent = 'Ready — press Play or Step';
+            $('playBtn').disabled = false; $('pauseBtn').disabled = true; $('stepBtn').disabled = false;
+            clearLog(); addLog('Collect → filter into less/geq → concat → rebuild.', 'info');
+            render();
+        }
+
+        /* ── Events ─────────────────────────────────── */
+        $('playBtn').addEventListener('click', play);
+        $('pauseBtn').addEventListener('click', pause);
+        $('stepBtn').addEventListener('click', () => { if (!isDone) doStep() });
+        $('resetBtn').addEventListener('click', () => { isRunning = false; init() });
+        $('speedSlider').addEventListener('input', e => { speed = parseInt(e.target.value); $('speedValue').textContent = speed + 'x' });
+        $('applyBtn').addEventListener('click', () => {
+            const lv = $('listInput').value.trim();
+            const xv = $('xInput').value.trim();
+            const vs = lv ? lv.split(',').map(s => parseInt(s.trim())).filter(v => !isNaN(v)) : [];
+            const xn = parseInt(xv);
+            if (isNaN(xn)) { alert('x must be a number.'); return; }
+            initVals = [...vs]; X = xn; isRunning = false; init();
+        });
+
+        init();
+    </script>
+</body>
+
+</html>

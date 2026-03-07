@@ -1,0 +1,443 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sort Colors - Counting Sort (Two-Pass)</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #FFEFBA 0%, #FFFFFF 100%);
+            min-height: 100vh;
+            padding: 20px;
+            color: #333;
+        }
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.2);
+            overflow: hidden;
+        }
+        header {
+            background: linear-gradient(135deg, #FFEFBA 0%, #FFFFFF 100%);
+            border-bottom: 2px solid #f0f0f0;
+            color: #333;
+            padding: 25px;
+            text-align: center;
+        }
+        h1 { font-size: 1.8em; margin-bottom: 8px; color: #333; }
+        .subtitle { font-size: 1em; opacity: 0.8; margin-bottom: 5px; }
+        .complexity-badge {
+            display: inline-block;
+            background: #eee;
+            padding: 6px 14px;
+            border-radius: 15px;
+            font-size: 0.85em;
+            font-weight: 600;
+            color: #555;
+        }
+        .main-content {
+            display: grid;
+            grid-template-columns: 1fr 280px;
+            gap: 20px;
+            padding: 20px;
+        }
+        .card {
+            background: #fdfdfd;
+            border: 1px solid #eee;
+            border-radius: 12px;
+            padding: 16px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+            margin-bottom: 16px;
+        }
+        .card-title {
+            font-size: 0.95em;
+            font-weight: 700;
+            margin-bottom: 12px;
+            color: #444;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        .controls { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+        button {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 6px;
+            font-size: 0.9em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        button:hover { transform: translateY(-1px); filter: brightness(1.1); }
+        button:disabled { opacity: 0.5; cursor: not-allowed; transform: none; filter: none; }
+        
+        .btn-primary { background: #333; color: white; }
+        .btn-success { background: #28a745; color: white; }
+        .btn-warning { background: #ffc107; color: #333; }
+        .btn-danger { background: #dc3545; color: white; }
+        .btn-secondary { background: #6c757d; color: white; }
+        
+        .speed-control { display: flex; align-items: center; gap: 8px; flex: 1; min-width: 150px; }
+        input[type="range"] { flex: 1; accent-color: #333; }
+        
+        .array-container {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            min-height: 80px;
+            align-items: center;
+            padding: 10px 0;
+        }
+        .array-item {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2em;
+            font-weight: bold;
+            color: white;
+            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            position: relative;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        .array-item.val-0 { background: radial-gradient(circle at 30% 30%, #ff6b6b, #c0392b); }
+        .array-item.val-1 { background: radial-gradient(circle at 30% 30%, #feca57, #f39c12); }
+        .array-item.val-2 { background: radial-gradient(circle at 30% 30%, #54a0ff, #2980b9); }
+        
+        .array-item.current {
+            transform: scale(1.2);
+            box-shadow: 0 8px 15px rgba(0,0,0,0.2);
+            z-index: 10;
+        }
+        .array-item.current::after {
+            content: '▲';
+            position: absolute;
+            bottom: -25px;
+            color: #333;
+            font-size: 0.8em;
+        }
+        .array-item.processed { opacity: 0.4; filter: grayscale(0.5); }
+        
+        .counters-display {
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+            padding: 10px;
+        }
+        .counter-box {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 10px 20px;
+            background: #fff;
+            border-radius: 10px;
+            border: 2px solid #ddd;
+            width: 80px;
+            transition: transform 0.2s;
+        }
+        .counter-box.highlight {
+            transform: scale(1.1);
+            border-color: #333;
+        }
+        .counter-label { font-size: 0.8em; color: #666; margin-bottom: 5px; }
+        .counter-value { font-size: 1.5em; font-weight: bold; color: #333; }
+        
+        .state-row { display: flex; justify-content: space-between; padding: 6px 0; border-bottom: 1px solid #f0f0f0; }
+        .state-label { font-weight: 600; color: #555; }
+        .state-val { font-family: 'Courier New', monospace; font-weight: 700; color: #333; }
+        
+        .log-container { 
+            background: #fff; 
+            border: 1px solid #eee; 
+            border-radius: 8px; 
+            padding: 10px; 
+            height: 200px; 
+            overflow-y: auto; 
+            font-family: 'Courier New', monospace; 
+            font-size: 0.85em; 
+        }
+        .log-entry { margin-bottom: 4px; padding: 2px 4px; border-left: 3px solid transparent; }
+        .log-entry.count { border-left-color: #28a745; color: #155724; background: #d4edda; }
+        .log-entry.write { border-left-color: #ffc107; color: #856404; background: #fff3cd; }
+        .log-entry.info { border-left-color: #17a2b8; color: #0c5460; background: #d1ecf1; }
+        
+        .phase-indicator {
+            text-align: center;
+            font-weight: 700;
+            padding: 10px;
+            background: #eee;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            color: #555;
+        }
+        .phase-indicator.active {
+            background: #333;
+            color: white;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🎨 Sort Colors</h1>
+            <div class="subtitle">Brute Force: Two-Pass Counting Sort</div>
+            <div class="complexity-badge">Time: O(2N) | Space: O(1)</div>
+        </header>
+        
+        <div class="main-content">
+            <div class="left-panel">
+                <div class="card">
+                    <div class="card-title">⚙️ Controls</div>
+                    <div class="controls">
+                        <button class="btn-primary" id="playBtn">▶ Play</button>
+                        <button class="btn-warning" id="pauseBtn" disabled>⏸ Pause</button>
+                        <button class="btn-success" id="stepBtn">⏭ Step</button>
+                        <button class="btn-secondary" id="resetBtn">🔄 Reset</button>
+                        <div class="speed-control">
+                            <label>Speed:</label>
+                            <input type="range" id="speedSlider" min="1" max="100" value="50">
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="card">
+                    <div class="phase-indicator" id="phaseDisplay">Ready to start</div>
+                    
+                    <div class="card-title">🔍 Visual Array</div>
+                    <div class="array-container" id="arrayContainer"></div>
+                </div>
+                
+                <div class="card">
+                    <div class="card-title">📊 Counters (Pass 1)</div>
+                    <div class="counters-display">
+                        <div class="counter-box" id="c0Box">
+                            <div class="counter-label">Zeros</div>
+                            <div class="counter-value" id="count0">0</div>
+                        </div>
+                        <div class="counter-box" id="c1Box">
+                            <div class="counter-label">Ones</div>
+                            <div class="counter-value" id="count1">0</div>
+                        </div>
+                        <div class="counter-box" id="c2Box">
+                            <div class="counter-label">Twos</div>
+                            <div class="counter-value" id="count2">0</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="right-panel">
+                <div class="card">
+                    <div class="card-title">📋 State</div>
+                    <div class="state-row"><span class="state-label">Phase:</span><span class="state-val" id="phaseState">-</span></div>
+                    <div class="state-row"><span class="state-label">Index (i):</span><span class="state-val" id="idxState">-</span></div>
+                    <div class="state-row"><span class="state-label">Current Val:</span><span class="state-val" id="valState">-</span></div>
+                </div>
+                
+                <div class="card" style="flex:1; display:flex; flex-direction:column;">
+                    <div class="card-title">📝 Execution Log</div>
+                    <div class="log-container" id="logContainer"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // State
+        const originalArray = [2, 0, 2, 1, 1, 0, 1, 2, 0, 1];
+        let nums = [...originalArray];
+        let count = [0, 0, 0];
+        let phase = 0; // 0: Start, 1: Counting, 2: Writing, 3: Done
+        let i = 0;
+        let writeIdx = 0;
+        let currentWriteVal = 0;
+        
+        let isRunning = false;
+        let speed = 50;
+        let timer = null;
+
+        // Elements
+        const arrayContainer = document.getElementById('arrayContainer');
+        const countEls = [
+            document.getElementById('count0'),
+            document.getElementById('count1'),
+            document.getElementById('count2')
+        ];
+        const countBoxes = [
+            document.getElementById('c0Box'),
+            document.getElementById('c1Box'),
+            document.getElementById('c2Box')
+        ];
+        const logContainer = document.getElementById('logContainer');
+        const phaseDisplay = document.getElementById('phaseDisplay');
+
+        function init() {
+            nums = [...originalArray];
+            count = [0, 0, 0];
+            phase = 0;
+            i = 0;
+            writeIdx = 0;
+            currentWriteVal = 0;
+            
+            clearLog();
+            addLog("Ready to start. O(2N) approach.", "info");
+            render();
+            updateControls();
+        }
+
+        function render() {
+            // Render Array
+            arrayContainer.innerHTML = '';
+            nums.forEach((val, idx) => {
+                const el = document.createElement('div');
+                el.className = `array-item val-${val}`;
+                el.textContent = val;
+                
+                // Highlight current index
+                if (phase === 1 && idx === i) el.classList.add('current');
+                if (phase === 2 && idx === writeIdx) el.classList.add('current');
+                
+                // Dim processed items in phase 1
+                if (phase === 1 && idx < i) el.classList.add('processed');
+                
+                arrayContainer.appendChild(el);
+            });
+
+            // Update Counters
+            countEls.forEach((el, idx) => el.textContent = count[idx]);
+            
+            // Highlight active counter
+            countBoxes.forEach(b => b.classList.remove('highlight'));
+            if (phase === 1 && i < nums.length) {
+                countBoxes[nums[i]].classList.add('highlight');
+            } else if (phase === 2) {
+                countBoxes[currentWriteVal]?.classList.add('highlight');
+            }
+
+            // Update Phase Display
+            if (phase === 0) {
+                phaseDisplay.textContent = "Ready to Start";
+                phaseDisplay.className = "phase-indicator";
+            } else if (phase === 1) {
+                phaseDisplay.textContent = "Phase 1: Counting Frequencies";
+                phaseDisplay.className = "phase-indicator active";
+            } else if (phase === 2) {
+                phaseDisplay.textContent = `Phase 2: Overwriting with ${currentWriteVal}s`;
+                phaseDisplay.className = "phase-indicator active";
+            } else {
+                phaseDisplay.textContent = "Sorted!";
+                phaseDisplay.className = "phase-indicator";
+                phaseDisplay.style.background = "#28a745";
+                phaseDisplay.style.color = "white";
+            }
+
+            // Update State Panel
+            document.getElementById('phaseState').textContent = phase === 1 ? "Count" : (phase === 2 ? "Write" : (phase === 3 ? "Done" : "Init"));
+            document.getElementById('idxState').textContent = (phase === 1 || phase === 2) ? (phase === 1 ? i : writeIdx) : "-";
+            document.getElementById('valState').textContent = (phase === 1 && i < nums.length) ? nums[i] : ((phase === 2) ? currentWriteVal : "-");
+        }
+
+        function step() {
+            if (phase === 0) {
+                phase = 1;
+                i = 0;
+                addLog("Phase 1 Started: Counting frequencies...", "info");
+            } 
+            else if (phase === 1) {
+                if (i < nums.length) {
+                    const val = nums[i];
+                    count[val]++;
+                    addLog(`Idx ${i}: Found ${val}. Increment count[${val}] → ${count[val]}`, "count");
+                    i++;
+                } else {
+                    phase = 2;
+                    writeIdx = 0;
+                    currentWriteVal = 0;
+                    addLog("Phase 1 Complete. Counters: " + JSON.stringify(count), "info");
+                    addLog("Phase 2 Started: Overwriting array...", "info");
+                }
+            } 
+            else if (phase === 2) {
+                // Find next value to write
+                while (currentWriteVal < 3 && count[currentWriteVal] === 0) {
+                    currentWriteVal++;
+                }
+
+                if (currentWriteVal < 3) {
+                    nums[writeIdx] = currentWriteVal;
+                    count[currentWriteVal]--;
+                    addLog(`Idx ${writeIdx}: Write ${currentWriteVal}. Remaining count[${currentWriteVal}]: ${count[currentWriteVal]}`, "write");
+                    writeIdx++;
+                } else {
+                    phase = 3;
+                    addLog("Phase 2 Complete. Array Sorted!", "info");
+                    stop();
+                }
+            }
+            render();
+        }
+
+        function addLog(msg, type) {
+            const entry = document.createElement('div');
+            entry.className = `log-entry ${type}`;
+            entry.textContent = msg;
+            logContainer.appendChild(entry);
+            logContainer.scrollTop = logContainer.scrollHeight;
+        }
+
+        function clearLog() {
+            logContainer.innerHTML = '';
+        }
+
+        function play() {
+            if (isRunning) return;
+            isRunning = true;
+            updateControls();
+            
+            const tick = () => {
+                if (!isRunning) return;
+                step();
+                if (phase !== 3) {
+                    const delay = 1050 - (speed * 10);
+                    timer = setTimeout(tick, Math.max(50, delay));
+                }
+            };
+            tick();
+        }
+
+        function stop() {
+            isRunning = false;
+            if (timer) clearTimeout(timer);
+            updateControls();
+        }
+
+        function reset() {
+            stop();
+            init();
+        }
+
+        function updateControls() {
+            document.getElementById('playBtn').disabled = isRunning || phase === 3;
+            document.getElementById('pauseBtn').disabled = !isRunning;
+            document.getElementById('stepBtn').disabled = isRunning || phase === 3;
+            document.getElementById('resetBtn').disabled = isRunning;
+        }
+
+        // Event Listeners
+        document.getElementById('playBtn').addEventListener('click', play);
+        document.getElementById('pauseBtn').addEventListener('click', stop);
+        document.getElementById('stepBtn').addEventListener('click', step);
+        document.getElementById('resetBtn').addEventListener('click', reset);
+        document.getElementById('speedSlider').addEventListener('input', (e) => speed = parseInt(e.target.value));
+
+        init();
+        
+    </script>
+</body>
+</html>

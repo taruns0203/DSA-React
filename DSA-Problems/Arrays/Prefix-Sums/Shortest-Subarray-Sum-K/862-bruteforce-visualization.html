@@ -1,0 +1,808 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>862 - Shortest Subarray Sum ≥ K (Brute Force)</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #0f0c29 0%, #302b63 50%, #24243e 100%);
+            min-height: 100vh;
+            padding: 20px;
+            color: #e0e0e0;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: rgba(25, 25, 50, 0.95);
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5), 0 0 40px rgba(230, 126, 34, 0.08);
+            overflow: hidden;
+            border: 1px solid rgba(255, 255, 255, 0.06);
+        }
+
+        header {
+            background: linear-gradient(135deg, #d35400 0%, #e67e22 100%);
+            color: white;
+            padding: 25px;
+            text-align: center;
+        }
+
+        h1 {
+            font-size: 1.45em;
+            margin-bottom: 6px;
+        }
+
+        .subtitle {
+            font-size: 0.95em;
+            opacity: 0.9;
+        }
+
+        .complexity-badge {
+            display: inline-block;
+            background: rgba(255, 255, 255, 0.2);
+            padding: 6px 14px;
+            border-radius: 15px;
+            margin-top: 8px;
+            font-size: 0.82em;
+        }
+
+        .main-content {
+            display: grid;
+            grid-template-columns: 1fr 280px;
+            gap: 18px;
+            padding: 20px;
+        }
+
+        .card {
+            background: rgba(40, 40, 75, 0.8);
+            border-radius: 14px;
+            padding: 16px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+            margin-bottom: 16px;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .card-title {
+            font-size: 0.92em;
+            font-weight: 600;
+            margin-bottom: 12px;
+            color: #e67e22;
+        }
+
+        button {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 8px;
+            font-size: 0.85em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+        }
+
+        button:disabled {
+            opacity: 0.4;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #d35400, #e67e22);
+            color: white;
+        }
+
+        .btn-success {
+            background: linear-gradient(135deg, #27ae60, #2ecc71);
+            color: white;
+        }
+
+        .btn-warning {
+            background: linear-gradient(135deg, #f39c12, #e67e22);
+            color: white;
+        }
+
+        .btn-secondary {
+            background: rgba(100, 100, 140, 0.7);
+            color: white;
+        }
+
+        .btn-info {
+            background: linear-gradient(135deg, #3498db, #2980b9);
+            color: white;
+        }
+
+        .controls {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            align-items: center;
+        }
+
+        .speed-control {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            flex: 1;
+            min-width: 140px;
+        }
+
+        .speed-control label {
+            font-size: 0.82em;
+            color: #aaa;
+        }
+
+        .speed-control input[type="range"] {
+            flex: 1;
+            height: 5px;
+            accent-color: #e67e22;
+        }
+
+        .speed-control span {
+            font-size: 0.82em;
+            color: #e67e22;
+            min-width: 24px;
+        }
+
+        .input-section {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .input-section input[type="text"] {
+            flex: 1;
+            min-width: 160px;
+            padding: 8px 12px;
+            border-radius: 8px;
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            background: rgba(20, 20, 45, 0.8);
+            color: #e0e0e0;
+            font-size: 0.85em;
+            font-family: 'Courier New', monospace;
+        }
+
+        .input-section input:focus {
+            outline: none;
+            border-color: #e67e22;
+        }
+
+        .input-section .k-input {
+            max-width: 70px;
+            min-width: 50px;
+            flex: 0;
+        }
+
+        /* Array */
+        .array-container {
+            display: flex;
+            gap: 4px;
+            padding: 12px;
+            background: rgba(20, 20, 50, 0.4);
+            border-radius: 8px;
+            justify-content: center;
+            flex-wrap: wrap;
+            min-height: 70px;
+            align-items: flex-end;
+        }
+
+        .cell-wrapper {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 2px;
+        }
+
+        .cell {
+            min-width: 44px;
+            height: 44px;
+            border-radius: 8px;
+            padding: 0 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 1.05em;
+            border: 2px solid rgba(150, 150, 200, 0.25);
+            background: rgba(100, 100, 200, 0.08);
+            transition: all 0.3s;
+        }
+
+        .cell.positive {
+            color: #2ecc71;
+        }
+
+        .cell.negative {
+            color: #e74c3c;
+        }
+
+        .cell.in-range {
+            border-color: #f1c40f;
+            background: rgba(241, 196, 15, 0.18);
+            box-shadow: 0 0 10px rgba(241, 196, 15, 0.15);
+        }
+
+        .cell.in-range.hit {
+            border-color: #2ecc71;
+            background: rgba(46, 204, 113, 0.22);
+            box-shadow: 0 0 12px rgba(46, 204, 113, 0.25);
+        }
+
+        .cell.best-range {
+            border-color: #e67e22;
+            background: rgba(230, 126, 34, 0.22);
+            box-shadow: 0 0 12px rgba(230, 126, 34, 0.2);
+        }
+
+        .cell-idx {
+            font-size: 0.6em;
+            color: #555;
+        }
+
+        .pointer-label {
+            font-size: 0.65em;
+            font-weight: 700;
+            padding: 1px 5px;
+            border-radius: 3px;
+            margin-top: 2px;
+        }
+
+        .ptr-i {
+            background: rgba(52, 152, 219, 0.3);
+            color: #3498db;
+        }
+
+        .ptr-j {
+            background: rgba(231, 76, 60, 0.3);
+            color: #e74c3c;
+        }
+
+        /* Info bar */
+        .info-bar {
+            padding: 12px;
+            background: rgba(20, 20, 50, 0.4);
+            border-radius: 8px;
+            text-align: center;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9em;
+            min-height: 48px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* Counts */
+        .counts-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 10px;
+        }
+
+        .count-box {
+            padding: 12px;
+            border-radius: 10px;
+            text-align: center;
+            border: 1px solid rgba(255, 255, 255, 0.08);
+        }
+
+        .count-label {
+            font-size: 0.75em;
+            color: #888;
+            margin-bottom: 4px;
+        }
+
+        .count-value {
+            font-size: 1.3em;
+            font-weight: 700;
+        }
+
+        .validity-indicator {
+            text-align: center;
+            padding: 10px;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 0.88em;
+            transition: all 0.3s;
+        }
+
+        .vi-hit {
+            background: rgba(46, 204, 113, 0.12);
+            color: #2ecc71;
+            border: 1px solid rgba(46, 204, 113, 0.2);
+        }
+
+        .vi-miss {
+            background: rgba(231, 76, 60, 0.12);
+            color: #e74c3c;
+            border: 1px solid rgba(231, 76, 60, 0.2);
+        }
+
+        .vi-neutral {
+            background: rgba(100, 100, 140, 0.12);
+            color: #888;
+        }
+
+        .vi-done {
+            background: rgba(230, 126, 34, 0.12);
+            color: #e67e22;
+            border: 1px solid rgba(230, 126, 34, 0.2);
+        }
+
+        .result-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+        }
+
+        .result-display {
+            padding: 14px;
+            border-radius: 10px;
+            text-align: center;
+            border: 1px solid rgba(230, 126, 34, 0.2);
+            background: rgba(230, 126, 34, 0.08);
+        }
+
+        .result-label {
+            font-size: 0.82em;
+            color: #888;
+            margin-bottom: 4px;
+        }
+
+        .result-value {
+            font-size: 1.5em;
+            font-weight: 700;
+            color: #e67e22;
+        }
+
+        .state-display {
+            background: rgba(20, 20, 50, 0.5);
+            border-radius: 8px;
+            padding: 10px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.78em;
+        }
+
+        .state-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 5px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .state-row:last-child {
+            border-bottom: none;
+        }
+
+        .state-label {
+            font-weight: 600;
+            color: #e67e22;
+        }
+
+        .state-val {
+            color: #ccc;
+        }
+
+        .log-container {
+            background: rgba(20, 20, 50, 0.5);
+            border-radius: 8px;
+            padding: 10px;
+            max-height: 250px;
+            overflow-y: auto;
+            font-family: 'Courier New', monospace;
+            font-size: 0.62em;
+        }
+
+        .log-entry {
+            padding: 4px 8px;
+            margin: 2px 0;
+            border-radius: 4px;
+            border-left: 3px solid #555;
+            background: rgba(40, 40, 70, 0.5);
+            line-height: 1.5;
+        }
+
+        .log-entry.success {
+            border-left-color: #2ecc71;
+            background: rgba(46, 204, 113, 0.08);
+            color: #2ecc71;
+        }
+
+        .log-entry.warning {
+            border-left-color: #f39c12;
+            background: rgba(243, 156, 18, 0.08);
+            color: #f39c12;
+        }
+
+        .log-entry.info {
+            border-left-color: #3498db;
+            background: rgba(52, 152, 219, 0.08);
+            color: #8ec8f0;
+        }
+
+        .log-entry.error {
+            border-left-color: #e74c3c;
+            background: rgba(231, 76, 60, 0.08);
+            color: #e74c3c;
+        }
+
+        .log-container::-webkit-scrollbar {
+            width: 5px;
+        }
+
+        .log-container::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        .log-container::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.15);
+            border-radius: 3px;
+        }
+
+        @media (max-width: 900px) {
+            .main-content {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <header>
+            <h1>📏 Shortest Subarray with Sum ≥ K</h1>
+            <div class="subtitle">Brute Force — Try Every Subarray</div>
+            <div class="complexity-badge">Time: O(n²) | Space: O(1)</div>
+        </header>
+        <div class="main-content">
+            <div class="left-panel">
+                <div class="card">
+                    <div class="card-title">⚙️ Controls</div>
+                    <div class="controls">
+                        <button class="btn-primary" id="playBtn">▶️ Play</button>
+                        <button class="btn-warning" id="pauseBtn" disabled>⏸️ Pause</button>
+                        <button class="btn-success" id="stepBtn">⏭️ Step</button>
+                        <button class="btn-secondary" id="resetBtn">🔄 Reset</button>
+                        <div class="speed-control">
+                            <label>Speed:</label>
+                            <input type="range" id="speedSlider" min="1" max="10" value="5">
+                            <span id="speedValue">5x</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="card">
+                    <div class="card-title">✏️ Custom Input</div>
+                    <div class="input-section">
+                        <input type="text" id="customInput" value="[84,-37,32,40,95]" placeholder="e.g. [2,-1,2]">
+                        <input type="text" class="k-input" id="kInput" value="167" placeholder="k">
+                        <button class="btn-info" id="applyBtn">Apply</button>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-title" id="arrayTitle">📋 Array | k = <span id="kDisplay">167</span></div>
+                    <div class="array-container" id="arrayDisplay"></div>
+                </div>
+
+                <div class="card">
+                    <div class="card-title">📊 Current Subarray</div>
+                    <div class="info-bar" id="subarrayBar">—</div>
+                </div>
+
+                <div class="card">
+                    <div class="counts-row">
+                        <div class="count-box"
+                            style="background:rgba(52,152,219,0.08); border-color:rgba(52,152,219,0.15);">
+                            <div class="count-label">Running Sum</div>
+                            <div class="count-value" id="sumVal" style="color:#5dade2;">0</div>
+                        </div>
+                        <div class="count-box"
+                            style="background:rgba(241,196,15,0.08); border-color:rgba(241,196,15,0.15);">
+                            <div class="count-label">Subarray Len</div>
+                            <div class="count-value" id="lenVal" style="color:#f1c40f;">0</div>
+                        </div>
+                        <div class="count-box"
+                            style="background:rgba(46,204,113,0.08); border-color:rgba(46,204,113,0.15);">
+                            <div class="count-label">Sum ≥ k?</div>
+                            <div class="count-value" id="checkVal" style="color:#2ecc71;">—</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="validity-indicator vi-neutral" id="validityIndicator">Ready — press Play or Step</div>
+                </div>
+
+                <div class="card">
+                    <div class="result-row">
+                        <div class="result-display">
+                            <div class="result-label">🏆 Min Length</div>
+                            <div class="result-value" id="minLenValue">∞</div>
+                        </div>
+                        <div class="result-display"
+                            style="background:rgba(241,196,15,0.08); border-color:rgba(241,196,15,0.15);">
+                            <div class="result-label">Subarrays Checked</div>
+                            <div class="result-value" id="checkedValue" style="color:#f1c40f;">0</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="right-panel">
+                <div class="card">
+                    <div class="card-title">📋 Current State</div>
+                    <div class="state-display">
+                        <div class="state-row"><span class="state-label">i (start):</span><span class="state-val"
+                                id="stI">—</span></div>
+                        <div class="state-row"><span class="state-label">j (end):</span><span class="state-val"
+                                id="stJ">—</span></div>
+                        <div class="state-row"><span class="state-label">sum:</span><span class="state-val"
+                                id="stSum">0</span></div>
+                        <div class="state-row"><span class="state-label">sum ≥ k?:</span><span class="state-val"
+                                id="stHit">—</span></div>
+                        <div class="state-row"><span class="state-label">subLen:</span><span class="state-val"
+                                id="stSubLen">—</span></div>
+                        <div class="state-row"><span class="state-label">minLen:</span><span class="state-val"
+                                id="stMinLen">∞</span></div>
+                        <div class="state-row"><span class="state-label">bestRange:</span><span class="state-val"
+                                id="stBest">—</span></div>
+                        <div class="state-row"><span class="state-label">k:</span><span class="state-val"
+                                id="stK">167</span></div>
+                    </div>
+                </div>
+
+                <div class="card" style="flex:1;">
+                    <div class="card-title">📝 Execution Log</div>
+                    <div class="log-container" id="logContainer">
+                        <div class="log-entry info">Brute force: try every subarray, track shortest with sum ≥ k.</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ─────── STATE ───────
+        let nums = [84, -37, 32, 40, 95];
+        let k = 167;
+        let n = 0;
+
+        let iPtr = 0, jPtr = 0;
+        let runSum = 0;
+        let minLen = Infinity;
+        let bestStart = -1, bestEnd = -1;
+        let checked = 0;
+
+        let phase = 'init'; // init | new-i | extend-j | done
+        let stepCount = 0;
+        let isRunning = false;
+        let speed = 5;
+        let done = false;
+        let curHit = false;
+
+        // ─────── DOM ───────
+        const $ = id => document.getElementById(id);
+        const playBtn = $('playBtn'), pauseBtn = $('pauseBtn'), stepBtn = $('stepBtn'), resetBtn = $('resetBtn');
+        const speedSlider = $('speedSlider'), speedValueEl = $('speedValue');
+        const customInput = $('customInput'), kInput = $('kInput'), applyBtn = $('applyBtn');
+        const arrayDisp = $('arrayDisplay'), subarrayBar = $('subarrayBar');
+        const validityInd = $('validityIndicator'), logContainer = $('logContainer');
+
+        function addLog(msg, type = 'info') {
+            logContainer.innerHTML += `<div class="log-entry ${type}">[${stepCount}] ${msg}</div>`;
+            logContainer.scrollTop = logContainer.scrollHeight;
+        }
+        function clearLog() { logContainer.innerHTML = ''; }
+
+        // ─────── RENDER ───────
+        function render() {
+            const scanning = phase === 'extend-j';
+
+            arrayDisp.innerHTML = nums.map((v, idx) => {
+                let cls = `cell ${v >= 0 ? 'positive' : 'negative'}`;
+                if (scanning && idx >= iPtr && idx <= jPtr) {
+                    cls += curHit ? ' in-range hit' : ' in-range';
+                }
+                if (phase === 'done' && bestStart >= 0 && idx >= bestStart && idx <= bestEnd) {
+                    cls += ' best-range';
+                }
+
+                let ptrs = '';
+                if (scanning) {
+                    if (idx === iPtr && idx === jPtr) ptrs = '<span class="pointer-label ptr-i">i</span><span class="pointer-label ptr-j">j</span>';
+                    else if (idx === iPtr) ptrs = '<span class="pointer-label ptr-i">i</span>';
+                    else if (idx === jPtr) ptrs = '<span class="pointer-label ptr-j">j</span>';
+                }
+                return `<div class="cell-wrapper"><div class="${cls}">${v}</div><div class="cell-idx">${idx}</div>${ptrs}</div>`;
+            }).join('');
+
+            // Subarray bar
+            if (phase === 'done') {
+                subarrayBar.innerHTML = minLen === Infinity
+                    ? '<span style="color:#e74c3c">No subarray found with sum ≥ k</span>'
+                    : `<span style="color:#e67e22">Best: [${nums.slice(bestStart, bestEnd + 1).join(', ')}] (indices ${bestStart}–${bestEnd}, len=${minLen}, sum=${nums.slice(bestStart, bestEnd + 1).reduce((a, b) => a + b, 0)})</span>`;
+            } else if (scanning) {
+                const sub = nums.slice(iPtr, jPtr + 1);
+                subarrayBar.innerHTML = `[${sub.join(', ')}] <span style="color:#888;margin-left:8px">sum=${runSum}</span>`;
+            } else {
+                subarrayBar.innerHTML = '<span style="color:#555">—</span>';
+            }
+
+            // Counts
+            $('sumVal').textContent = scanning ? runSum : 0;
+            $('lenVal').textContent = scanning ? jPtr - iPtr + 1 : 0;
+            $('checkVal').textContent = scanning ? (curHit ? '✅' : '❌') : '—';
+
+            // Results
+            $('minLenValue').textContent = minLen === Infinity ? '∞' : minLen;
+            $('checkedValue').textContent = checked;
+
+            // State
+            $('stI').textContent = (phase !== 'init') ? iPtr : '—';
+            $('stJ').textContent = scanning ? jPtr : '—';
+            $('stSum').textContent = scanning ? runSum : '—';
+            $('stHit').textContent = scanning ? (curHit ? '✅ Yes' : '❌ No') : '—';
+            $('stSubLen').textContent = scanning ? jPtr - iPtr + 1 : '—';
+            $('stMinLen').textContent = minLen === Infinity ? '∞' : minLen;
+            $('stBest').textContent = bestStart >= 0 ? `[${bestStart},${bestEnd}]` : '—';
+            $('stK').textContent = k;
+        }
+
+        // ─────── STEP ───────
+        function doStep() {
+            if (done) { stopExec(); return; }
+            stepCount++;
+
+            switch (phase) {
+                case 'init': {
+                    addLog(`nums = [${nums.join(', ')}], k = ${k}, n = ${n}`, 'info');
+                    addLog('Checking every subarray for sum ≥ k, tracking shortest…', 'info');
+                    iPtr = 0;
+                    phase = 'new-i';
+                    render();
+                    break;
+                }
+                case 'new-i': {
+                    if (iPtr >= n) {
+                        phase = 'done'; done = true;
+                        curHit = false;
+                        if (minLen === Infinity) {
+                            addLog(`✅ DONE! No subarray with sum ≥ ${k} found. Answer: -1`, 'error');
+                            validityInd.className = 'validity-indicator vi-miss';
+                            validityInd.textContent = `Done — no subarray with sum ≥ ${k}. Answer: -1`;
+                        } else {
+                            addLog(`✅ DONE! Min length = ${minLen} (indices ${bestStart}–${bestEnd})`, 'success');
+                            validityInd.className = 'validity-indicator vi-done';
+                            validityInd.textContent = `✅ Complete! Shortest subarray with sum ≥ ${k}: length ${minLen}`;
+                        }
+                        render(); stopExec();
+                        return;
+                    }
+                    runSum = 0;
+                    jPtr = iPtr;
+                    runSum += nums[jPtr];
+                    checked++;
+                    curHit = runSum >= k;
+                    phase = 'extend-j';
+
+                    handleCheck();
+                    break;
+                }
+                case 'extend-j': {
+                    jPtr++;
+                    if (jPtr >= n) {
+                        iPtr++;
+                        phase = 'new-i';
+                        doStep();
+                        return;
+                    }
+                    runSum += nums[jPtr];
+                    checked++;
+                    curHit = runSum >= k;
+
+                    handleCheck();
+                    break;
+                }
+            }
+        }
+
+        function handleCheck() {
+            const len = jPtr - iPtr + 1;
+            if (curHit) {
+                if (len < minLen) {
+                    minLen = len;
+                    bestStart = iPtr;
+                    bestEnd = jPtr;
+                    addLog(`i=${iPtr},j=${jPtr} sum=${runSum} ≥ ${k} ✓ NEW BEST len=${len} 🎉`, 'success');
+                    validityInd.className = 'validity-indicator vi-hit';
+                    validityInd.textContent = `🎉 Sum=${runSum} ≥ ${k}! NEW shortest: len=${len}`;
+                } else {
+                    addLog(`i=${iPtr},j=${jPtr} sum=${runSum} ≥ ${k} ✓ len=${len} (≥ best ${minLen})`, 'info');
+                    validityInd.className = 'validity-indicator vi-hit';
+                    validityInd.textContent = `✓ Sum=${runSum} ≥ ${k}, len=${len} (not shorter)`;
+                }
+            } else {
+                addLog(`i=${iPtr},j=${jPtr} sum=${runSum} < ${k} ✗`, 'warning');
+                validityInd.className = 'validity-indicator vi-miss';
+                validityInd.textContent = `✗ Sum=${runSum} < ${k}`;
+            }
+            render();
+        }
+
+        // ─────── CONTROLS ───────
+        function play() {
+            if (isRunning || done) return;
+            isRunning = true;
+            playBtn.disabled = true; pauseBtn.disabled = false; stepBtn.disabled = true;
+            runLoop();
+        }
+        function pause() {
+            isRunning = false;
+            playBtn.disabled = false; pauseBtn.disabled = true; stepBtn.disabled = false;
+        }
+        function stopExec() {
+            isRunning = false;
+            playBtn.disabled = true; pauseBtn.disabled = true; stepBtn.disabled = true;
+        }
+        function runLoop() {
+            if (!isRunning) return;
+            doStep();
+            if (isRunning && !done) setTimeout(runLoop, 500 / speed);
+        }
+
+        function init() {
+            n = nums.length;
+            iPtr = 0; jPtr = 0; runSum = 0;
+            minLen = Infinity; bestStart = -1; bestEnd = -1;
+            checked = 0; curHit = false;
+            phase = 'init'; stepCount = 0; done = false;
+
+            $('kDisplay').textContent = k;
+            validityInd.className = 'validity-indicator vi-neutral';
+            validityInd.textContent = 'Ready — press Play or Step';
+            playBtn.disabled = false; pauseBtn.disabled = true; stepBtn.disabled = false;
+            clearLog();
+            addLog(`Brute force: try every subarray, find shortest with sum ≥ ${k}.`, 'info');
+            render();
+        }
+
+        playBtn.addEventListener('click', play);
+        pauseBtn.addEventListener('click', pause);
+        stepBtn.addEventListener('click', () => { if (!done) doStep(); });
+        resetBtn.addEventListener('click', () => { isRunning = false; init(); });
+        speedSlider.addEventListener('input', e => {
+            speed = parseInt(e.target.value);
+            speedValueEl.textContent = speed + 'x';
+        });
+        applyBtn.addEventListener('click', () => {
+            try {
+                const parsed = JSON.parse(customInput.value);
+                if (!Array.isArray(parsed) || parsed.length === 0) throw new Error('Need non-empty array');
+                for (const v of parsed) if (typeof v !== 'number') throw new Error('All elements must be numbers');
+                const kVal = parseInt(kInput.value);
+                if (isNaN(kVal) || kVal < 1) throw new Error('k must be a positive integer');
+                nums = parsed;
+                k = kVal;
+                isRunning = false; init();
+            } catch (e) { alert('Invalid input: ' + e.message); }
+        });
+
+        init();
+    </script>
+</body>
+
+</html>

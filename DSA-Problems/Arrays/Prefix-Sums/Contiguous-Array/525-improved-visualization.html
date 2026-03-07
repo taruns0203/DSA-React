@@ -1,0 +1,833 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>525 - Improved: Running Sum Transform</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #0f0c29 0%, #302b63 50%, #24243e 100%);
+            min-height: 100vh;
+            padding: 20px;
+            color: #e0e0e0;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: rgba(25, 25, 50, 0.95);
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5), 0 0 40px rgba(52, 152, 219, 0.08);
+            overflow: hidden;
+            border: 1px solid rgba(255, 255, 255, 0.06);
+        }
+
+        header {
+            background: linear-gradient(135deg, #2980b9 0%, #3498db 100%);
+            color: white;
+            padding: 25px;
+            text-align: center;
+        }
+
+        h1 {
+            font-size: 1.5em;
+            margin-bottom: 6px;
+        }
+
+        .subtitle {
+            font-size: 0.95em;
+            opacity: 0.9;
+        }
+
+        .complexity-badge {
+            display: inline-block;
+            background: rgba(255, 255, 255, 0.2);
+            padding: 6px 14px;
+            border-radius: 15px;
+            margin-top: 8px;
+            font-size: 0.82em;
+        }
+
+        .main-content {
+            display: grid;
+            grid-template-columns: 1fr 280px;
+            gap: 18px;
+            padding: 20px;
+        }
+
+        .card {
+            background: rgba(40, 40, 75, 0.8);
+            border-radius: 14px;
+            padding: 16px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+            margin-bottom: 16px;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .card-title {
+            font-size: 0.92em;
+            font-weight: 600;
+            margin-bottom: 12px;
+            color: #5dade2;
+        }
+
+        button {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 8px;
+            font-size: 0.85em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+        }
+
+        button:disabled {
+            opacity: 0.4;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #2980b9, #3498db);
+            color: white;
+        }
+
+        .btn-success {
+            background: linear-gradient(135deg, #27ae60, #2ecc71);
+            color: white;
+        }
+
+        .btn-warning {
+            background: linear-gradient(135deg, #f39c12, #e67e22);
+            color: white;
+        }
+
+        .btn-secondary {
+            background: rgba(100, 100, 140, 0.7);
+            color: white;
+        }
+
+        .btn-info {
+            background: linear-gradient(135deg, #3498db, #2980b9);
+            color: white;
+        }
+
+        .controls {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            align-items: center;
+        }
+
+        .speed-control {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            flex: 1;
+            min-width: 140px;
+        }
+
+        .speed-control label {
+            font-size: 0.82em;
+            color: #aaa;
+        }
+
+        .speed-control input[type="range"] {
+            flex: 1;
+            height: 5px;
+            accent-color: #3498db;
+        }
+
+        .speed-control span {
+            font-size: 0.82em;
+            color: #5dade2;
+            min-width: 24px;
+        }
+
+        .input-section {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .input-section input[type="text"] {
+            flex: 1;
+            min-width: 200px;
+            padding: 8px 12px;
+            border-radius: 8px;
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            background: rgba(20, 20, 45, 0.8);
+            color: #e0e0e0;
+            font-size: 0.85em;
+            font-family: 'Courier New', monospace;
+        }
+
+        .input-section input:focus {
+            outline: none;
+            border-color: #3498db;
+        }
+
+        /* ── Dual Array Rows ── */
+        .dual-array {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .array-label {
+            font-size: 0.72em;
+            color: #888;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+            padding-left: 4px;
+        }
+
+        .array-row {
+            display: flex;
+            gap: 4px;
+            padding: 8px 12px;
+            background: rgba(20, 20, 50, 0.4);
+            border-radius: 8px;
+            justify-content: center;
+            flex-wrap: wrap;
+            min-height: 56px;
+            align-items: flex-end;
+        }
+
+        .cell-wrapper {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 2px;
+        }
+
+        .cell {
+            width: 44px;
+            height: 44px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 1.05em;
+            border: 2px solid rgba(150, 150, 200, 0.25);
+            background: rgba(100, 100, 200, 0.08);
+            transition: all 0.3s;
+        }
+
+        .cell.val-zero {
+            color: #e74c3c;
+        }
+
+        .cell.val-one {
+            color: #2ecc71;
+        }
+
+        .cell.val-neg {
+            color: #e74c3c;
+        }
+
+        .cell.val-pos {
+            color: #2ecc71;
+        }
+
+        .cell.in-range {
+            border-color: #f1c40f;
+            background: rgba(241, 196, 15, 0.18);
+            box-shadow: 0 0 10px rgba(241, 196, 15, 0.15);
+        }
+
+        .cell.in-range.balanced {
+            border-color: #2ecc71;
+            background: rgba(46, 204, 113, 0.22);
+            box-shadow: 0 0 12px rgba(46, 204, 113, 0.25);
+        }
+
+        .cell.best {
+            border-color: #3498db;
+            background: rgba(52, 152, 219, 0.22);
+            box-shadow: 0 0 12px rgba(52, 152, 219, 0.25);
+        }
+
+        .cell-idx {
+            font-size: 0.6em;
+            color: #555;
+        }
+
+        .pointer-label {
+            font-size: 0.65em;
+            font-weight: 700;
+            padding: 1px 5px;
+            border-radius: 3px;
+            margin-top: 2px;
+        }
+
+        .ptr-i {
+            background: rgba(52, 152, 219, 0.3);
+            color: #3498db;
+        }
+
+        .ptr-j {
+            background: rgba(231, 76, 60, 0.3);
+            color: #e74c3c;
+        }
+
+        /* ── Subarray + Sum Bar ── */
+        .info-bar {
+            padding: 12px;
+            background: rgba(20, 20, 50, 0.4);
+            border-radius: 8px;
+            text-align: center;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9em;
+            min-height: 48px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* ── Counts Row ── */
+        .counts-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 10px;
+        }
+
+        .count-box {
+            padding: 12px;
+            border-radius: 10px;
+            text-align: center;
+            border: 1px solid rgba(255, 255, 255, 0.08);
+        }
+
+        .count-label {
+            font-size: 0.75em;
+            color: #888;
+            margin-bottom: 4px;
+        }
+
+        .count-value {
+            font-size: 1.4em;
+            font-weight: 700;
+        }
+
+        .validity-indicator {
+            text-align: center;
+            padding: 10px;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 0.9em;
+            transition: all 0.3s;
+        }
+
+        .vi-zero {
+            background: rgba(46, 204, 113, 0.12);
+            color: #2ecc71;
+            border: 1px solid rgba(46, 204, 113, 0.2);
+        }
+
+        .vi-nonzero {
+            background: rgba(231, 76, 60, 0.12);
+            color: #e74c3c;
+            border: 1px solid rgba(231, 76, 60, 0.2);
+        }
+
+        .vi-neutral {
+            background: rgba(100, 100, 140, 0.12);
+            color: #888;
+        }
+
+        .vi-done {
+            background: rgba(52, 152, 219, 0.15);
+            color: #5dade2;
+            border: 1px solid rgba(52, 152, 219, 0.2);
+        }
+
+        .result-display {
+            padding: 14px;
+            background: rgba(52, 152, 219, 0.1);
+            border-radius: 10px;
+            text-align: center;
+            border: 1px solid rgba(52, 152, 219, 0.2);
+        }
+
+        .result-label {
+            font-size: 0.82em;
+            color: #888;
+            margin-bottom: 4px;
+        }
+
+        .result-value {
+            font-size: 1.6em;
+            font-weight: 700;
+            color: #5dade2;
+        }
+
+        .state-display {
+            background: rgba(20, 20, 50, 0.5);
+            border-radius: 8px;
+            padding: 10px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.78em;
+        }
+
+        .state-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 5px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .state-row:last-child {
+            border-bottom: none;
+        }
+
+        .state-label {
+            font-weight: 600;
+            color: #5dade2;
+        }
+
+        .state-val {
+            color: #ccc;
+        }
+
+        .log-container {
+            background: rgba(20, 20, 50, 0.5);
+            border-radius: 8px;
+            padding: 10px;
+            max-height: 260px;
+            overflow-y: auto;
+            font-family: 'Courier New', monospace;
+            font-size: 0.62em;
+        }
+
+        .log-entry {
+            padding: 4px 8px;
+            margin: 2px 0;
+            border-radius: 4px;
+            border-left: 3px solid #555;
+            background: rgba(40, 40, 70, 0.5);
+            line-height: 1.5;
+        }
+
+        .log-entry.success {
+            border-left-color: #2ecc71;
+            background: rgba(46, 204, 113, 0.08);
+            color: #2ecc71;
+        }
+
+        .log-entry.warning {
+            border-left-color: #f39c12;
+            background: rgba(243, 156, 18, 0.08);
+            color: #f39c12;
+        }
+
+        .log-entry.info {
+            border-left-color: #3498db;
+            background: rgba(52, 152, 219, 0.08);
+            color: #8ec8f0;
+        }
+
+        .log-entry.error {
+            border-left-color: #e74c3c;
+            background: rgba(231, 76, 60, 0.08);
+            color: #e74c3c;
+        }
+
+        .log-entry.purple {
+            border-left-color: #9b59b6;
+            background: rgba(155, 89, 182, 0.08);
+            color: #bb6bd9;
+        }
+
+        .log-container::-webkit-scrollbar {
+            width: 5px;
+        }
+
+        .log-container::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        .log-container::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.15);
+            border-radius: 3px;
+        }
+
+        @media (max-width: 900px) {
+            .main-content {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <header>
+            <h1>🔢 Contiguous Array — Equal 0s & 1s</h1>
+            <div class="subtitle">Improved — Transform 0→−1, Running Sum</div>
+            <div class="complexity-badge">Time: O(n²) | Space: O(1)</div>
+        </header>
+        <div class="main-content">
+            <div class="left-panel">
+                <div class="card">
+                    <div class="card-title">⚙️ Controls</div>
+                    <div class="controls">
+                        <button class="btn-primary" id="playBtn">▶️ Play</button>
+                        <button class="btn-warning" id="pauseBtn" disabled>⏸️ Pause</button>
+                        <button class="btn-success" id="stepBtn">⏭️ Step</button>
+                        <button class="btn-secondary" id="resetBtn">🔄 Reset</button>
+                        <div class="speed-control">
+                            <label>Speed:</label>
+                            <input type="range" id="speedSlider" min="1" max="10" value="5">
+                            <span id="speedValue">5x</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="card">
+                    <div class="card-title">✏️ Custom Input</div>
+                    <div class="input-section">
+                        <input type="text" id="customInput" value="[0,1,0,0,1,1,0]" placeholder="e.g. [0,1,0,1]">
+                        <button class="btn-info" id="applyBtn">Apply</button>
+                    </div>
+                </div>
+
+                <!-- Dual arrays: original + transformed -->
+                <div class="card">
+                    <div class="card-title">📋 Arrays</div>
+                    <div class="dual-array">
+                        <div class="array-label">ORIGINAL (0s and 1s)</div>
+                        <div class="array-row" id="origArray"></div>
+                        <div class="array-label" style="margin-top:4px;">TRANSFORMED (0→−1)</div>
+                        <div class="array-row" id="transArray"></div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-title">📊 Current Subarray & Running Sum</div>
+                    <div class="info-bar" id="subarrayBar">—</div>
+                </div>
+
+                <div class="card">
+                    <div class="card-title">🔢 Running Sum Detail</div>
+                    <div class="counts-row">
+                        <div class="count-box"
+                            style="background:rgba(52,152,219,0.08); border-color:rgba(52,152,219,0.15);">
+                            <div class="count-label">Running Sum</div>
+                            <div class="count-value" id="sumValue" style="color:#5dade2;">0</div>
+                        </div>
+                        <div class="count-box"
+                            style="background:rgba(241,196,15,0.08); border-color:rgba(241,196,15,0.15);">
+                            <div class="count-label">Subarray Len</div>
+                            <div class="count-value" id="lenValue" style="color:#f1c40f;">0</div>
+                        </div>
+                        <div class="count-box"
+                            style="background:rgba(46,204,113,0.08); border-color:rgba(46,204,113,0.15);">
+                            <div class="count-label">Sum == 0?</div>
+                            <div class="count-value" id="zeroCheck" style="color:#2ecc71;">—</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="validity-indicator vi-neutral" id="validityIndicator">Ready — press Play or Step</div>
+                </div>
+
+                <div class="card" style="display:grid; grid-template-columns:1fr 1fr; gap:12px;">
+                    <div class="result-display">
+                        <div class="result-label">🏆 Max Length Found</div>
+                        <div class="result-value" id="maxLenValue">0</div>
+                    </div>
+                    <div class="result-display"
+                        style="background:rgba(241,196,15,0.08); border-color:rgba(241,196,15,0.15);">
+                        <div class="result-label">Subarrays Checked</div>
+                        <div class="result-value" id="checkedValue" style="color:#f1c40f;">0</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="right-panel">
+                <div class="card">
+                    <div class="card-title">📋 Current State</div>
+                    <div class="state-display">
+                        <div class="state-row"><span class="state-label">Phase:</span><span class="state-val"
+                                id="stPhase">init</span></div>
+                        <div class="state-row"><span class="state-label">i (start):</span><span class="state-val"
+                                id="stI">—</span></div>
+                        <div class="state-row"><span class="state-label">j (end):</span><span class="state-val"
+                                id="stJ">—</span></div>
+                        <div class="state-row"><span class="state-label">sum:</span><span class="state-val"
+                                id="stSum">0</span></div>
+                        <div class="state-row"><span class="state-label">sum==0?:</span><span class="state-val"
+                                id="stEq">—</span></div>
+                        <div class="state-row"><span class="state-label">subLen:</span><span class="state-val"
+                                id="stSubLen">0</span></div>
+                        <div class="state-row"><span class="state-label">maxLen:</span><span class="state-val"
+                                id="stMaxLen">0</span></div>
+                        <div class="state-row"><span class="state-label">bestRange:</span><span class="state-val"
+                                id="stBest">—</span></div>
+                    </div>
+                </div>
+                <div class="card" style="flex:1;">
+                    <div class="card-title">📝 Execution Log</div>
+                    <div class="log-container" id="logContainer">
+                        <div class="log-entry info">Transform 0→−1. A subarray with equal 0s & 1s now has sum=0.</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ─────── STATE ───────
+        let nums = [0, 1, 0, 0, 1, 1, 0];
+        let transformed = [];
+        let n = 0;
+
+        let iPtr = 0, jPtr = 0;
+        let runSum = 0;
+        let maxLen = 0;
+        let bestStart = -1, bestEnd = -1;
+        let checked = 0;
+
+        let phase = 'init'; // init | transform | new-i | extend-j | done
+        let stepCount = 0;
+        let isRunning = false;
+        let speed = 5;
+        let done = false;
+
+        // ─────── DOM ───────
+        const playBtn = document.getElementById('playBtn');
+        const pauseBtn = document.getElementById('pauseBtn');
+        const stepBtn = document.getElementById('stepBtn');
+        const resetBtn = document.getElementById('resetBtn');
+        const speedSlider = document.getElementById('speedSlider');
+        const speedValueEl = document.getElementById('speedValue');
+        const customInput = document.getElementById('customInput');
+        const applyBtn = document.getElementById('applyBtn');
+        const origArrayEl = document.getElementById('origArray');
+        const transArrayEl = document.getElementById('transArray');
+        const subarrayBar = document.getElementById('subarrayBar');
+        const validityInd = document.getElementById('validityIndicator');
+        const logContainer = document.getElementById('logContainer');
+
+        function addLog(msg, type = 'info') {
+            logContainer.innerHTML += `<div class="log-entry ${type}">[${stepCount}] ${msg}</div>`;
+            logContainer.scrollTop = logContainer.scrollHeight;
+        }
+        function clearLog() { logContainer.innerHTML = ''; }
+
+        // ─────── RENDER ───────
+        function render() {
+            const scanning = phase === 'extend-j' || phase === 'new-i-first';
+            const isBalanced = scanning && runSum === 0;
+
+            // Original array
+            origArrayEl.innerHTML = nums.map((v, idx) => {
+                let cls = `cell ${v === 0 ? 'val-zero' : 'val-one'}`;
+                if (scanning && idx >= iPtr && idx <= jPtr) cls += isBalanced ? ' in-range balanced' : ' in-range';
+                else if (phase === 'done' && bestStart >= 0 && idx >= bestStart && idx <= bestEnd) cls += ' best';
+
+                let ptrs = '';
+                if (scanning) {
+                    if (idx === iPtr && idx === jPtr) ptrs = '<span class="pointer-label ptr-i">i</span><span class="pointer-label ptr-j">j</span>';
+                    else if (idx === iPtr) ptrs = '<span class="pointer-label ptr-i">i</span>';
+                    else if (idx === jPtr) ptrs = '<span class="pointer-label ptr-j">j</span>';
+                }
+                return `<div class="cell-wrapper"><div class="${cls}">${v}</div><div class="cell-idx">${idx}</div>${ptrs}</div>`;
+            }).join('');
+
+            // Transformed array
+            transArrayEl.innerHTML = transformed.map((v, idx) => {
+                let cls = `cell ${v < 0 ? 'val-neg' : 'val-pos'}`;
+                if (scanning && idx >= iPtr && idx <= jPtr) cls += isBalanced ? ' in-range balanced' : ' in-range';
+                else if (phase === 'done' && bestStart >= 0 && idx >= bestStart && idx <= bestEnd) cls += ' best';
+                return `<div class="cell-wrapper"><div class="${cls}">${v > 0 ? '+' + v : v}</div><div class="cell-idx">${idx}</div></div>`;
+            }).join('');
+
+            // Subarray bar
+            if (phase === 'done') {
+                subarrayBar.innerHTML = maxLen > 0
+                    ? `<span style="color:#5dade2">Best: [${nums.slice(bestStart, bestEnd + 1).join(',')}] (indices ${bestStart}–${bestEnd}, len=${maxLen})</span>`
+                    : '<span style="color:#e74c3c">No valid subarray found</span>';
+            } else if (scanning) {
+                const sub = transformed.slice(iPtr, jPtr + 1).map(v => v > 0 ? '+' + v : v);
+                subarrayBar.innerHTML = `Transformed: [${sub.join(', ')}]  <span style="color:#888; margin-left:8px">sum = ${runSum}</span>`;
+            } else {
+                subarrayBar.innerHTML = '<span style="color:#666">—</span>';
+            }
+
+            // Counts
+            document.getElementById('sumValue').textContent = scanning ? runSum : 0;
+            document.getElementById('lenValue').textContent = scanning ? jPtr - iPtr + 1 : 0;
+            document.getElementById('zeroCheck').textContent = scanning ? (runSum === 0 ? '✅' : '❌') : '—';
+
+            // Result
+            document.getElementById('maxLenValue').textContent = maxLen;
+            document.getElementById('checkedValue').textContent = checked;
+
+            // State panel
+            document.getElementById('stPhase').textContent = phase;
+            document.getElementById('stI').textContent = scanning || phase === 'done' ? iPtr : '—';
+            document.getElementById('stJ').textContent = scanning ? jPtr : '—';
+            document.getElementById('stSum').textContent = scanning ? runSum : '—';
+            document.getElementById('stEq').textContent = scanning ? (runSum === 0 ? '✅ Yes' : '❌ No') : '—';
+            document.getElementById('stSubLen').textContent = scanning ? jPtr - iPtr + 1 : 0;
+            document.getElementById('stMaxLen').textContent = maxLen;
+            document.getElementById('stBest').textContent = bestStart >= 0 ? `[${bestStart},${bestEnd}]` : '—';
+        }
+
+        // ─────── STEP ───────
+        function doStep() {
+            if (done) { stopExec(); return; }
+            stepCount++;
+
+            switch (phase) {
+                case 'init': {
+                    addLog(`Input: [${nums.join(',')}], n=${n}`, 'info');
+                    addLog('Step 1: Transform 0→−1 so equal 0s&1s ↔ sum=0.', 'purple');
+                    phase = 'transform';
+                    render();
+                    break;
+                }
+                case 'transform': {
+                    transformed = nums.map(v => v === 0 ? -1 : 1);
+                    addLog(`Transformed: [${transformed.map(v => v > 0 ? '+' + v : v).join(', ')}]`, 'purple');
+                    addLog('Now find longest subarray with sum=0 (O(n²) double loop).', 'info');
+                    iPtr = 0;
+                    phase = 'new-i';
+                    render();
+                    break;
+                }
+                case 'new-i': {
+                    if (iPtr >= n) {
+                        phase = 'done'; done = true;
+                        addLog(`✅ DONE! Max length = ${maxLen}`, 'success');
+                        if (maxLen > 0) addLog(`Best: indices [${bestStart}..${bestEnd}] = [${nums.slice(bestStart, bestEnd + 1).join(',')}]`, 'success');
+                        validityInd.className = 'validity-indicator vi-done';
+                        validityInd.textContent = `✅ Complete! Max length with equal 0s & 1s: ${maxLen}`;
+                        render(); stopExec();
+                        return;
+                    }
+                    runSum = 0;
+                    jPtr = iPtr;
+                    runSum += transformed[jPtr];
+                    checked++;
+                    phase = 'extend-j';
+
+                    logAndRender();
+                    break;
+                }
+                case 'extend-j': {
+                    jPtr++;
+                    if (jPtr >= n) {
+                        iPtr++;
+                        phase = 'new-i';
+                        doStep();
+                        return;
+                    }
+                    runSum += transformed[jPtr];
+                    checked++;
+
+                    logAndRender();
+                    break;
+                }
+            }
+        }
+
+        function logAndRender() {
+            const len = jPtr - iPtr + 1;
+            if (runSum === 0) {
+                if (len > maxLen) {
+                    maxLen = len; bestStart = iPtr; bestEnd = jPtr;
+                    addLog(`i=${iPtr},j=${jPtr} sum=0 ✓ NEW BEST len=${len} 🎉`, 'success');
+                } else {
+                    addLog(`i=${iPtr},j=${jPtr} sum=0 ✓ len=${len} (≤ best ${maxLen})`, 'info');
+                }
+                validityInd.className = 'validity-indicator vi-zero';
+                validityInd.textContent = `✓ Sum=0 → equal 0s & 1s! length=${len}`;
+            } else {
+                addLog(`i=${iPtr},j=${jPtr} sum=${runSum} ✗`, 'warning');
+                validityInd.className = 'validity-indicator vi-nonzero';
+                validityInd.textContent = `✗ Sum=${runSum} ≠ 0`;
+            }
+            render();
+        }
+
+        // ─────── CONTROLS ───────
+        function play() {
+            if (isRunning || done) return;
+            isRunning = true;
+            playBtn.disabled = true; pauseBtn.disabled = false; stepBtn.disabled = true;
+            runLoop();
+        }
+        function pause() {
+            isRunning = false;
+            playBtn.disabled = false; pauseBtn.disabled = true; stepBtn.disabled = false;
+        }
+        function stopExec() {
+            isRunning = false;
+            playBtn.disabled = true; pauseBtn.disabled = true; stepBtn.disabled = true;
+        }
+        function runLoop() {
+            if (!isRunning) return;
+            doStep();
+            if (isRunning && !done) setTimeout(runLoop, 500 / speed);
+        }
+
+        function init() {
+            n = nums.length;
+            transformed = nums.map(v => v === 0 ? -1 : 1);
+            iPtr = 0; jPtr = 0; runSum = 0;
+            maxLen = 0; bestStart = -1; bestEnd = -1;
+            checked = 0; phase = 'init'; stepCount = 0; done = false;
+
+            // Show transformed immediately for visual context
+            transformed = [];
+
+            validityInd.className = 'validity-indicator vi-neutral';
+            validityInd.textContent = 'Ready — press Play or Step';
+            playBtn.disabled = false; pauseBtn.disabled = true; stepBtn.disabled = false;
+            clearLog();
+            addLog('Improved: transform 0→−1, find longest subarray with sum=0.', 'info');
+            render();
+        }
+
+        playBtn.addEventListener('click', play);
+        pauseBtn.addEventListener('click', pause);
+        stepBtn.addEventListener('click', () => { if (!done) doStep(); });
+        resetBtn.addEventListener('click', () => { isRunning = false; init(); });
+        speedSlider.addEventListener('input', e => {
+            speed = parseInt(e.target.value);
+            speedValueEl.textContent = speed + 'x';
+        });
+        applyBtn.addEventListener('click', () => {
+            try {
+                const parsed = JSON.parse(customInput.value);
+                if (!Array.isArray(parsed) || parsed.length === 0) throw new Error('Need non-empty array');
+                for (const v of parsed) if (v !== 0 && v !== 1) throw new Error('Only 0s and 1s allowed');
+                nums = parsed;
+                isRunning = false; init();
+            } catch (e) { alert('Invalid input: ' + e.message); }
+        });
+
+        init();
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,875 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>141 - Improved: Node Marking (Destructive)</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #0f0c29 0%, #302b63 50%, #24243e 100%);
+            min-height: 100vh;
+            padding: 18px;
+            color: #e0e0e0
+        }
+
+        .container {
+            max-width: 1360px;
+            margin: 0 auto;
+            background: rgba(25, 25, 50, .95);
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, .5), 0 0 40px rgba(230, 126, 34, .07);
+            overflow: hidden;
+            border: 1px solid rgba(255, 255, 255, .06)
+        }
+
+        header {
+            background: linear-gradient(135deg, #d35400, #e67e22);
+            color: #fff;
+            padding: 22px;
+            text-align: center
+        }
+
+        h1 {
+            font-size: 1.15em;
+            margin-bottom: 5px
+        }
+
+        .subtitle {
+            font-size: .84em;
+            opacity: .92
+        }
+
+        .badge {
+            display: inline-block;
+            background: rgba(255, 255, 255, .2);
+            padding: 5px 14px;
+            border-radius: 15px;
+            margin-top: 7px;
+            font-size: .78em
+        }
+
+        .badge.warn {
+            background: rgba(231, 76, 60, .3);
+            margin-left: 6px
+        }
+
+        .main-content {
+            display: grid;
+            grid-template-columns: 1fr 280px;
+            gap: 16px;
+            padding: 18px
+        }
+
+        .card {
+            background: rgba(40, 40, 75, .8);
+            border-radius: 14px;
+            padding: 15px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, .2);
+            margin-bottom: 14px;
+            border: 1px solid rgba(255, 255, 255, .05)
+        }
+
+        .card-title {
+            font-size: .88em;
+            font-weight: 600;
+            margin-bottom: 10px;
+            color: #e67e22
+        }
+
+        button {
+            padding: 7px 14px;
+            border: none;
+            border-radius: 8px;
+            font-size: .82em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all .3s
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, .3)
+        }
+
+        button:disabled {
+            opacity: .4;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #d35400, #e67e22);
+            color: #fff
+        }
+
+        .btn-success {
+            background: linear-gradient(135deg, #27ae60, #2ecc71);
+            color: #fff
+        }
+
+        .btn-warning {
+            background: linear-gradient(135deg, #f39c12, #e67e22);
+            color: #fff
+        }
+
+        .btn-secondary {
+            background: rgba(100, 100, 140, .7);
+            color: #fff
+        }
+
+        .btn-info {
+            background: linear-gradient(135deg, #8e44ad, #9b59b6);
+            color: #fff
+        }
+
+        .controls {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            align-items: center
+        }
+
+        .speed-control {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            flex: 1;
+            min-width: 140px
+        }
+
+        .speed-control label {
+            font-size: .8em;
+            color: #aaa
+        }
+
+        .speed-control input[type="range"] {
+            flex: 1;
+            height: 5px;
+            accent-color: #e67e22
+        }
+
+        .speed-control span {
+            font-size: .8em;
+            color: #e67e22;
+            min-width: 24px
+        }
+
+        .input-section {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+            flex-wrap: wrap
+        }
+
+        .input-section input {
+            padding: 7px 10px;
+            border-radius: 8px;
+            border: 1px solid rgba(255, 255, 255, .15);
+            background: rgba(20, 20, 45, .8);
+            color: #e0e0e0;
+            font-size: .85em;
+            font-family: 'Courier New', monospace;
+            flex: 1;
+            min-width: 80px
+        }
+
+        .input-section input:focus {
+            outline: none;
+            border-color: #e67e22
+        }
+
+        .input-section label {
+            font-size: .82em;
+            color: #aaa;
+            white-space: nowrap
+        }
+
+        /* Linked list */
+        .ll-area {
+            padding: 16px;
+            background: rgba(20, 20, 50, .4);
+            border-radius: 10px;
+            min-height: 100px;
+            overflow-x: auto
+        }
+
+        .ll-row {
+            display: flex;
+            align-items: center;
+            gap: 0;
+            min-height: 75px;
+            padding: 10px 0;
+            flex-wrap: nowrap
+        }
+
+        .ll-node {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            position: relative;
+            flex-shrink: 0
+        }
+
+        .node-box {
+            width: 56px;
+            height: 56px;
+            border-radius: 12px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            font-family: 'Courier New', monospace;
+            font-weight: 700;
+            border: 2.5px solid;
+            transition: all .4s;
+            position: relative
+        }
+
+        .node-box.idle {
+            border-color: rgba(100, 100, 140, .3);
+            background: rgba(40, 40, 70, .6);
+            color: #aaa
+        }
+
+        .node-box.current {
+            border-color: #f1c40f;
+            background: rgba(241, 196, 15, .08);
+            color: #f1c40f;
+            box-shadow: 0 0 14px rgba(241, 196, 15, .15)
+        }
+
+        .node-box.marking {
+            border-color: #e67e22;
+            background: rgba(230, 126, 34, .1);
+            color: #e67e22;
+            box-shadow: 0 0 14px rgba(230, 126, 34, .15)
+        }
+
+        .node-box.marked {
+            border-color: rgba(231, 76, 60, .3);
+            background: rgba(231, 76, 60, .05);
+            color: #e74c3c
+        }
+
+        .node-box.cycle-found {
+            border-color: #e74c3c;
+            background: rgba(231, 76, 60, .12);
+            color: #e74c3c;
+            box-shadow: 0 0 18px rgba(231, 76, 60, .25);
+            animation: pulse-red 1s infinite
+        }
+
+        @keyframes pulse-red {
+
+            0%,
+            100% {
+                box-shadow: 0 0 14px rgba(231, 76, 60, .2)
+            }
+
+            50% {
+                box-shadow: 0 0 24px rgba(231, 76, 60, .45)
+            }
+        }
+
+        .node-val {
+            font-size: 1em;
+            transition: all .3s
+        }
+
+        .node-orig {
+            font-size: .35em;
+            color: #666;
+            margin-top: 1px
+        }
+
+        .node-idx {
+            font-size: .35em;
+            color: #555
+        }
+
+        .node-ptr {
+            position: absolute;
+            top: -18px;
+            font-size: .48em;
+            font-weight: 700;
+            color: #f1c40f;
+            white-space: nowrap
+        }
+
+        .sentinel-icon {
+            position: absolute;
+            bottom: -18px;
+            font-size: .45em;
+            color: #e74c3c;
+            font-weight: 700
+        }
+
+        .arrow {
+            width: 28px;
+            height: 2px;
+            background: rgba(150, 150, 200, .2);
+            position: relative;
+            flex-shrink: 0;
+            display: flex;
+            align-items: center;
+            justify-content: flex-end
+        }
+
+        .arrow::after {
+            content: '▶';
+            font-size: .55em;
+            color: rgba(150, 150, 200, .3);
+            position: absolute;
+            right: -4px
+        }
+
+        .arrow.active {
+            background: rgba(241, 196, 15, .3)
+        }
+
+        .arrow.active::after {
+            color: rgba(241, 196, 15, .5)
+        }
+
+        .cycle-label {
+            font-size: .55em;
+            color: #e74c3c;
+            padding: 2px 6px;
+            border: 1.5px solid rgba(231, 76, 60, .3);
+            border-radius: 6px;
+            background: rgba(231, 76, 60, .06);
+            white-space: nowrap;
+            margin-left: 4px;
+            flex-shrink: 0
+        }
+
+        .null-marker {
+            font-size: .7em;
+            color: #555;
+            font-family: 'Courier New', monospace;
+            padding: 0 8px;
+            flex-shrink: 0
+        }
+
+        /* Before/After comparison */
+        .compare-area {
+            display: flex;
+            gap: 14px;
+            flex-wrap: wrap
+        }
+
+        .compare-block {
+            flex: 1;
+            min-width: 120px;
+            padding: 10px;
+            background: rgba(20, 20, 50, .3);
+            border-radius: 8px
+        }
+
+        .compare-label {
+            font-size: .65em;
+            font-weight: 600;
+            color: #888;
+            margin-bottom: 6px
+        }
+
+        .compare-vals {
+            font-family: 'Courier New', monospace;
+            font-size: .78em;
+            display: flex;
+            gap: 6px;
+            flex-wrap: wrap
+        }
+
+        .cv {
+            padding: 2px 6px;
+            border-radius: 4px;
+            border: 1px solid rgba(100, 100, 140, .15);
+            background: rgba(40, 40, 70, .4)
+        }
+
+        .cv.destroyed {
+            color: #e74c3c;
+            border-color: rgba(231, 76, 60, .2);
+            background: rgba(231, 76, 60, .04)
+        }
+
+        .cv.original {
+            color: #2ecc71;
+            border-color: rgba(46, 204, 113, .2);
+            background: rgba(46, 204, 113, .04)
+        }
+
+        .action-box {
+            padding: 12px;
+            background: rgba(20, 20, 50, .4);
+            border-radius: 10px;
+            text-align: center;
+            font-family: 'Courier New', monospace;
+            font-size: .82em;
+            min-height: 44px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            flex-wrap: wrap
+        }
+
+        .result-box {
+            padding: 14px;
+            border-radius: 10px;
+            text-align: center;
+            font-weight: 700;
+            font-size: 1em;
+            transition: all .3s
+        }
+
+        .rb-neutral {
+            background: rgba(100, 100, 140, .12);
+            color: #888
+        }
+
+        .rb-run {
+            background: rgba(230, 126, 34, .06);
+            color: #e67e22;
+            border: 1px solid rgba(230, 126, 34, .12)
+        }
+
+        .rb-true {
+            background: rgba(231, 76, 60, .12);
+            color: #e74c3c;
+            border: 1px solid rgba(231, 76, 60, .25)
+        }
+
+        .rb-false {
+            background: rgba(46, 204, 113, .12);
+            color: #2ecc71;
+            border: 1px solid rgba(46, 204, 113, .25)
+        }
+
+        .state-display {
+            background: rgba(20, 20, 50, .5);
+            border-radius: 8px;
+            padding: 10px;
+            font-family: 'Courier New', monospace;
+            font-size: .65em
+        }
+
+        .state-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 4px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, .05)
+        }
+
+        .state-row:last-child {
+            border-bottom: none
+        }
+
+        .state-label {
+            font-weight: 600;
+            color: #e67e22
+        }
+
+        .state-val {
+            color: #ccc;
+            text-align: right;
+            max-width: 130px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap
+        }
+
+        .log-container {
+            background: rgba(20, 20, 50, .5);
+            border-radius: 8px;
+            padding: 10px;
+            max-height: 300px;
+            overflow-y: auto;
+            font-family: 'Courier New', monospace;
+            font-size: .52em
+        }
+
+        .log-entry {
+            padding: 3px 7px;
+            margin: 2px 0;
+            border-radius: 4px;
+            border-left: 3px solid #555;
+            background: rgba(40, 40, 70, .5);
+            line-height: 1.5
+        }
+
+        .log-entry.success {
+            border-left-color: #2ecc71;
+            background: rgba(46, 204, 113, .08);
+            color: #2ecc71
+        }
+
+        .log-entry.warning {
+            border-left-color: #f39c12;
+            background: rgba(243, 156, 18, .08);
+            color: #f39c12
+        }
+
+        .log-entry.info {
+            border-left-color: #3498db;
+            background: rgba(52, 152, 219, .08);
+            color: #8ec8f0
+        }
+
+        .log-entry.orange {
+            border-left-color: #e67e22;
+            background: rgba(230, 126, 34, .08);
+            color: #e67e22
+        }
+
+        .log-entry.error {
+            border-left-color: #e74c3c;
+            background: rgba(231, 76, 60, .08);
+            color: #e74c3c
+        }
+
+        .log-container::-webkit-scrollbar {
+            width: 5px
+        }
+
+        .log-container::-webkit-scrollbar-track {
+            background: transparent
+        }
+
+        .log-container::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, .15);
+            border-radius: 3px
+        }
+
+        @media(max-width:960px) {
+            .main-content {
+                grid-template-columns: 1fr
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <header>
+            <h1>🔗 Linked List Cycle (141)</h1>
+            <div class="subtitle">Improved — Node Marking (Destructive, O(1) Space)</div>
+            <div class="badge">Time: O(n) | Space: O(1)</div>
+            <div class="badge warn">⚠️ Destroys original data</div>
+        </header>
+        <div class="main-content">
+            <div class="left-panel">
+                <div class="card">
+                    <div class="card-title">⚙️ Controls</div>
+                    <div class="controls">
+                        <button class="btn-primary" id="playBtn">▶️ Play</button>
+                        <button class="btn-warning" id="pauseBtn" disabled>⏸️ Pause</button>
+                        <button class="btn-success" id="stepBtn">⏭️ Step</button>
+                        <button class="btn-secondary" id="resetBtn">🔄 Reset</button>
+                        <div class="speed-control">
+                            <label>Speed:</label>
+                            <input type="range" id="speedSlider" min="1" max="10" value="5">
+                            <span id="speedValue">5x</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="card">
+                    <div class="card-title">✏️ Custom Input</div>
+                    <div class="input-section">
+                        <label>values:</label>
+                        <input type="text" id="arrInput" value="3,2,0,-4" placeholder="e.g. 3,2,0,-4">
+                        <label>pos:</label>
+                        <input type="number" id="posInput" value="1" min="-1" max="20" style="width:50px;flex:none">
+                        <button class="btn-info" id="applyBtn">Apply</button>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-title">🔗 Linked List — values overwritten with SENTINEL (∞)</div>
+                    <div class="ll-area">
+                        <div class="ll-row" id="llDisplay"></div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-title">📊 Data Damage — Before vs After</div>
+                    <div class="compare-area">
+                        <div class="compare-block">
+                            <div class="compare-label">Original values</div>
+                            <div class="compare-vals" id="origVals"></div>
+                        </div>
+                        <div class="compare-block">
+                            <div class="compare-label">Current values</div>
+                            <div class="compare-vals" id="curVals"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-title">🔍 Action</div>
+                    <div class="action-box" id="actionBox"><span style="color:#555">—</span></div>
+                </div>
+
+                <div class="card">
+                    <div class="result-box rb-neutral" id="resultBox">Ready — press Play or Step</div>
+                </div>
+            </div>
+
+            <div class="right-panel">
+                <div class="card">
+                    <div class="card-title">📋 Current State</div>
+                    <div class="state-display">
+                        <div class="state-row"><span class="state-label">Phase:</span><span class="state-val"
+                                id="stPhase">init</span></div>
+                        <div class="state-row"><span class="state-label">Step:</span><span class="state-val"
+                                id="stStep">0</span></div>
+                        <div class="state-row"><span class="state-label">current:</span><span class="state-val"
+                                id="stCur">—</span></div>
+                        <div class="state-row"><span class="state-label">current.val:</span><span class="state-val"
+                                id="stCurVal">—</span></div>
+                        <div class="state-row"><span class="state-label">SENTINEL:</span><span class="state-val"
+                                id="stSent">∞</span></div>
+                        <div class="state-row"><span class="state-label">val === ∞?:</span><span class="state-val"
+                                id="stCheck">—</span></div>
+                        <div class="state-row"><span class="state-label">Nodes marked:</span><span class="state-val"
+                                id="stMarked">0</span></div>
+                        <div class="state-row"><span class="state-label">Result:</span><span class="state-val"
+                                id="stResult">?</span></div>
+                    </div>
+                </div>
+                <div class="card" style="flex:1">
+                    <div class="card-title">📝 Execution Log</div>
+                    <div class="log-container" id="logContainer">
+                        <div class="log-entry info">Mark each node with ∞. If we see ∞ again → cycle!</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let ORIG_VALS = [3, 2, 0, -4];
+        let VALS = []; // working copy
+        let POS = 1;
+        let curIdx = 0;
+        let markedCount = 0;
+        let nodeStates = [];
+        const SENTINEL = '∞';
+
+        // phases: init | check | mark-advance | done
+        let phase = 'init';
+        let stepCount = 0, isRunning = false, speed = 5, isDone = false;
+
+        const $ = id => document.getElementById(id);
+        const logC = $('logContainer');
+        function addLog(m, t = 'info') { logC.innerHTML += `<div class="log-entry ${t}">[${stepCount}] ${m}</div>`; logC.scrollTop = logC.scrollHeight }
+        function clearLog() { logC.innerHTML = '' }
+
+        function getNextIdx(idx) {
+            if (idx < 0 || idx >= VALS.length) return -1;
+            if (idx === VALS.length - 1) return POS;
+            return idx + 1;
+        }
+
+        function renderLL() {
+            const c = $('llDisplay');
+            c.innerHTML = '';
+            for (let i = 0; i < VALS.length; i++) {
+                const nd = document.createElement('div');
+                nd.className = 'll-node';
+                const box = document.createElement('div');
+                const st = nodeStates[i] || 'idle';
+                box.className = 'node-box ' + st;
+                const displayVal = VALS[i] === SENTINEL ? '∞' : VALS[i];
+                box.innerHTML = `<div class="node-val">${displayVal}</div>`
+                    + `<div class="node-orig">was: ${ORIG_VALS[i]}</div>`
+                    + `<div class="node-idx">idx ${i}</div>`;
+                if (st === 'current' || st === 'marking') {
+                    const ptr = document.createElement('div');
+                    ptr.className = 'node-ptr';
+                    ptr.textContent = '▼ current';
+                    box.appendChild(ptr);
+                }
+                if (VALS[i] === SENTINEL) {
+                    const si = document.createElement('div');
+                    si.className = 'sentinel-icon';
+                    si.textContent = '☠️ overwritten';
+                    box.appendChild(si);
+                }
+                nd.appendChild(box);
+                c.appendChild(nd);
+                if (i < VALS.length - 1) {
+                    const arr = document.createElement('div');
+                    arr.className = 'arrow' + (st === 'current' ? ' active' : '');
+                    c.appendChild(arr);
+                }
+            }
+            if (POS >= 0 && POS < VALS.length) {
+                const cyc = document.createElement('div');
+                cyc.className = 'cycle-label';
+                cyc.textContent = `↩ → node[${POS}]`;
+                c.appendChild(cyc);
+            } else {
+                const arr = document.createElement('div');
+                arr.className = 'arrow';
+                c.appendChild(arr);
+                const nl = document.createElement('div');
+                nl.className = 'null-marker';
+                nl.textContent = 'null';
+                c.appendChild(nl);
+            }
+        }
+
+        function renderCompare() {
+            const oc = $('origVals');
+            const cc = $('curVals');
+            oc.innerHTML = '';
+            cc.innerHTML = '';
+            for (let i = 0; i < ORIG_VALS.length; i++) {
+                const o = document.createElement('div');
+                o.className = 'cv original';
+                o.textContent = ORIG_VALS[i];
+                oc.appendChild(o);
+
+                const cur = document.createElement('div');
+                const destroyed = VALS[i] === SENTINEL;
+                cur.className = 'cv' + (destroyed ? ' destroyed' : '');
+                cur.textContent = destroyed ? '∞' : VALS[i];
+                cc.appendChild(cur);
+            }
+        }
+
+        function doStep() {
+            if (isDone) { stopExec(); return; }
+            stepCount++;
+
+            switch (phase) {
+                case 'init': {
+                    VALS = [...ORIG_VALS];
+                    curIdx = 0;
+                    markedCount = 0;
+                    nodeStates = new Array(VALS.length).fill('idle');
+                    addLog(`List: [${ORIG_VALS}], pos=${POS}`, 'info');
+                    addLog(`SENTINEL = ∞. Mark each node, check for ∞`, 'orange');
+                    $('resultBox').className = 'result-box rb-run';
+                    $('resultBox').textContent = 'Marking nodes with ∞...';
+                    if (VALS.length === 0) {
+                        addLog('Empty list → return false', 'success');
+                        phase = 'done'; isDone = true;
+                        $('resultBox').className = 'result-box rb-false';
+                        $('resultBox').textContent = '✅ return false';
+                        $('stResult').textContent = 'false';
+                        stopExec(); return;
+                    }
+                    phase = 'check';
+                    renderLL(); renderCompare();
+                    break;
+                }
+                case 'check': {
+                    if (curIdx < 0) {
+                        addLog('current = null → no cycle → return false', 'success');
+                        $('resultBox').className = 'result-box rb-false';
+                        $('resultBox').textContent = '✅ return false — no cycle';
+                        $('actionBox').innerHTML = '<span style="color:#2ecc71;font-weight:700">Reached null → return false</span>';
+                        $('stResult').textContent = 'false';
+                        phase = 'done'; isDone = true;
+                        renderLL(); renderCompare();
+                        stopExec(); return;
+                    }
+                    // Unhighlight prev
+                    nodeStates.forEach((s, i) => { if (s === 'current' || s === 'marking') nodeStates[i] = 'marked'; });
+                    nodeStates[curIdx] = 'current';
+                    $('stCur').textContent = `node[${curIdx}]`;
+                    $('stCurVal').textContent = VALS[curIdx] === SENTINEL ? '∞' : VALS[curIdx];
+                    $('stStep').textContent = stepCount;
+
+                    if (VALS[curIdx] === SENTINEL) {
+                        nodeStates[curIdx] = 'cycle-found';
+                        addLog(`node[${curIdx}].val === ∞ → already visited → CYCLE! return true`, 'error');
+                        $('stCheck').textContent = '✓ YES → CYCLE!';
+                        $('actionBox').innerHTML =
+                            `<span style="color:#e74c3c;font-weight:700">🔄 node[${curIdx}].val === ∞ → CYCLE DETECTED!</span>`;
+                        $('resultBox').className = 'result-box rb-true';
+                        $('resultBox').textContent = `🔄 return true — cycle at node[${curIdx}]`;
+                        $('stResult').textContent = 'true';
+                        phase = 'done'; isDone = true;
+                        renderLL(); renderCompare();
+                        stopExec(); return;
+                    } else {
+                        addLog(`node[${curIdx}].val = ${VALS[curIdx]} ≠ ∞ → not visited yet`, 'info');
+                        $('stCheck').textContent = `✗ ${VALS[curIdx]} ≠ ∞`;
+                        $('actionBox').innerHTML =
+                            `<span style="color:#e67e22">val=${VALS[curIdx]} ≠ ∞</span>` +
+                            `<span style="color:#888"> → mark with ∞ & advance</span>`;
+                    }
+                    phase = 'mark-advance';
+                    renderLL(); renderCompare();
+                    break;
+                }
+                case 'mark-advance': {
+                    const oldVal = VALS[curIdx];
+                    nodeStates[curIdx] = 'marking';
+                    VALS[curIdx] = SENTINEL;
+                    markedCount++;
+                    $('stMarked').textContent = markedCount;
+                    addLog(`  ☠️ node[${curIdx}].val = ${oldVal} → ∞ (DESTROYED)`, 'warning');
+
+                    const nextIdx = getNextIdx(curIdx);
+                    addLog(`  Advance → ${nextIdx < 0 ? 'null' : 'node[' + nextIdx + ']'}`, 'info');
+                    curIdx = nextIdx;
+                    phase = 'check';
+                    renderLL(); renderCompare();
+                    break;
+                }
+            }
+            $('stPhase').textContent = phase;
+        }
+
+        function play() { if (isRunning || isDone) return; isRunning = true; $('playBtn').disabled = true; $('pauseBtn').disabled = false; $('stepBtn').disabled = true; runLoop() }
+        function pause() { isRunning = false; $('playBtn').disabled = false; $('pauseBtn').disabled = true; $('stepBtn').disabled = false }
+        function stopExec() { isRunning = false; $('playBtn').disabled = true; $('pauseBtn').disabled = true; $('stepBtn').disabled = true }
+        function runLoop() { if (!isRunning) return; doStep(); if (isRunning && !isDone) setTimeout(runLoop, Math.max(150, 600 - speed * 50)) }
+
+        function init() {
+            const s = $('arrInput').value || '3,2,0,-4';
+            ORIG_VALS = s.split(',').map(x => parseInt(x.trim())).filter(x => !isNaN(x));
+            POS = parseInt($('posInput').value);
+            if (isNaN(POS)) POS = -1;
+            if (POS >= ORIG_VALS.length) POS = -1;
+            VALS = [...ORIG_VALS];
+            curIdx = 0; markedCount = 0;
+            nodeStates = new Array(VALS.length).fill('idle');
+            phase = 'init'; stepCount = 0; isDone = false;
+            $('resultBox').className = 'result-box rb-neutral';
+            $('resultBox').textContent = 'Ready — press Play or Step';
+            $('actionBox').innerHTML = '<span style="color:#555">—</span>';
+            $('stCur').textContent = '—'; $('stCurVal').textContent = '—';
+            $('stCheck').textContent = '—'; $('stMarked').textContent = '0';
+            $('stResult').textContent = '?'; $('stStep').textContent = '0';
+            $('playBtn').disabled = false; $('pauseBtn').disabled = true; $('stepBtn').disabled = false;
+            clearLog(); addLog('Mark each node with ∞. If we see ∞ again → cycle!', 'info');
+            renderLL(); renderCompare();
+        }
+
+        $('playBtn').addEventListener('click', play);
+        $('pauseBtn').addEventListener('click', pause);
+        $('stepBtn').addEventListener('click', () => { if (!isDone) doStep() });
+        $('resetBtn').addEventListener('click', () => { isRunning = false; init() });
+        $('speedSlider').addEventListener('input', e => { speed = parseInt(e.target.value); $('speedValue').textContent = speed + 'x' });
+        $('applyBtn').addEventListener('click', () => { isRunning = false; init() });
+
+        init();
+    </script>
+</body>
+
+</html>

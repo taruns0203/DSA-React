@@ -1,0 +1,509 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Merge Intervals - Union-Find</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            min-height: 100vh;
+            padding: 20px;
+            color: #333;
+        }
+        .container {
+            max-width: 1100px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            overflow: hidden;
+        }
+        header {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            color: white;
+            padding: 25px;
+            text-align: center;
+        }
+        h1 { font-size: 1.5em; margin-bottom: 8px; }
+        .subtitle { font-size: 1em; opacity: 0.9; }
+        .complexity-badge {
+            display: inline-block;
+            background: rgba(255,255,255,0.2);
+            padding: 6px 14px;
+            border-radius: 15px;
+            margin-top: 8px;
+            font-size: 0.85em;
+        }
+        .main-content {
+            display: grid;
+            grid-template-columns: 1fr 260px;
+            gap: 20px;
+            padding: 20px;
+        }
+        .card {
+            background: #f8f9fa;
+            border-radius: 12px;
+            padding: 16px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            margin-bottom: 16px;
+        }
+        .card-title {
+            font-size: 0.95em;
+            font-weight: 600;
+            margin-bottom: 12px;
+            color: #f5576c;
+        }
+        .controls { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+        button {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 8px;
+            font-size: 0.85em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        button:hover { transform: translateY(-2px); }
+        button:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+        .btn-primary { background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); color: white; }
+        .btn-success { background: linear-gradient(135deg, #28a745 0%, #20c997 100%); color: white; }
+        .btn-warning { background: linear-gradient(135deg, #ffc107 0%, #ff9800 100%); color: white; }
+        .btn-secondary { background: #6c757d; color: white; }
+        .speed-control { display: flex; align-items: center; gap: 6px; flex: 1; min-width: 140px; }
+        .speed-control input[type="range"] { flex: 1; height: 5px; }
+        .intervals-display {
+            display: flex;
+            gap: 10px;
+            padding: 15px;
+            background: white;
+            border-radius: 8px;
+            flex-wrap: wrap;
+            justify-content: center;
+            min-height: 60px;
+        }
+        .interval-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            transition: all 0.3s;
+        }
+        .interval {
+            padding: 8px 14px;
+            border-radius: 8px;
+            font-weight: 700;
+            font-size: 0.9em;
+            background: #e8eaf6;
+            border: 3px solid #5c6bc0;
+        }
+        .interval-idx { font-size: 0.7em; color: #666; margin-top: 3px; }
+        .interval-item.comparing-i .interval { background: #ffcdd2; border-color: #e53935; }
+        .interval-item.comparing-j .interval { background: #bbdefb; border-color: #1976d2; }
+        .interval-item.merged .interval { background: #c8e6c9; border-color: #43a047; }
+        .parent-display {
+            display: flex;
+            gap: 6px;
+            padding: 12px;
+            background: white;
+            border-radius: 8px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+        .parent-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 6px 10px;
+            border-radius: 6px;
+            background: #e3f2fd;
+            border: 2px solid #42a5f5;
+            font-size: 0.8em;
+        }
+        .parent-idx { font-weight: 700; color: #1565c0; }
+        .parent-val { font-size: 0.75em; color: #666; }
+        .parent-item.root { background: #c8e6c9; border-color: #43a047; }
+        .parent-item.updated { animation: pulse 0.4s; }
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.15); }
+        }
+        .groups-display {
+            display: flex;
+            gap: 12px;
+            padding: 12px;
+            background: white;
+            border-radius: 8px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+        .group {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 10px;
+            border-radius: 8px;
+            background: #f3e5f5;
+            border: 2px solid #8e24aa;
+        }
+        .group-label { font-size: 0.7em; color: #6a1b9a; margin-bottom: 4px; }
+        .group-intervals { display: flex; gap: 4px; flex-wrap: wrap; }
+        .group-interval { padding: 4px 8px; background: #ce93d8; border-radius: 4px; font-size: 0.8em; font-weight: 600; }
+        .group-result { padding: 6px 10px; background: #7b1fa2; color: white; border-radius: 4px; margin-top: 6px; font-weight: 700; }
+        .comparison-display {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            padding: 12px;
+            background: white;
+            border-radius: 8px;
+            font-size: 0.85em;
+        }
+        .comp-interval { padding: 6px 10px; border-radius: 6px; font-weight: 700; }
+        .comp-i { background: #ffcdd2; color: #c62828; }
+        .comp-j { background: #bbdefb; color: #1565c0; }
+        .overlap-indicator { padding: 6px 10px; border-radius: 6px; font-weight: 700; }
+        .overlap-yes { background: #c8e6c9; color: #2e7d32; }
+        .overlap-no { background: #ffcdd2; color: #c62828; }
+        .action-indicator {
+            text-align: center;
+            padding: 10px;
+            background: white;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 0.85em;
+        }
+        .state-display { background: white; border-radius: 8px; padding: 10px; font-family: 'Courier New', monospace; font-size: 0.8em; }
+        .state-row { display: flex; justify-content: space-between; padding: 4px 0; border-bottom: 1px solid #e0e0e0; }
+        .state-row:last-child { border-bottom: none; }
+        .state-label { font-weight: 600; color: #f5576c; }
+        .log-container { background: white; border-radius: 8px; padding: 10px; max-height: 130px; overflow-y: auto; font-family: 'Courier New', monospace; font-size: 0.6em; }
+        .log-entry { padding: 3px 6px; margin: 2px 0; border-radius: 4px; border-left: 3px solid #f5576c; background: #f8f9fa; }
+        .log-entry.success { border-left-color: #28a745; background: #d4edda; }
+        .log-entry.warning { border-left-color: #ffc107; background: #fff3cd; }
+        .log-entry.info { border-left-color: #17a2b8; background: #d1ecf1; }
+        @media (max-width: 850px) { .main-content { grid-template-columns: 1fr; } }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🔗 Merge Intervals</h1>
+            <div class="subtitle">Improved - Union-Find (Disjoint Set)</div>
+            <div class="complexity-badge">Time: O(n²) | Space: O(n)</div>
+        </header>
+        <div class="main-content">
+            <div class="left-panel">
+                <div class="card">
+                    <div class="card-title">⚙️ Controls</div>
+                    <div class="controls">
+                        <button class="btn-primary" id="playBtn">▶️ Play</button>
+                        <button class="btn-warning" id="pauseBtn" disabled>⏸️ Pause</button>
+                        <button class="btn-success" id="stepBtn">⏭️ Step</button>
+                        <button class="btn-secondary" id="resetBtn">🔄 Reset</button>
+                        <div class="speed-control">
+                            <label>Speed:</label>
+                            <input type="range" id="speedSlider" min="1" max="10" value="5">
+                            <span id="speedValue">5x</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="card">
+                    <div class="card-title">📋 Intervals</div>
+                    <div class="intervals-display" id="intervalsDisplay"></div>
+                </div>
+                <div class="card">
+                    <div class="card-title">🔗 Parent Array (Union-Find)</div>
+                    <div class="parent-display" id="parentDisplay"></div>
+                </div>
+                <div class="card">
+                    <div class="card-title">🔍 Comparing</div>
+                    <div class="comparison-display" id="comparisonDisplay">
+                        <span style="color:#888">Ready</span>
+                    </div>
+                </div>
+                <div class="card">
+                    <div class="card-title">📊 Groups & Merged Result</div>
+                    <div class="groups-display" id="groupsDisplay">
+                        <span style="color:#888">Groups will appear after union phase</span>
+                    </div>
+                </div>
+                <div class="card">
+                    <div class="action-indicator" id="actionIndicator">Ready to start</div>
+                </div>
+            </div>
+            <div class="right-panel">
+                <div class="card">
+                    <div class="card-title">📋 Current State</div>
+                    <div class="state-display">
+                        <div class="state-row"><span class="state-label">Phase:</span><span id="phaseState">Union</span></div>
+                        <div class="state-row"><span class="state-label">i:</span><span id="iState">0</span></div>
+                        <div class="state-row"><span class="state-label">j:</span><span id="jState">1</span></div>
+                        <div class="state-row"><span class="state-label">Unions:</span><span id="unionsState">0</span></div>
+                    </div>
+                </div>
+                <div class="card" style="flex: 1;">
+                    <div class="card-title">📝 Execution Log</div>
+                    <div class="log-container" id="logContainer"><div class="log-entry info">Union-Find: group overlaps, merge groups.</div></div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script>
+        const intervals = [[1,3],[2,6],[8,10],[15,18]];
+        const n = intervals.length;
+        
+        let parent = [];
+        let phase = 'union'; // 'union', 'group', 'merge', 'done'
+        let i = 0, j = 1;
+        let unions = 0;
+        let groups = {};
+        let result = [];
+        let updatedParent = -1;
+        let isRunning = false;
+        let speed = 5;
+        let stepCount = 0;
+        let done = false;
+
+        function init() {
+            parent = Array.from({length: n}, (_, k) => k);
+            phase = 'union';
+            i = 0;
+            j = 1;
+            unions = 0;
+            groups = {};
+            result = [];
+            updatedParent = -1;
+            stepCount = 0;
+            done = false;
+            
+            clearLog();
+            addLog('Phase 1: Union overlapping intervals', 'info');
+            updateState();
+            render();
+        }
+
+        function find(x) {
+            if (parent[x] !== x) parent[x] = find(parent[x]);
+            return parent[x];
+        }
+
+        function union(x, y) {
+            const px = find(x), py = find(y);
+            if (px !== py) {
+                parent[px] = py;
+                return true;
+            }
+            return false;
+        }
+
+        function overlaps(a, b) {
+            return a[0] <= b[1] && b[0] <= a[1];
+        }
+
+        function render() {
+            // Intervals display
+            const display = document.getElementById('intervalsDisplay');
+            display.innerHTML = intervals.map((int, idx) => {
+                let cls = 'interval-item';
+                if (phase === 'union') {
+                    if (idx === i) cls += ' comparing-i';
+                    else if (idx === j) cls += ' comparing-j';
+                }
+                return `<div class="${cls}">
+                    <div class="interval">[${int[0]},${int[1]}]</div>
+                    <div class="interval-idx">idx ${idx}</div>
+                </div>`;
+            }).join('');
+            
+            // Parent display
+            const parentDisp = document.getElementById('parentDisplay');
+            parentDisp.innerHTML = parent.map((p, idx) => {
+                const isRoot = parent[idx] === idx;
+                let cls = 'parent-item';
+                if (isRoot) cls += ' root';
+                if (idx === updatedParent) cls += ' updated';
+                return `<div class="${cls}">
+                    <div class="parent-idx">${idx}</div>
+                    <div class="parent-val">→${p}</div>
+                </div>`;
+            }).join('');
+            
+            // Comparison display
+            const compDisplay = document.getElementById('comparisonDisplay');
+            if (phase === 'union' && i < n && j < n) {
+                const overlap = overlaps(intervals[i], intervals[j]);
+                compDisplay.innerHTML = `
+                    <span class="comp-interval comp-i">[${intervals[i][0]},${intervals[i][1]}]</span>
+                    <span class="overlap-indicator ${overlap ? 'overlap-yes' : 'overlap-no'}">${overlap ? '✓ Union' : '✗ Skip'}</span>
+                    <span class="comp-interval comp-j">[${intervals[j][0]},${intervals[j][1]}]</span>
+                `;
+            } else if (phase !== 'union') {
+                compDisplay.innerHTML = `<span style="color:#888">Union phase complete</span>`;
+            }
+            
+            // Groups display
+            const groupsDisp = document.getElementById('groupsDisplay');
+            if (phase === 'group' || phase === 'merge' || phase === 'done') {
+                const groupEntries = Object.entries(groups);
+                if (groupEntries.length > 0) {
+                    groupsDisp.innerHTML = groupEntries.map(([root, members]) => {
+                        const merged = [
+                            Math.min(...members.map(m => intervals[m][0])),
+                            Math.max(...members.map(m => intervals[m][1]))
+                        ];
+                        return `<div class="group">
+                            <div class="group-label">Root ${root}</div>
+                            <div class="group-intervals">
+                                ${members.map(m => `<div class="group-interval">[${intervals[m]}]</div>`).join('')}
+                            </div>
+                            <div class="group-result">→ [${merged[0]},${merged[1]}]</div>
+                        </div>`;
+                    }).join('');
+                }
+            } else {
+                groupsDisp.innerHTML = `<span style="color:#888">Groups after union phase</span>`;
+            }
+            
+            // Action indicator
+            const action = document.getElementById('actionIndicator');
+            if (phase === 'union') {
+                action.textContent = `Union: Comparing intervals[${i}] and intervals[${j}]`;
+                action.style.color = '#f5576c';
+            } else if (phase === 'group') {
+                action.textContent = `Grouping intervals by root...`;
+                action.style.color = '#8e24aa';
+            } else if (phase === 'merge') {
+                action.textContent = `Merging each group...`;
+                action.style.color = '#1976d2';
+            } else {
+                action.textContent = `Done! Result: ${JSON.stringify(result)}`;
+                action.style.color = '#00897b';
+            }
+        }
+
+        function updateState() {
+            document.getElementById('phaseState').textContent = phase;
+            document.getElementById('iState').textContent = i;
+            document.getElementById('jState').textContent = j;
+            document.getElementById('unionsState').textContent = unions;
+        }
+
+        function addLog(msg, type = 'info') {
+            const log = document.getElementById('logContainer');
+            log.innerHTML += `<div class="log-entry ${type}">[${stepCount}] ${msg}</div>`;
+            log.scrollTop = log.scrollHeight;
+        }
+
+        function clearLog() { document.getElementById('logContainer').innerHTML = ''; }
+
+        function step() {
+            if (done) { stopExecution(); return; }
+            stepCount++;
+            updatedParent = -1;
+            
+            if (phase === 'union') {
+                if (i < n && j < n) {
+                    if (overlaps(intervals[i], intervals[j])) {
+                        if (union(i, j)) {
+                            unions++;
+                            updatedParent = find(i);
+                            addLog(`[${intervals[i]}] ∩ [${intervals[j]}] → union(${i},${j})`, 'success');
+                        } else {
+                            addLog(`Already in same set`, 'info');
+                        }
+                    } else {
+                        addLog(`[${intervals[i]}] ∩ [${intervals[j]}] = ∅`, 'warning');
+                    }
+                    
+                    j++;
+                    if (j >= n) { i++; j = i + 1; }
+                }
+                
+                if (i >= n - 1) {
+                    phase = 'group';
+                    addLog(`Union complete. ${unions} unions. Grouping...`, 'info');
+                }
+            } else if (phase === 'group') {
+                groups = {};
+                for (let k = 0; k < n; k++) {
+                    const root = find(k);
+                    if (!groups[root]) groups[root] = [];
+                    groups[root].push(k);
+                }
+                addLog(`Found ${Object.keys(groups).length} groups`, 'success');
+                phase = 'merge';
+            } else if (phase === 'merge') {
+                result = [];
+                for (const members of Object.values(groups)) {
+                    const merged = [
+                        Math.min(...members.map(m => intervals[m][0])),
+                        Math.max(...members.map(m => intervals[m][1]))
+                    ];
+                    result.push(merged);
+                }
+                addLog(`Merged: ${JSON.stringify(result)}`, 'success');
+                phase = 'done';
+                done = true;
+            }
+            
+            updateState();
+            render();
+        }
+
+        function play() {
+            if (isRunning) return;
+            isRunning = true;
+            document.getElementById('playBtn').disabled = true;
+            document.getElementById('pauseBtn').disabled = false;
+            document.getElementById('stepBtn').disabled = true;
+            runLoop();
+        }
+
+        function pause() {
+            isRunning = false;
+            document.getElementById('playBtn').disabled = false;
+            document.getElementById('pauseBtn').disabled = true;
+            document.getElementById('stepBtn').disabled = false;
+        }
+
+        function stopExecution() {
+            isRunning = false;
+            document.getElementById('playBtn').disabled = true;
+            document.getElementById('pauseBtn').disabled = true;
+            document.getElementById('stepBtn').disabled = true;
+        }
+
+        function runLoop() {
+            if (!isRunning) return;
+            step();
+            if (isRunning && !done) {
+                setTimeout(runLoop, 500 / speed);
+            } else {
+                stopExecution();
+            }
+        }
+
+        function reset() {
+            isRunning = false;
+            document.getElementById('playBtn').disabled = false;
+            document.getElementById('pauseBtn').disabled = true;
+            document.getElementById('stepBtn').disabled = false;
+            init();
+        }
+
+        document.getElementById('playBtn').addEventListener('click', play);
+        document.getElementById('pauseBtn').addEventListener('click', pause);
+        document.getElementById('stepBtn').addEventListener('click', step);
+        document.getElementById('resetBtn').addEventListener('click', reset);
+        document.getElementById('speedSlider').addEventListener('input', (e) => {
+            speed = parseInt(e.target.value);
+            document.getElementById('speedValue').textContent = speed + 'x';
+        });
+
+        init();
+    </script>
+</body>
+</html>

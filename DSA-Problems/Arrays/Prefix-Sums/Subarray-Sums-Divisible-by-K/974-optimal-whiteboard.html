@@ -1,0 +1,867 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>974. Subarray Sums Divisible by K - Optimal O(n)</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #0a0a1a 0%, #1a0a2e 50%, #0a1a2e 100%);
+            min-height: 100vh;
+            color: #e8e8e8;
+            padding: 12px;
+        }
+
+        .container {
+            max-width: 1150px;
+            margin: 0 auto;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 12px;
+        }
+
+        h1 {
+            font-size: 1.4rem;
+            background: linear-gradient(90deg, #00ff88, #00d9ff, #a855f7);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 5px;
+        }
+
+        .subtitle {
+            color: #888;
+            font-size: 0.85rem;
+        }
+
+        .complexity-badge {
+            display: inline-block;
+            background: linear-gradient(135deg, rgba(0, 255, 136, 0.2), rgba(0, 217, 255, 0.2));
+            border: 1px solid #00ff88;
+            color: #00ff88;
+            padding: 4px 12px;
+            border-radius: 18px;
+            font-size: 0.75rem;
+            margin-top: 6px;
+        }
+
+        .whiteboard {
+            background: rgba(255, 255, 255, 0.02);
+            border-radius: 14px;
+            padding: 15px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .key-insight {
+            background: linear-gradient(135deg, rgba(168, 85, 247, 0.12), rgba(0, 217, 255, 0.12));
+            border: 1px solid rgba(168, 85, 247, 0.35);
+            border-radius: 10px;
+            padding: 10px;
+            margin-bottom: 12px;
+            text-align: center;
+        }
+
+        .key-insight p {
+            color: #a855f7;
+            font-size: 0.8rem;
+        }
+
+        .key-insight .formula {
+            font-family: 'Courier New', monospace;
+            font-size: 0.85rem;
+            color: #ffd93d;
+            margin-top: 4px;
+        }
+
+        .k-badge {
+            display: inline-block;
+            background: rgba(255, 217, 61, 0.15);
+            border: 1px solid #ffd93d;
+            color: #ffd93d;
+            padding: 4px 12px;
+            border-radius: 15px;
+            font-size: 0.85rem;
+            margin-bottom: 10px;
+        }
+
+        /* Main Layout */
+        .main-layout {
+            display: flex;
+            gap: 20px;
+            margin: 12px 0;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        /* Array Section */
+        .array-section {
+            text-align: center;
+        }
+
+        .array-label {
+            font-size: 0.7rem;
+            color: #888;
+            margin-bottom: 5px;
+        }
+
+        .array-container {
+            display: flex;
+            gap: 5px;
+            justify-content: center;
+        }
+
+        .array-cell {
+            width: 48px;
+            height: 48px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: rgba(255, 255, 255, 0.05);
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            border-radius: 8px;
+            font-size: 1.1rem;
+            font-weight: bold;
+            position: relative;
+            transition: all 0.3s ease;
+        }
+
+        .array-cell .index {
+            position: absolute;
+            top: -16px;
+            font-size: 0.55rem;
+            color: #666;
+        }
+
+        .array-cell.processed {
+            background: rgba(168, 85, 247, 0.15);
+            border-color: rgba(168, 85, 247, 0.4);
+        }
+
+        .array-cell.current {
+            background: rgba(255, 217, 61, 0.3);
+            border-color: #ffd93d;
+            box-shadow: 0 0 15px rgba(255, 217, 61, 0.4);
+            transform: scale(1.08);
+        }
+
+        .array-cell.match {
+            background: rgba(0, 255, 136, 0.3);
+            border-color: #00ff88;
+            box-shadow: 0 0 12px rgba(0, 255, 136, 0.4);
+        }
+
+        /* Remainder Count Section */
+        .remainder-section {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 10px;
+            padding: 12px;
+            min-width: 220px;
+        }
+
+        .remainder-title {
+            font-size: 0.75rem;
+            color: #00d9ff;
+            margin-bottom: 8px;
+            text-align: center;
+        }
+
+        .remainder-grid {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 6px;
+        }
+
+        .remainder-cell {
+            background: rgba(0, 217, 255, 0.1);
+            border: 1px solid rgba(0, 217, 255, 0.3);
+            border-radius: 6px;
+            padding: 6px;
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+
+        .remainder-cell.active {
+            background: rgba(255, 217, 61, 0.2);
+            border-color: #ffd93d;
+            box-shadow: 0 0 8px rgba(255, 217, 61, 0.3);
+        }
+
+        .remainder-cell.match {
+            background: rgba(0, 255, 136, 0.2);
+            border-color: #00ff88;
+        }
+
+        .remainder-key {
+            font-size: 0.65rem;
+            color: #888;
+        }
+
+        .remainder-value {
+            font-size: 1.1rem;
+            font-weight: bold;
+            color: #00d9ff;
+        }
+
+        /* Calculation Display */
+        .calc-display {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 10px;
+            padding: 12px;
+            margin: 12px 0;
+            text-align: center;
+        }
+
+        .calc-title {
+            font-size: 0.75rem;
+            color: #888;
+            margin-bottom: 8px;
+        }
+
+        .calc-content {
+            font-family: 'Courier New', monospace;
+            font-size: 0.95rem;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .calc-part {
+            padding: 5px 10px;
+            border-radius: 6px;
+            transition: all 0.3s ease;
+        }
+
+        .calc-part.prefix {
+            background: rgba(0, 217, 255, 0.2);
+            border: 1px solid #00d9ff;
+            color: #00d9ff;
+        }
+
+        .calc-part.mod {
+            background: rgba(255, 217, 61, 0.2);
+            border: 1px solid #ffd93d;
+            color: #ffd93d;
+        }
+
+        .calc-part.remainder {
+            background: rgba(168, 85, 247, 0.2);
+            border: 2px solid #a855f7;
+            color: #a855f7;
+            font-weight: bold;
+        }
+
+        .calc-part.count-add {
+            background: rgba(0, 255, 136, 0.2);
+            border: 1px solid #00ff88;
+            color: #00ff88;
+        }
+
+        .calc-operator {
+            color: #888;
+            font-size: 1.1rem;
+        }
+
+        /* Status Box */
+        .status-box {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            padding: 10px;
+            margin: 10px 0;
+            text-align: center;
+        }
+
+        .status-text {
+            font-size: 0.9rem;
+            color: #ffd93d;
+        }
+
+        .status-result {
+            margin-top: 6px;
+            padding: 4px 12px;
+            border-radius: 12px;
+            display: inline-block;
+            font-size: 0.85rem;
+        }
+
+        .status-result.valid {
+            background: rgba(0, 255, 136, 0.2);
+            color: #00ff88;
+        }
+
+        .status-result.info {
+            background: rgba(0, 217, 255, 0.2);
+            color: #00d9ff;
+        }
+
+        /* Variables Panel */
+        .variables-panel {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 8px;
+            margin: 10px 0;
+        }
+
+        .variable-card {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+            padding: 8px;
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+
+        .variable-card.highlight {
+            border-color: #ffd93d;
+            box-shadow: 0 0 8px rgba(255, 217, 61, 0.3);
+        }
+
+        .variable-card.success {
+            border-color: #00ff88;
+            box-shadow: 0 0 8px rgba(0, 255, 136, 0.3);
+        }
+
+        .variable-name {
+            font-size: 0.55rem;
+            color: #888;
+        }
+
+        .variable-value {
+            font-size: 1.15rem;
+            font-weight: bold;
+            color: #fff;
+        }
+
+        /* Action Log */
+        .action-log {
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 6px;
+            padding: 6px;
+            margin: 8px 0;
+            font-family: 'Courier New', monospace;
+            font-size: 0.6rem;
+            max-height: 50px;
+            overflow-y: auto;
+        }
+
+        .log-entry {
+            padding: 1px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            opacity: 0;
+            transform: translateX(-20px);
+            animation: slideIn 0.3s ease forwards;
+        }
+
+        @keyframes slideIn {
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        .log-step {
+            color: #a855f7;
+        }
+
+        .log-action {
+            color: #888;
+        }
+
+        .log-value {
+            color: #00ff88;
+        }
+
+        /* Controls */
+        .controls {
+            display: flex;
+            justify-content: center;
+            gap: 8px;
+            margin-top: 10px;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            padding: 7px 16px;
+            border: none;
+            border-radius: 16px;
+            font-size: 0.8rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 600;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #00ff88, #00d9ff);
+            color: #0a0a1a;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 18px rgba(0, 255, 136, 0.3);
+        }
+
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.1);
+            color: #fff;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .btn-secondary:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        /* Speed Control */
+        .speed-control {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            margin-top: 8px;
+            justify-content: center;
+        }
+
+        .speed-control label {
+            color: #888;
+            font-size: 0.65rem;
+        }
+
+        .speed-slider {
+            width: 80px;
+            height: 3px;
+            -webkit-appearance: none;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 2px;
+            outline: none;
+        }
+
+        .speed-slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 11px;
+            height: 11px;
+            background: linear-gradient(135deg, #00ff88, #00d9ff);
+            border-radius: 50%;
+            cursor: pointer;
+        }
+
+        /* Result Display */
+        .result-display {
+            text-align: center;
+            padding: 15px;
+            margin-top: 10px;
+            background: linear-gradient(135deg, rgba(0, 255, 136, 0.1), rgba(0, 217, 255, 0.1));
+            border-radius: 12px;
+            border: 1px solid rgba(0, 255, 136, 0.3);
+            display: none;
+        }
+
+        .result-display.show {
+            display: block;
+            animation: fadeIn 0.5s ease;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(15px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .result-label {
+            font-size: 0.8rem;
+            color: #888;
+            margin-bottom: 4px;
+        }
+
+        .result-value {
+            font-size: 2rem;
+            font-weight: bold;
+            background: linear-gradient(90deg, #00ff88, #00d9ff);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        /* Progress */
+        .progress-container {
+            margin: 8px 0;
+        }
+
+        .progress-bar {
+            height: 3px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 2px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #00ff88, #00d9ff);
+            width: 0%;
+            transition: width 0.3s ease;
+        }
+
+        .step-counter {
+            text-align: center;
+            margin-top: 4px;
+            font-size: 0.6rem;
+            color: #888;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <header>
+            <h1>📊 Subarray Sums Divisible by K</h1>
+            <p class="subtitle">Optimal Approach - Remainder Counting</p>
+            <span class="complexity-badge">⏱️ O(n) Time · 📦 O(k) Space</span>
+        </header>
+
+        <div class="whiteboard">
+            <div class="key-insight">
+                <p>💡 If prefix[i] % k == prefix[j] % k, then subarray (i+1, j) is divisible by k!</p>
+                <div class="formula">Count remainders with HashMap → O(n) single pass!</div>
+            </div>
+
+            <div style="text-align: center;">
+                <span class="k-badge">k = 5</span>
+            </div>
+
+            <div class="main-layout">
+                <div class="array-section">
+                    <div class="array-label">nums = [4, 5, 0, -2, -3, 1]</div>
+                    <div class="array-container" id="arrayContainer"></div>
+                </div>
+
+                <div class="remainder-section">
+                    <div class="remainder-title">Remainder Count [0...4]</div>
+                    <div class="remainder-grid" id="remainderGrid"></div>
+                </div>
+            </div>
+
+            <div class="calc-display">
+                <div class="calc-title">Prefix Sum & Remainder Calculation</div>
+                <div class="calc-content" id="calcContent">
+                    <span style="color: #888;">prefixSum % k → remainder → count matches</span>
+                </div>
+            </div>
+
+            <div class="status-box" id="statusBox">
+                <div class="status-text" id="statusText">Click Start to begin</div>
+                <div class="status-result info" id="statusResult"></div>
+            </div>
+
+            <div class="variables-panel">
+                <div class="variable-card" id="indexCard">
+                    <div class="variable-name">index</div>
+                    <div class="variable-value" id="indexValue">-</div>
+                </div>
+                <div class="variable-card" id="prefixCard">
+                    <div class="variable-name">prefixSum</div>
+                    <div class="variable-value" id="prefixValue">0</div>
+                </div>
+                <div class="variable-card" id="remCard">
+                    <div class="variable-name">remainder</div>
+                    <div class="variable-value" id="remValue">-</div>
+                </div>
+                <div class="variable-card" id="countCard">
+                    <div class="variable-name">count</div>
+                    <div class="variable-value" id="countValue">0</div>
+                </div>
+            </div>
+
+            <div class="action-log" id="actionLog"></div>
+
+            <div class="progress-container">
+                <div class="progress-bar">
+                    <div class="progress-fill" id="progressFill"></div>
+                </div>
+                <div class="step-counter" id="stepCounter">Step 0 of 7</div>
+            </div>
+
+            <div class="result-display" id="resultDisplay">
+                <div class="result-label">✨ Total Subarrays Divisible by K!</div>
+                <div class="result-value" id="finalResult">7</div>
+            </div>
+
+            <div class="controls">
+                <button class="btn btn-secondary" id="resetBtn" onclick="reset()">↺ Reset</button>
+                <button class="btn btn-secondary" id="prevBtn" onclick="prevStep()" disabled>← Prev</button>
+                <button class="btn btn-primary" id="nextBtn" onclick="nextStep()">Start →</button>
+                <button class="btn btn-secondary" id="autoBtn" onclick="autoPlay()">▶ Auto</button>
+            </div>
+
+            <div class="speed-control">
+                <label>Speed:</label>
+                <input type="range" class="speed-slider" id="speedSlider" min="500" max="1500" value="800">
+                <span id="speedValue">800ms</span>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const nums = [4, 5, 0, -2, -3, 1];
+        const k = 5;
+        let currentStep = 0;
+        let isPlaying = false;
+        let playInterval = null;
+
+        // Generate steps
+        const steps = [];
+        steps.push({
+            type: 'init',
+            remainderCount: [1, 0, 0, 0, 0],  // {0: 1}
+            prefixSum: 0,
+            count: 0
+        });
+
+        let prefix = 0;
+        let remCount = [1, 0, 0, 0, 0];
+        let totalCount = 0;
+
+        for (let i = 0; i < nums.length; i++) {
+            prefix += nums[i];
+            let rem = ((prefix % k) + k) % k;  // Normalize negative
+            const matches = remCount[rem];
+            totalCount += matches;
+
+            steps.push({
+                type: 'process',
+                index: i,
+                num: nums[i],
+                prefixSum: prefix,
+                remainder: rem,
+                matchesBefore: matches,
+                countAfter: totalCount,
+                remainderCountBefore: [...remCount],
+                remainderCountAfter: [...remCount.map((v, idx) => idx === rem ? v + 1 : v)]
+            });
+
+            remCount[rem]++;
+        }
+
+        steps.push({
+            type: 'done',
+            totalCount: totalCount
+        });
+
+        function initDisplay() {
+            // Array
+            const container = document.getElementById('arrayContainer');
+            container.innerHTML = '';
+            nums.forEach((num, idx) => {
+                const cell = document.createElement('div');
+                cell.className = 'array-cell';
+                cell.id = `cell-${idx}`;
+                cell.innerHTML = `<span class="index">${idx}</span>${num}`;
+                container.appendChild(cell);
+            });
+
+            // Remainder grid
+            const remGrid = document.getElementById('remainderGrid');
+            remGrid.innerHTML = '';
+            for (let r = 0; r < k; r++) {
+                const cell = document.createElement('div');
+                cell.className = 'remainder-cell';
+                cell.id = `rem-${r}`;
+                cell.innerHTML = `<div class="remainder-key">r=${r}</div><div class="remainder-value" id="rem-val-${r}">${r === 0 ? 1 : 0}</div>`;
+                remGrid.appendChild(cell);
+            }
+        }
+
+        function updateDisplay() {
+            // Reset cells
+            nums.forEach((_, idx) => {
+                const cell = document.getElementById(`cell-${idx}`);
+                cell.className = 'array-cell';
+            });
+            for (let r = 0; r < k; r++) {
+                document.getElementById(`rem-${r}`).className = 'remainder-cell';
+            }
+
+            const step = steps[currentStep];
+            const statusText = document.getElementById('statusText');
+            const statusResult = document.getElementById('statusResult');
+            const calcContent = document.getElementById('calcContent');
+
+            if (step.type === 'init') {
+                document.getElementById('indexValue').textContent = '-';
+                document.getElementById('prefixValue').textContent = '0';
+                document.getElementById('remValue').textContent = '-';
+                document.getElementById('countValue').textContent = '0';
+
+                // Show initial remainder count
+                for (let r = 0; r < k; r++) {
+                    document.getElementById(`rem-val-${r}`).textContent = step.remainderCount[r];
+                }
+                document.getElementById('rem-0').classList.add('active');
+
+                calcContent.innerHTML = '<span style="color: #888;">Initialize: remainderCount[0] = 1 (empty prefix)</span>';
+                statusText.textContent = 'Initialize HashMap with {0: 1}';
+                statusResult.textContent = 'Empty prefix has remainder 0';
+                statusResult.className = 'status-result info';
+                statusResult.style.display = 'inline-block';
+                addLog('Init', 'remCount[0] = 1', 'Start');
+
+            } else if (step.type === 'process') {
+                document.getElementById('indexValue').textContent = step.index;
+                document.getElementById('prefixValue').textContent = step.prefixSum;
+                document.getElementById('remValue').textContent = step.remainder;
+
+                // Highlight array cells
+                for (let x = 0; x <= step.index; x++) {
+                    const cell = document.getElementById(`cell-${x}`);
+                    if (x === step.index) {
+                        cell.classList.add(step.matchesBefore > 0 ? 'match' : 'current');
+                    } else {
+                        cell.classList.add('processed');
+                    }
+                }
+
+                // Update remainder grid (before adding)
+                for (let r = 0; r < k; r++) {
+                    document.getElementById(`rem-val-${r}`).textContent = step.remainderCountBefore[r];
+                }
+                const remCell = document.getElementById(`rem-${step.remainder}`);
+                remCell.classList.add(step.matchesBefore > 0 ? 'match' : 'active');
+
+                // Calculation display
+                const addDisplay = step.num >= 0 ? `+ ${step.num}` : `+ (${step.num})`;
+                calcContent.innerHTML = `
+                    <span class="calc-part prefix">prefix = ${step.prefixSum}</span>
+                    <span class="calc-operator">→</span>
+                    <span class="calc-part mod">${step.prefixSum} % 5</span>
+                    <span class="calc-operator">=</span>
+                    <span class="calc-part remainder">r = ${step.remainder}</span>
+                    <span class="calc-operator">→</span>
+                    <span class="calc-part count-add">+${step.matchesBefore}</span>
+                `;
+
+                if (step.matchesBefore > 0) {
+                    document.getElementById('countValue').textContent = step.countAfter;
+                    document.getElementById('countCard').classList.add('success');
+                    setTimeout(() => document.getElementById('countCard').classList.remove('success'), 400);
+
+                    statusText.textContent = `Found ${step.matchesBefore} previous prefix(es) with r=${step.remainder}`;
+                    statusResult.textContent = `✅ +${step.matchesBefore} valid subarrays! count = ${step.countAfter}`;
+                    statusResult.className = 'status-result valid';
+                    addLog(`i=${step.index}`, `r=${step.remainder}, matches=${step.matchesBefore}`, `+${step.matchesBefore}`);
+                } else {
+                    document.getElementById('countValue').textContent = step.countAfter;
+                    statusText.textContent = `No previous prefix with r=${step.remainder}`;
+                    statusResult.textContent = 'No matches, update remCount';
+                    statusResult.className = 'status-result info';
+                    addLog(`i=${step.index}`, `r=${step.remainder}`, 'No match');
+                }
+                statusResult.style.display = 'inline-block';
+
+            } else if (step.type === 'done') {
+                document.getElementById('indexValue').textContent = '✓';
+                document.getElementById('prefixValue').textContent = '✓';
+                document.getElementById('remValue').textContent = '✓';
+
+                calcContent.innerHTML = '<span style="color: #00ff88;">Single pass O(n) with O(k) space!</span>';
+                statusText.textContent = '🎉 All elements processed!';
+                statusResult.textContent = `Total = ${step.totalCount}`;
+                statusResult.className = 'status-result valid';
+                statusResult.style.display = 'inline-block';
+
+                document.getElementById('resultDisplay').classList.add('show');
+                document.getElementById('finalResult').textContent = step.totalCount;
+                addLog('Done', 'Complete', `Count = ${step.totalCount}`);
+            }
+
+            document.getElementById('progressFill').style.width = ((currentStep + 1) / steps.length * 100) + '%';
+            document.getElementById('stepCounter').textContent = `Step ${currentStep + 1} of ${steps.length}`;
+            document.getElementById('prevBtn').disabled = currentStep === 0;
+            document.getElementById('nextBtn').disabled = currentStep >= steps.length - 1;
+            document.getElementById('nextBtn').textContent = currentStep === 0 ? 'Start →' : 'Next →';
+        }
+
+        function addLog(step, action, result) {
+            const log = document.getElementById('actionLog');
+            const entry = document.createElement('div');
+            entry.className = 'log-entry';
+            entry.innerHTML = `<span class="log-step">[${step}]</span> <span class="log-action">${action}</span> → <span class="log-value">${result}</span>`;
+            log.appendChild(entry);
+            log.scrollTop = log.scrollHeight;
+        }
+
+        function nextStep() {
+            if (currentStep < steps.length - 1) {
+                currentStep++;
+                updateDisplay();
+            }
+        }
+
+        function prevStep() {
+            if (currentStep > 0) {
+                currentStep--;
+                document.getElementById('actionLog').innerHTML = '';
+                document.getElementById('resultDisplay').classList.remove('show');
+                updateDisplay();
+            }
+        }
+
+        function reset() {
+            stopAutoPlay();
+            currentStep = 0;
+            document.getElementById('actionLog').innerHTML = '';
+            document.getElementById('resultDisplay').classList.remove('show');
+            document.getElementById('countValue').textContent = '0';
+            document.getElementById('progressFill').style.width = '0%';
+            document.getElementById('stepCounter').textContent = `Step 0 of ${steps.length}`;
+            document.getElementById('nextBtn').textContent = 'Start →';
+            document.getElementById('nextBtn').disabled = false;
+            document.getElementById('prevBtn').disabled = true;
+            document.getElementById('statusResult').style.display = 'none';
+            initDisplay();
+        }
+
+        function autoPlay() {
+            if (isPlaying) { stopAutoPlay(); return; }
+            isPlaying = true;
+            document.getElementById('autoBtn').textContent = '⏸ Pause';
+            const speed = parseInt(document.getElementById('speedSlider').value);
+            playInterval = setInterval(() => {
+                if (currentStep < steps.length - 1) nextStep();
+                else stopAutoPlay();
+            }, speed);
+        }
+
+        function stopAutoPlay() {
+            isPlaying = false;
+            document.getElementById('autoBtn').textContent = '▶ Auto';
+            if (playInterval) { clearInterval(playInterval); playInterval = null; }
+        }
+
+        document.getElementById('speedSlider').addEventListener('input', function () {
+            document.getElementById('speedValue').textContent = this.value + 'ms';
+            if (isPlaying) { stopAutoPlay(); autoPlay(); }
+        });
+
+        initDisplay();
+    </script>
+</body>
+
+</html>

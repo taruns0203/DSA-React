@@ -1,0 +1,976 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>86 - Optimal: Two Dummy-Headed Chains (Partition List)</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #0a1628 0%, #1a3a4a 50%, #0d2137 100%);
+            min-height: 100vh;
+            padding: 18px;
+            color: #e0e0e0
+        }
+
+        .container {
+            max-width: 1440px;
+            margin: 0 auto;
+            background: rgba(20, 30, 50, .95);
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, .5), 0 0 40px rgba(26, 188, 156, .07);
+            overflow: hidden;
+            border: 1px solid rgba(255, 255, 255, .06)
+        }
+
+        header {
+            background: linear-gradient(135deg, #16a085, #1abc9c);
+            color: #fff;
+            padding: 22px;
+            text-align: center
+        }
+
+        h1 {
+            font-size: 1.15em;
+            margin-bottom: 5px
+        }
+
+        .subtitle {
+            font-size: .84em;
+            opacity: .92
+        }
+
+        .badge {
+            display: inline-block;
+            background: rgba(255, 255, 255, .2);
+            padding: 5px 14px;
+            border-radius: 15px;
+            margin-top: 7px;
+            font-size: .78em
+        }
+
+        .main-content {
+            display: grid;
+            grid-template-columns: 1fr 290px;
+            gap: 16px;
+            padding: 18px
+        }
+
+        .card {
+            background: rgba(30, 45, 65, .85);
+            border-radius: 14px;
+            padding: 15px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, .2);
+            margin-bottom: 14px;
+            border: 1px solid rgba(255, 255, 255, .05)
+        }
+
+        .card-title {
+            font-size: .88em;
+            font-weight: 600;
+            margin-bottom: 10px;
+            color: #1abc9c
+        }
+
+        button {
+            padding: 7px 14px;
+            border: none;
+            border-radius: 8px;
+            font-size: .82em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all .3s
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, .3)
+        }
+
+        button:disabled {
+            opacity: .4;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #16a085, #1abc9c);
+            color: #fff
+        }
+
+        .btn-success {
+            background: linear-gradient(135deg, #27ae60, #2ecc71);
+            color: #fff
+        }
+
+        .btn-warning {
+            background: linear-gradient(135deg, #f39c12, #e67e22);
+            color: #fff
+        }
+
+        .btn-secondary {
+            background: rgba(100, 100, 140, .7);
+            color: #fff
+        }
+
+        .btn-info {
+            background: linear-gradient(135deg, #3498db, #2980b9);
+            color: #fff
+        }
+
+        .controls {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            align-items: center
+        }
+
+        .speed-control {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            flex: 1;
+            min-width: 140px
+        }
+
+        .speed-control label {
+            font-size: .8em;
+            color: #aaa
+        }
+
+        .speed-control input[type="range"] {
+            flex: 1;
+            height: 5px;
+            accent-color: #1abc9c
+        }
+
+        .speed-control span {
+            font-size: .8em;
+            color: #1abc9c;
+            min-width: 24px
+        }
+
+        .input-section {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+            flex-wrap: wrap
+        }
+
+        .input-section input {
+            padding: 7px 10px;
+            border-radius: 8px;
+            border: 1px solid rgba(255, 255, 255, .15);
+            background: rgba(15, 25, 40, .8);
+            color: #e0e0e0;
+            font-size: .82em;
+            font-family: 'Courier New', monospace;
+        }
+
+        .input-section input:focus {
+            outline: none;
+            border-color: #1abc9c
+        }
+
+        .input-section label {
+            font-size: .82em;
+            color: #aaa
+        }
+
+        /* Node boxes */
+        .nd {
+            width: 48px;
+            height: 48px;
+            border-radius: 10px;
+            display: inline-flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 1.1em;
+            border: 2.5px solid rgba(150, 150, 200, .1);
+            background: rgba(50, 70, 100, .06);
+            font-family: 'Courier New', monospace;
+            color: #777;
+            transition: all .4s;
+            position: relative;
+        }
+
+        .nd-sub {
+            font-size: .36em;
+            color: #555;
+            margin-top: 1px
+        }
+
+        .nd.curr-nd {
+            border-color: #f1c40f;
+            background: rgba(241, 196, 15, .14);
+            color: #f1c40f;
+            box-shadow: 0 0 14px rgba(241, 196, 15, .25);
+            transform: scale(1.1)
+        }
+
+        .nd.less-nd {
+            border-color: #2ecc71;
+            background: rgba(46, 204, 113, .1);
+            color: #2ecc71
+        }
+
+        .nd.geq-nd {
+            border-color: #e74c3c;
+            background: rgba(231, 76, 60, .1);
+            color: #e74c3c
+        }
+
+        .nd.routing {
+            border-color: #f39c12;
+            background: rgba(243, 156, 18, .12);
+            color: #f39c12;
+            box-shadow: 0 0 10px rgba(243, 156, 18, .15);
+            transform: scale(1.06)
+        }
+
+        .nd.done-nd {
+            border-color: #1abc9c;
+            background: rgba(26, 188, 156, .08);
+            color: #1abc9c
+        }
+
+        .nd.dim {
+            opacity: .35
+        }
+
+        .nd.dummy {
+            border-style: dashed;
+            border-color: rgba(150, 150, 200, .2);
+            color: #555;
+            font-size: .7em;
+            width: 36px;
+            height: 36px
+        }
+
+        .arrow {
+            color: #555;
+            font-size: .72em;
+            margin: 0 2px;
+            display: inline-block;
+            vertical-align: middle
+        }
+
+        .arrow.done-a {
+            color: #1abc9c
+        }
+
+        .arrow.less-a {
+            color: #2ecc71
+        }
+
+        .arrow.geq-a {
+            color: #e74c3c
+        }
+
+        .arrow.new-a {
+            color: #f39c12;
+            font-weight: 700
+        }
+
+        .x-badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 8px;
+            background: rgba(26, 188, 156, .15);
+            border: 1px solid rgba(26, 188, 156, .3);
+            color: #1abc9c;
+            font-weight: 700;
+            font-size: .85em;
+            font-family: 'Courier New', monospace;
+            margin-left: 8px
+        }
+
+        .chain-row {
+            display: flex;
+            gap: 0;
+            padding: 10px;
+            background: rgba(15, 25, 40, .4);
+            border-radius: 10px;
+            min-height: 56px;
+            align-items: center;
+            flex-wrap: wrap;
+            overflow-x: auto
+        }
+
+        .ptr-label {
+            font-size: .48em;
+            font-weight: 700;
+            font-family: 'Courier New', monospace;
+            text-align: center;
+            padding: 2px 0;
+            min-height: 14px;
+            color: #555
+        }
+
+        .ptr-label.curr-l {
+            color: #f1c40f
+        }
+
+        .ptr-label.less-l {
+            color: #2ecc71
+        }
+
+        .ptr-label.geq-l {
+            color: #e74c3c
+        }
+
+        /* Pointer diagram */
+        .ptr-diagram {
+            padding: 10px;
+            background: rgba(15, 25, 40, .5);
+            border-radius: 8px;
+            font-family: 'Courier New', monospace;
+            font-size: .72em;
+            line-height: 1.6;
+            min-height: 50px
+        }
+
+        .plbl {
+            color: #1abc9c;
+            font-weight: 700
+        }
+
+        .pval {
+            color: #ccc
+        }
+
+        .parr {
+            color: #e74c3c
+        }
+
+        .pnull {
+            color: #666;
+            font-style: italic
+        }
+
+        .status-ind {
+            text-align: center;
+            padding: 11px;
+            border-radius: 10px;
+            font-weight: 700;
+            font-size: .85em;
+            transition: all .3s
+        }
+
+        .si-neutral {
+            background: rgba(100, 100, 140, .12);
+            color: #888
+        }
+
+        .si-run {
+            background: rgba(26, 188, 156, .06);
+            color: #1abc9c;
+            border: 1px solid rgba(26, 188, 156, .12)
+        }
+
+        .si-done {
+            background: rgba(46, 204, 113, .12);
+            color: #2ecc71;
+            border: 1px solid rgba(46, 204, 113, .25)
+        }
+
+        .state-display {
+            background: rgba(15, 25, 40, .5);
+            border-radius: 8px;
+            padding: 10px;
+            font-family: 'Courier New', monospace;
+            font-size: .68em
+        }
+
+        .state-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 4px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, .05)
+        }
+
+        .state-row:last-child {
+            border-bottom: none
+        }
+
+        .state-label {
+            font-weight: 600;
+            color: #1abc9c
+        }
+
+        .state-val {
+            color: #ccc;
+            text-align: right;
+            max-width: 155px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap
+        }
+
+        .algo-box {
+            padding: 10px;
+            background: rgba(15, 25, 40, .5);
+            border-radius: 8px;
+            font-family: 'Courier New', monospace;
+            font-size: .6em;
+            line-height: 1.7
+        }
+
+        .algo-line {
+            padding: 1px 6px;
+            border-radius: 3px;
+            transition: background .3s
+        }
+
+        .algo-line.active {
+            background: rgba(26, 188, 156, .12);
+            color: #1abc9c
+        }
+
+        .algo-line .kw {
+            color: #c678dd
+        }
+
+        .algo-line .fn {
+            color: #61afef
+        }
+
+        .algo-line .cm {
+            color: #5c6370;
+            font-style: italic
+        }
+
+        .log-container {
+            background: rgba(15, 25, 40, .5);
+            border-radius: 8px;
+            padding: 10px;
+            max-height: 200px;
+            overflow-y: auto;
+            font-family: 'Courier New', monospace;
+            font-size: .54em
+        }
+
+        .log-entry {
+            padding: 3px 7px;
+            margin: 2px 0;
+            border-radius: 4px;
+            border-left: 3px solid #555;
+            background: rgba(30, 45, 65, .5);
+            line-height: 1.5
+        }
+
+        .log-entry.success {
+            border-left-color: #2ecc71;
+            background: rgba(46, 204, 113, .08);
+            color: #2ecc71
+        }
+
+        .log-entry.warning {
+            border-left-color: #f39c12;
+            background: rgba(243, 156, 18, .08);
+            color: #f39c12
+        }
+
+        .log-entry.info {
+            border-left-color: #3498db;
+            background: rgba(52, 152, 219, .08);
+            color: #8ec8f0
+        }
+
+        .log-entry.error {
+            border-left-color: #e74c3c;
+            background: rgba(231, 76, 60, .08);
+            color: #e74c3c
+        }
+
+        .log-entry.teal {
+            border-left-color: #1abc9c;
+            background: rgba(26, 188, 156, .08);
+            color: #1abc9c
+        }
+
+        .log-entry.orange {
+            border-left-color: #e67e22;
+            background: rgba(230, 126, 34, .08);
+            color: #e67e22
+        }
+
+        .log-container::-webkit-scrollbar {
+            width: 5px
+        }
+
+        .log-container::-webkit-scrollbar-track {
+            background: transparent
+        }
+
+        .log-container::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, .15);
+            border-radius: 3px
+        }
+
+        .chain-label {
+            font-size: .7em;
+            font-weight: 700;
+            padding: 3px 8px;
+            border-radius: 5px;
+            margin-right: 6px;
+            min-width: 50px;
+            text-align: center;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .chain-label.less-lbl {
+            background: rgba(46, 204, 113, .1);
+            color: #2ecc71;
+            border: 1px solid rgba(46, 204, 113, .2)
+        }
+
+        .chain-label.geq-lbl {
+            background: rgba(231, 76, 60, .1);
+            color: #e74c3c;
+            border: 1px solid rgba(231, 76, 60, .2)
+        }
+
+        .concat-arrow {
+            font-size: 1.2em;
+            color: #f39c12;
+            margin: 0 6px;
+            animation: pulse 1s infinite;
+            display: inline-block;
+            vertical-align: middle;
+        }
+
+        @keyframes pulse {
+
+            0%,
+            100% {
+                opacity: .5
+            }
+
+            50% {
+                opacity: 1
+            }
+        }
+
+        @media(max-width:960px) {
+            .main-content {
+                grid-template-columns: 1fr
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <header>
+            <h1>⚡ Partition List</h1>
+            <div class="subtitle">Optimal — Two Dummy-Headed Chains, Single Pass, In-Place</div>
+            <div class="badge">Time: O(n) | Space: O(1) — only pointer variables</div>
+        </header>
+        <div class="main-content">
+            <div class="left-panel">
+                <div class="card">
+                    <div class="card-title">⚙️ Controls</div>
+                    <div class="controls">
+                        <button class="btn-primary" id="playBtn">▶️ Play</button>
+                        <button class="btn-warning" id="pauseBtn" disabled>⏸️ Pause</button>
+                        <button class="btn-success" id="stepBtn">⏭️ Step</button>
+                        <button class="btn-secondary" id="resetBtn">🔄 Reset</button>
+                        <div class="speed-control">
+                            <label>Speed:</label>
+                            <input type="range" id="speedSlider" min="1" max="10" value="5">
+                            <span id="speedValue">5x</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="card">
+                    <div class="card-title">✏️ Custom Input</div>
+                    <div class="input-section">
+                        <label>List:</label>
+                        <input type="text" id="listInput" value="1,4,3,2,5,2" placeholder="values" style="flex:1">
+                        <label>x:</label>
+                        <input type="text" id="xInput" value="3" placeholder="x" style="width:45px">
+                        <button class="btn-info" id="applyBtn">Apply</button>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-title">🔗 Original Linked List <span class="x-badge">x = <span
+                                id="xDisp">3</span></span></div>
+                    <div class="chain-row" id="origDisplay"></div>
+                </div>
+
+                <div class="card">
+                    <div class="card-title" style="color:#2ecc71">✅ small chain (val &lt; x)</div>
+                    <div class="chain-row" id="smallDisplay"><span class="nd dummy">D</span><span
+                            class="arrow">→∅</span></div>
+                </div>
+
+                <div class="card">
+                    <div class="card-title" style="color:#e74c3c">🚫 big chain (val ≥ x)</div>
+                    <div class="chain-row" id="bigDisplay"><span class="nd dummy">D</span><span class="arrow">→∅</span>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-title">🔗 Final Result (small → big)</div>
+                    <div class="chain-row" id="resultDisplay"><span style="color:#555">—</span></div>
+                </div>
+
+                <div class="card">
+                    <div class="card-title">🔀 Current Operation</div>
+                    <div class="ptr-diagram" id="ptrDiagram"><span style="color:#555">— no operation yet —</span></div>
+                </div>
+
+                <div class="card">
+                    <div class="status-ind si-neutral" id="statusInd">Ready — press Play or Step</div>
+                </div>
+            </div>
+
+            <div class="right-panel">
+                <div class="card">
+                    <div class="card-title">📋 Current State</div>
+                    <div class="state-display">
+                        <div class="state-row"><span class="state-label">Phase:</span><span class="state-val"
+                                id="stPhase">init</span></div>
+                        <div class="state-row"><span class="state-label">x:</span><span class="state-val"
+                                id="stX">—</span></div>
+                        <div class="state-row"><span class="state-label">curr:</span><span class="state-val"
+                                id="stCurr">—</span></div>
+                        <div class="state-row"><span class="state-label">curr.val:</span><span class="state-val"
+                                id="stCurrVal">—</span></div>
+                        <div class="state-row"><span class="state-label">small chain:</span><span class="state-val"
+                                id="stSmall">D→</span></div>
+                        <div class="state-row"><span class="state-label">big chain:</span><span class="state-val"
+                                id="stBig">D→</span></div>
+                        <div class="state-row"><span class="state-label">Processed:</span><span class="state-val"
+                                id="stProc">0 / 0</span></div>
+                    </div>
+                </div>
+                <div class="card">
+                    <div class="card-title">📖 Algorithm</div>
+                    <div class="algo-box" id="algoBox">
+                        <div class="algo-line" id="aL0"><span class="kw">let</span> small = smallDummy</div>
+                        <div class="algo-line" id="aL1"><span class="kw">let</span> big = bigDummy</div>
+                        <div class="algo-line" id="aL2"><span class="kw">while</span> (curr) {</div>
+                        <div class="algo-line" id="aL3">&nbsp;&nbsp;<span class="kw">if</span> (curr.val &lt; x) {</div>
+                        <div class="algo-line" id="aL4">&nbsp;&nbsp;&nbsp;&nbsp;small.next = curr</div>
+                        <div class="algo-line" id="aL5">&nbsp;&nbsp;&nbsp;&nbsp;small = small.next</div>
+                        <div class="algo-line" id="aL6">&nbsp;&nbsp;} <span class="kw">else</span> {</div>
+                        <div class="algo-line" id="aL7">&nbsp;&nbsp;&nbsp;&nbsp;big.next = curr</div>
+                        <div class="algo-line" id="aL8">&nbsp;&nbsp;&nbsp;&nbsp;big = big.next</div>
+                        <div class="algo-line" id="aL9">&nbsp;&nbsp;}</div>
+                        <div class="algo-line" id="aL10">&nbsp;&nbsp;curr = curr.next</div>
+                        <div class="algo-line" id="aL11">}</div>
+                        <div class="algo-line" id="aL12">big.next = <span class="pnull">null</span> <span class="cm">//
+                                ⚠️</span></div>
+                        <div class="algo-line" id="aL13">small.next = bigDummy.next</div>
+                    </div>
+                </div>
+                <div class="card" style="flex:1">
+                    <div class="card-title">📝 Execution Log</div>
+                    <div class="log-container" id="logContainer">
+                        <div class="log-entry teal">Two chains: small(&lt;x) + big(≥x). Single pass. O(1) space.</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let initVals = [1, 4, 3, 2, 5, 2];
+        let X = 3;
+
+        let smallChain = [];   // array of {val, idx} (original idx)
+        let bigChain = [];
+        let origStates = {};   // origIdx → class
+        let processed = 0;
+
+        let steps = [], stepIdx = 0, stepCount = 0;
+        let isRunning = false, speed = 5, isDone = false, phase = 'init';
+        let stCurr = '—', stCurrVal = '—';
+        let showResult = false, showNullTerm = false, showConcat = false;
+
+        const $ = id => document.getElementById(id);
+        const logC = $('logContainer');
+        function addLog(m, t = 'info') { logC.innerHTML += `<div class="log-entry ${t}">[${stepCount}] ${m}</div>`; logC.scrollTop = logC.scrollHeight }
+        function clearLog() { logC.innerHTML = '' }
+
+        function setAlgoLine(line) {
+            for (let i = 0; i <= 13; i++) { const el = $('aL' + i); if (el) el.classList.toggle('active', i === line); }
+        }
+
+        /* ── Build steps ──────────────────────────── */
+        function buildSteps() {
+            steps = [];
+            const n = initVals.length;
+            if (n === 0) { steps.push({ type: 'done-empty' }); return; }
+
+            steps.push({ type: 'start' });
+
+            for (let i = 0; i < n; i++) {
+                const val = initVals[i];
+                const isLess = val < X;
+                steps.push({ type: 'visit', idx: i, val, isLess });
+                steps.push({ type: 'route', idx: i, val, isLess });
+                steps.push({ type: 'advance', idx: i, nextIdx: i + 1 < n ? i + 1 : null, nextVal: i + 1 < n ? initVals[i + 1] : null });
+            }
+
+            steps.push({ type: 'null-term' });
+            steps.push({ type: 'concat' });
+            steps.push({ type: 'done' });
+        }
+
+        /* ── Render ────────────────────────────────── */
+        function renderOrig() {
+            let h = '';
+            for (let i = 0; i < initVals.length; i++) {
+                let cls = 'nd';
+                if (origStates[i]) cls += ' ' + origStates[i];
+                if (isDone) cls = 'nd done-nd';
+                const cmp = initVals[i] < X ? '<' : '≥';
+                h += `<div class="${cls}">${initVals[i]}<span class="nd-sub">${cmp}${X}</span></div>`;
+                if (i < initVals.length - 1) h += `<span class="arrow${isDone ? ' done-a' : ''}">→</span>`;
+            }
+            h += `<span class="arrow" style="opacity:.5">→∅</span>`;
+            $('origDisplay').innerHTML = h;
+        }
+
+        function renderChain(containerId, chain, chainType) {
+            let h = `<div class="nd dummy">D</div><span class="arrow ${chainType === 'less' ? 'less-a' : 'geq-a'}">→</span>`;
+            if (chain.length === 0) {
+                h += `<span style="color:#555;font-size:.72em">∅</span>`;
+            } else {
+                for (let i = 0; i < chain.length; i++) {
+                    const c = chain[i];
+                    let cls = 'nd';
+                    if (chainType === 'less') cls += ' less-nd';
+                    else cls += ' geq-nd';
+                    if (c.routing) cls = 'nd routing';
+                    if (isDone) cls = 'nd done-nd';
+                    h += `<div class="${cls}">${c.val}</div>`;
+                    if (i < chain.length - 1) h += `<span class="arrow ${chainType === 'less' ? 'less-a' : 'geq-a'}">→</span>`;
+                }
+                if (chainType === 'big' && showNullTerm) {
+                    h += `<span class="arrow geq-a">→</span><span style="color:#e74c3c;font-size:.75em;font-weight:700">∅</span>`;
+                } else {
+                    h += `<span class="arrow" style="opacity:.4">→</span>`;
+                }
+            }
+            $(containerId).innerHTML = h;
+        }
+
+        function renderResult() {
+            if (!showResult) { $('resultDisplay').innerHTML = '<span style="color:#555">—</span>'; return; }
+            // Build the concatenated result
+            const result = [...smallChain.map(c => c.val), ...bigChain.map(c => c.val)];
+            let h = '';
+            for (let i = 0; i < result.length; i++) {
+                const isSmall = i < smallChain.length;
+                let cls = 'nd';
+                if (isDone) cls += ' done-nd';
+                else if (isSmall) cls += ' less-nd';
+                else cls += ' geq-nd';
+                h += `<div class="${cls}">${result[i]}</div>`;
+                if (i < result.length - 1) {
+                    if (i === smallChain.length - 1) {
+                        h += `<span class="concat-arrow">⟹</span>`;
+                    } else {
+                        h += `<span class="arrow${isDone ? ' done-a' : ''}">→</span>`;
+                    }
+                }
+            }
+            h += `<span class="arrow" style="opacity:.5">→∅</span>`;
+            $('resultDisplay').innerHTML = h;
+        }
+
+        function renderState() {
+            $('stPhase').textContent = phase;
+            $('stX').textContent = X;
+            $('stCurr').textContent = stCurr;
+            $('stCurrVal').textContent = stCurrVal;
+            $('stSmall').textContent = 'D→' + (smallChain.length ? smallChain.map(c => c.val).join('→') : '∅');
+            $('stBig').textContent = 'D→' + (bigChain.length ? bigChain.map(c => c.val).join('→') : '∅');
+            $('stProc').textContent = `${processed} / ${initVals.length}`;
+        }
+
+        function render() {
+            renderOrig();
+            renderChain('smallDisplay', smallChain, 'less');
+            renderChain('bigDisplay', bigChain, 'big');
+            renderResult();
+            renderState();
+        }
+
+        /* ── Execute step ──────────────────────────── */
+        function doStep() {
+            if (isDone || stepIdx >= steps.length) { stopExec(); return; }
+            stepCount++;
+            const s = steps[stepIdx++];
+
+            // Clear routing highlights
+            smallChain.forEach(c => c.routing = false);
+            bigChain.forEach(c => c.routing = false);
+            for (const k in origStates) if (origStates[k] === 'curr-nd' || origStates[k] === 'routing') origStates[k] = origStates[k] === 'curr-nd' ? '' : '';
+
+            switch (s.type) {
+                case 'start':
+                    phase = 'routing';
+                    addLog('━━ Single-Pass: Route nodes into two chains ━━', 'teal');
+                    addLog(`List: [${initVals.join(',')}], x = ${X}`, 'info');
+                    $('statusInd').className = 'status-ind si-run';
+                    $('statusInd').textContent = 'Single-pass routing...';
+                    setAlgoLine(0);
+                    break;
+
+                case 'visit':
+                    origStates[s.idx] = 'curr-nd';
+                    stCurr = `node(${s.val})`;
+                    stCurrVal = `${s.val} ${s.isLess ? '<' : '≥'} ${X}`;
+                    addLog(`👁 curr = node(${s.val}) — ${s.val} ${s.isLess ? '<' : '≥'} ${X}`, s.isLess ? 'success' : 'error');
+                    setAlgoLine(s.isLess ? 3 : 6);
+                    $('ptrDiagram').innerHTML =
+                        `<div><span class="plbl">curr</span> = <span class="pval">node(${s.val})</span></div>` +
+                        `<div><span class="plbl">Compare:</span> <span class="pval">${s.val} ${s.isLess ? '<' : '≥'} ${X}</span> → route to <span style="color:${s.isLess ? '#2ecc71' : '#e74c3c'}">${s.isLess ? 'small' : 'big'}</span> chain</div>`;
+                    break;
+
+                case 'route':
+                    origStates[s.idx] = s.isLess ? 'less-nd' : 'geq-nd';
+                    if (s.isLess) {
+                        smallChain.push({ val: s.val, idx: s.idx, routing: true });
+                        addLog(`  🟢 small.next = node(${s.val}); small = small.next`, 'success');
+                        setAlgoLine(4);
+                        $('ptrDiagram').innerHTML =
+                            `<div><span class="plbl">ROUTE → small chain:</span></div>` +
+                            `<div><span class="pval">small.next = node(${s.val})</span></div>` +
+                            `<div><span class="pval">small = small.next</span></div>` +
+                            `<div><span class="plbl">small:</span> <span class="pval">D→${smallChain.map(c => c.val).join('→')}</span></div>`;
+                    } else {
+                        bigChain.push({ val: s.val, idx: s.idx, routing: true });
+                        addLog(`  🔴 big.next = node(${s.val}); big = big.next`, 'error');
+                        setAlgoLine(7);
+                        $('ptrDiagram').innerHTML =
+                            `<div><span class="plbl">ROUTE → big chain:</span></div>` +
+                            `<div><span class="pval">big.next = node(${s.val})</span></div>` +
+                            `<div><span class="pval">big = big.next</span></div>` +
+                            `<div><span class="plbl">big:</span> <span class="pval">D→${bigChain.map(c => c.val).join('→')}</span></div>`;
+                    }
+                    processed++;
+                    break;
+
+                case 'advance':
+                    if (s.nextIdx !== null) {
+                        stCurr = `node(${s.nextVal})`;
+                        addLog(`  → curr = curr.next = node(${s.nextVal})`, 'info');
+                    } else {
+                        stCurr = 'null';
+                        addLog(`  → curr = curr.next = null (loop ends)`, 'teal');
+                    }
+                    setAlgoLine(10);
+                    break;
+
+                case 'null-term':
+                    showNullTerm = true;
+                    addLog(`⚠️ big.next = null (prevent cycle!)`, 'warning');
+                    setAlgoLine(12);
+                    $('ptrDiagram').innerHTML =
+                        `<div><span class="plbl">⚠️ CRITICAL: Null-terminate big chain</span></div>` +
+                        `<div><span class="pval">big.next = </span><span class="pnull">null</span></div>` +
+                        `<div style="color:#f39c12;font-size:.85em;margin-top:4px">Without this, the last big node's .next still<br>points into the small chain → infinite cycle!</div>`;
+                    break;
+
+                case 'concat':
+                    showResult = true;
+                    phase = 'concat';
+                    addLog(`🔗 small.next = bigDummy.next → concatenate!`, 'orange');
+                    addLog(`  Result: [${[...smallChain, ...bigChain].map(c => c.val).join(' → ')}]`, 'teal');
+                    setAlgoLine(13);
+                    $('ptrDiagram').innerHTML =
+                        `<div><span class="plbl">CONCATENATE:</span></div>` +
+                        `<div><span class="pval">small.next = bigDummy.next</span></div>` +
+                        `<div style="margin-top:4px"><span style="color:#2ecc71">small: D→${smallChain.map(c => c.val).join('→')}</span></div>` +
+                        `<div><span style="color:#f39c12">⟹ joins to ⟹</span></div>` +
+                        `<div><span style="color:#e74c3c">big: D→${bigChain.map(c => c.val).join('→')}</span></div>`;
+                    break;
+
+                case 'done':
+                    isDone = true;
+                    phase = 'done';
+                    const res = [...smallChain, ...bigChain].map(c => c.val);
+                    addLog(`🎉 Done! [${res.join(' → ')}]`, 'success');
+                    $('statusInd').className = 'status-ind si-done';
+                    $('statusInd').textContent = `✅ Done! [${res.join(' → ')}]`;
+                    setAlgoLine(-1);
+                    $('ptrDiagram').innerHTML =
+                        `<div><span class="plbl">🎉 RESULT:</span> <span class="pval">${res.join(' ⇄ ')}</span></div>` +
+                        `<div><span class="plbl">Complexity:</span> <span class="pval">O(n) time, O(1) space ✓</span></div>`;
+                    stopExec();
+                    break;
+
+                case 'done-empty':
+                    isDone = true; phase = 'done';
+                    addLog('🎉 Empty list → return null', 'success');
+                    $('statusInd').className = 'status-ind si-done';
+                    $('statusInd').textContent = '✅ Done! null';
+                    stopExec();
+                    break;
+            }
+
+            render();
+        }
+
+        /* ── Playback ──────────────────────────────── */
+        function play() { if (isRunning || isDone) return; isRunning = true; $('playBtn').disabled = true; $('pauseBtn').disabled = false; $('stepBtn').disabled = true; runLoop() }
+        function pause() { isRunning = false; $('playBtn').disabled = false; $('pauseBtn').disabled = true; $('stepBtn').disabled = false }
+        function stopExec() { isRunning = false; $('playBtn').disabled = true; $('pauseBtn').disabled = true; $('stepBtn').disabled = true }
+        function runLoop() { if (!isRunning) return; doStep(); if (isRunning && !isDone) setTimeout(runLoop, 400 / speed) }
+
+        /* ── Init ──────────────────────────────────── */
+        function init() {
+            smallChain = []; bigChain = []; origStates = {};
+            processed = 0; phase = 'init'; stCurr = '—'; stCurrVal = '—';
+            showResult = false; showNullTerm = false; showConcat = false;
+            stepIdx = 0; stepCount = 0; isDone = false; isRunning = false;
+            buildSteps();
+            $('xDisp').textContent = X;
+            $('statusInd').className = 'status-ind si-neutral';
+            $('statusInd').textContent = 'Ready — press Play or Step';
+            $('playBtn').disabled = false; $('pauseBtn').disabled = true; $('stepBtn').disabled = false;
+            setAlgoLine(-1);
+            clearLog(); addLog('Two chains: small(<x) + big(≥x). Single pass. O(1) space.', 'teal');
+            $('ptrDiagram').innerHTML = '<span style="color:#555">— no operation yet —</span>';
+            render();
+        }
+
+        /* ── Events ────────────────────────────────── */
+        $('playBtn').addEventListener('click', play);
+        $('pauseBtn').addEventListener('click', pause);
+        $('stepBtn').addEventListener('click', () => { if (!isDone) doStep() });
+        $('resetBtn').addEventListener('click', () => { isRunning = false; init() });
+        $('speedSlider').addEventListener('input', e => { speed = parseInt(e.target.value); $('speedValue').textContent = speed + 'x' });
+        $('applyBtn').addEventListener('click', () => {
+            const lv = $('listInput').value.trim();
+            const xv = $('xInput').value.trim();
+            const vs = lv ? lv.split(',').map(s => parseInt(s.trim())).filter(v => !isNaN(v)) : [];
+            const xn = parseInt(xv);
+            if (isNaN(xn)) { alert('x must be a number.'); return; }
+            initVals = [...vs]; X = xn; isRunning = false; init();
+        });
+
+        init();
+    </script>
+</body>
+
+</html>

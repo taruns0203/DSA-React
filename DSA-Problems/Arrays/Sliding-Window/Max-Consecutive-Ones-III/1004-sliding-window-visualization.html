@@ -1,0 +1,880 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>1004. Max Consecutive Ones III - Sliding Window</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #ede7f6 0%, #d1c4e9 50%, #b39ddb 100%);
+            min-height: 100vh;
+            padding: 20px;
+            color: #333;
+        }
+
+        .container {
+            max-width: 1150px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.25);
+            overflow: hidden;
+        }
+
+        header {
+            background: linear-gradient(135deg, #4527a0 0%, #5e35b1 50%, #7e57c2 100%);
+            color: white;
+            padding: 25px;
+            text-align: center;
+        }
+
+        h1 {
+            font-size: 1.5em;
+            margin-bottom: 6px;
+        }
+
+        .subtitle {
+            font-size: 1em;
+            opacity: 0.9;
+        }
+
+        .complexity-badge {
+            display: inline-block;
+            background: rgba(255, 255, 255, 0.2);
+            padding: 6px 14px;
+            border-radius: 15px;
+            margin-top: 8px;
+            font-size: 0.85em;
+        }
+
+        .main-content {
+            display: grid;
+            grid-template-columns: 1fr 290px;
+            gap: 20px;
+            padding: 20px;
+        }
+
+        .card {
+            background: #f8f9fa;
+            border-radius: 12px;
+            padding: 16px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+            margin-bottom: 16px;
+        }
+
+        .card-title {
+            font-size: 0.95em;
+            font-weight: 600;
+            margin-bottom: 12px;
+            color: #4527a0;
+        }
+
+        /* Controls */
+        .controls {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            align-items: center;
+        }
+
+        button {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 8px;
+            font-size: 0.85em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+        }
+
+        button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #4527a0 0%, #7e57c2 100%);
+            color: white;
+        }
+
+        .btn-success {
+            background: linear-gradient(135deg, #2e7d32 0%, #66bb6a 100%);
+            color: white;
+        }
+
+        .btn-warning {
+            background: linear-gradient(135deg, #f9a825 0%, #ffca28 100%);
+            color: white;
+        }
+
+        .btn-secondary {
+            background: #6c757d;
+            color: white;
+        }
+
+        .speed-control {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            flex: 1;
+            min-width: 140px;
+        }
+
+        .speed-control input[type="range"] {
+            flex: 1;
+            height: 5px;
+            accent-color: #7e57c2;
+        }
+
+        /* Custom input */
+        .input-row {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+            flex-wrap: wrap;
+            margin-bottom: 8px;
+        }
+
+        .input-row:last-child {
+            margin-bottom: 0;
+        }
+
+        .input-row label {
+            font-size: 0.85em;
+            font-weight: 600;
+            color: #555;
+            min-width: 25px;
+        }
+
+        .input-row input {
+            flex: 1;
+            min-width: 100px;
+            padding: 8px 12px;
+            border: 2px solid #d1c4e9;
+            border-radius: 8px;
+            font-size: 0.9em;
+            font-family: 'Courier New', monospace;
+            outline: none;
+            transition: border-color 0.3s;
+        }
+
+        .input-row input:focus {
+            border-color: #7e57c2;
+        }
+
+        /* Array Display */
+        .array-container {
+            display: flex;
+            gap: 5px;
+            min-height: 105px;
+            padding: 32px 10px 30px;
+            background: #fff;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            position: relative;
+            flex-wrap: wrap;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .array-item {
+            width: 46px;
+            height: 46px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            position: relative;
+            transition: all 0.25s ease;
+            box-shadow: 0 3px 6px rgba(0, 0, 0, 0.1);
+            font-size: 1.1em;
+            z-index: 1;
+        }
+
+        /* Default colors */
+        .array-item.val-one {
+            background: #e8f5e9;
+            color: #2e7d32;
+        }
+
+        .array-item.val-zero {
+            background: #ffebee;
+            color: #c62828;
+        }
+
+        /* In window */
+        .array-item.win-one {
+            background: linear-gradient(135deg, #66bb6a 0%, #43a047 100%);
+            color: white;
+            transform: scale(1.08);
+            z-index: 2;
+        }
+
+        .array-item.win-zero-flipped {
+            background: linear-gradient(135deg, #ffb74d 0%, #ff9800 100%);
+            color: white;
+            transform: scale(1.08);
+            z-index: 2;
+        }
+
+        /* Expanding highlight */
+        .array-item.expanding {
+            animation: pulse-expand 0.4s ease;
+            box-shadow: 0 0 16px rgba(126, 87, 194, 0.5);
+        }
+
+        /* Shrinking highlight */
+        .array-item.shrinking {
+            background: linear-gradient(135deg, #ef5350 0%, #c62828 100%) !important;
+            color: white;
+            transform: scale(1.12);
+            z-index: 3;
+            animation: pulse-shrink 0.4s ease;
+        }
+
+        /* Best window at end */
+        .array-item.best-highlight {
+            transform: scale(1.1);
+            z-index: 2;
+        }
+
+        .array-item.best-highlight.bh-one {
+            background: linear-gradient(135deg, #ffd600 0%, #ffab00 100%);
+            color: #333;
+            box-shadow: 0 4px 14px rgba(255, 171, 0, 0.45);
+        }
+
+        .array-item.best-highlight.bh-zero {
+            background: linear-gradient(135deg, #ff6d00 0%, #e65100 100%);
+            color: white;
+            box-shadow: 0 4px 14px rgba(230, 81, 0, 0.45);
+        }
+
+        .array-item .idx-label {
+            position: absolute;
+            top: -17px;
+            font-size: 0.55em;
+            color: #888;
+            width: 100%;
+            text-align: center;
+        }
+
+        .pointer-label {
+            position: absolute;
+            font-size: 0.5em;
+            font-weight: 700;
+            padding: 1px 5px;
+            border-radius: 4px;
+            color: white;
+            white-space: nowrap;
+        }
+
+        .pointer-left {
+            bottom: -21px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #e65100;
+        }
+
+        .pointer-right {
+            top: -26px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #1b5e20;
+        }
+
+        .pointer-both {
+            bottom: -21px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #4527a0;
+        }
+
+        @keyframes pulse-expand {
+
+            0%,
+            100% {
+                box-shadow: 0 3px 6px rgba(0, 0, 0, 0.1);
+            }
+
+            50% {
+                box-shadow: 0 0 18px rgba(67, 160, 71, 0.6);
+            }
+        }
+
+        @keyframes pulse-shrink {
+
+            0%,
+            100% {
+                box-shadow: 0 3px 6px rgba(0, 0, 0, 0.1);
+            }
+
+            50% {
+                box-shadow: 0 0 20px rgba(229, 57, 53, 0.7);
+            }
+        }
+
+        /* Flip budget bar */
+        .budget-bar {
+            display: flex;
+            justify-content: center;
+            gap: 16px;
+            margin-top: 10px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .budget-chip {
+            padding: 5px 12px;
+            border-radius: 16px;
+            font-size: 0.85em;
+            font-weight: 600;
+        }
+
+        .chip-budget {
+            background: #ede7f6;
+            color: #4527a0;
+        }
+
+        .chip-zeros-ok {
+            background: #e8f5e9;
+            color: #2e7d32;
+        }
+
+        .chip-zeros-over {
+            background: #ffebee;
+            color: #c62828;
+            font-weight: 700;
+        }
+
+        .chip-phase {
+            background: #fff3e0;
+            color: #e65100;
+        }
+
+        /* Window bracket visual */
+        .window-bracket {
+            text-align: center;
+            margin-top: 6px;
+            font-size: 0.82em;
+            color: #666;
+        }
+
+        /* State & Log */
+        .state-display {
+            background: white;
+            border-radius: 8px;
+            padding: 10px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.85em;
+        }
+
+        .state-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 5px 0;
+            border-bottom: 1px solid #eee;
+        }
+
+        .state-row:last-child {
+            border-bottom: none;
+        }
+
+        .highlight-val {
+            color: #4527a0;
+            font-weight: bold;
+        }
+
+        .highlight-best {
+            color: #e65100;
+            font-weight: bold;
+        }
+
+        .log-container {
+            background: white;
+            border-radius: 8px;
+            padding: 10px;
+            max-height: 250px;
+            overflow-y: auto;
+            font-family: 'Courier New', monospace;
+            font-size: 0.63em;
+        }
+
+        .log-entry {
+            padding: 3px 6px;
+            margin: 2px 0;
+            border-radius: 4px;
+            border-left: 3px solid #ccc;
+            background: #f9f9f9;
+        }
+
+        .log-entry.expand {
+            border-left-color: #43a047;
+            background: #e8f5e9;
+        }
+
+        .log-entry.shrink {
+            border-left-color: #e53935;
+            background: #ffebee;
+        }
+
+        .log-entry.info {
+            border-left-color: #1565c0;
+            background: #e3f2fd;
+        }
+
+        .log-entry.best {
+            border-left-color: #e65100;
+            background: #fff3e0;
+        }
+
+        .log-entry.found {
+            border-left-color: #2e7d32;
+            background: #e8f5e9;
+        }
+
+        .log-entry.record {
+            border-left-color: #7e57c2;
+            background: #ede7f6;
+        }
+
+        .result-display {
+            text-align: center;
+            padding: 12px;
+            background: linear-gradient(135deg, #4527a0 0%, #7e57c2 100%);
+            color: white;
+            border-radius: 10px;
+            margin-top: 12px;
+            font-size: 1.15em;
+            font-weight: bold;
+        }
+
+        .strategy-text {
+            font-size: 0.88em;
+            color: #555;
+            line-height: 1.6;
+        }
+
+        .strategy-text code {
+            background: #ede7f6;
+            padding: 1px 5px;
+            border-radius: 3px;
+            font-size: 0.9em;
+            color: #4527a0;
+        }
+
+        @media (max-width: 800px) {
+            .main-content {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <header>
+            <h1>1004. Max Consecutive Ones III</h1>
+            <div class="subtitle">Sliding Window: Expand Right, Shrink Left</div>
+            <div class="complexity-badge">Time: O(n) | Space: O(1)</div>
+        </header>
+
+        <div class="main-content">
+            <div class="left-panel">
+                <div class="card">
+                    <div class="card-title">⚙️ Controls</div>
+                    <div class="controls">
+                        <button class="btn-primary" id="playBtn">▶️ Play</button>
+                        <button class="btn-warning" id="pauseBtn" disabled>⏸️ Pause</button>
+                        <button class="btn-success" id="stepBtn">⏭️ Step</button>
+                        <button class="btn-secondary" id="resetBtn">🔄 Reset</button>
+                        <div class="speed-control">
+                            <label>Speed:</label>
+                            <input type="range" id="speedSlider" min="1" max="10" value="5">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-title">🎯 Custom Input</div>
+                    <div class="input-row">
+                        <label>arr:</label>
+                        <input type="text" id="customInput" placeholder="e.g. 1,1,1,0,0,0,1,1,1,1,0"
+                            value="1,1,1,0,0,0,1,1,1,1,0">
+                    </div>
+                    <div class="input-row">
+                        <label>k:</label>
+                        <input type="number" id="kInput" value="2" min="0" style="max-width:80px">
+                        <button class="btn-primary" id="loadBtn">Load</button>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-title">🔢 Sliding Window View</div>
+                    <div class="array-container" id="arrayContainer"></div>
+                    <div class="budget-bar">
+                        <span class="budget-chip chip-budget" id="budgetChip">k = 2</span>
+                        <span class="budget-chip" id="zeroChip">Zeros: 0 / 2</span>
+                        <span class="budget-chip chip-phase" id="phaseChip">Ready</span>
+                    </div>
+                    <div class="window-bracket" id="windowBracket"></div>
+                </div>
+
+                <div class="card">
+                    <div class="card-title">ℹ️ Strategy</div>
+                    <div class="strategy-text">
+                        Expand <code>right</code> one step each round. If <code>nums[right]==0</code>, increment
+                        <code>zeroCount</code>.<br>
+                        While <code>zeroCount &gt; k</code>: shrink from <code>left</code>
+                        (if <code>nums[left]==0</code>, decrement <code>zeroCount</code>), advance
+                        <code>left</code>.<br>
+                        Record <code>maxLen = max(maxLen, right − left + 1)</code>.
+                    </div>
+                </div>
+            </div>
+
+            <div class="right-panel">
+                <div class="card">
+                    <div class="card-title">📊 Current State</div>
+                    <div class="state-display">
+                        <div class="state-row"><span>left:</span><span id="leftVal">—</span></div>
+                        <div class="state-row"><span>right:</span><span id="rightVal">—</span></div>
+                        <div class="state-row"><span>nums[right]:</span><span id="numrVal">—</span></div>
+                        <div class="state-row"><span>zeroCount:</span><span id="zcVal" class="highlight-val">0</span>
+                        </div>
+                        <div class="state-row"><span>Window size:</span><span id="winVal">0</span></div>
+                        <div class="state-row"><span>maxLen:</span><span id="bestVal" class="highlight-best">0</span>
+                        </div>
+                    </div>
+                    <div class="result-display">
+                        Max Consecutive 1s: <span id="resultVal">—</span>
+                    </div>
+                </div>
+
+                <div class="card" style="flex-grow:1; display:flex; flex-direction:column;">
+                    <div class="card-title">📝 Execution Log</div>
+                    <div class="log-container" id="logContainer"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ─── State ───
+        let nums = [1, 1, 1, 0, 0, 0, 1, 1, 1, 1, 0];
+        let k = 2;
+        let n = nums.length;
+        let left = 0, right = -1;
+        let zeroCount = 0;
+        let maxLen = 0;
+        let bestStart = -1, bestEnd = -1;
+
+        // phase: idle | expand | shrink | record | done
+        let phase = 'idle';
+        let highlightType = ''; // 'expanding' | 'shrinking'
+        let shrinkIdx = -1;
+
+        let isRunning = false;
+        let timer = null;
+        let speed = 5;
+        let stepNum = 0;
+
+        // ─── Init ───
+        function init() {
+            n = nums.length;
+            left = 0; right = -1;
+            zeroCount = 0;
+            maxLen = 0;
+            bestStart = -1; bestEnd = -1;
+            phase = 'idle';
+            highlightType = '';
+            shrinkIdx = -1;
+            stepNum = 0;
+            isRunning = false;
+            if (timer) clearTimeout(timer);
+            timer = null;
+
+            clearLog();
+            addLog(`Array: [${nums.join(',')}], k=${k}, n=${n}`, 'info');
+            addLog(`Longest subarray with at most ${k} zeros`, 'info');
+            render();
+            updateControls();
+        }
+
+        // ─── Render All ───
+        function render() {
+            renderArray();
+            renderState();
+            renderBudgetBar();
+            renderWindowBracket();
+        }
+
+        function renderArray() {
+            const c = document.getElementById('arrayContainer');
+            c.innerHTML = '';
+
+            nums.forEach((val, idx) => {
+                const el = document.createElement('div');
+                let cls = 'array-item';
+
+                if (phase === 'done' && idx >= bestStart && idx <= bestEnd) {
+                    cls += ' best-highlight';
+                    cls += val === 1 ? ' bh-one' : ' bh-zero';
+                } else if (highlightType === 'shrinking' && idx === shrinkIdx) {
+                    cls += ' shrinking';
+                } else if (highlightType === 'expanding' && idx === right) {
+                    cls += (val === 1 ? ' win-one' : ' win-zero-flipped') + ' expanding';
+                } else if (phase !== 'idle' && phase !== 'done' && right >= 0 && idx >= left && idx <= right) {
+                    cls += val === 1 ? ' win-one' : ' win-zero-flipped';
+                } else {
+                    cls += val === 1 ? ' val-one' : ' val-zero';
+                }
+
+                el.className = cls;
+                el.innerHTML = `<span class="idx-label">${idx}</span>${val}`;
+
+                // Pointers
+                if (phase !== 'idle' && phase !== 'done' && right >= 0) {
+                    if (idx === left && idx === right) {
+                        el.innerHTML += `<span class="pointer-label pointer-both">L,R</span>`;
+                        // also add right pointer on top
+                        el.innerHTML += `<span class="pointer-label pointer-right">right=${right}</span>`;
+                        // override bottom
+                        // Use just one bottom label
+                        el.querySelector('.pointer-both').textContent = `left=${left}`;
+                    } else if (idx === left) {
+                        el.innerHTML += `<span class="pointer-label pointer-left">left=${left}</span>`;
+                    } else if (idx === right) {
+                        el.innerHTML += `<span class="pointer-label pointer-right">right=${right}</span>`;
+                    }
+                }
+
+                c.appendChild(el);
+            });
+        }
+
+        function renderState() {
+            const active = phase !== 'idle' && phase !== 'done';
+            document.getElementById('leftVal').textContent = active ? left : '—';
+            document.getElementById('rightVal').textContent = active && right >= 0 ? right : '—';
+            document.getElementById('numrVal').textContent = active && right >= 0 && right < n ? nums[right] : '—';
+            document.getElementById('zcVal').textContent = zeroCount;
+            const winSize = active && right >= 0 ? right - left + 1 : 0;
+            document.getElementById('winVal').textContent = winSize;
+            document.getElementById('bestVal').textContent = maxLen;
+            document.getElementById('resultVal').textContent = phase === 'done' ? maxLen : '—';
+        }
+
+        function renderBudgetBar() {
+            document.getElementById('budgetChip').textContent = `k = ${k}`;
+
+            const zc = document.getElementById('zeroChip');
+            zc.textContent = `Zeros: ${zeroCount} / ${k}`;
+            zc.className = 'budget-chip ' + (zeroCount > k ? 'chip-zeros-over' : 'chip-zeros-ok');
+
+            const pc = document.getElementById('phaseChip');
+            const labels = {
+                idle: '⏳ Ready',
+                expand: '➕ Expanding',
+                shrink: '➖ Shrinking',
+                record: '📝 Recording',
+                done: '✅ Done'
+            };
+            pc.textContent = labels[phase] || phase;
+        }
+
+        function renderWindowBracket() {
+            const wb = document.getElementById('windowBracket');
+            if (phase === 'idle' || right < 0) {
+                wb.textContent = '';
+                return;
+            }
+            if (phase === 'done') {
+                wb.innerHTML = `Best window: <b>[${bestStart}..${bestEnd}]</b> length <b>${maxLen}</b>`;
+                return;
+            }
+            const winSize = right - left + 1;
+            wb.innerHTML = `Window: <b>[${left}..${right}]</b> size <b>${winSize}</b> | Best: <b>${maxLen}</b>`;
+        }
+
+        // ─── Step Logic ───
+        function step() {
+            if (phase === 'done') return;
+            stepNum++;
+
+            switch (phase) {
+                case 'idle':
+                    // First expand: right = 0
+                    right = 0;
+                    if (nums[0] === 0) zeroCount++;
+                    highlightType = 'expanding';
+                    shrinkIdx = -1;
+
+                    if (zeroCount > k) {
+                        addLog(`➕ right=0: nums[0]=${nums[0]}. zc=${zeroCount} > k=${k} → need to shrink`, 'expand');
+                        phase = 'shrink';
+                    } else {
+                        addLog(`➕ right=0: nums[0]=${nums[0]}. zc=${zeroCount} ≤ k. Valid window.`, 'expand');
+                        phase = 'record';
+                    }
+                    break;
+
+                case 'expand':
+                    right++;
+                    highlightType = 'expanding';
+                    shrinkIdx = -1;
+
+                    if (right >= n) {
+                        phase = 'done';
+                        highlightType = '';
+                        addLog(`✅ right=${right} past end. Done! maxLen = ${maxLen} [${bestStart}..${bestEnd}]`, 'found');
+                        break;
+                    }
+
+                    if (nums[right] === 0) zeroCount++;
+
+                    if (zeroCount > k) {
+                        const tag = nums[right] === 0 ? '(zero → zc exceeds k!)' : '(one)';
+                        addLog(`➕ right=${right}: nums=${nums[right]} ${tag}. zc=${zeroCount} > k=${k} → shrink!`, 'expand');
+                        phase = 'shrink';
+                    } else {
+                        const tag = nums[right] === 0 ? '🔄 zero flipped' : '✓ one';
+                        addLog(`➕ right=${right}: nums=${nums[right]} ${tag}. zc=${zeroCount} ≤ k. Valid.`, 'expand');
+                        phase = 'record';
+                    }
+                    break;
+
+                case 'shrink':
+                    // Remove from left
+                    shrinkIdx = left;
+                    highlightType = 'shrinking';
+                    const wasZero = nums[left] === 0;
+
+                    if (wasZero) zeroCount--;
+
+                    const tag2 = wasZero ? `(zero exits → zc=${zeroCount})` : `(one exits → zc=${zeroCount})`;
+                    addLog(`  ➖ shrink: remove nums[${left}]=${nums[left]} ${tag2}. left→${left + 1}`, 'shrink');
+                    left++;
+
+                    if (zeroCount <= k) {
+                        addLog(`  ✓ zc=${zeroCount} ≤ k=${k}. Window valid: [${left}..${right}]`, 'info');
+                        phase = 'record';
+                    }
+                    // else stays in shrink phase for next step
+                    break;
+
+                case 'record':
+                    highlightType = '';
+                    shrinkIdx = -1;
+                    const winSize = right - left + 1;
+
+                    if (winSize > maxLen) {
+                        maxLen = winSize;
+                        bestStart = left;
+                        bestEnd = right;
+                        addLog(`🏆 Window [${left}..${right}] len=${winSize} → NEW BEST! maxLen=${maxLen}`, 'best');
+                    } else {
+                        addLog(`📝 Window [${left}..${right}] len=${winSize}. Best stays ${maxLen}`, 'record');
+                    }
+
+                    phase = 'expand';
+                    break;
+            }
+
+            render();
+            updateControls();
+        }
+
+        // ─── Log ───
+        function addLog(msg, type = 'info') {
+            const log = document.getElementById('logContainer');
+            const entry = document.createElement('div');
+            entry.className = `log-entry ${type}`;
+            entry.textContent = `[${stepNum}] ${msg}`;
+            log.appendChild(entry);
+            log.scrollTop = log.scrollHeight;
+        }
+        function clearLog() { document.getElementById('logContainer').innerHTML = ''; }
+
+        // ─── Playback ───
+        function play() {
+            if (isRunning || phase === 'done') return;
+            isRunning = true;
+            updateControls();
+            runLoop();
+        }
+        function runLoop() {
+            if (!isRunning || phase === 'done') {
+                isRunning = false; updateControls(); return;
+            }
+            step();
+            if (phase !== 'done') {
+                const delay = 1100 - (speed * 100);
+                timer = setTimeout(runLoop, Math.max(50, delay));
+            } else {
+                isRunning = false; updateControls();
+            }
+        }
+        function pause() {
+            isRunning = false;
+            if (timer) clearTimeout(timer);
+            updateControls();
+        }
+        function resetViz() { pause(); init(); }
+
+        function updateControls() {
+            document.getElementById('playBtn').disabled = isRunning || phase === 'done';
+            document.getElementById('pauseBtn').disabled = !isRunning;
+            document.getElementById('stepBtn').disabled = isRunning || phase === 'done';
+            document.getElementById('resetBtn').disabled = isRunning;
+            document.getElementById('loadBtn').disabled = isRunning;
+        }
+
+        // ─── Custom Input ───
+        function loadCustomInput() {
+            const raw = document.getElementById('customInput').value.trim();
+            const parsed = raw.split(',').map(s => parseInt(s.trim(), 10)).filter(v => v === 0 || v === 1);
+            const newK = parseInt(document.getElementById('kInput').value, 10);
+            if (parsed.length === 0) {
+                alert('Enter a valid binary array, e.g. 1,1,0,0,1');
+                return;
+            }
+            if (isNaN(newK) || newK < 0) {
+                alert('k must be a non-negative integer');
+                return;
+            }
+            nums = parsed;
+            k = newK;
+            resetViz();
+        }
+
+        // ─── Events ───
+        document.getElementById('playBtn').addEventListener('click', play);
+        document.getElementById('pauseBtn').addEventListener('click', pause);
+        document.getElementById('stepBtn').addEventListener('click', step);
+        document.getElementById('resetBtn').addEventListener('click', resetViz);
+        document.getElementById('loadBtn').addEventListener('click', loadCustomInput);
+        document.getElementById('speedSlider').addEventListener('input', e => speed = parseInt(e.target.value));
+        document.getElementById('customInput').addEventListener('keydown', e => { if (e.key === 'Enter') loadCustomInput(); });
+        document.getElementById('kInput').addEventListener('keydown', e => { if (e.key === 'Enter') loadCustomInput(); });
+
+        // ─── Start ───
+        init();
+    </script>
+</body>
+
+</html>
