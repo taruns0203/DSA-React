@@ -1449,7 +1449,7 @@
                 "Exponential time",
                 "Completely impractical for large inputs"
               ],
-              "visualLink": "/DSA-Problems/Arrays/Merge-Intervals/Minimum-Arrows-to-Burst-Balloons/452-bruteforce-visualization.html",
+              "visualLink": "/DSA-Problems/Arrays/Merge-Intervals/Minimum-Arrows-Burst-Balloons/452-bruteforce-visualization.html",
               "notesLink": ""
             },
 
@@ -1474,7 +1474,7 @@
                 "Greedy grouping approach"
               ],
               "cons": ["Slightly less intuitive than end-time greedy"],
-              "visualLink": "/DSA-Problems/Arrays/Merge-Intervals/Minimum-Arrows-to-Burst-Balloons/452-sort-by-start-visualization.html",
+              "visualLink": "/DSA-Problems/Arrays/Merge-Intervals/Minimum-Arrows-Burst-Balloons/452-sort-by-start-visualization.html",
               "notesLink": ""
             },
 
@@ -1501,7 +1501,7 @@
                 "Interview-standard optimal approach"
               ],
               "cons": ["Requires understanding why end-time works"],
-              "visualLink": "/DSA-Problems/Arrays/Merge-Intervals/Minimum-Arrows-to-Burst-Balloons/452-optimal-visualization.html",
+              "visualLink": "/DSA-Problems/Arrays/Merge-Intervals/Minimum-Arrows-Burst-Balloons/452-optimal-visualization.html",
               "notesLink": ""
             }
           ]
